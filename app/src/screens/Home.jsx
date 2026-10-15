@@ -254,7 +254,7 @@ export default function Home() {
   }
 
   return (
-    <div className="screen">
+    <div className="screen home">
       <header
         className="window-header"
         onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
@@ -269,7 +269,8 @@ export default function Home() {
         <button className="icon" onClick={() => shift(1)} aria-label="Next window">›</button>
       </header>
 
-      <main>
+      {/* Only the dashboard scrolls; the header and the buttons stay in view. */}
+      <main className="home-main">
         {data && (
           <section className={`dashboard ${data.style}`}>
             {data.rows.map((r) => {
