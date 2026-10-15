@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, exportAll, getConfig, importAll } from '../db'
 import { loadContext, nutrientsFor, sumNutrients, targetBar, windowTargets } from '../calc'
@@ -19,6 +19,117 @@ function windowTitle(win, first, last) {
   if (win === 'weekly') return `This week · ${first.slice(5)} → ${last.slice(5)}`
   const [y, m] = first.split('-').map(Number)
   return `This month · ${new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`
+}
+
+// --- Gauge -------------------------------------------------------------------
+// Semicircle version of the target bar: same scale (targetBar), tinted regions, fill in the status colour,
+// and a plain line at min/max. Without a target it keeps its space but draws nothing.
+
+const G = { cx: 60, cy: 60, r: 46, w: 10 }
+// p in [0, 1] along the arc, left to right over the top.
+const pt = (p, r = G.r) => {
+  const a = Math.PI * (1 - p)
+  return [G.cx + r * Math.cos(a), G.cy - r * Math.sin(a)]
+}
+const arc = (p0, p1) => {
+  const [x0, y0] = pt(p0)
+  const [x1, y1] = pt(p1)
+  return `M ${x0} ${y0} A ${G.r} ${G.r} 0 ${p1 - p0 > 1 ? 1 : 0} 1 ${x1} ${y1}`
+}
+// Regions are drawn with square ends, overshooting both ends of the gauge, then masked to the round-ended track.
+const OVER = 0.08
+// Min/max marker: a plain radial line across the arc, slightly longer than its width.
+const tick = (p) => {
+  const [x0, y0] = pt(p, G.r - G.w / 2 - 3)
+  const [x1, y1] = pt(p, G.r + G.w / 2 + 3)
+  return `M ${x0} ${y0} L ${x1} ${y1}`
+}
+
+function Gauge({ bar }) {
+  const maskId = useId()
+  const f = (x) => (x ?? 0) / 100
+  const lo = (x) => (x > 0 ? x : -OVER) // a region touching an end overshoots it
+  const hi = (x) => (x < 1 ? x : 1 + OVER)
+  return (
+    <svg className={`gauge ${bar?.status ?? 'none'}`} viewBox="0 0 120 66" aria-hidden="true" style={bar ? undefined : { visibility: 'hidden' }}>
+      <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="66">
+        <path d={arc(0, 1)} className="g-mask" />
+      </mask>
+      <g mask={`url(#${maskId})`}>
+        <path className="g-track" d={arc(-OVER, 1 + OVER)} />
+        {bar?.minAt > 0 && <path className="g-zone under" d={arc(-OVER, f(bar.minAt))} />}
+        {bar && <path className="g-zone ok" d={arc(lo(f(bar.minAt)), hi(bar.maxAt != null ? f(bar.maxAt) : 1))} />}
+        {bar?.maxAt != null && bar.maxAt < 100 && <path className="g-zone over" d={arc(f(bar.maxAt), 1 + OVER)} />}
+      </g>
+      {bar && (
+        <>
+          {bar.fill > 0 && <path className="g-fill" d={arc(0, f(bar.fill))} />}
+          {bar.minAt != null && <path className="g-tick" d={tick(f(bar.minAt))} />}
+          {bar.maxAt != null && <path className="g-tick" d={tick(f(bar.maxAt))} />}
+        </>
+      )}
+    </svg>
+  )
+}
+
+const statusMark = (s) => (s === 'ok' ? '✓' : s === 'under' ? '↓' : '↑')
+
+/** "1800–2200 kcal ✓" line, or a blank line of the same height when there's no target. */
+function RangeLine({ bar, range, unit }) {
+  return (
+    <span className={`bar-label ${bar?.status ?? ''}`}>
+      {bar ? <>{rangeLabel(range)} {unit} {statusMark(bar.status)}</> : '\u00a0'}
+    </span>
+  )
+}
+
+/** Dashboard style "bars": one full-width row per nutrient with a horizontal bar and [ ] brackets. */
+function BarRow({ row: r, val, range }) {
+  const bar = targetBar(val.value, range)
+  return (
+    <div className="dash-row">
+      <span className="dash-label">{r.label}</span>
+      <span className={`dash-value ${r.cls}`}>
+        {val.estimated ? '~' : ''}{fmt(val.value, 0)}
+        <small> {r.unit} ±{fmt(val.delta)}</small>
+      </span>
+      {/* Without a target the bar keeps its space, so every row is equally spaced. */}
+      <div className={`dash-target ${bar ? '' : 'placeholder'}`} aria-hidden={!bar}>
+        <div className={`bar ${bar?.status ?? ''}`}>
+          {bar && (
+            <>
+              <div className="bar-track">
+                {/* Tinted regions: below min, within range, above max. */}
+                {bar.minAt != null && <div className="zone under" style={{ left: 0, width: `${bar.minAt}%` }} />}
+                <div className="zone ok" style={{ left: `${bar.minAt ?? 0}%`, width: `${(bar.maxAt ?? 100) - (bar.minAt ?? 0)}%` }} />
+                {bar.maxAt != null && <div className="zone over" style={{ left: `${bar.maxAt}%`, width: `${100 - bar.maxAt}%` }} />}
+                <div className="bar-fill" style={{ width: `${bar.fill}%` }} />
+              </div>
+              {bar.minAt != null && <div className="bracket open" style={{ left: `${bar.minAt}%` }} />}
+              {bar.maxAt != null && <div className="bracket close" style={{ left: `${bar.maxAt}%` }} />}
+            </>
+          )}
+        </div>
+        <RangeLine bar={bar} range={range} unit={r.unit} />
+      </div>
+    </div>
+  )
+}
+
+/** Dashboard style "gauges": equal tiles in a 2-column grid, value inside a semicircle gauge. */
+function GaugeTile({ row: r, val, range }) {
+  const bar = targetBar(val.value, range)
+  return (
+    <div className="tile">
+      <span className="tile-label">{r.label}</span>
+      <div className="gauge-wrap">
+        <Gauge bar={bar} />
+        <span className={`gauge-value ${r.cls}`}>{val.estimated ? '~' : ''}{fmt(val.value, 0)}</span>
+      </div>
+      <span className="tile-sub">{r.unit} ±{fmt(val.delta)}</span>
+      <RangeLine bar={bar} range={range} unit={r.unit} />
+    </div>
+  )
 }
 
 export default function Home() {
@@ -42,7 +153,7 @@ export default function Home() {
     const extra = NUTRIENTS.filter((n) => targeted.has(n.key) && !ROWS.some((r) => r.key === n.key))
       .map((n) => ({ key: n.key, label: n.label, unit: n.unit, cls: '' }))
     return {
-      first, last, count: logs.length, targets, rows: [...ROWS, ...extra],
+      first, last, count: logs.length, targets, rows: [...ROWS, ...extra], style: config.dashboard,
       failed: results.filter((r) => !r.ok).length,
       total: sumNutrients(results.map((r) => r.nutrients)),
     }
@@ -97,46 +208,12 @@ export default function Home() {
 
       <main>
         {data && (
-          <section className="dashboard">
+          <section className={`dashboard ${data.style}`}>
             {data.rows.map((r) => {
               const n = data.total[r.key]
               const val = r.key === 'energy' ? calories(data.total) : { value: n?.value ?? 0, delta: n?.delta ?? 0 }
-              const range = data.targets[r.key]
-              const bar = targetBar(val.value, range)
-              return (
-                <div key={r.key} className="dash-row">
-                  <span className="dash-label">{r.label}</span>
-                  <span className={`dash-value ${r.cls}`}>
-                    {val.estimated ? '~' : ''}{fmt(val.value, 0)}
-                    <small> {r.unit} ±{fmt(val.delta)}</small>
-                  </span>
-                  {!bar && (
-                    // Same height as a bar + label, so every row is equally spaced.
-                    <div className="dash-target placeholder" aria-hidden="true">
-                      <div className="bar" />
-                      <span className="bar-label">&nbsp;</span>
-                    </div>
-                  )}
-                  {bar && (
-                    <div className="dash-target">
-                      <div className={`bar ${bar.status}`}>
-                        <div className="bar-track">
-                          {/* Tinted regions: below min, within range, above max. */}
-                          {bar.minAt != null && <div className="zone under" style={{ left: 0, width: `${bar.minAt}%` }} />}
-                          <div className="zone ok" style={{ left: `${bar.minAt ?? 0}%`, width: `${(bar.maxAt ?? 100) - (bar.minAt ?? 0)}%` }} />
-                          {bar.maxAt != null && <div className="zone over" style={{ left: `${bar.maxAt}%`, width: `${100 - bar.maxAt}%` }} />}
-                          <div className="bar-fill" style={{ width: `${bar.fill}%` }} />
-                        </div>
-                        {bar.minAt != null && <div className="bracket open" style={{ left: `${bar.minAt}%` }} />}
-                        {bar.maxAt != null && <div className="bracket close" style={{ left: `${bar.maxAt}%` }} />}
-                      </div>
-                      <span className={`bar-label ${bar.status}`}>
-                        {rangeLabel(range)} {r.unit} {bar.status === 'ok' ? '✓' : bar.status === 'under' ? '↓' : '↑'}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )
+              const Item = data.style === 'bars' ? BarRow : GaugeTile
+              return <Item key={r.key} row={r} val={val} range={data.targets[r.key]} />
             })}
             <p className="muted">
               {data.count} consumption{data.count === 1 ? '' : 's'}
