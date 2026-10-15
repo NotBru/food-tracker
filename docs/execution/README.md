@@ -24,6 +24,9 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-15 | [Newest first; consumption unit as text with autocomplete](2026-10-15-newest-first-unit-text.md) | accepted |
+| 2026-10-15 | [Errors on every amount, worst-case targets, error bars](2026-10-15-error-bars.md) | accepted |
+| 2026-10-15 | [External food databases: CIQUAL and Open Food Facts](2026-10-15-external-databases.md) | accepted |
 | 2026-10-15 | [Targets screen](2026-10-15-targets.md) | accepted |
 | 2026-10-15 | [Rename: Logs → Consumptions](2026-10-15-consumptions-rename.md) | accepted |
 | 2026-10-15 | [Foods: one list, units per food](2026-10-15-foods.md) | accepted |

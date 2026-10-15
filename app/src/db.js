@@ -95,6 +95,41 @@ export function targetToRange(target) {
   return target
 }
 
+// v9: every amount's error defaults from its digits, like nutrient values. Amounts also keep their typed text
+// (precision) and an "auto" flag. An explicit Δ > 0 stays; 0/none becomes the digits default, except where the
+// amount is divided by (per amount, units) and ±digits would reach 0 ("1 slice"): those stay exact.
+db.version(9).stores({}).upgrade(async (tx) => {
+  await tx.table('items').toCollection().modify(itemAmountDeltas)
+  await tx.table('logs').toCollection().modify(logAmountDeltas)
+})
+
+function autoAmount(o, val, delta, auto, text, divisor) {
+  if (!o || !Number.isFinite(o[val]) || o[auto] != null) return
+  o[text] = String(o[val])
+  if (o[delta] > 0) {
+    o[auto] = false
+    return
+  }
+  const d = deltaFromInput(o[text]) || 0
+  if (divisor && d >= o[val]) Object.assign(o, { [delta]: 0, [auto]: false })
+  else Object.assign(o, { [delta]: d, [auto]: true })
+}
+
+export function itemAmountDeltas(item) {
+  autoAmount(item, 'amount', 'amountDelta', 'amountDeltaAuto', 'amountText', true)
+  for (const u of item.units ?? []) {
+    autoAmount(u, 'fromAmount', 'fromDelta', 'fromDeltaAuto', 'fromText', true)
+    autoAmount(u, 'toAmount', 'toDelta', 'toDeltaAuto', 'toText', true)
+  }
+  for (const c of item.components ?? []) autoAmount(c, 'amount', 'amountDelta', 'amountDeltaAuto', 'amountText', false)
+  return item
+}
+
+export function logAmountDeltas(log) {
+  autoAmount(log, 'amount', 'amountDelta', 'amountDeltaAuto', 'amountText', false)
+  return log
+}
+
 export const TABLES = ['items', 'logs', 'targets', 'config']
 
 /** v1 rows -> v2 rows. Refs `{type, id}` become plain item ids. */
@@ -168,7 +203,7 @@ export function itemLabel(item) {
 // JSON has no NaN, so it is encoded as null and decoded back on import.
 
 export async function exportAll() {
-  const data = { app: 'food-tracker', version: 5, exportedAt: new Date().toISOString(), tables: {} }
+  const data = { app: 'food-tracker', version: 6, exportedAt: new Date().toISOString(), tables: {} }
   for (const t of TABLES) data.tables[t] = await db[t].toArray()
   return JSON.stringify(data, (_, v) => (typeof v === 'number' && Number.isNaN(v) ? null : v), 2)
 }
@@ -195,6 +230,10 @@ export async function importAll(text) {
     if (main?.value) delete main.value.targets
   }
   if ((data.version ?? 1) < 5) tables.targets = (tables.targets ?? []).map(targetToRange)
+  if ((data.version ?? 1) < 6) {
+    tables.items = (tables.items ?? []).map(itemAmountDeltas)
+    tables.logs = (tables.logs ?? []).map(logAmountDeltas)
+  }
   tables.items = (tables.items ?? []).map(refreshAutoDeltas)
   await db.transaction('rw', TABLES.map((t) => db[t]), async () => {
     for (const t of TABLES) {

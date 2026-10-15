@@ -69,6 +69,24 @@ export function deltaFromInput(text) {
   return Number((10 ** -decimals).toFixed(decimals))
 }
 
+/**
+ * An amount typed as `text` with its error typed as `deltaText`. A blank error defaults from the digits, like
+ * nutrient values ("250" -> ±1, "1.5" -> ±0.1). Stored as {value, text, delta, auto}; the text keeps the precision.
+ */
+export function measure(text, deltaText) {
+  const t = normalizeNumber(text ?? '')
+  const auto = String(deltaText ?? '').trim() === ''
+  return {
+    value: t === '' ? NaN : Number(t),
+    text: t,
+    delta: auto ? deltaFromInput(t) || 0 : Math.abs(Number(deltaText)) || 0,
+    auto,
+  }
+}
+/** Form texts from stored fields: the amount as typed, and the error (blank when it's the digits default). */
+export const amountText = (value, text) => text ?? (Number.isFinite(value) ? String(value) : '')
+export const deltaText = (delta, auto) => (auto || !Number.isFinite(delta) ? '' : String(delta))
+
 // Calories shown everywhere: stored energy if known, otherwise Atwater estimate 4/4/9 (+7 alcohol).
 export function calories(n) {
   if (n.energy && Number.isFinite(n.energy.value)) return { ...n.energy, estimated: !!n.energy.estimated }

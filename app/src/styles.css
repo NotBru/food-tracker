@@ -76,15 +76,17 @@ h3 { margin: 8px 0 0; font-size: 16px; }
 .bar { position: relative; height: 10px; margin: 4px 0; }
 .dash-target.placeholder { visibility: hidden; }
 .bar-track { position: absolute; inset: 0; border-radius: 999px; background: var(--bg); overflow: hidden; }
-.zone { position: absolute; top: 0; bottom: 0; opacity: .18; }
+.zone { position: absolute; top: 0; bottom: 0; opacity: .28; }
 .zone.under { background: var(--warn); }
 .zone.ok { background: var(--kcal); }
 .zone.over { background: var(--prot); }
-.bar-fill { position: relative; height: 100%; border-radius: 999px; background: currentColor; transition: width .3s; }
-/* [ at the min, ] at the max: drawn slightly taller than the bar. */
-.bracket { position: absolute; top: -4px; bottom: -4px; width: 5px; border: 2px solid var(--text); opacity: .85; }
-.bracket.open { border-right: 0; border-radius: 2px 0 0 2px; margin-left: -1px; }
-.bracket.close { border-left: 0; border-radius: 0 2px 2px 0; margin-left: -4px; }
+.bar-fillbox { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 999px; overflow: hidden; transition: width .3s; }
+.bar-fill { position: absolute; top: 0; bottom: 0; background: currentColor; }
+/* Fill pieces take the colour of the region they lie in. */
+.r-under { color: var(--warn); }
+.r-ok { color: var(--kcal); }
+.r-over { color: var(--prot); }
+.r-none { color: var(--muted); }
 .bar.ok, .bar-label.ok { color: var(--kcal); }
 .bar.under, .bar-label.under { color: var(--warn); }
 .bar.over, .bar-label.over { color: var(--prot); }
@@ -157,12 +159,12 @@ button.icon.small { width: 34px; height: 34px; font-size: 18px; }
 .tile .bar-label { font-size: 13px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .g-track { fill: none; stroke: var(--bg); stroke-width: 10; }
 .g-mask { fill: none; stroke: #fff; stroke-width: 10; stroke-linecap: round; }
-.g-zone { fill: none; stroke-width: 10; opacity: .18; }
+.g-zone { fill: none; stroke-width: 10; opacity: .28; }
 .g-zone.under { stroke: var(--warn); }
 .g-zone.ok { stroke: var(--kcal); }
 .g-zone.over { stroke: var(--prot); }
-.g-fill { fill: none; stroke: currentColor; stroke-width: 10; stroke-linecap: round; transition: d .3s; }
-.g-tick { fill: none; stroke: var(--text); stroke-width: 2; opacity: .85; stroke-linecap: round; }
+.g-fill { fill: none; stroke: currentColor; stroke-width: 10; stroke-linecap: butt; }
+.g-fill-mask { fill: none; stroke: #fff; stroke-width: 10; stroke-linecap: round; }
 .gauge.ok { color: var(--kcal); }
 .gauge.under { color: var(--warn); }
 .gauge.over { color: var(--prot); }
@@ -171,3 +173,34 @@ button.icon.small { width: 34px; height: 34px; font-size: 18px; }
 .segmented { display: flex; gap: 4px; padding: 4px; background: var(--panel); border-radius: 999px; }
 .segmented button { flex: 1; background: none; color: var(--muted); padding: 10px; }
 .segmented button.on { background: var(--accent); color: #0b0f14; }
+.bar.none, .gauge.none { color: var(--muted); }
+.bar-fill.r-none, .g-fill.r-none { opacity: .45; }
+
+/* Search external */
+a { color: var(--accent); }
+form.row.search { align-items: center; }
+form.row.search input { flex: 1; min-width: 0; }
+.screen .segmented + .search, .screen .segmented + form { margin-top: 12px; }
+form.row.search > button { flex: 0 0 auto; }
+
+/* Error range (value ± Δ): one band continuing the fill. The fill colour see-through, hatched with slightly
+   slanted lines in a lighter solid shade of the same colour. */
+.bar-err {
+  position: absolute; top: 0; bottom: 0;
+  background:
+    repeating-linear-gradient(110deg, color-mix(in srgb, currentColor 60%, #fff) 0 1.5px, transparent 1.5px 5px),
+    color-mix(in srgb, currentColor 40%, transparent);
+}
+.g-err-bg { fill: none; stroke: currentColor; stroke-opacity: .4; stroke-width: 10; stroke-linecap: butt; }
+.g-err-lines { fill: none; stroke: color-mix(in srgb, currentColor 60%, #fff); stroke-width: 1.1; }
+.macros .pm { font-weight: 400; opacity: .75; }
+.amount-row > .field:nth-child(2) { flex: 0 0 26%; }
+/* Δ inputs sit next to their amount, narrower than it, with a fixed "±" in front */
+.delta { position: relative; min-width: 0; }
+.row > .delta { flex: 0 0 24%; }
+.delta > span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.delta > input { width: 100%; padding-left: 26px; }
+/* Unit conversion: two aligned lines, "1 ±Δ slice ×" / "= 30 ±Δ g" */
+.row.conv { display: grid; grid-template-columns: 14px 1fr 24% 1fr 40px; }
+.row.conv > .conv-eq { text-align: center; color: var(--muted); }
+.g-err-mask { fill: none; stroke: #fff; stroke-width: 10; stroke-linecap: butt; }

@@ -6,15 +6,17 @@ Use Vite + React. Store data in an IndexedDB
 
 ## UI
 
+Everything dated is listed newest first.
+
 ### Homescreen
 
-- Dashboard first, showing in colorful plain text how much has been eaten in the selected time window. Time windows are changed by swiping left/right on a header for the dashboard, which shows the selected time window. Options: daily, weekly, monthly. If set up, show whether the target is being reached.
+- Dashboard first, showing in colorful plain text how much has been eaten in the selected time window. Time windows are changed by swiping left/right on a header for the dashboard, which shows the selected time window. Options: daily, weekly, monthly. If set up, show whether the target is being reached: a gauge or progress bar per nutrient, tinted below min, within range and above max. The error range is a hatched band, and a target only counts as reached if the whole range is within it.
 - Button: consumptions -> consumptions screen
 - Button: foods -> foods screen
 - Button: targets -> targets screen
 - Button: config -> config screen
 - Button: import databases
-- Button: export databases
+- Button: export databases (filename with date and time, to the second)
 
 ### Consumptions screen
 
@@ -24,8 +26,8 @@ selection.
 Clicking on a consumption lets you edit its data:
 - Date and time (changing a date shouldn't change the screen you return to)
 - Food (Name, brand, attributes, optionally preparation time)
-- Amount
-- Unit (only selectable once the food is set; offers the units available for that food)
+- Amount, with Δ
+- Unit (text, only editable once the food is set; autocompletes the units available for that food)
 
 Every consumption should also list the macros and calories: prot., carbs., fat, cals
 
@@ -40,7 +42,7 @@ Fields:
 - Name
 - Brand
 - Attributes
-- Amount (the amount that this entry pertains)
+- Amount (the amount that this entry pertains), with Δ
 - Unit
 - Units
 - Components
@@ -62,12 +64,14 @@ Clicking on nutrients shows a scrollable list of known `key, value` pairs, where
 - Any of the vitamins
 - [ ] TO AI: am I missing some field?
 
-Every value should also have a corresponding error (a “Δ” field). If not filled in, default to the
-digits that have been input in the UI.
+Every value and every amount should also have a corresponding error (a “Δ” field). If not filled in,
+default to the digits that have been input in the UI.
 
 Fields not written have their values stored as `NaN` for later inference or whatever.
 
-- [ ] V2: Some way of automatically fetch products from cool databases
+- [x] V2: Some way of automatically fetch products from cool databases: “search external” on a new
+  food, over CIQUAL (generic foods) and Open Food Facts (products, by name or barcode). Imports get a
+  `provenance` attribute (CIQUAL or OFF).
 
 #### Units
 
@@ -87,8 +91,9 @@ attatched, describing when it was made. For instance, a specific soup.
 
 ### Targets screen
 
-List targets, latest first. A target consists of the fields that the user defines, limited to energy and any nutrients. It's timestamped, so that it's only valid from its timestamp until the next target's.
+List targets, latest first. A target consists of a min and/or max per field that the user defines, limited to energy and any nutrients. It's timestamped, so that it's only valid from its timestamp until the next target's.
 
 ### Config screen
 
 - Offset for day start. Default, 0500
+- Dashboard style: gauges or bars

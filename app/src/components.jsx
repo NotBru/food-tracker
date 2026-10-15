@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { itemLabel, kindOf } from './db'
-import { calories, fmt } from './nutrients'
+import { calories, deltaFromInput, fmt } from './nutrients'
 
 // --- Hash router -----------------------------------------------------------
 // Hash routes keep the phone's back gesture working and need no server config.
@@ -52,14 +52,46 @@ export function UnitInput({ value, onChange, placeholder = 'unit' }) {
   return <input value={value ?? ''} placeholder={placeholder} autoCapitalize="none" onChange={(e) => onChange(e.target.value)} />
 }
 
-/** Unit choice for a consumption: disabled until an item is set, then only the units that item can be measured in. */
-export function UnitSelect({ units, value, onChange }) {
-  if (!units) return <select disabled><option>pick an item first</option></select>
+/** Error of an amount ("± Δ"). Blank = from the digits of `amount` (shown as the placeholder). */
+export function DeltaInput({ value, onChange, amount }) {
+  const auto = deltaFromInput(amount ?? '')
   return (
-    <select value={value ?? ''} onChange={(e) => onChange(e.target.value)}>
-      {value && !units.includes(value) && <option value={value}>{value} (no conversion)</option>}
-      {units.map((u) => <option key={u} value={u}>{u}</option>)}
-    </select>
+    <div className="delta">
+      <span aria-hidden="true">±</span>
+      <input inputMode="decimal" value={value ?? ''} placeholder={Number.isFinite(auto) ? String(auto) : 'auto'} aria-label="± Δ" onChange={(e) => onChange(e.target.value)} />
+    </div>
+  )
+}
+
+/**
+ * Unit for a consumption: free text with autocomplete over the units the food converts to (`units`, own unit
+ * first). Disabled until a food is picked. Typing filters the list; ↑/↓/Enter pick, Esc closes.
+ */
+export function UnitCombo({ units, value, onChange }) {
+  const [open, setOpen] = useState(false)
+  const inputRef = useRef(null)
+  const q = (value ?? '').trim().toLowerCase()
+  // While the text is exactly one of the units, show them all (it was just picked or prefilled).
+  const matches = !units ? [] : units.includes(q) ? units : units.filter((u) => u.includes(q))
+  const nav = useListNav(matches.length, (i) => {
+    onChange(matches[i])
+    setOpen(false)
+  }, () => setOpen(false))
+  if (!units) return <input disabled placeholder="pick a food first" />
+  return (
+    <div className="picker">
+      <input ref={inputRef} value={value ?? ''} placeholder={units[0] ?? 'unit'} autoCapitalize="none" autoComplete="off"
+        onFocus={(e) => { setOpen(true); nav.reset(); e.target.select() }}
+        onBlur={() => setOpen(false)}
+        onChange={(e) => { onChange(e.target.value); setOpen(true); nav.reset() }}
+        {...nav.inputProps} />
+      {open && (
+        <ul className="picker-list" ref={nav.listRef}>
+          {matches.map((u, i) => <li key={u} {...nav.itemProps(i)}>{u}</li>)}
+          {!matches.length && <li className="muted">No conversion to “{value}” for this food</li>}
+        </ul>
+      )}
+    </div>
   )
 }
 
@@ -196,15 +228,18 @@ export function NutrientAdder({ options, onAdd }) {
   )
 }
 
-/** "P 12 · F 5 · C 30 · 230 kcal" line. */
-export function MacroLine({ nutrients, ok = true }) {
+/** "P 12 · F 5 · C 30 · 230 kcal" line; with `deltas`, each value also shows its error ("P 12 ±1 · …"). */
+export function MacroLine({ nutrients, ok = true, deltas = false }) {
   if (!ok) return <span className="macros warn">can't compute (unit conversion missing?)</span>
   const v = (k) => nutrients[k]?.value ?? 0
   const kcal = calories(nutrients)
+  const pm = (d, digits) => deltas && <small className="pm"> ±{fmt(Number.isFinite(d) ? d : 0, digits)}</small>
   return (
     <span className="macros">
-      <b className="c-prot">P {fmt(v('proteins'))}</b> · <b className="c-fat">F {fmt(v('fat'))}</b> ·{' '}
-      <b className="c-carb">C {fmt(v('carbohydrates'))}</b> · <b className="c-kcal">{kcal.estimated ? '~' : ''}{fmt(kcal.value, 0)} kcal</b>
+      <b className="c-prot">P {fmt(v('proteins'))}{pm(nutrients.proteins?.delta)}</b> ·{' '}
+      <b className="c-fat">F {fmt(v('fat'))}{pm(nutrients.fat?.delta)}</b> ·{' '}
+      <b className="c-carb">C {fmt(v('carbohydrates'))}{pm(nutrients.carbohydrates?.delta)}</b> ·{' '}
+      <b className="c-kcal">{kcal.estimated ? '~' : ''}{fmt(kcal.value, 0)}{pm(kcal.delta, 0)} kcal</b>
     </span>
   )
 }

@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, itemLabel, kindOf } from '../db'
 import { baseAmount, loadContext, nutrientsFor } from '../calc'
-import { NUTRIENTS, deltaFromInput, emptyNutrients, normalizeNumber } from '../nutrients'
+import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measure, normalizeNumber } from '../nutrients'
 import { toLocalInput } from '../time'
-import { AttributesEditor, Field, ItemPicker, MacroLine, NutrientAdder, Screen, UnitInput, go } from '../components'
+import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
+import { AttributesEditor, DeltaInput, Field, ItemPicker, MacroLine, NutrientAdder, Screen, UnitInput, go } from '../components'
 
 // A food is anything you can eat: an ingredient, a recipe (has components) or a concoction (has a made-at time).
 // One list, one editor; what kind a food is follows from its fields.
@@ -29,7 +30,7 @@ export function FoodList() {
             <li key={r.id} onClick={() => go(`/foods/${r.id}`)}>
               <div className="list-main">
                 <span>{label}{kindOf(r) !== 'ingredient' && <small className="muted"> · {kindOf(r)}</small>}</span>
-                <span className="muted">per {amt} {unit}</span>
+                <span className="muted">per {r.amount > 0 ? amountText(amt, r.amountText) : amt}{r.amountDeltaAuto === false && r.amountDelta > 0 && ` ±${r.amountDelta}`} {unit}</span>
               </div>
               <MacroLine nutrients={n.nutrients} ok={n.ok} />
             </li>
@@ -72,26 +73,46 @@ function formToNutrients(form) {
 
 // --- Food editor ---------------------------------------------------------------
 
-export function FoodEditor({ id }) {
-  const isNew = id === 'new'
-  const data = useLiveQuery(async () => ({ ctx: await loadContext(), rec: isNew ? null : await db.items.get(Number(id)) }), [id])
-  if (!data) return null
-  return <FoodForm key={id} ctx={data.ctx} initial={data.rec} />
+// Every amount has an error (± Δ). Blank = from the digits typed (nutrients.js `measure`).
+// Amounts that are divided by (per amount, both sides of a unit) must keep their low end above 0.
+function divisorProblem(label, m) {
+  if (!(m.value > 0) || m.delta < m.value) return null
+  return `${label}: ±${m.delta}${m.auto ? ' (from the digits)' : ''} would reach 0. Type more digits (e.g. ${m.value}.0) or set a smaller ±.`
 }
 
-function FoodForm({ ctx, initial }) {
+export function FoodEditor({ id }) {
+  const isNew = id === 'new'
+  const data = useLiveQuery(async () => ({ id, ctx: await loadContext(), rec: isNew ? null : await db.items.get(Number(id)) }), [id])
+  // useLiveQuery keeps the previous result while a new id loads; don't build the form from another food's data.
+  if (!data || data.id !== id) return null
+  if (!isNew && !data.rec) return <Screen title="Edit food"><p className="muted">Food not found (deleted?).</p></Screen>
+  // A new food may come prefilled from "Search external" (draft handed over by external.js).
+  return <FoodForm key={id} ctx={data.ctx} initial={data.rec} prefill={isNew ? peekPendingDraft() : null} />
+}
+
+function FoodForm({ ctx, initial, prefill }) {
+  const src = initial ?? prefill
   const [form, setForm] = useState(() => ({
-    name: initial?.name ?? '',
-    brand: initial?.brand ?? '',
-    attributes: initial?.attributes ?? [],
-    amount: Number.isFinite(initial?.amount) ? initial.amount : initial ? '' : 100,
-    unit: initial?.unit ?? (initial ? '' : 'g'),
-    isMade: !!initial?.madeAt,
-    madeAt: toLocalInput(initial?.madeAt ? new Date(initial.madeAt) : new Date()),
-    components: initial?.components ?? [],
-    units: (initial?.units ?? []).map((u) => ({ ...u })),
-    nutrients: nutrientsToForm(initial?.nutrients),
+    name: src?.name ?? '',
+    brand: src?.brand ?? '',
+    attributes: src?.attributes ?? [],
+    amount: src ? amountText(src.amount, src.amountText) : '100',
+    amountDelta: src ? deltaText(src.amountDelta, src.amountDeltaAuto) : '',
+    unit: src?.unit ?? (initial ? '' : 'g'),
+    isMade: !!src?.madeAt,
+    madeAt: toLocalInput(src?.madeAt ? new Date(src.madeAt) : new Date()),
+    components: (src?.components ?? []).map((c) => ({
+      ...c, amount: amountText(c.amount, c.amountText), amountDelta: deltaText(c.amountDelta, c.amountDeltaAuto),
+    })),
+    units: (src?.units ?? []).map((u) => ({
+      ...u,
+      fromAmount: amountText(u.fromAmount, u.fromText), fromDelta: deltaText(u.fromDelta, u.fromDeltaAuto),
+      toAmount: amountText(u.toAmount, u.toText), toDelta: deltaText(u.toDelta, u.toDeltaAuto),
+    })),
+    nutrients: nutrientsToForm(src?.nutrients),
+    source: src?.source ?? null,
   }))
+  useEffect(() => { if (prefill) clearPendingDraft() }, [prefill])
   // Extra (non-core) nutrients shown even while empty, because the user just added them.
   const [extraShown, setExtraShown] = useState([])
   // Nutrient just added: its value field gets the cursor once the row exists.
@@ -115,15 +136,29 @@ function FoodForm({ ctx, initial }) {
   const setN = (key, field, v) => setForm((f) => ({ ...f, nutrients: { ...f.nutrients, [key]: { ...f.nutrients[key], [field]: v } } }))
 
   function toRecord() {
+    const base = measure(form.amount, form.amountDelta)
     return {
       name: form.name.trim(), brand: form.brand.trim(), attributes: form.attributes,
-      amount: Number(form.amount) > 0 ? Number(form.amount) : NaN, unit: form.unit.trim(),
+      amount: base.value > 0 ? base.value : NaN, amountText: base.text, amountDelta: base.delta, amountDeltaAuto: base.auto,
+      unit: form.unit.trim(),
       madeAt: form.isMade ? new Date(form.madeAt).toISOString() : null,
       units: form.units
         .filter((u) => Number(u.fromAmount) > 0 && u.fromUnit.trim() && Number(u.toAmount) > 0 && u.toUnit.trim())
-        .map((u) => ({ fromAmount: Number(u.fromAmount), fromUnit: u.fromUnit.trim(), toAmount: Number(u.toAmount), toUnit: u.toUnit.trim() })),
-      components: form.components.filter((c) => c.itemId != null).map((c) => ({ itemId: c.itemId, amount: Number(c.amount), unit: c.unit.trim() })),
+        .map((u) => {
+          const a = measure(u.fromAmount, u.fromDelta)
+          const b = measure(u.toAmount, u.toDelta)
+          return {
+            fromAmount: a.value, fromText: a.text, fromDelta: a.delta, fromDeltaAuto: a.auto, fromUnit: u.fromUnit.trim(),
+            toAmount: b.value, toText: b.text, toDelta: b.delta, toDeltaAuto: b.auto, toUnit: u.toUnit.trim(),
+          }
+        }),
+      components: form.components.filter((c) => c.itemId != null)
+        .map((c) => {
+          const m = measure(c.amount, c.amountDelta)
+          return { itemId: c.itemId, amount: m.value, amountText: m.text, amountDelta: m.delta, amountDeltaAuto: m.auto, unit: c.unit.trim() }
+        }),
       nutrients: formToNutrients(form.nutrients),
+      source: form.source,
     }
   }
 
@@ -137,6 +172,14 @@ function FoodForm({ ctx, initial }) {
   async function save() {
     const rec = toRecord()
     if (!rec.name) return alert('Name is required.')
+    const problem = [
+      divisorProblem('Per amount', measure(form.amount, form.amountDelta)),
+      ...rec.units.flatMap((u) => [
+        divisorProblem(`Units: ${u.fromText} ${u.fromUnit}`, { value: u.fromAmount, delta: u.fromDelta, auto: u.fromDeltaAuto }),
+        divisorProblem(`Units: ${u.toText} ${u.toUnit}`, { value: u.toAmount, delta: u.toDelta, auto: u.toDeltaAuto }),
+      ]),
+    ].find(Boolean)
+    if (problem) return alert(problem)
     if (initial) await db.items.update(initial.id, rec)
     else await db.items.add(rec)
     history.back()
@@ -151,12 +194,29 @@ function FoodForm({ ctx, initial }) {
   return (
     <Screen title={initial ? 'Edit food' : 'New food'}>
       <div className="form">
+        {!initial && (
+          <button className="secondary" onClick={() => go(`/foods/external${form.name.trim() ? `?q=${encodeURIComponent(form.name.trim())}` : ''}`)}>
+            Search external databases…
+          </button>
+        )}
+        {(() => {
+          const s = sourceLabel(form.source)
+          return s && (
+            <p className="muted small">
+              From <a href={s.href} target="_blank" rel="noreferrer">{s.text}</a>
+              {' '}<button className="link" onClick={() => set('source')(null)}>unlink</button>
+            </p>
+          )
+        })()}
         <Field label="Name"><input value={form.name} onChange={(e) => set('name')(e.target.value)} /></Field>
         <Field label="Brand"><input value={form.brand} onChange={(e) => set('brand')(e.target.value)} /></Field>
         <Field label="Attributes"><AttributesEditor value={form.attributes} onChange={set('attributes')} /></Field>
-        <div className="row">
+        <div className="row amount-row">
           <Field label="Per amount">
-            <input type="number" inputMode="decimal" value={form.amount} placeholder="1" onChange={(e) => set('amount')(e.target.value)} />
+            <input inputMode="decimal" value={form.amount} placeholder="1" onChange={(e) => set('amount')(e.target.value)} />
+          </Field>
+          <Field label="± Δ">
+            <DeltaInput value={form.amountDelta} amount={form.amount} onChange={set('amountDelta')} />
           </Field>
           <Field label="Unit"><UnitInput value={form.unit} placeholder="portion" onChange={set('unit')} /></Field>
         </div>
@@ -165,17 +225,24 @@ function FoodForm({ ctx, initial }) {
         <ul className="list compact">
           {form.units.map((u, i) => (
             <li key={i} className="component">
+              {/* Two lines: "1 ± Δ slice" / "= 30 ± Δ g". */}
               <div className="row conv">
-                <input type="number" inputMode="decimal" value={u.fromAmount} onChange={(e) => setU(i, { fromAmount: e.target.value })} />
+                <span className="conv-eq" />
+                <input inputMode="decimal" value={u.fromAmount} onChange={(e) => setU(i, { fromAmount: e.target.value })} />
+                <DeltaInput value={u.fromDelta} amount={u.fromAmount} onChange={(v) => setU(i, { fromDelta: v })} />
                 <UnitInput value={u.fromUnit} placeholder="slice" onChange={(v) => setU(i, { fromUnit: v })} />
-                <span>=</span>
-                <input type="number" inputMode="decimal" value={u.toAmount} onChange={(e) => setU(i, { toAmount: e.target.value })} />
-                <UnitInput value={u.toUnit} onChange={(v) => setU(i, { toUnit: v })} />
                 <button className="icon" onClick={() => setForm((f) => ({ ...f, units: f.units.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
+              </div>
+              <div className="row conv">
+                <span className="conv-eq">=</span>
+                <input inputMode="decimal" value={u.toAmount} onChange={(e) => setU(i, { toAmount: e.target.value })} />
+                <DeltaInput value={u.toDelta} amount={u.toAmount} onChange={(v) => setU(i, { toDelta: v })} />
+                <UnitInput value={u.toUnit} onChange={(v) => setU(i, { toUnit: v })} />
+                <span className="icon-gap" />
               </div>
             </li>
           ))}
-          <li className="add" onClick={() => setForm((f) => ({ ...f, units: [...f.units, { fromAmount: 1, fromUnit: '', toAmount: '', toUnit: f.unit.trim() || 'g' }] }))}>+ add unit</li>
+          <li className="add" onClick={() => setForm((f) => ({ ...f, units: [...f.units, { fromAmount: '1', fromDelta: '0', fromUnit: '', toAmount: '', toDelta: '', toUnit: f.unit.trim() || 'g' }] }))}>+ add unit</li>
         </ul>
         <p className="muted small">g/kg/mg/oz/lb and ml/l/cl/dl/tsp/tbsp/cup convert automatically.</p>
 
@@ -194,16 +261,17 @@ function FoodForm({ ctx, initial }) {
               <ItemPicker ctx={ctx} value={c.itemId} exclude={initial?.id}
                 onChange={(itemId) => setC(i, { itemId, unit: c.unit || ctx.items.get(itemId)?.unit || 'portion' })} />
               <div className="row">
-                <input type="number" inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
+                <input inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
+                <DeltaInput value={c.amountDelta} amount={c.amount} onChange={(v) => setC(i, { amountDelta: v })} />
                 <UnitInput value={c.unit} onChange={(u) => setC(i, { unit: u })} />
                 <button className="icon" onClick={() => setForm((f) => ({ ...f, components: f.components.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
               </div>
             </li>
           ))}
-          <li className="add" onClick={() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', unit: '' }] }))}>+ add component</li>
+          <li className="add" onClick={() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', amountDelta: '', unit: '' }] }))}>+ add component</li>
         </ul>
 
-        <p>Per {amt} {unit}: <MacroLine nutrients={preview.nutrients} ok={preview.ok} /></p>
+        <p>Per {amt} {unit}: <MacroLine nutrients={preview.nutrients} ok={preview.ok} deltas /></p>
 
         {hasComponents ? (
           <p className="muted">Nutrients are inferred from the components.</p>

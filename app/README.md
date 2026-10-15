@@ -10,3 +10,10 @@ npm run preview   # serve dist/ on 0.0.0.0:4173
 ```
 
 Design: `../docs/instructions/design.md` · Decisions: `../docs/execution/`
+
+## External food data
+
+- **CIQUAL** (ANSES, France; Licence Ouverte): `public/ciqual.json` is generated from the official XML tables.
+  To update it, download the XML archive from the download page at <https://ciqual.anses.fr/>, extract it, and run
+  `python3 scripts/ciqual.py <extracted dir> <version, e.g. 2025>`.
+- **Open Food Facts** (ODbL): queried live from the browser; no key needed.
