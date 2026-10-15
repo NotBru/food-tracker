@@ -50,6 +50,15 @@ button.link { background: none; color: var(--accent); padding: 4px 0; font-weigh
 main { padding: 0 16px 32px; }
 .topbar { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; padding: 10px 12px; position: sticky; top: 0; background: var(--bg); z-index: 1; }
 .topbar h1 { font-size: 18px; text-align: center; margin: 0; }
+.topbar h1 .subtitle { display: block; font-size: 13px; font-weight: 400; color: var(--muted); }
+
+/* Homescreen: the current user, on top. */
+.home-top { display: flex; justify-content: flex-end; padding: 10px 12px 0; flex: none; }
+.user-btn { background: var(--panel); color: var(--text); font-weight: 500; padding: 6px 14px; font-size: 14px; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-row .list-main { align-items: center; }
+.user-row .list-main > span:first-child { flex: 1; }
+.user-row button.icon { background: var(--bg); }
+.screen.home > .window-header { padding-top: 4px; }
 
 .row { display: flex; gap: 8px; align-items: center; }
 .row > * { flex: 1; }
@@ -172,6 +181,10 @@ button.icon.small { width: 34px; height: 34px; font-size: 18px; }
 .gauge { display: block; width: 100%; height: auto; overflow: visible; }
 .gauge-value { position: absolute; left: 0; right: 0; bottom: 2px; font-size: 28px; font-weight: 800; line-height: 1; }
 .tile-sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.budget { font-size: 13px; color: var(--text); }
+.budget b { color: var(--kcal); }
+.budget.over b { color: var(--prot); }
+.tile .budget { margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .tile .bar-label { font-size: 13px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .g-track { fill: none; stroke: var(--bg); stroke-width: 10; }
 .g-mask { fill: none; stroke: #fff; stroke-width: 10; stroke-linecap: round; }
@@ -209,7 +222,7 @@ form.row.search > button { flex: 0 0 auto; }
 }
 .g-err-bg { fill: none; stroke: currentColor; stroke-opacity: .4; stroke-width: 10; stroke-linecap: butt; }
 .g-err-lines { fill: none; stroke: color-mix(in srgb, currentColor 60%, #fff); stroke-width: 1.1; }
-.macros .pm { font-weight: 400; opacity: .75; }
+.macros .pm, .details-list .pm { font-weight: 400; opacity: .75; }
 .amount-row > .field:nth-child(2) { flex: 0 0 26%; }
 /* Δ inputs sit next to their amount, narrower than it, with a fixed "±" in front */
 .delta { position: relative; min-width: 0; }
@@ -220,3 +233,7 @@ form.row.search > button { flex: 0 0 auto; }
 .row.conv { display: grid; grid-template-columns: 14px 1fr 24% 1fr 40px; }
 .row.conv > .conv-eq { text-align: center; color: var(--muted); }
 .g-err-mask { fill: none; stroke: #fff; stroke-width: 10; stroke-linecap: butt; }
+/* Consumption editor: drop-down list of every known nutrient */
+.details-list { list-style: none; margin: 4px 0 0; padding: 8px 12px; background: var(--panel); border-radius: 12px; max-height: 40dvh; overflow-y: auto; font-size: 14px; }
+.details-list > li { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+.details-list > li + li { border-top: 1px solid var(--line); }

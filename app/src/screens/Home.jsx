@@ -1,6 +1,6 @@
 import { useId, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, exportAll, getConfig, importAll } from '../db'
+import { db, exportAll, getConfig, getCurrentUser, importAll } from '../db'
 import { consumptionNutrients, loadContext, sumNutrients, targetBar, windowTargets } from '../calc'
 import { NUTRIENTS, calories, fmt, rangeLabel } from '../nutrients'
 import { WINDOWS, dayBounds, prettyDay, toDateStr, toLocalInput, today, windowDays } from '../time'
@@ -139,6 +139,20 @@ function RangeLine({ bar, range, unit }) {
   )
 }
 
+/**
+ * Calories only, with a max in the target: what's left to eat, worst case. The most eaten so far is value + Δ, so
+ * the budget is max − (value + Δ). At or below 0 it reads "over budget".
+ */
+function Budget({ row, val, range }) {
+  if (row.key !== 'energy' || !Number.isFinite(range?.max)) return null
+  const left = range.max - (val.value + (Number.isFinite(val.delta) ? val.delta : 0))
+  return (
+    <span className={`budget ${left > 0 ? '' : 'over'}`}>
+      {left > 0 ? <>Budget <b>{fmt(left, 0)}</b> {row.unit}</> : <>Over budget by <b>{fmt(-left, 0)}</b> {row.unit}</>}
+    </span>
+  )
+}
+
 /** Dashboard style "bars": one full-width row per nutrient with a horizontal bar over tinted regions. */
 function BarRow({ row: r, val, range }) {
   const bar = barFor(r, val, range)
@@ -172,6 +186,7 @@ function BarRow({ row: r, val, range }) {
           )}
         </div>
         <RangeLine bar={bar} range={range} unit={r.unit} />
+        <Budget row={r} val={val} range={range} />
       </div>
     </div>
   )
@@ -189,6 +204,7 @@ function GaugeTile({ row: r, val, range }) {
       </div>
       <span className="tile-sub">{r.unit} ±{fmt(val.delta)}</span>
       <RangeLine bar={bar} range={range} unit={r.unit} />
+      <Budget row={r} val={val} range={range} />
     </div>
   )
 }
@@ -204,17 +220,18 @@ export default function Home() {
     const [first, last] = windowDays(win, today(config.dayStart))
     const start = dayBounds(first, config.dayStart)[0]
     const end = dayBounds(last, config.dayStart)[1]
-    const logs = await db.logs.where('datetime').between(start.toISOString(), end.toISOString(), true, false).toArray()
+    const user = await getCurrentUser()
+    const logs = await db.logs.where('[userId+datetime]').between([user.id, start.toISOString()], [user.id, end.toISOString()], true, false).toArray()
     const ctx = await loadContext()
     const results = logs.map((l) => consumptionNutrients(ctx, l))
-    const allTargets = await db.targets.toArray()
+    const allTargets = await db.targets.where('userId').equals(user.id).toArray()
     const targets = windowTargets(allTargets, first, last, config.dayStart)
     // Every nutrient that any target mentions gets a row, even if no target covers this window.
     const targeted = new Set(allTargets.flatMap((t) => Object.keys(t.values)))
     const extra = NUTRIENTS.filter((n) => targeted.has(n.key) && !ROWS.some((r) => r.key === n.key))
       .map((n) => ({ key: n.key, label: n.label, unit: n.unit, cls: '' }))
     return {
-      first, last, count: logs.length, targets, rows: [...ROWS, ...extra], style: config.dashboard,
+      user, first, last, count: logs.length, targets, rows: [...ROWS, ...extra], style: config.dashboard,
       failed: results.filter((r) => !r.ok).length,
       total: sumNutrients(results.map((r) => r.nutrients)),
     }
@@ -255,6 +272,11 @@ export default function Home() {
 
   return (
     <div className="screen home">
+      <div className="home-top">
+        <button className="user-btn" onClick={() => go('/users')} aria-label="Users">
+          <span aria-hidden="true">👤</span> {data?.user.name ?? '…'}
+        </button>
+      </div>
       <header
         className="window-header"
         onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}

@@ -5,7 +5,7 @@ import { baseAmount, loadContext, nutrientsFor } from '../calc'
 import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measure, normalizeNumber } from '../nutrients'
 import { toLocalInput } from '../time'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
-import { AttributesEditor, DeltaInput, Field, ItemPicker, MacroLine, NutrientAdder, Screen, UnitInput, go } from '../components'
+import { AttributesEditor, DeltaInput, Field, ItemPicker, MacroLine, NutrientAdder, Screen, UnitInput, enterTo, go } from '../components'
 
 // A food is anything you can eat: an ingredient, a recipe (has components) or a concoction (has a made-at time).
 // One list, one editor; what kind a food is follows from its fields.
@@ -23,6 +23,7 @@ export function FoodList() {
     <Screen title="Foods">
       <input className="search" type="search" placeholder="Search foods…" value={query} onChange={(e) => setQuery(e.target.value)} />
       <ul className="list">
+        <li className="add" onClick={() => go('/foods/new')}>+ add new food</li>
         {rows.map(([r, label]) => {
           const [amt, unit] = baseAmount(r)
           const n = nutrientsFor(ctx, r.id, amt, unit)
@@ -36,7 +37,6 @@ export function FoodList() {
             </li>
           )
         })}
-        <li className="add" onClick={() => go('/foods/new')}>+ add new food</li>
       </ul>
     </Screen>
   )
@@ -118,6 +118,7 @@ function FoodForm({ ctx, initial, prefill }) {
   // Nutrient just added: its value field gets the cursor once the row exists.
   const [focusKey, setFocusKey] = useState(null)
   const valueRefs = useRef({})
+  const adderRef = useRef(null) // Enter in a nutrient's value or Δ goes here
   // Optional nutrients only: clears value and Δ (so it's stored as NaN again) and hides the row.
   const removeNutrient = (key) => {
     setForm((f) => ({ ...f, nutrients: { ...f.nutrients, [key]: { text: '', delta: '' } } }))
@@ -285,8 +286,8 @@ function FoodForm({ ctx, initial, prefill }) {
                 return (
                   <div className="n-row with-x" key={n.key}>
                     <span>{n.label} <small className="muted">{n.unit}</small></span>
-                    <input ref={(el) => (valueRefs.current[n.key] = el)} inputMode="decimal" value={f.text} placeholder={n.default === 0 ? '0' : 'NaN'} onChange={(e) => setN(n.key, 'text', e.target.value)} />
-                    <input inputMode="decimal" value={f.delta} placeholder={f.text ? String(+deltaFromInput(f.text).toPrecision(3)) : n.default === 0 ? '0' : 'auto'} onChange={(e) => setN(n.key, 'delta', e.target.value)} />
+                    <input ref={(el) => (valueRefs.current[n.key] = el)} inputMode="decimal" value={f.text} placeholder={n.default === 0 ? '0' : 'NaN'} enterKeyHint="next" onKeyDown={enterTo(adderRef)} onChange={(e) => setN(n.key, 'text', e.target.value)} />
+                    <input inputMode="decimal" value={f.delta} placeholder={f.text ? String(+deltaFromInput(f.text).toPrecision(3)) : n.default === 0 ? '0' : 'auto'} enterKeyHint="next" onKeyDown={enterTo(adderRef)} onChange={(e) => setN(n.key, 'delta', e.target.value)} />
                     {CORE.includes(n.key) ? <span /> : (
                       <button className="icon small" aria-label={`Remove ${n.label}`} onClick={() => removeNutrient(n.key)}>×</button>
                     )}
@@ -295,7 +296,7 @@ function FoodForm({ ctx, initial, prefill }) {
               })}
               {(() => {
                 const hidden = NUTRIENTS.filter((n) => !CORE.includes(n.key) && !isFilled(form.nutrients[n.key]) && !extraShown.includes(n.key))
-                return hidden.length > 0 && <NutrientAdder options={hidden} onAdd={(key) => { setExtraShown((s) => [...s, key]); setFocusKey(key) }} />
+                return hidden.length > 0 && <NutrientAdder inputRef={adderRef} options={hidden} onAdd={(key) => { setExtraShown((s) => [...s, key]); setFocusKey(key) }} />
               })()}
             </div>
           </>

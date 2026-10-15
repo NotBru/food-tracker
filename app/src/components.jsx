@@ -23,12 +23,12 @@ export const go = (path) => (location.hash = path)
 // Same, without adding a history entry (so back skips it).
 export const replace = (path) => location.replace(`#${path}`)
 
-export function Screen({ title, back = true, right, children }) {
+export function Screen({ title, subtitle, back = true, right, children }) {
   return (
     <div className="screen">
       <header className="topbar">
         {back ? <button className="icon" onClick={() => history.back()} aria-label="Back">‹</button> : <span />}
-        <h1>{title}</h1>
+        <h1>{title}{subtitle && <small className="subtitle">{subtitle}</small>}</h1>
         {right ?? <span />}
       </header>
       <main>{children}</main>
@@ -45,6 +45,13 @@ export function Field({ label, children }) {
       {children}
     </label>
   )
+}
+
+/** onKeyDown for a value field: Enter moves the cursor to `ref` (e.g. "add nutrient"), to type the next one. */
+export const enterTo = (ref) => (e) => {
+  if (e.key !== 'Enter' || !ref.current) return
+  e.preventDefault()
+  ref.current.focus()
 }
 
 /** Free-text unit, used where units are defined (database screens). */
@@ -187,8 +194,11 @@ export function ItemPicker({ ctx, value, onChange, exclude }) {
   )
 }
 
-/** Text box with autocomplete over `options` (nutrients not shown yet). Tap a suggestion, or Enter for the first one. */
-export function NutrientAdder({ options, onAdd }) {
+/**
+ * Text box with autocomplete over `options` (nutrients not shown yet). Tap a suggestion, or Enter for the first one.
+ * `inputRef` lets a value field send the cursor back here (Enter).
+ */
+export function NutrientAdder({ options, onAdd, inputRef }) {
   const [text, setText] = useState('')
   const [open, setOpen] = useState(false)
   const q = text.trim().toLowerCase()
@@ -204,7 +214,7 @@ export function NutrientAdder({ options, onAdd }) {
   }, () => setOpen(false))
   return (
     <div className="picker">
-      <input className="add-nutrient" value={text} placeholder="+ add nutrient…"
+      <input ref={inputRef} className="add-nutrient" value={text} placeholder="+ add nutrient…"
         onFocus={(e) => {
           setOpen(true)
           // Keep the suggestions above the on-screen keyboard.

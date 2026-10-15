@@ -10,6 +10,7 @@ Everything dated is listed newest first.
 
 ### Homescreen
 
+- Button on top: current user -> users screen
 - Dashboard first, showing in colorful plain text how much has been eaten in the selected time window. Time windows are changed by swiping left/right on a header for the dashboard, which shows the selected time window. Options: daily, weekly, monthly. If set up, show whether the target is being reached: a gauge or progress bar per nutrient, tinted below min, within range and above max. The error range is a hatched band, and a target only counts as reached if the whole range is within it.
 - Button: consumptions -> consumptions screen
 - Button: foods -> foods screen
@@ -92,6 +93,12 @@ attatched, describing when it was made. For instance, a specific soup.
 ### Targets screen
 
 List targets, latest first. A target consists of a min and/or max per field that the user defines, limited to energy and any nutrients. It's timestamped, so that it's only valid from its timestamp until the next target's.
+
+### Users screen
+
+Starts with a default user. List of users; tapping one switches to it, and each can be renamed or
+deleted (not the last one). Consumptions and targets belong to the current user; foods and config are
+shared.
 
 ### Config screen
 

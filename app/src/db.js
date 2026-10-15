@@ -130,7 +130,20 @@ export function logAmountDeltas(log) {
   return log
 }
 
-export const TABLES = ['items', 'logs', 'targets', 'config']
+// v10: users. Consumptions and targets belong to a user; foods and config are shared. Existing data goes to a
+// default user (see docs/execution/2026-10-15-users.md).
+export const DEFAULT_USER = { id: 1, name: 'Default' }
+db.version(10)
+  .stores({ users: '++id, name', logs: '++id, datetime, [userId+datetime]', targets: '++id, validFrom, userId' })
+  .upgrade(async (tx) => {
+    await tx.table('users').add({ ...DEFAULT_USER })
+    await tx.table('logs').toCollection().modify((l) => { l.userId = DEFAULT_USER.id })
+    await tx.table('targets').toCollection().modify((t) => { t.userId = DEFAULT_USER.id })
+  })
+// A new database starts with the default user too.
+db.on('populate', (tx) => tx.table('users').add({ ...DEFAULT_USER }))
+
+export const TABLES = ['users', 'items', 'logs', 'targets', 'config']
 
 /** v1 rows -> v2 rows. Refs `{type, id}` become plain item ids. */
 export function migrateV1({ ingredients = [], recipes = [], concoctions = [], conversions = [], logs = [] }) {
@@ -171,6 +184,30 @@ export function saveConfig(value) {
   return db.config.put({ key: 'main', value })
 }
 
+// --- Users -----------------------------------------------------------------
+// The selected user is its own config row, so saving the Config screen doesn't touch it.
+
+/** The selected user; falls back to the first one if the selection is missing or was deleted. */
+export async function getCurrentUser() {
+  const id = (await db.config.get('currentUser'))?.value
+  return (id != null && (await db.users.get(id))) || (await db.users.orderBy('id').first())
+}
+
+export function setCurrentUser(id) {
+  return db.config.put({ key: 'currentUser', value: id })
+}
+
+/** Deletes a user with their consumptions and targets. The last user can't be deleted. */
+export async function deleteUser(id) {
+  await db.transaction('rw', db.users, db.logs, db.targets, db.config, async () => {
+    if ((await db.users.count()) <= 1) throw new Error('The last user can\'t be deleted.')
+    await db.logs.where('userId').equals(id).delete()
+    await db.targets.where('userId').equals(id).delete()
+    await db.users.delete(id)
+    if ((await db.config.get('currentUser'))?.value === id) await db.config.delete('currentUser')
+  })
+}
+
 // --- Items ---------------------------------------------------------------
 // One kind of record. What it "is" follows from its fields, so it can change freely:
 //   has madeAt -> concoction, has components -> recipe, otherwise -> ingredient.
@@ -203,7 +240,7 @@ export function itemLabel(item) {
 // JSON has no NaN, so it is encoded as null and decoded back on import.
 
 export async function exportAll() {
-  const data = { app: 'food-tracker', version: 6, exportedAt: new Date().toISOString(), tables: {} }
+  const data = { app: 'food-tracker', version: 7, exportedAt: new Date().toISOString(), tables: {} }
   for (const t of TABLES) data.tables[t] = await db[t].toArray()
   return JSON.stringify(data, (_, v) => (typeof v === 'number' && Number.isNaN(v) ? null : v), 2)
 }
@@ -234,6 +271,11 @@ export async function importAll(text) {
     tables.items = (tables.items ?? []).map(itemAmountDeltas)
     tables.logs = (tables.logs ?? []).map(logAmountDeltas)
   }
+  if ((data.version ?? 1) < 7) {
+    tables.users = [{ ...DEFAULT_USER }]
+    for (const t of ['logs', 'targets']) tables[t] = (tables[t] ?? []).map((r) => ({ ...r, userId: DEFAULT_USER.id }))
+  }
+  if (!tables.users?.length) tables.users = [{ ...DEFAULT_USER }]
   tables.items = (tables.items ?? []).map(refreshAutoDeltas)
   await db.transaction('rw', TABLES.map((t) => db[t]), async () => {
     for (const t of TABLES) {

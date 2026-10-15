@@ -7,6 +7,7 @@ import { FoodEditor, FoodList } from './screens/Foods'
 import Config from './screens/Config'
 import Targets from './screens/Targets'
 import External from './screens/External'
+import Users from './screens/Users'
 import './styles.css'
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
   if (a === 'consumptions') return <Consumptions day={query.day} />
   if (a === 'targets') return <Targets />
   if (a === 'config') return <Config />
+  if (a === 'users') return <Users />
   if (a === 'foods' && b === 'external') return <External initialQuery={query.q} />
   if (a === 'foods') return b ? <FoodEditor id={b} /> : <FoodList />
   return <Home />

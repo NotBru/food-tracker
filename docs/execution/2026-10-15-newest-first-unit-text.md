@@ -59,3 +59,23 @@ The user asked: "update design in the same tone and brevity". Brief edits to `de
 - **Targets:** a min and/or max per field.
 - **Config:** dashboard style (gauges or bars).
 - Left untouched: the "TO AI" checkbox and the Stack section.
+
+## Update: "+ add" first in every list
+
+The user asked for the "+ add" row to come first in every list (first for dated lists, then "sorry, every list").
+It now leads Consumptions, Targets, Foods, Users, a food's units, components and attributes, and the nutrient
+adders (food and target editors). New unit, component and attribute rows are inserted at the top, right under the
+button, so what you just added is where you tapped.
+
+Conflict: design.md (Foods screen) still says "last element is “add new food”". Not edited (human-only); flagged to
+the user.
+
+## Update: food editor keeps "+ add" below; Enter → "add nutrient"
+
+The user corrected: inside the food editor, "+ add" stays below (units, components, attributes, add nutrient), and
+new rows are appended again. The top-level lists (Consumptions, Targets, Foods, Users) keep it first.
+
+Enter in a nutrient's value or Δ now moves the cursor to "add nutrient", so several nutrients can be typed in a row
+(type name, Enter, value, Enter, next name…). The target editor got the same: its "add nutrient" went back below
+the rows (it's the same nutrient table, and Enter jumping upwards would be odd), and Enter in a min or max jumps
+to it.
