@@ -1,6 +1,10 @@
 package app.foodtracker.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -389,10 +393,17 @@ fun Segmented(options: List<Pair<String, String>>, selected: String, onSelect: (
 // --- Suggestion lists (item search, units, nutrients) -------------------------------------------------------------
 // Shown under their input while it has focus, in the page flow like the web app's .picker-list.
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SuggestionList(content: @Composable ColumnScope.() -> Unit) {
+    // Keep the suggestions in view (above the on-screen keyboard) when they open.
+    val inView = remember { BringIntoViewRequester() }
+    LaunchedEffect(Unit) {
+        delay(300) // let the keyboard and the page settle first
+        inView.bringIntoView()
+    }
     Column(
-        Modifier.padding(top = 6.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(C.panel)
+        Modifier.bringIntoViewRequester(inView).padding(top = 6.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(C.panel)
             .border(1.dp, C.line, RoundedCornerShape(20.dp)).heightIn(max = 260.dp)
             .verticalScroll(rememberScrollState()).padding(6.dp),
         content = content,
@@ -568,3 +579,14 @@ fun macroLine(nutrients: Map<String, NV>, ok: Boolean = true, deltas: Boolean = 
 @Composable
 fun MacroLine(nutrients: Map<String, NV>, ok: Boolean = true, deltas: Boolean = false) =
     Text(macroLine(nutrients, ok, deltas), fontSize = 13.sp, color = C.text)
+
+/**
+ * Focuses a field that may have just been added to the composition (a new nutrient row, a sheet's first field):
+ * waits for it to be attached, and gives up quietly if it never is.
+ */
+suspend fun FocusRequester.requestSoon() {
+    repeat(10) {
+        androidx.compose.runtime.withFrameNanos { }
+        if (runCatching { requestFocus() }.isSuccess) return
+    }
+}

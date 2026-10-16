@@ -201,7 +201,7 @@ private fun TargetEditor(target: Target, onClose: () -> Unit) {
     val adder = remember { FocusRequester() } // the keyboard's "next" in a min or max goes here
     val focus = remember { mutableMapOf<String, FocusRequester>() }
     var focusKey by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(focusKey) { focusKey?.let { focus[it]?.requestFocus() }; focusKey = null }
+    LaunchedEffect(focusKey) { focusKey?.let { focus[it]?.requestSoon() }; focusKey = null }
 
     fun save() {
         fun num(t: String) = if (t.isNotBlank() && jsNumber(t).isFinite()) jsNumber(t) else null
@@ -236,10 +236,10 @@ private fun TargetEditor(target: Target, onClose: () -> Unit) {
                     Modifier.weight(1f), color = C.text, fontSize = 14.sp,
                 )
                 Input(r.min, { set(r.copy(min = it)) }, Modifier.width(84.dp), placeholder = "–", number = true, imeAction = ImeAction.Next,
-                    onIme = { adder.requestFocus() }, focusRequester = focus.getOrPut(r.key) { FocusRequester() }, textStyle = style, contentPadding = small,
+                    onIme = { runCatching { adder.requestFocus() } }, focusRequester = focus.getOrPut(r.key) { FocusRequester() }, textStyle = style, contentPadding = small,
                     description = "${def?.label ?: r.key} min")
                 Input(r.max, { set(r.copy(max = it)) }, Modifier.width(84.dp), placeholder = "–", number = true, imeAction = ImeAction.Next,
-                    onIme = { adder.requestFocus() }, textStyle = style, contentPadding = small, description = "${def?.label ?: r.key} max")
+                    onIme = { runCatching { adder.requestFocus() } }, textStyle = style, contentPadding = small, description = "${def?.label ?: r.key} max")
                 IconCircle("×", "Remove ${def?.label ?: r.key}", size = 34.dp) { rows = rows.filterIndexed { j, _ -> j != i } }
             }
         }
@@ -296,7 +296,7 @@ private fun UserEditor(user: User, users: List<User>, count: Int, onClose: () ->
     var name by remember { mutableStateOf(user.name) }
     var confirmDelete by remember { mutableStateOf(false) }
     val focus = remember { FocusRequester() }
-    LaunchedEffect(Unit) { focus.requestFocus() }
+    LaunchedEffect(Unit) { focus.requestSoon() }
 
     fun save() {
         val n = name.trim()

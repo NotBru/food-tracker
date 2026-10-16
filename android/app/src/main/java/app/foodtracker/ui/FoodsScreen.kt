@@ -202,7 +202,7 @@ private fun FoodEditor(ctx: Ctx, form: FoodForm, title: String) {
     val valueFocus = remember { mutableMapOf<String, FocusRequester>() }
     var focusKey by remember { mutableStateOf<String?>(null) } // nutrient just added: its value field gets the cursor
     LaunchedEffect(focusKey) {
-        focusKey?.let { valueFocus[it]?.requestFocus() }
+        focusKey?.let { valueFocus[it]?.requestSoon() }
         focusKey = null
     }
 
@@ -308,7 +308,7 @@ private fun FoodEditor(ctx: Ctx, form: FoodForm, title: String) {
                     val style = androidx.compose.ui.text.TextStyle(fontSize = 14.sp)
                     Input(
                         row.text, { form.setN(n.key, row.copy(text = it)) }, Modifier.width(84.dp), placeholder = if (n.default == 0.0) "0" else "NaN",
-                        number = true, focusRequester = fr, imeAction = ImeAction.Next, onIme = { adder.requestFocus() },
+                        number = true, focusRequester = fr, imeAction = ImeAction.Next, onIme = { runCatching { adder.requestFocus() } },
                         textStyle = style, contentPadding = small, description = "${n.label} value",
                     )
                     val auto = deltaFromInput(row.text)
@@ -316,7 +316,7 @@ private fun FoodEditor(ctx: Ctx, form: FoodForm, title: String) {
                         row.delta, { form.setN(n.key, row.copy(delta = it)) }, Modifier.width(64.dp),
                         placeholder = if (row.text.isNotEmpty() && auto.isFinite()) jsString(BigDecimal(auto).round(MathContext(3)).toDouble())
                         else if (n.default == 0.0) "0" else "auto",
-                        number = true, imeAction = ImeAction.Next, onIme = { adder.requestFocus() },
+                        number = true, imeAction = ImeAction.Next, onIme = { runCatching { adder.requestFocus() } },
                         textStyle = style, contentPadding = small, description = "${n.label} Δ",
                     )
                     if (n.key in CORE) Spacer(Modifier.size(34.dp))

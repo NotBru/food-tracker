@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-15 | [Native Android port](2026-10-15-android-port.md) | accepted |
 | 2026-10-15 | [Consumption editor: nutrient details drop-down](2026-10-15-consumption-details.md) | accepted |
 | 2026-10-15 | [Calorie budget](2026-10-15-calorie-budget.md) | accepted |
 | 2026-10-15 | [Users](2026-10-15-users.md) | accepted |

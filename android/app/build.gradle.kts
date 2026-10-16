@@ -66,3 +66,9 @@ dependencies {
     testImplementation(platform(libs.compose.bom))
     testImplementation(libs.compose.ui.test.junit4)
 }
+
+tasks.withType<Test>().configureEach {
+    maxHeapSize = "1536m"
+    // Screenshots of the UI tests land here (see UiTest).
+    systemProperty("screenshots.dir", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath)
+}

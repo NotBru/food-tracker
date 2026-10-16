@@ -84,7 +84,7 @@ fun ConsumptionsScreen(route: Route.Consumptions) {
         AddCard("+ add consumption") {
             // Default time: now if viewing today, otherwise noon of the viewed day.
             val dt = if (day == today(cfg.dayStart)) nowIso() else isoOf(day.atTime(LocalTime.NOON))
-            editing = Log(datetime = dt, userId = u.id)
+            editing = Log(datetime = dt, userId = u.id, amountDeltaAuto = true)
         }
         for (log in l) {
             val item = c.resolve(log.itemId)

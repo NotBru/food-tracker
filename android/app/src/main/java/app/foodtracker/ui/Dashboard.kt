@@ -18,19 +18,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.text.SpanStyle
@@ -91,6 +87,8 @@ fun fillPieces(bar: Bar): List<Piece> {
     return out
 }
 
+fun hasMean(bar: Bar) = bar.errLo != null && bar.errHi != null && bar.errHi > bar.errLo
+
 fun fillEnd(bar: Bar) = if (bar.errLo != null) bar.errHi ?: bar.fill else bar.fill
 
 private fun pieceColor(p: Piece) = if (p.region == Status.None) C.muted.copy(alpha = 0.45f) else C.status(p.region)
@@ -108,8 +106,8 @@ private inline fun DrawScope.masked(content: DrawScope.() -> Unit, mask: DrawSco
 }
 
 // --- Gauge ------------------------------------------------------------------------------------------------------
-// Semicircle version of the bar: same scale (targetBar), tinted regions, fill coloured per region. Geometry in
-// the web app's viewBox units (120 × 66), scaled to the canvas.
+// Semicircle version of the bar: same scale (targetBar), tinted regions, fill coloured per region, square ends.
+// Geometry in the web app's viewBox units (120 × 66), scaled to the canvas.
 
 private const val VB_W = 120f
 private const val VB_H = 66f
@@ -117,7 +115,7 @@ private const val CX = 60f
 private const val CY = 60f
 private const val R = 46f
 private const val SW = 10f
-private const val OVER = 0.08f // regions overshoot the ends, then get masked to the round-ended track
+private const val OVER = 0.08f // regions overshoot the ends, then get masked to the track
 private const val HATCH_STEP = 3.2f
 private const val HATCH_SLANT = 2.2f
 
@@ -143,14 +141,14 @@ fun Gauge(bar: Bar?, modifier: Modifier = Modifier) {
                 arc(lo, hi, C.kcal.copy(alpha = 0.28f))
             }
             if (bar.maxAt != null && bar.maxAt < 100) arc(f(bar.maxAt), 1 + OVER, C.prot.copy(alpha = 0.28f))
-        }) { arc(0f, 1f, Color.White, StrokeCap.Round) }
+        }) { arc(0f, 1f, Color.White) }
 
         val end = f(fillEnd(bar))
         if (end <= 0) return@Canvas
         val pieces = fillPieces(bar)
         masked({
             pieces.forEachIndexed { i, pc ->
-                // The first and last pieces overshoot so the mask's round ends are filled.
+                // The first and last pieces overshoot so the mask's ends are filled.
                 val p0 = if (i == 0) -OVER else f(pc.from)
                 val p1 = if (i == pieces.size - 1) f(pc.to) + OVER else f(pc.to)
                 val color = pieceColor(pc)
@@ -166,7 +164,9 @@ fun Gauge(bar: Bar?, modifier: Modifier = Modifier) {
                     }
                 }) { arc(f(pc.from), p1, Color.White) }
             }
-        }) { arc(0f, end, Color.White, StrokeCap.Round) }
+        }) { arc(0f, end, Color.White) }
+        // With an error range, a short white tick across the band (a little past its edges) marks the value itself.
+        if (hasMean(bar)) drawLine(Color.White, pt(f(bar.fill), R - SW / 2 - 2), pt(f(bar.fill), R + SW / 2 + 2), strokeWidth = 3 * k)
     }
 }
 
@@ -177,16 +177,14 @@ fun TargetBar(bar: Bar, modifier: Modifier = Modifier) {
     Canvas(modifier.fillMaxWidth().height(10.dp)) {
         val h = size.height
         val w = size.width
-        val track = Path().apply { addRoundRect(RoundRect(0f, 0f, w, h, CornerRadius(h / 2))) }
         fun x(p: Double?) = ((p ?: 0.0) / 100 * w).toFloat()
-        clipPath(track) {
+        clipRect(0f, 0f, w, h) {
             drawRect(C.bg)
             if (bar.minAt != null) drawRect(C.warn.copy(alpha = 0.28f), Offset.Zero, Size(x(bar.minAt), h))
             if (!bar.dummy) drawRect(C.kcal.copy(alpha = 0.28f), Offset(x(bar.minAt ?: 0.0), 0f), Size(x(bar.maxAt ?: 100.0) - x(bar.minAt ?: 0.0), h))
             if (bar.maxAt != null) drawRect(C.prot.copy(alpha = 0.28f), Offset(x(bar.maxAt), 0f), Size(w - x(bar.maxAt), h))
-            // The fill's shape: round-ended, 0 → end; pieces inside it.
-            val fillbox = Path().apply { addRoundRect(RoundRect(0f, 0f, x(fillEnd(bar)), h, CornerRadius(h / 2))) }
-            clipPath(fillbox) {
+            // The fill's shape: 0 → end; pieces inside it.
+            clipRect(0f, 0f, x(fillEnd(bar)), h) {
                 for (pc in fillPieces(bar)) {
                     val color = pieceColor(pc)
                     val left = x(pc.from)
@@ -205,6 +203,11 @@ fun TargetBar(bar: Bar, modifier: Modifier = Modifier) {
                     }
                 }
             }
+        }
+        // The value's tick sticks out 2 dp past the bar, so it is drawn outside the clip.
+        if (hasMean(bar)) {
+            val out = 2.dp.toPx()
+            drawLine(Color.White, Offset(x(bar.fill), -out), Offset(x(bar.fill), h + out), strokeWidth = 3.dp.toPx())
         }
     }
 }
