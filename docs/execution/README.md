@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-16 | [Serve script: reach the app from outside the container](2026-10-16-serve-script.md) | accepted |
 | 2026-10-15 | [Native Android port](2026-10-15-android-port.md) | accepted |
 | 2026-10-15 | [Consumption editor: nutrient details drop-down](2026-10-15-consumption-details.md) | accepted |
 | 2026-10-15 | [Calorie budget](2026-10-15-calorie-budget.md) | accepted |

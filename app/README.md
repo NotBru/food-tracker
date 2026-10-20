@@ -9,6 +9,9 @@ npm run build     # static files in dist/
 npm run preview   # serve dist/ on 0.0.0.0:4173
 ```
 
+Run `../serve.sh` on the host to serve it at `localhost:5173` from its own Docker container
+(restarts at boot; `--stop`, `--lan`). See the comments at the top of the script.
+
 Design: `../docs/instructions/design.md` · Decisions: `../docs/execution/`
 
 ## External food data
