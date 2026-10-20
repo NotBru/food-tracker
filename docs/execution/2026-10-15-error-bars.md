@@ -165,3 +165,41 @@ Headless Chromium (Pixel 7):
   the hand calculation (±187.5 and ±7.85).
 - Error bars were drawn in both styles. Raising Δa to 20 in the editor preview gave 2100 ± 300 kcal.
 - No console errors.
+
+## Update: dot at the estimate
+
+User: "Add a circle right in the average of the estimate, in the dashboard."
+- Inside the error band, a **dot marks the value itself** (the middle of value ± Δ). Both styles show it:
+  - bars: an 11 px circle (`.bar-mean`), centred on the bar at `bar.fill`, drawn above the track so it isn't clipped;
+  - gauges: an SVG circle, r = 4 (`.g-mean`), on the arc's centre line.
+- **Look:** light fill (`--text`) with a thin ring in the background colour, so it stands out on the solid fill,
+  the hatched band and the tinted track.
+- It is drawn **only when there is an error band** (Δ > 0 and a target). Without one, the fill's end already
+  marks the value. Dummy bars (no target) draw no dot.
+- **Verified** (headless Chromium, the seed from the Verification section): the dot sits at 2100, 105, 90 and 210
+  in both styles. No console errors.
+
+## Update: see-through dot, square ends
+
+User: "Make it transparent, no border. Change the borders from rounded to harsh."
+- **Dot:** the ring is gone. The fill is the text colour at 50 % opacity (`.bar-mean`, `.g-mean`).
+- **Square ends:** bars and gauges now end square, where they used to be rounded.
+  - Bars: `.bar-track` and `.bar-fillbox` lose their `border-radius`.
+  - Gauges: the track mask and the fill mask use `stroke-linecap: butt`.
+  - The overshoot-then-mask approach is unchanged.
+  - This reading of "borders" (the bar and gauge ends) is an interpretation.
+- Verified in both styles (headless Chromium). No console errors.
+
+## Update: tick instead of dot
+
+User: "Better make it a short segment, darkish."
+- The dot is now a **short dark tick across the band at the value**. It is the background colour at 85 % opacity,
+  and it sticks out 2 px past each edge of the bar/arc, so it reads apart from the slanted hatch lines.
+  - Bars: `.bar-mean` is 3 px wide.
+  - Gauges: `.g-mean` is a radial line, stroke 3.
+- A first try at the bar's exact height and 2–2.5 px wide got lost among the hatch lines.
+- Verified in both styles (headless Chromium). No console errors.
+
+## Update: white tick
+
+User: "Make it white." The tick (`.bar-mean`, `.g-mean`) is now solid white. Its size is unchanged.

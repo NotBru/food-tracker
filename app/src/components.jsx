@@ -1,6 +1,35 @@
 import { useEffect, useRef, useState } from 'react'
-import { itemLabel, kindOf } from './db'
-import { calories, deltaFromInput, fmt } from './nutrients'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { getConfig, itemLabel, kindOf, madeText, searchText } from './db'
+import { today } from './time'
+import { autoAmountDelta, calories, fmt } from './nutrients'
+
+// --- Current day -----------------------------------------------------------
+// Today's logical day (see time.js), kept current: live queries only re-run on database changes, so screens that
+// show "today" pass this as a dependency. Checked every 30 s and whenever the app comes back to the foreground
+// (timers stall while a phone sleeps). Undefined until the config has loaded.
+
+export function useToday() {
+  const config = useLiveQuery(getConfig)
+  const loaded = config != null
+  const dayStart = config?.dayStart
+  const [day, setDay] = useState()
+  useEffect(() => {
+    if (!loaded) return
+    const check = () => setDay(today(dayStart))
+    check()
+    const timer = setInterval(check, 30_000)
+    const onVisible = () => document.visibilityState === 'visible' && check()
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', check)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', check)
+    }
+  }, [loaded, dayStart])
+  return day
+}
 
 // --- Hash router -----------------------------------------------------------
 // Hash routes keep the phone's back gesture working and need no server config.
@@ -23,11 +52,20 @@ export const go = (path) => (location.hash = path)
 // Same, without adding a history entry (so back skips it).
 export const replace = (path) => location.replace(`#${path}`)
 
+/** ‹ / › for icon buttons. An SVG, not a text glyph: glyphs sit off-centre in a round button (font metrics). */
+export function Chevron({ dir = 'left' }) {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" className="chevron">
+      <path d={dir === 'left' ? 'M14.5 5.5 8 12l6.5 6.5' : 'M9.5 5.5 16 12l-6.5 6.5'} />
+    </svg>
+  )
+}
+
 export function Screen({ title, subtitle, back = true, right, children }) {
   return (
     <div className="screen">
       <header className="topbar">
-        {back ? <button className="icon" onClick={() => history.back()} aria-label="Back">‹</button> : <span />}
+        {back ? <button className="icon" onClick={() => history.back()} aria-label="Back"><Chevron /></button> : <span />}
         <h1>{title}{subtitle && <small className="subtitle">{subtitle}</small>}</h1>
         {right ?? <span />}
       </header>
@@ -37,6 +75,40 @@ export function Screen({ title, subtitle, back = true, right, children }) {
 }
 
 // --- Form bits -------------------------------------------------------------
+
+/**
+ * Date and time as typed text, "YYYY-MM-DD HH:MM": a native datetime-local input would show the phone's locale
+ * format instead. `value`/`onChange` use the datetime-local form ("YYYY-MM-DDTHH:MM"). onChange fires only for a
+ * valid date; until then the field is marked invalid, and on blur it falls back to the last valid value. 📅 opens
+ * the native picker (a hidden input).
+ */
+export function DateTimeInput({ value, onChange }) {
+  const shown = (v) => (v ?? '').replace('T', ' ')
+  const [text, setText] = useState(shown(value))
+  const pickerRef = useRef(null)
+  useEffect(() => setText(shown(value)), [value])
+  const parse = (t) => {
+    const m = t.trim().match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})$/)
+    if (!m) return null
+    const [, y, mo, d, h, mi] = m.map(Number)
+    const dt = new Date(y, mo - 1, d, h, mi)
+    const ok = dt.getFullYear() === y && dt.getMonth() === mo - 1 && dt.getDate() === d && h < 24 && mi < 60
+    return ok ? `${m[1]}-${m[2]}-${m[3]}T${String(h).padStart(2, '0')}:${m[5]}` : null
+  }
+  const valid = parse(text) != null
+  return (
+    <span className="datetime">
+      <input value={text} inputMode="numeric" placeholder="YYYY-MM-DD HH:MM" className={valid ? '' : 'invalid'}
+        onChange={(e) => { setText(e.target.value); const v = parse(e.target.value); if (v) onChange(v) }}
+        onBlur={() => setText(shown(value))} />
+      <button type="button" className="icon small" aria-label="Pick date and time"
+        onClick={(e) => { e.preventDefault(); const el = pickerRef.current; el.showPicker ? el.showPicker() : el.focus() }}>📅</button>
+      <input ref={pickerRef} type="datetime-local" className="hidden-date" tabIndex={-1} aria-hidden="true" value={value ?? ''}
+        onChange={(e) => e.target.value && onChange(e.target.value)} />
+    </span>
+  )
+}
+
 
 export function Field({ label, children }) {
   return (
@@ -60,8 +132,8 @@ export function UnitInput({ value, onChange, placeholder = 'unit' }) {
 }
 
 /** Error of an amount ("± Δ"). Blank = from the digits of `amount` (shown as the placeholder). */
-export function DeltaInput({ value, onChange, amount }) {
-  const auto = deltaFromInput(amount ?? '')
+export function DeltaInput({ value, onChange, amount, unit }) {
+  const auto = autoAmountDelta(amount ?? '', unit)
   return (
     <div className="delta">
       <span aria-hidden="true">±</span>
@@ -78,8 +150,9 @@ export function UnitCombo({ units, value, onChange }) {
   const [open, setOpen] = useState(false)
   const inputRef = useRef(null)
   const q = (value ?? '').trim().toLowerCase()
-  // While the text is exactly one of the units, show them all (it was just picked or prefilled).
-  const matches = !units ? [] : units.includes(q) ? units : units.filter((u) => u.includes(q))
+  // While the text is exactly one of the units, show them all (it was just picked or prefilled), that one first:
+  // it's the highlighted row, so Enter keeps what was typed.
+  const matches = !units ? [] : units.includes(q) ? [q, ...units.filter((u) => u !== q)] : units.filter((u) => u.includes(q))
   const nav = useListNav(matches.length, (i) => {
     onChange(matches[i])
     setOpen(false)
@@ -147,21 +220,26 @@ export function useListNav(count, onPick, onClose) {
   }
 }
 
+const isOld = (it, before) => !!(before && it.madeAt && it.madeAt < before)
+
 /**
  * One search box over every food: ingredients, recipes and concoctions are interchangeable,
  * so the picker never asks which kind you want.
  */
-export function ItemPicker({ ctx, value, onChange, exclude }) {
+/** `onCreate(text)`: if given, a + beside the box, to make a new food from what's typed.
+ * `oldBefore` (ISO time): if given, concoctions made before it go last, after every other food. */
+export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore }) {
   const [query, setQuery] = useState(null) // null = closed
   const inputRef = useRef(null)
   const selected = value != null ? ctx.items.get(value) : null
   const words = (query ?? '').toLowerCase().split(/\s+/).filter(Boolean)
   const matches = ctx.list
     .filter((it) => it.id !== exclude)
+    .filter((it) => words.every((w) => searchText(it).includes(w)))
     .map((it) => [it, itemLabel(it)])
-    .filter(([, label]) => words.every((w) => label.toLowerCase().includes(w)))
-    // Most recently made concoctions first, then alphabetical.
-    .sort(([a, la], [b, lb]) => (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || la.localeCompare(lb))
+    // Most recently made concoctions first, then alphabetical; old concoctions (if `oldBefore`) last, newest first.
+    .sort(([a, la], [b, lb]) => isOld(a, oldBefore) - isOld(b, oldBefore)
+      || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || la.localeCompare(lb))
     .slice(0, 50)
   const nav = useListNav(matches.length, (i) => {
     onChange(matches[i][0].id)
@@ -170,21 +248,28 @@ export function ItemPicker({ ctx, value, onChange, exclude }) {
 
   return (
     <div className="picker">
-      <input
-        ref={inputRef}
-        value={query ?? (selected ? itemLabel(selected) : '')}
-        placeholder="Search foods…"
-        onFocus={(e) => { setQuery(''); nav.reset(); e.target.select() }}
-        onBlur={() => setQuery(null)}
-        onChange={(e) => { setQuery(e.target.value); nav.reset() }}
-        {...nav.inputProps}
-      />
+      <div className="picker-box">
+        <input
+          ref={inputRef}
+          value={query ?? (selected ? itemLabel(selected) : '')}
+          placeholder="Search foods…"
+          onFocus={(e) => { setQuery(''); nav.reset(); e.target.select() }}
+          onBlur={() => setQuery(null)}
+          onChange={(e) => { setQuery(e.target.value); nav.reset() }}
+          {...nav.inputProps}
+        />
+        {/* mousedown kept from blurring the box, so what's typed is still there on click. */}
+        {onCreate && <button type="button" className="icon plus" aria-label="New food" onMouseDown={(e) => e.preventDefault()} onClick={() => onCreate((query ?? '').trim())}>+</button>}
+      </div>
+      {/* The box holds text only, so a picked concoction's made-at time sits under it. */}
+      {query === null && <MadeTag item={selected} />}
       {query !== null && (
         <ul className="picker-list" ref={nav.listRef}>
           {matches.map(([it, label], i) => (
             <li key={it.id} {...nav.itemProps(i)}>
               {label}
-              {kindOf(it) !== 'ingredient' && <small className="muted"> · {kindOf(it)}</small>}
+              {kindOf(it) === 'recipe' && <small className="muted"> · recipe</small>}
+              <MadeTag item={it} />
             </li>
           ))}
           {!matches.length && <li className="muted">No match</li>}
@@ -192,6 +277,13 @@ export function ItemPicker({ ctx, value, onChange, exclude }) {
       )}
     </div>
   )
+}
+
+/** A concoction's made-at time as a tag (nothing for other foods). Kept out of the label, which is name, brand and
+ * attributes only. */
+export function MadeTag({ item }) {
+  const text = madeText(item)
+  return text ? <span className="tag made">{text}</span> : null
 }
 
 /**

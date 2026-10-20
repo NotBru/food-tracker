@@ -30,6 +30,11 @@ function parseDay(s) {
   return new Date(y, m - 1, d)
 }
 
+/** Whole days from `a` to `b` (both "YYYY-MM-DD"). */
+export function daysBetween(a, b) {
+  return Math.round((parseDay(b) - parseDay(a)) / 86_400_000)
+}
+
 export function addDays(dayStr, n) {
   const d = parseDay(dayStr)
   d.setDate(d.getDate() + n)
@@ -45,12 +50,17 @@ export function dayBounds(dayStr, dayStart) {
   return [start, end]
 }
 
-export const WINDOWS = ['daily', 'weekly', 'monthly']
+export const WINDOWS = ['daily', 'last7', 'weekly', 'monthly']
+export const WINDOW_NAMES = { daily: 'daily', last7: 'last 7 days', weekly: 'weekly', monthly: 'monthly' }
 
-/** Logical days [firstDay, lastDay] of the window containing `dayStr`. Weeks start on Monday. */
+/**
+ * Logical days [firstDay, lastDay] of the window containing `dayStr`. Weeks start on Monday. last7 is rolling: the
+ * 6 days before `dayStr` and `dayStr` itself, the days the weekly calorie correction looks at.
+ */
 export function windowDays(win, dayStr) {
   const d = parseDay(dayStr)
   if (win === 'daily') return [dayStr, dayStr]
+  if (win === 'last7') return [addDays(dayStr, -6), dayStr]
   if (win === 'weekly') {
     const first = addDays(dayStr, -((d.getDay() + 6) % 7))
     return [first, addDays(first, 6)]
@@ -60,6 +70,12 @@ export function windowDays(win, dayStr) {
   return [toDateStr(first), toDateStr(last)]
 }
 
+/** "Fri 2026-10-16": dates are always shown as YYYY-MM-DD; the weekday helps when browsing days. */
 export function prettyDay(dayStr) {
-  return parseDay(dayStr).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+  return `${parseDay(dayStr).toLocaleDateString(undefined, { weekday: 'short' })} ${dayStr}`
+}
+
+/** "2026-10-16 14:30" (local time). */
+export function formatDateTime(datetime) {
+  return toLocalInput(new Date(datetime)).replace('T', ' ')
 }

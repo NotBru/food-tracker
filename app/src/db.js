@@ -1,5 +1,6 @@
 import Dexie from 'dexie'
-import { deltaFromInput } from './nutrients'
+import { deltaFromInput, isCountUnit } from './nutrients'
+import { formatDateTime } from './time'
 
 export const db = new Dexie('food-tracker')
 
@@ -143,6 +144,34 @@ db.version(10)
 // A new database starts with the default user too.
 db.on('populate', (tx) => tx.table('users').add({ ...DEFAULT_USER }))
 
+// v11: amounts in counted units ("u") default to an exact count: their automatic Δ becomes 0. Explicit Δs stay.
+db.version(11).stores({}).upgrade(async (tx) => {
+  await tx.table('items').toCollection().modify(countUnitDeltas)
+  await tx.table('logs').toCollection().modify(countUnitDeltas)
+})
+
+/** Zero the automatic Δ of every amount in "u" (an item's amount, units and components, or a log). Idempotent. */
+export function countUnitDeltas(row) {
+  const zero = (o, unit, delta, auto) => { if (o && o[auto] && isCountUnit(o[unit])) o[delta] = 0 }
+  zero(row, 'unit', 'amountDelta', 'amountDeltaAuto')
+  for (const u of row.units ?? []) {
+    zero(u, 'fromUnit', 'fromDelta', 'fromDeltaAuto')
+    zero(u, 'toUnit', 'toDelta', 'toDeltaAuto')
+  }
+  for (const c of row.components ?? []) zero(c, 'unit', 'amountDelta', 'amountDeltaAuto')
+  return row
+}
+
+// v12: foods that are exact repeats (same ID, same values) merge into the oldest one (see
+// docs/execution/2026-10-17-duplicate-foods.md).
+db.version(12).stores({}).upgrade(async (tx) => {
+  const merged = mergeEqualFoods(await tx.table('items').toArray(), await tx.table('logs').toArray())
+  if (!merged.removed.length) return
+  await tx.table('items').bulkDelete(merged.removed)
+  await tx.table('items').bulkPut(merged.items)
+  await tx.table('logs').bulkPut(merged.logs)
+})
+
 export const TABLES = ['users', 'items', 'logs', 'targets', 'config']
 
 /** v1 rows -> v2 rows. Refs `{type, id}` become plain item ids. */
@@ -227,14 +256,87 @@ export function itemKey({ name = '', brand = '', attributes = [] }) {
   return [name.trim().toLowerCase(), brand.trim().toLowerCase(), ...attrs].join('|')
 }
 
+// A food's ID is its key plus, for a concoction, when it was made: two batches of the same soup are two foods.
+export const foodId = (item) => `${itemKey(item)}|${item.madeAt ?? ''}`
+
+// Everything but the record id and the ID fields themselves (which can differ in case/order and still match).
+// NaN is kept apart from null, which JSON.stringify would merge.
+function foodValues({ id, name, brand, attributes, madeAt, ...rest }) {
+  return JSON.stringify(rest, (_, v) => (typeof v === 'number' && Number.isNaN(v) ? 'NaN' : v))
+}
+
+/** Same ID and same values: a repeat of the same entry. */
+export const sameFood = (a, b) => foodId(a) === foodId(b) && foodValues(a) === foodValues(b)
+
+/** The oldest food that `rec` repeats exactly, if any (`rec` itself excluded). */
+export function findEqualFood(items, rec) {
+  return items.filter((it) => it.id !== rec.id && sameFood(it, rec)).sort((a, b) => a.id - b.id)[0]
+}
+
+/** ids of foods sharing an ID with a food whose values differ -> the ids of those other foods. */
+export function conflictingFoods(items) {
+  const byId = new Map()
+  for (const it of items) byId.set(foodId(it), [...(byId.get(foodId(it)) ?? []), it])
+  const out = new Map()
+  for (const group of byId.values()) {
+    for (const it of group) {
+      const others = group.filter((o) => foodValues(o) !== foodValues(it)).map((o) => o.id)
+      if (others.length) out.set(it.id, others)
+    }
+  }
+  return out
+}
+
+/**
+ * Exact repeats are dropped; consumptions and components that used one point at the oldest copy instead.
+ * Returns the rows that remain/changed and the ids removed. Components are compared after repointing, so recipes
+ * that only differed by which copy they used become repeats too (hence the loop).
+ */
+export function mergeEqualFoods(items, logs) {
+  let rows = items.map((it) => (it.components ? { ...it, components: it.components.map((c) => ({ ...c })) } : { ...it }))
+  logs = logs.map((l) => ({ ...l }))
+  const removed = []
+  for (;;) {
+    const keep = new Map() // foodId + values -> oldest record
+    const into = new Map() // removed id -> kept id
+    for (const it of [...rows].sort((a, b) => a.id - b.id)) {
+      const k = `${foodId(it)}\n${foodValues(it)}`
+      if (keep.has(k)) into.set(it.id, keep.get(k).id)
+      else keep.set(k, it)
+    }
+    if (!into.size) break
+    removed.push(...into.keys())
+    rows = rows.filter((it) => !into.has(it.id))
+    for (const it of rows) for (const c of it.components ?? []) if (into.has(c.itemId)) c.itemId = into.get(c.itemId)
+    for (const l of logs) if (into.has(l.itemId)) l.itemId = into.get(l.itemId)
+  }
+  return { items: rows, logs, removed }
+}
+
+/** Merges exact repeats in the database (after a food is edited into a copy of another). */
+export function mergeEqualFoodsInDb() {
+  return db.transaction('rw', db.items, db.logs, async () => {
+    const merged = mergeEqualFoods(await db.items.toArray(), await db.logs.toArray())
+    if (!merged.removed.length) return
+    await db.items.bulkDelete(merged.removed)
+    await db.items.bulkPut(merged.items)
+    await db.logs.bulkPut(merged.logs)
+  })
+}
+
 export function itemLabel(item) {
   if (!item) return '(missing item)'
   const attrs = (item.attributes ?? []).filter(([k]) => k).map(([k, v]) => `${k}: ${v}`)
-  const made = item.madeAt && `— made ${new Date(item.madeAt).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}`
-  return [item.name || '(unnamed)', item.brand && `· ${item.brand}`, attrs.length && `(${attrs.join(', ')})`, made]
+  return [item.name || '(unnamed)', item.brand && `· ${item.brand}`, attrs.length && `(${attrs.join(', ')})`]
     .filter(Boolean)
     .join(' ')
 }
+
+/** A concoction's made-at time, shown as a tag beside its label (`MadeTag`), never as part of it. */
+export const madeText = (item) => (item?.madeAt ? `made ${formatDateTime(item.madeAt)}` : '')
+
+/** What food searches match: the label, plus the made-at time so a batch can be found by its date. */
+export const searchText = (item) => `${itemLabel(item)} ${madeText(item)}`.toLowerCase()
 
 // --- Import / export -----------------------------------------------------
 // JSON has no NaN, so it is encoded as null and decoded back on import.
@@ -276,7 +378,11 @@ export async function importAll(text) {
     for (const t of ['logs', 'targets']) tables[t] = (tables[t] ?? []).map((r) => ({ ...r, userId: DEFAULT_USER.id }))
   }
   if (!tables.users?.length) tables.users = [{ ...DEFAULT_USER }]
-  tables.items = (tables.items ?? []).map(refreshAutoDeltas)
+  tables.items = (tables.items ?? []).map(refreshAutoDeltas).map(countUnitDeltas)
+  tables.logs = (tables.logs ?? []).map(countUnitDeltas)
+  const merged = mergeEqualFoods(tables.items, tables.logs)
+  tables.items = merged.items
+  tables.logs = merged.logs
   await db.transaction('rw', TABLES.map((t) => db[t]), async () => {
     for (const t of TABLES) {
       await db[t].clear()

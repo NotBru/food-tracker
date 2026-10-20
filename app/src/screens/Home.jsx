@@ -1,13 +1,13 @@
-import { useId, useRef, useState } from 'react'
+import { useId, useRef } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, exportAll, getConfig, getCurrentUser, importAll } from '../db'
-import { consumptionNutrients, loadContext, sumNutrients, targetBar, windowTargets } from '../calc'
+import { WEEKLY_CAP, averageTargets, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from '../calc'
 import { NUTRIENTS, calories, fmt, rangeLabel } from '../nutrients'
-import { WINDOWS, dayBounds, prettyDay, toDateStr, toLocalInput, today, windowDays } from '../time'
-import { go } from '../components'
+import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, logicalDay, prettyDay, toDateStr, toLocalInput, today, windowDays } from '../time'
+import { Chevron, go, replace, useToday } from '../components'
 
 // Always shown; any other nutrient gets a row when a target covers it.
-const ROWS = [
+export const ROWS = [
   { key: 'energy', label: 'Calories', unit: 'kcal', cls: 'c-kcal' },
   { key: 'proteins', label: 'Protein', unit: 'g', cls: 'c-prot' },
   { key: 'fat', label: 'Fat', unit: 'g', cls: 'c-fat' },
@@ -18,11 +18,11 @@ const ROWS = [
 const DUMMY = { fill: 100, minAt: null, maxAt: null, status: 'none', dummy: true }
 const barFor = (row, val, range) => targetBar(val.value, range, val.delta) ?? (ROWS.some((r) => r.key === row.key) ? DUMMY : null)
 
-function windowTitle(win, first, last) {
-  if (win === 'daily') return `Today · ${prettyDay(first)}`
-  if (win === 'weekly') return `This week · ${first.slice(5)} → ${last.slice(5)}`
-  const [y, m] = first.split('-').map(Number)
-  return `This month · ${new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`
+function windowTitle(win, first, last, back = 0) {
+  if (win === 'daily') return `${back === 0 ? 'Today' : back === 1 ? 'Yesterday' : back === -1 ? 'Tomorrow' : `${back} days ago`} · ${prettyDay(first)}`
+  if (win === 'last7') return `Last 7 days · ${first} → ${last}`
+  if (win === 'weekly') return `This week · ${first} → ${last}`
+  return `This month · ${first.slice(0, 7)}`
 }
 
 // --- Fill pieces ---------------------------------------------------------------
@@ -45,6 +45,8 @@ function fillPieces(bar) {
   return out
 }
 const fillEnd = (bar) => (bar.errLo != null ? bar.errHi : bar.fill)
+// With an error range, a short white tick across the band (a little past its edges) marks the estimate itself (value).
+const hasMean = (bar) => bar.errLo != null && bar.errHi > bar.errLo
 
 // --- Gauge -------------------------------------------------------------------
 // Semicircle version of the target bar: same scale (targetBar), tinted regions (no min/max markers; the colours
@@ -61,7 +63,7 @@ const arc = (p0, p1) => {
   const [x1, y1] = pt(p1)
   return `M ${x0} ${y0} A ${G.r} ${G.r} 0 ${p1 - p0 > 1 ? 1 : 0} 1 ${x1} ${y1}`
 }
-// Regions are drawn with square ends, overshooting both ends of the gauge, then masked to the round-ended track.
+// Regions are drawn with square ends, overshooting both ends of the gauge, then masked to the square-ended track.
 const OVER = 0.08
 // The fill is solid up to value − Δ; the error range (value ± Δ) continues it as one hatched band: the fill colour,
 // see-through, with slightly slanted lines in a lighter solid shade. The lines follow the arc, so the slant is the
@@ -97,13 +99,13 @@ function Gauge({ bar }) {
       </g>
       {bar && fillEnd(bar) > 0 && (
         <>
-          {/* The whole fill's shape: round-ended from 0 to its end. Pieces are square-ended and cut to it. */}
+          {/* The whole fill's shape: from 0 to its end. Pieces are square-ended and cut to it. */}
           <mask id={`${maskId}-fill`} maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="66">
             <path d={arc(0, f(fillEnd(bar)))} className="g-fill-mask" />
           </mask>
           <g mask={`url(#${maskId}-fill)`}>
             {fillPieces(bar).map((pc, i, all) => {
-              // The first and last pieces overshoot so the mask's round ends are filled.
+              // The first and last pieces overshoot so the mask's ends are filled.
               const p0 = i === 0 ? -OVER : f(pc.from)
               const p1 = i === all.length - 1 ? f(pc.to) + OVER : f(pc.to)
               if (!pc.hatched) return <path key={i} className={`g-fill r-${pc.region}`} d={arc(p0, p1)} />
@@ -122,11 +124,16 @@ function Gauge({ bar }) {
               )
             })}
           </g>
+          {hasMean(bar) && <path className="g-mean" d={`M ${pt(f(bar.fill), G.r - G.w / 2 - 2)} L ${pt(f(bar.fill), G.r + G.w / 2 + 2)}`} />}
         </>
       )}
     </svg>
   )
 }
+
+/** "1912–2288": the range implied by the error (value ± Δ), floored at 0. */
+const errRange = ({ value, delta }) => `${fmt(Math.max(0, value - (delta || 0)), 0)}–${fmt(value + (delta || 0), 0)}`
+const enterOpen = (open) => (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), open())
 
 const statusMark = (s) => (s === 'ok' ? '✓' : s === 'under' ? '↓' : '↑')
 
@@ -141,27 +148,45 @@ function RangeLine({ bar, range, unit }) {
 
 /**
  * Calories only, with a max in the target: what's left to eat, worst case. The most eaten so far is value + Δ, so
- * the budget is max − (value + Δ). At or below 0 it reads "over budget".
+ * the budget is max − (value + Δ). One short label either way (a tile cuts long text): negative = over budget.
  */
 function Budget({ row, val, range }) {
   if (row.key !== 'energy' || !Number.isFinite(range?.max)) return null
   const left = range.max - (val.value + (Number.isFinite(val.delta) ? val.delta : 0))
   return (
     <span className={`budget ${left > 0 ? '' : 'over'}`}>
-      {left > 0 ? <>Budget <b>{fmt(left, 0)}</b> {row.unit}</> : <>Over budget by <b>{fmt(-left, 0)}</b> {row.unit}</>}
+      Δ Budget: <b>{left < 0 ? '−' : ''}{fmt(Math.abs(left), 0)}</b> {row.unit}
+    </span>
+  )
+}
+
+/**
+ * Daily calories only: how far the weekly correction moved each bound (the range line already shows the moved one).
+ * One number when both moved alike, else "min/max" (e.g. "−500/+0").
+ */
+function WeeklyAdj({ row, adj }) {
+  const shifts = adj ? Object.values(adj.shift).map(Math.round) : []
+  if (row.key !== 'energy' || !adj?.days || shifts.every((x) => x === 0)) return null
+  const capped = Object.values(adj.capped).some(Boolean)
+  const signed = (x) => `${x < 0 ? '−' : '+'}${fmt(Math.abs(x), 0)}`
+  const text = new Set(shifts).size === 1 ? signed(shifts[0]) : shifts.map(signed).join('/')
+  const title = `Range this day must land in for the ${adj.days + 1}-day average to be within the target${capped ? ` (capped at ${WEEKLY_CAP} kcal)` : ''}`
+  return (
+    <span className="weekly-adj" title={title}>
+      7-day adj. {text} {row.unit}{capped ? ' (cap)' : ''}
     </span>
   )
 }
 
 /** Dashboard style "bars": one full-width row per nutrient with a horizontal bar over tinted regions. */
-function BarRow({ row: r, val, range }) {
+function BarRow({ row: r, val, range, adj, onOpen }) {
   const bar = barFor(r, val, range)
   return (
-    <div className="dash-row">
+    <div className="dash-row" role="button" tabIndex={0} onClick={onOpen} onKeyDown={enterOpen(onOpen)}>
       <span className="dash-label">{r.label}</span>
       <span className={`dash-value ${r.cls}`}>
         {val.estimated ? '~' : ''}{fmt(val.value, 0)}
-        <small> {r.unit} ±{fmt(val.delta)}</small>
+        <small> {r.unit} ±{fmt(val.delta)}{val.delta > 0 && ` · ${errRange(val)}`}</small>
       </span>
       {/* Without a target the bar keeps its space, so every row is equally spaced. */}
       <div className={`dash-target ${bar ? '' : 'placeholder'}`} aria-hidden={!bar}>
@@ -173,7 +198,7 @@ function BarRow({ row: r, val, range }) {
                 {bar.minAt != null && <div className="zone under" style={{ left: 0, width: `${bar.minAt}%` }} />}
                 {!bar.dummy && <div className="zone ok" style={{ left: `${bar.minAt ?? 0}%`, width: `${(bar.maxAt ?? 100) - (bar.minAt ?? 0)}%` }} />}
                 {bar.maxAt != null && <div className="zone over" style={{ left: `${bar.maxAt}%`, width: `${100 - bar.maxAt}%` }} />}
-                {/* The fill's shape (round-ended, 0 → end); pieces inside are placed in % of it. */}
+                {/* The fill's shape (0 → end); pieces inside are placed in % of it. */}
                 <div className="bar-fillbox" style={{ width: `${fillEnd(bar)}%` }}>
                   {fillPieces(bar).map((pc, i) => {
                     const end = fillEnd(bar)
@@ -182,10 +207,12 @@ function BarRow({ row: r, val, range }) {
                   })}
                 </div>
               </div>
+              {hasMean(bar) && <div className="bar-mean" style={{ left: `${bar.fill}%` }} />}
             </>
           )}
         </div>
         <RangeLine bar={bar} range={range} unit={r.unit} />
+        <WeeklyAdj row={r} adj={adj} />
         <Budget row={r} val={val} range={range} />
       </div>
     </div>
@@ -193,51 +220,86 @@ function BarRow({ row: r, val, range }) {
 }
 
 /** Dashboard style "gauges": equal tiles in a 2-column grid, value inside a semicircle gauge. */
-function GaugeTile({ row: r, val, range }) {
+function GaugeTile({ row: r, val, range, adj, onOpen }) {
   const bar = barFor(r, val, range)
   return (
-    <div className="tile">
+    <div className="tile" role="button" tabIndex={0} onClick={onOpen} onKeyDown={enterOpen(onOpen)}>
       <span className="tile-label">{r.label}</span>
       <div className="gauge-wrap">
         <Gauge bar={bar} />
         <span className={`gauge-value ${r.cls}`}>{val.estimated ? '~' : ''}{fmt(val.value, 0)}</span>
       </div>
-      <span className="tile-sub">{r.unit} ±{fmt(val.delta)}</span>
+      <span className="tile-sub">{r.unit} ±{fmt(val.delta)}{val.delta > 0 && ` · ${errRange(val)}`}</span>
       <RangeLine bar={bar} range={range} unit={r.unit} />
+      <WeeklyAdj row={r} adj={adj} />
       <Budget row={r} val={val} range={range} />
     </div>
   )
 }
 
-export default function Home() {
-  const [winIdx, setWinIdx] = useState(0)
-  const win = WINDOWS[winIdx]
+/**
+ * The window and the picked day live in the URL (`#/?win=weekly&day=2026-10-15`), so going back from a screen
+ * opened here (breakdown, consumptions) returns to the same view. No `day` = today, following midnight.
+ */
+export default function Home({ query = {} }) {
+  const win = WINDOWS.includes(query.win) ? query.win : WINDOWS[0]
+  const winIdx = WINDOWS.indexOf(win)
   const touchX = useRef(null)
   const fileRef = useRef(null)
+  const day = useToday()
+  // Daily window only: the day shown (the day arrows); at most tomorrow, to preview its (weekly-corrected) bounds.
+  const inRange = (d) => d && day && d !== day && d <= addDays(day, 1)
+  const picked = inRange(query.day) ? query.day : undefined
+  const back = picked ? daysBetween(picked, day) : 0 // −1 = tomorrow
+  const setView = (w, d) => {
+    const qs = new URLSearchParams({ ...(w !== WINDOWS[0] && { win: w }), ...(inRange(d) && { day: d }) }).toString()
+    replace(`/${qs ? `?${qs}` : ''}`)
+  }
 
   const data = useLiveQuery(async () => {
     const config = await getConfig()
-    const [first, last] = windowDays(win, today(config.dayStart))
+    const todayDay = day ?? today(config.dayStart)
+    const [first, last] = windowDays(win, win === 'daily' && picked ? picked : todayDay)
+    // Daily: the 6 days before are loaded too, for the weekly calorie correction.
+    const daily = win === 'daily'
     const start = dayBounds(first, config.dayStart)[0]
     const end = dayBounds(last, config.dayStart)[1]
+    const from = daily ? dayBounds(addDays(first, -6), config.dayStart)[0] : start
     const user = await getCurrentUser()
-    const logs = await db.logs.where('[userId+datetime]').between([user.id, start.toISOString()], [user.id, end.toISOString()], true, false).toArray()
+    const all = await db.logs.where('[userId+datetime]').between([user.id, from.toISOString()], [user.id, end.toISOString()], true, false).toArray()
+    const logs = all.filter((l) => l.datetime >= start.toISOString())
     const ctx = await loadContext()
     const results = logs.map((l) => consumptionNutrients(ctx, l))
     const allTargets = await db.targets.where('userId').equals(user.id).toArray()
-    const targets = windowTargets(allTargets, first, last, config.dayStart)
+    // Weekly/monthly: per-day averages over the days that have consumptions (a day with none is no data, not 0 kcal);
+    // with no such day yet, the targets average over the whole window.
+    const logged = [...new Set(logs.map((l) => logicalDay(l.datetime, config.dayStart)))].sort()
+    const windowList = []
+    for (let d = first; d <= last; d = addDays(d, 1)) windowList.push(d)
+    const targets = averageTargets(allTargets, logged.length ? logged : windowList, config.dayStart)
+    let adj = null
+    if (daily) {
+      // Kcal (value ± Δ) per earlier day that has consumptions.
+      const byDay = {}
+      for (const l of all) if (l.datetime < start.toISOString()) (byDay[logicalDay(l.datetime, config.dayStart)] ??= []).push(consumptionNutrients(ctx, l).nutrients)
+      const eaten = Object.fromEntries(Object.entries(byDay).map(([d, list]) => [d, calories(sumNutrients(list))]))
+      adj = weeklyCorrection(allTargets, first, config.dayStart, eaten)
+      if (adj) targets.energy = adj.range
+    }
     // Every nutrient that any target mentions gets a row, even if no target covers this window.
     const targeted = new Set(allTargets.flatMap((t) => Object.keys(t.values)))
     const extra = NUTRIENTS.filter((n) => targeted.has(n.key) && !ROWS.some((r) => r.key === n.key))
       .map((n) => ({ key: n.key, label: n.label, unit: n.unit, cls: '' }))
     return {
-      user, first, last, count: logs.length, targets, rows: [...ROWS, ...extra], style: config.dashboard,
+      user, first, last, count: logs.length, days: logged.length, targets, adj, rows: [...ROWS, ...extra], style: config.dashboard,
       failed: results.filter((r) => !r.ok).length,
-      total: sumNutrients(results.map((r) => r.nutrients)),
+      total: perDay(sumNutrients(results.map((r) => r.nutrients)), daily ? 1 : Math.max(1, logged.length)),
     }
-  }, [win])
+  }, [win, day, picked])
 
-  const shift = (d) => setWinIdx((i) => (i + d + WINDOWS.length) % WINDOWS.length)
+  const otherDay = win === 'daily' && back !== 0 && data ? data.first : null
+  const shift = (d) => setView(WINDOWS[(winIdx + d + WINDOWS.length) % WINDOWS.length], picked)
+  const stepDay = (n) => day && setView(win, addDays(picked ?? day, n))
   const onTouchEnd = (e) => {
     const dx = e.changedTouches[0].clientX - (touchX.current ?? 0)
     if (Math.abs(dx) > 40) shift(dx < 0 ? 1 : -1)
@@ -273,6 +335,9 @@ export default function Home() {
   return (
     <div className="screen home">
       <div className="home-top">
+        <button className="user-btn" onClick={() => go('/config')}>
+          <span aria-hidden="true">⚙️</span> Config
+        </button>
         <button className="user-btn" onClick={() => go('/users')} aria-label="Users">
           <span aria-hidden="true">👤</span> {data?.user.name ?? '…'}
         </button>
@@ -282,14 +347,22 @@ export default function Home() {
         onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
         onTouchEnd={onTouchEnd}
       >
-        <button className="icon" onClick={() => shift(-1)} aria-label="Previous window">‹</button>
+        <button className="icon" onClick={() => shift(-1)} aria-label="Previous window"><Chevron /></button>
         <div>
-          <div className="win-name">{win}</div>
-          <div className="win-range">{data ? windowTitle(win, data.first, data.last) : '…'}</div>
+          <div className="win-name">{WINDOW_NAMES[win]}</div>
+          <div className="win-range">{data ? windowTitle(win, data.first, data.last, back) : '…'}</div>
           <div className="dots">{WINDOWS.map((w) => <span key={w} className={w === win ? 'on' : ''} />)}</div>
         </div>
-        <button className="icon" onClick={() => shift(1)} aria-label="Next window">›</button>
+        <button className="icon" onClick={() => shift(1)} aria-label="Next window"><Chevron dir="right" /></button>
       </header>
+      {win === 'daily' && (
+        // Previous / next day; the middle button jumps back to today. No days after tomorrow.
+        <div className="day-step">
+          <button className="icon" onClick={() => stepDay(-1)} aria-label="Previous day"><Chevron /></button>
+          <button className="secondary" onClick={() => setView(win)} disabled={back === 0}>Today</button>
+          <button className="icon" onClick={() => stepDay(1)} disabled={back < 0} aria-label="Next day"><Chevron dir="right" /></button>
+        </div>
+      )}
 
       {/* Only the dashboard scrolls; the header and the buttons stay in view. */}
       <main className="home-main">
@@ -299,20 +372,30 @@ export default function Home() {
               const n = data.total[r.key]
               const val = r.key === 'energy' ? calories(data.total) : { value: n?.value ?? 0, delta: n?.delta ?? 0 }
               const Item = data.style === 'bars' ? BarRow : GaugeTile
-              return <Item key={r.key} row={r} val={val} range={data.targets[r.key]} />
+              return <Item key={r.key} row={r} val={val} range={data.targets[r.key]} adj={data.adj} onOpen={() => go(`/breakdown/${r.key}?from=${data.first}&to=${data.last}`)} />
             })}
             <p className="muted">
               {data.count} consumption{data.count === 1 ? '' : 's'}
+              {win !== 'daily' && ` · per day, over ${data.days} day${data.days === 1 ? '' : 's'} with consumptions`}
               {data.failed > 0 && <span className="warn"> · {data.failed} couldn't be computed</span>}
             </p>
           </section>
         )}
 
         <nav className="menu">
-          <button onClick={() => go('/consumptions')}>Consumptions</button>
-          <button onClick={() => go('/foods')}>Foods</button>
-          <button onClick={() => go('/targets')}>Targets</button>
-          <button onClick={() => go('/config')}>Config</button>
+          {/* Looking at another day (past, or tomorrow): open that day's consumptions (+: add one on that day). */}
+          <div className="menu-item">
+            <button onClick={() => go(`/consumptions${otherDay ? `?day=${otherDay}` : ''}`)}>Consumptions</button>
+            <button className="plus" onClick={() => go(`/consumptions?${otherDay ? `day=${otherDay}&` : ''}new`)} aria-label="Add consumption">+</button>
+          </div>
+          <div className="menu-item">
+            <button onClick={() => go('/foods')}>Foods</button>
+            <button className="plus" onClick={() => go('/foods/new')} aria-label="Add food">+</button>
+          </div>
+          <div className="menu-item">
+            <button onClick={() => go('/targets')}>Targets</button>
+            <button className="plus" onClick={() => go('/targets?new')} aria-label="Add target">+</button>
+          </div>
           <div className="row">
             <button className="secondary" onClick={() => fileRef.current.click()}>Import databases</button>
             <button className="secondary" onClick={doExport}>Export databases</button>

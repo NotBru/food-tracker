@@ -107,6 +107,25 @@ export function unitsFor(ctx, itemId) {
   return [base, ...[...candidates].filter((u) => Number.isFinite(unitFactor(u, base, item.units))).sort()]
 }
 
+/**
+ * Total of a recipe's components (stored form: {itemId, amount, amountDelta, unit}) in `unit`, as {value, delta}.
+ * Δs add up, unit conversions' errors included. {problem} names the first component that can't be counted.
+ */
+export function componentsTotal(ctx, components, unit) {
+  let total = EXACT(0)
+  for (const c of components) {
+    const item = resolve(ctx, c.itemId)
+    const name = item?.name || 'a component'
+    if (!(c.amount >= 0)) return { problem: `${name} has no amount` }
+    const f = unitFactorSpan(c.unit, unit, item?.units)
+    if (!Number.isFinite(f[0])) return { problem: `${name}: no conversion from ${c.unit || '(no unit)'} to ${unit}` }
+    total = total.map((t, k) => t + mul(span(c.amount, c.amountDelta), f)[k])
+  }
+  const [value, lo, hi] = total
+  if (!Number.isFinite(hi)) return { problem: 'a unit conversion has no upper bound' }
+  return { value, delta: Math.max(hi - value, value - lo) }
+}
+
 export const resolve = (ctx, id) => ctx.items.get(id)
 
 /** Amount and unit an item's nutrients refer to (plus the amount's error). Without one it counts as 1 portion. */
@@ -171,17 +190,30 @@ export function targetForDay(targets, day, dayStart) {
   return found
 }
 
-/** Daily min/max summed over the days [first, last], per nutrient (a bound only counts the days that set it). */
-export function windowTargets(targets, first, last, dayStart) {
-  const total = {}
-  for (let d = first; d <= last; d = addDays(d, 1)) {
+/** Daily min/max averaged over `days`, per nutrient (each bound over the days that set it). */
+export function averageTargets(targets, days, dayStart) {
+  const sum = {}
+  const count = {}
+  for (const d of days) {
     const t = targetForDay(targets, d, dayStart)
     for (const [k, r] of Object.entries(t?.values ?? {})) {
-      const acc = (total[k] ??= {})
-      for (const bound of ['min', 'max']) if (Number.isFinite(r[bound])) acc[bound] = (acc[bound] ?? 0) + r[bound]
+      for (const bound of ['min', 'max']) {
+        if (!Number.isFinite(r[bound])) continue
+        ;(sum[k] ??= {})[bound] = (sum[k][bound] ?? 0) + r[bound]
+        ;(count[k] ??= {})[bound] = (count[k][bound] ?? 0) + 1
+      }
     }
   }
-  return total
+  const out = {}
+  for (const k in sum) for (const bound in sum[k]) (out[k] ??= {})[bound] = sum[k][bound] / count[k][bound]
+  return out
+}
+
+/** `total` from sumNutrients, divided by `n` days (value and Δ alike). */
+export function perDay(total, n) {
+  const out = {}
+  for (const k in total) out[k] = { ...total[k], value: total[k].value / n, delta: total[k].delta / n }
+  return out
 }
 
 /**
@@ -205,4 +237,53 @@ export function targetBar(value, { min, max } = {}, delta = 0) {
     fill: pos(value), minAt: hasMin ? pos(min) : null, maxAt: hasMax ? pos(max) : null, status,
     errLo: d ? pos(value - d) : null, errHi: d ? pos(value + d) : null,
   }
+}
+
+// --- Weekly calorie correction ------------------------------------------------
+// The daily calorie goal moves to make up for the days before it: the range shown for `day` is the one `day` must
+// land in for the 7-day per-day average (the 6 days before `day`, plus `day`) to be within the target, capped.
+
+export const WEEKLY_CAP = 500 // kcal
+
+/**
+ * The calorie target for `day`, set so that eating within it puts the 7-day per-day average within the target.
+ * The earlier days are the 6 before `day`; `eaten` is {day: {value, delta}} (kcal) for the ones that have
+ * consumptions. Worst case, like the dashboard: the max is held against what was eaten at most (value + Δ), the
+ * min against what was eaten at least (value − Δ, ≥ 0).
+ * Days without any, or without a calorie target, don't count (so less than a week of data only corrects what's
+ * there). For each bound, with N earlier days: (bound' + their worst-case total) / (N + 1) = that bound averaged over those
+ * days and `day` (each bound over the days that set it, as in `averageTargets`).
+ * Each bound moves on its own, by at most WEEKLY_CAP, never below 0.
+ * Returns {range, shift: {min, max}, days, capped: {min, max}}, or null when `day` has no calorie target;
+ * `shift` and `capped` only have the bounds `day`'s target has.
+ */
+export function weeklyCorrection(targets, day, dayStart, eaten, key = 'energy') {
+  const has = (d) => {
+    const r = targetForDay(targets, d, dayStart)?.values?.[key]
+    return Number.isFinite(r?.min) || Number.isFinite(r?.max)
+  }
+  if (!has(day)) return null
+  const target = targetForDay(targets, day, dayStart).values[key]
+  const earlier = []
+  const total = { min: 0, max: 0 }
+  for (let i = 1; i <= 6; i++) {
+    const d = addDays(day, -i)
+    if (!(d in eaten) || !has(d)) continue
+    earlier.push(d)
+    const { value, delta } = eaten[d]
+    const dd = Number.isFinite(delta) ? Math.abs(delta) : 0
+    total.min += Math.max(0, value - dd)
+    total.max += value + dd
+  }
+  const avg = averageTargets(targets, [day, ...earlier], dayStart)[key]
+  const days = earlier.length
+  const range = {}, shift = {}, capped = {}
+  for (const k of ['min', 'max']) {
+    if (!Number.isFinite(target[k])) continue
+    const owed = (days + 1) * avg[k] - total[k] - target[k]
+    shift[k] = Math.max(-WEEKLY_CAP, Math.min(WEEKLY_CAP, owed))
+    capped[k] = shift[k] !== owed
+    range[k] = Math.max(0, target[k] + shift[k])
+  }
+  return { range, shift, days, capped }
 }

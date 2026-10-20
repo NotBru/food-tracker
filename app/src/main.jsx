@@ -8,18 +8,20 @@ import Config from './screens/Config'
 import Targets from './screens/Targets'
 import External from './screens/External'
 import Users from './screens/Users'
+import Breakdown from './screens/Breakdown'
 import './styles.css'
 
 function App() {
   const { parts, query } = useRoute()
   const [a, b] = parts
-  if (a === 'consumptions') return <Consumptions day={query.day} />
-  if (a === 'targets') return <Targets />
+  if (a === 'consumptions') return <Consumptions day={query.day} add={query.new != null} />
+  if (a === 'targets') return <Targets add={query.new != null} />
   if (a === 'config') return <Config />
   if (a === 'users') return <Users />
+  if (a === 'breakdown') return <Breakdown nutrient={b} from={query.from} to={query.to} />
   if (a === 'foods' && b === 'external') return <External initialQuery={query.q} />
-  if (a === 'foods') return b ? <FoodEditor id={b} /> : <FoodList />
-  return <Home />
+  if (a === 'foods') return b ? <FoodEditor id={b} tab={query.tab} nutrient={query.nutrient} nested={query.in} name={query.name} /> : <FoodList />
+  return <Home query={query} />
 }
 
 createRoot(document.getElementById('root')).render(

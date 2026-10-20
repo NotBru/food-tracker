@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, getCurrentUser } from '../db'
 import { NUTRIENTS, rangeLabel } from '../nutrients'
-import { toLocalInput } from '../time'
-import { Field, NutrientAdder, Screen, enterTo } from '../components'
+import { formatDateTime, toLocalInput } from '../time'
+import { DateTimeInput, Field, NutrientAdder, Screen, enterTo, replace } from '../components'
 
 // design.md: targets are listed latest first; each holds user-chosen nutrients (energy included) and is valid
 // from its timestamp until the next target's. Values are daily ranges {min?, max?}; either bound is optional.
@@ -12,15 +12,26 @@ const byKey = Object.fromEntries(NUTRIENTS.map((n) => [n.key, n]))
 // Same order as the nutrient list (energy, proteins, fat, carbs, …).
 const rank = (key) => NUTRIENTS.findIndex((n) => n.key === key)
 const inOrder = (entries) => [...entries].sort(([a], [b]) => rank(a) - rank(b))
-const when = (iso) => new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+const when = formatDateTime
 
-export default function Targets() {
+export default function Targets({ add }) {
   const data = useLiveQuery(async () => {
     const user = await getCurrentUser()
     const targets = await db.targets.where('userId').equals(user.id).reverse().sortBy('validFrom')
     return { user, targets }
   })
   const [editing, setEditing] = useState(null)
+  // A new target starts from now, with the latest target's values.
+  const newTarget = () => setEditing({ validFrom: new Date().toISOString(), userId: data.user.id, values: structuredClone(data.targets[0]?.values ?? {}) })
+  // Opened with ?new (the homescreen's +): straight into a new target, once; the flag leaves the URL.
+  const added = useRef(false)
+  useEffect(() => {
+    if (!add || !data || added.current) return
+    added.current = true
+    newTarget()
+    replace('/targets')
+  }, [add, data])
+
   if (!data) return null
   const { user, targets } = data
   const now = new Date().toISOString()
@@ -29,7 +40,7 @@ export default function Targets() {
   return (
     <Screen title="Targets" subtitle={user.name}>
       <ul className="list">
-        <li className="add" onClick={() => setEditing({ validFrom: now, userId: user.id, values: structuredClone(targets[0]?.values ?? {}) })}>+ add target</li>
+        <li className="add" onClick={newTarget}>+ add target</li>
         {targets.map((t, i) => (
           <li key={t.id} onClick={() => setEditing(t)}>
             <div className="list-main">
@@ -95,7 +106,7 @@ function TargetEditor({ target, onClose }) {
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
         <h2>{target.id ? 'Edit target' : 'New target'}</h2>
         <Field label="Valid from">
-          <input type="datetime-local" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} />
+          <DateTimeInput value={validFrom} onChange={setValidFrom} />
         </Field>
         <div className="nutrients">
           <div className="n-row with-x n-head"><span>per day</span><span>min</span><span>max</span><span /></div>

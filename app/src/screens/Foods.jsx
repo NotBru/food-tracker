@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, itemLabel, kindOf } from '../db'
-import { baseAmount, loadContext, nutrientsFor } from '../calc'
+import { conflictingFoods, db, findEqualFood, itemLabel, kindOf, mergeEqualFoodsInDb, searchText } from '../db'
+import { baseAmount, componentsTotal, keepUnit, loadContext, nutrientsFor, unitsFor } from '../calc'
 import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measure, normalizeNumber } from '../nutrients'
 import { toLocalInput } from '../time'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
-import { AttributesEditor, DeltaInput, Field, ItemPicker, MacroLine, NutrientAdder, Screen, UnitInput, enterTo, go } from '../components'
+import { AttributesEditor, DateTimeInput, DeltaInput, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, UnitCombo, UnitInput, enterTo, go, replace } from '../components'
+import FoodInfo from './FoodInfo'
 
 // A food is anything you can eat: an ingredient, a recipe (has components) or a concoction (has a made-at time).
 // One list, one editor; what kind a food is follows from its fields.
@@ -14,10 +15,11 @@ export function FoodList() {
   const [query, setQuery] = useState('')
   const ctx = useLiveQuery(loadContext)
   if (!ctx) return null
+  const conflicts = conflictingFoods(ctx.list)
   const words = query.toLowerCase().split(/\s+/).filter(Boolean)
   const rows = ctx.list
+    .filter((r) => words.every((w) => searchText(r).includes(w)))
     .map((r) => [r, itemLabel(r)])
-    .filter(([, label]) => words.every((w) => label.toLowerCase().includes(w)))
     .sort(([a, la], [b, lb]) => (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || la.localeCompare(lb))
   return (
     <Screen title="Foods">
@@ -30,7 +32,10 @@ export function FoodList() {
           return (
             <li key={r.id} onClick={() => go(`/foods/${r.id}`)}>
               <div className="list-main">
-                <span>{label}{kindOf(r) !== 'ingredient' && <small className="muted"> · {kindOf(r)}</small>}</span>
+                <span>
+                  {label}{kindOf(r) === 'recipe' && <small className="muted"> · recipe</small>} <MadeTag item={r} />
+                  {conflicts.has(r.id) && <small className="warn" title="Another food has the same ID with different values"> · ⚠ same ID</small>}
+                </span>
                 <span className="muted">per {r.amount > 0 ? amountText(amt, r.amountText) : amt}{r.amountDeltaAuto === false && r.amountDelta > 0 && ` ±${r.amountDelta}`} {unit}</span>
               </div>
               <MacroLine nutrients={n.nutrients} ok={n.ok} />
@@ -80,20 +85,75 @@ function divisorProblem(label, m) {
   return `${label}: ±${m.delta}${m.auto ? ' (from the digits)' : ''} would reach 0. Type more digits (e.g. ${m.value}.0) or set a smaller ±.`
 }
 
-export function FoodEditor({ id }) {
+// --- New food from a component ("+" beside its search box) -----------------------
+// The form being edited is stashed here, the new food opens on top (`/foods/new?in=<depth>`, so the hash differs
+// from a parent that is itself a new food), and back on the parent's hash the form is restored, with the new food
+// (if it was saved) set as that component, amount still to fill. Nests: each level pushes its own entry.
+// In memory only, like the external draft: a reload drops it.
+const parents = [] // [{ hash, name, form, extraShown, index, created }]
+
+/** An existing food has two tabs, Edit and Info (`?tab=info`); a new one only the form. `nutrient` (from a breakdown)
+ * ranks the Info tab's components by that nutrient, and is kept across tab switches. */
+export function FoodEditor({ id, tab, nutrient, nested, name }) {
   const isNew = id === 'new'
   const data = useLiveQuery(async () => ({ id, ctx: await loadContext(), rec: isNew ? null : await db.items.get(Number(id)) }), [id])
   // useLiveQuery keeps the previous result while a new id loads; don't build the form from another food's data.
   if (!data || data.id !== id) return null
   if (!isNew && !data.rec) return <Screen title="Edit food"><p className="muted">Food not found (deleted?).</p></Screen>
-  // A new food may come prefilled from "Search external" (draft handed over by external.js).
-  return <FoodForm key={id} ctx={data.ctx} initial={data.rec} prefill={isNew ? peekPendingDraft() : null} />
+  const info = !isNew && tab === 'info'
+  const parent = nested && parents[Number(nested) - 1]
+  return (
+    // A new component looks like any new food, so its title says what it is for.
+    <Screen title={parent ? 'New component' : isNew ? 'New food' : data.rec.name || 'Food'} subtitle={parent && `for ${parent.name ? `“${parent.name}”` : 'the new food'}`}>
+      {!isNew && (
+        <div className="segmented food-tabs" role="tablist" aria-label="Food">
+          {[['edit', 'Edit'], ['info', 'Info']].map(([v, label]) => (
+            <button key={v} role="tab" aria-selected={(v === 'info') === info} className={(v === 'info') === info ? 'on' : ''}
+              onClick={() => replace(`/foods/${id}${v === 'info' ? '?tab=info' : ''}${nutrient ? `${v === 'info' ? '&' : '?'}nutrient=${nutrient}` : ''}`)}>{label}</button>
+          ))}
+        </div>
+      )}
+      {/* The form stays mounted while Info is shown, so unsaved edits survive a look at the info. */}
+      <div hidden={info}>
+        {/* A new food may come prefilled from "Search external" (draft handed over by external.js). */}
+        <FoodForm key={`${id}:${nested ?? ''}`} ctx={data.ctx} initial={data.rec} prefill={isNew ? peekPendingDraft() : null}
+          nested={!!parent} name={name} />
+      </div>
+      {!isNew && <SameIdWarning ctx={data.ctx} item={data.rec} />}
+      {info && <FoodInfo ctx={data.ctx} item={data.rec} nutrient={nutrient} />}
+    </Screen>
+  )
 }
 
-function FoodForm({ ctx, initial, prefill }) {
+/** Flags other foods with this one's ID (name, brand, attributes, made-at) but different values. */
+function SameIdWarning({ ctx, item }) {
+  const others = conflictingFoods(ctx.list).get(item.id)
+  if (!others) return null
+  return (
+    <p className="small warn">
+      ⚠ Same ID as {others.length > 1 ? `${others.length} other foods` : 'another food'} with different values:{' '}
+      {others.map((id, i) => (
+        <span key={id}>{i > 0 && ', '}<button className="link" onClick={() => go(`/foods/${id}`)}>#{id}</button></span>
+      ))}
+    </p>
+  )
+}
+
+/** A stashed form, with the food made from it (if saved) set as the component it was made for. */
+function withCreated(ctx, { form, index, created }) {
+  if (created == null || !form.components[index]) return form
+  const unit = form.components[index].unit || ctx.items.get(created)?.unit || 'portion'
+  return { ...form, components: form.components.map((c, j) => (j === index ? { ...c, itemId: created, unit } : c)) }
+}
+
+function FoodForm({ ctx, initial, prefill, nested, name }) {
   const src = initial ?? prefill
-  const [form, setForm] = useState(() => ({
-    name: src?.name ?? '',
+  // Back from a new component: this form's stashed state. Taken off the stack in an effect, since StrictMode runs
+  // state initializers twice.
+  const [restored] = useState(() => (parents.at(-1)?.hash === location.hash ? parents.at(-1) : null))
+  useEffect(() => { if (restored && parents.at(-1) === restored) parents.pop() }, [restored])
+  const [form, setForm] = useState(() => (restored ? withCreated(ctx, restored) : {
+    name: src?.name ?? name ?? '',
     brand: src?.brand ?? '',
     attributes: src?.attributes ?? [],
     amount: src ? amountText(src.amount, src.amountText) : '100',
@@ -114,7 +174,18 @@ function FoodForm({ ctx, initial, prefill }) {
   }))
   useEffect(() => { if (prefill) clearPendingDraft() }, [prefill])
   // Extra (non-core) nutrients shown even while empty, because the user just added them.
-  const [extraShown, setExtraShown] = useState([])
+  const [extraShown, setExtraShown] = useState(restored?.extraShown ?? [])
+  // Back with a new component: the cursor goes to its amount, the one thing left to fill.
+  const componentAmountRefs = useRef([])
+  useEffect(() => {
+    const el = restored?.created != null && componentAmountRefs.current[restored.index]
+    if (el) { el.focus(); el.scrollIntoView({ block: 'center' }) }
+  }, [restored])
+  // "+" beside a component's search box: stash this form, open a new food (named from what's typed) on top.
+  function createComponent(index, text) {
+    parents.push({ hash: location.hash, name: form.name.trim(), form, extraShown, index, created: null })
+    go(`/foods/new?in=${parents.length}${text ? `&name=${encodeURIComponent(text)}` : ''}`)
+  }
   // Nutrient just added: its value field gets the cursor once the row exists.
   const [focusKey, setFocusKey] = useState(null)
   const valueRefs = useRef({})
@@ -137,7 +208,7 @@ function FoodForm({ ctx, initial, prefill }) {
   const setN = (key, field, v) => setForm((f) => ({ ...f, nutrients: { ...f.nutrients, [key]: { ...f.nutrients[key], [field]: v } } }))
 
   function toRecord() {
-    const base = measure(form.amount, form.amountDelta)
+    const base = measure(form.amount, form.amountDelta, form.unit)
     return {
       name: form.name.trim(), brand: form.brand.trim(), attributes: form.attributes,
       amount: base.value > 0 ? base.value : NaN, amountText: base.text, amountDelta: base.delta, amountDeltaAuto: base.auto,
@@ -146,8 +217,8 @@ function FoodForm({ ctx, initial, prefill }) {
       units: form.units
         .filter((u) => Number(u.fromAmount) > 0 && u.fromUnit.trim() && Number(u.toAmount) > 0 && u.toUnit.trim())
         .map((u) => {
-          const a = measure(u.fromAmount, u.fromDelta)
-          const b = measure(u.toAmount, u.toDelta)
+          const a = measure(u.fromAmount, u.fromDelta, u.fromUnit)
+          const b = measure(u.toAmount, u.toDelta, u.toUnit)
           return {
             fromAmount: a.value, fromText: a.text, fromDelta: a.delta, fromDeltaAuto: a.auto, fromUnit: u.fromUnit.trim(),
             toAmount: b.value, toText: b.text, toDelta: b.delta, toDeltaAuto: b.auto, toUnit: u.toUnit.trim(),
@@ -155,7 +226,7 @@ function FoodForm({ ctx, initial, prefill }) {
         }),
       components: form.components.filter((c) => c.itemId != null)
         .map((c) => {
-          const m = measure(c.amount, c.amountDelta)
+          const m = measure(c.amount, c.amountDelta, c.unit)
           return { itemId: c.itemId, amount: m.value, amountText: m.text, amountDelta: m.delta, amountDeltaAuto: m.auto, unit: c.unit.trim() }
         }),
       nutrients: formToNutrients(form.nutrients),
@@ -169,20 +240,34 @@ function FoodForm({ ctx, initial, prefill }) {
   const previewCtx = { ...ctx, items: new Map(ctx.items).set(draft.id, draft) }
   const [amt, unit] = baseAmount(draft)
   const preview = nutrientsFor(previewCtx, draft.id, amt, unit)
+  // "Auto" per amount: the components added up, in the food's unit (g if it has none yet).
+  const totalUnit = form.unit.trim() || 'g'
+  const total = hasComponents && componentsTotal(ctx, draft.components, totalUnit)
+  const round = (x, digits) => String(Number(x.toPrecision(digits)))
+  function autoAmount() {
+    setForm((f) => ({ ...f, amount: round(total.value, 6), amountDelta: round(total.delta, 3), unit: totalUnit }))
+  }
 
   async function save() {
     const rec = toRecord()
     if (!rec.name) return alert('Name is required.')
     const problem = [
-      divisorProblem('Per amount', measure(form.amount, form.amountDelta)),
+      divisorProblem('Per amount', measure(form.amount, form.amountDelta, form.unit)),
       ...rec.units.flatMap((u) => [
         divisorProblem(`Units: ${u.fromText} ${u.fromUnit}`, { value: u.fromAmount, delta: u.fromDelta, auto: u.fromDeltaAuto }),
         divisorProblem(`Units: ${u.toText} ${u.toUnit}`, { value: u.toAmount, delta: u.toDelta, auto: u.toDeltaAuto }),
       ]),
     ].find(Boolean)
     if (problem) return alert(problem)
-    if (initial) await db.items.update(initial.id, rec)
-    else await db.items.add(rec)
+    // Saving a copy of an existing food (same ID, same values) is ignored: the existing one is used.
+    if (initial) {
+      await db.items.update(initial.id, rec)
+      await mergeEqualFoodsInDb()
+    } else {
+      const newId = findEqualFood(ctx.list, rec)?.id ?? await db.items.add(rec)
+      // Made as a component: the parent (next back) picks it up.
+      if (nested && parents.length) parents.at(-1).created = newId
+    }
     history.back()
   }
   async function remove() {
@@ -192,13 +277,17 @@ function FoodForm({ ctx, initial, prefill }) {
     }
   }
 
+  // Into a new component and back: the form slides in (from the right / left), so the switch is seen.
   return (
-    <Screen title={initial ? 'Edit food' : 'New food'}>
-      <div className="form">
+      <div className={`form ${nested && !restored ? 'slide-in' : restored ? 'slide-back' : ''}`}>
         {!initial && (
-          <button className="secondary" onClick={() => go(`/foods/external${form.name.trim() ? `?q=${encodeURIComponent(form.name.trim())}` : ''}`)}>
-            Search external databases…
-          </button>
+          // Save also sits up here, smaller, so a prefilled draft can be saved without scrolling.
+          <div className="row ext-row">
+            <button className="secondary" onClick={() => go(`/foods/external${form.name.trim() ? `?q=${encodeURIComponent(form.name.trim())}` : ''}`)}>
+              Search external databases…
+            </button>
+            <button className="save-top" onClick={save}>Save</button>
+          </div>
         )}
         {(() => {
           const s = sourceLabel(form.source)
@@ -217,10 +306,18 @@ function FoodForm({ ctx, initial, prefill }) {
             <input inputMode="decimal" value={form.amount} placeholder="1" onChange={(e) => set('amount')(e.target.value)} />
           </Field>
           <Field label="± Δ">
-            <DeltaInput value={form.amountDelta} amount={form.amount} onChange={set('amountDelta')} />
+            <DeltaInput value={form.amountDelta} amount={form.amount} unit={form.unit} onChange={set('amountDelta')} />
           </Field>
           <Field label="Unit"><UnitInput value={form.unit} placeholder="portion" onChange={set('unit')} /></Field>
         </div>
+        {hasComponents && (
+          <p className="small">
+            {total.problem
+              ? <span className="muted">Can't add up the components: {total.problem}</span>
+              : <><button className="link" onClick={autoAmount}>Auto</button>{' '}
+                <span className="muted">sum of components: {round(total.value, 6)} ± {round(total.delta, 3)} {totalUnit}</span></>}
+          </p>
+        )}
 
         <h3>Units</h3>
         <ul className="list compact">
@@ -230,14 +327,14 @@ function FoodForm({ ctx, initial, prefill }) {
               <div className="row conv">
                 <span className="conv-eq" />
                 <input inputMode="decimal" value={u.fromAmount} onChange={(e) => setU(i, { fromAmount: e.target.value })} />
-                <DeltaInput value={u.fromDelta} amount={u.fromAmount} onChange={(v) => setU(i, { fromDelta: v })} />
+                <DeltaInput value={u.fromDelta} amount={u.fromAmount} unit={u.fromUnit} onChange={(v) => setU(i, { fromDelta: v })} />
                 <UnitInput value={u.fromUnit} placeholder="slice" onChange={(v) => setU(i, { fromUnit: v })} />
                 <button className="icon" onClick={() => setForm((f) => ({ ...f, units: f.units.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
               </div>
               <div className="row conv">
                 <span className="conv-eq">=</span>
                 <input inputMode="decimal" value={u.toAmount} onChange={(e) => setU(i, { toAmount: e.target.value })} />
-                <DeltaInput value={u.toDelta} amount={u.toAmount} onChange={(v) => setU(i, { toDelta: v })} />
+                <DeltaInput value={u.toDelta} amount={u.toAmount} unit={u.toUnit} onChange={(v) => setU(i, { toDelta: v })} />
                 <UnitInput value={u.toUnit} onChange={(v) => setU(i, { toUnit: v })} />
                 <span className="icon-gap" />
               </div>
@@ -252,21 +349,28 @@ function FoodForm({ ctx, initial, prefill }) {
           <span>Made at a specific time (concoction)</span>
         </label>
         {form.isMade && (
-          <Field label="Made at"><input type="datetime-local" value={form.madeAt} onChange={(e) => set('madeAt')(e.target.value)} /></Field>
+          <Field label="Made at"><DateTimeInput value={form.madeAt} onChange={set('madeAt')} /></Field>
         )}
 
         <h3>Components</h3>
         <ul className="list compact">
           {form.components.map((c, i) => (
             <li key={i} className="component">
-              <ItemPicker ctx={ctx} value={c.itemId} exclude={initial?.id}
-                onChange={(itemId) => setC(i, { itemId, unit: c.unit || ctx.items.get(itemId)?.unit || 'portion' })} />
+              <ItemPicker ctx={ctx} value={c.itemId} exclude={initial?.id} onCreate={(text) => createComponent(i, text)}
+                onChange={(itemId) => setC(i, { itemId, unit: keepUnit(ctx, itemId, c.unit) ?? '' })} />
               <div className="row">
-                <input inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
-                <DeltaInput value={c.amountDelta} amount={c.amount} onChange={(v) => setC(i, { amountDelta: v })} />
-                <UnitInput value={c.unit} onChange={(u) => setC(i, { unit: u })} />
+                <input ref={(el) => (componentAmountRefs.current[i] = el)} inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
+                <DeltaInput value={c.amountDelta} amount={c.amount} unit={c.unit} onChange={(v) => setC(i, { amountDelta: v })} />
+                <UnitCombo units={c.itemId != null ? unitsFor(ctx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} />
                 <button className="icon" onClick={() => setForm((f) => ({ ...f, components: f.components.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
               </div>
+              {/* What this component brings in, live, once it has a food and an amount. */}
+              {(() => {
+                const m = measure(c.amount, c.amountDelta, c.unit)
+                if (c.itemId == null || !(m.value >= 0)) return null
+                const sub = nutrientsFor(ctx, c.itemId, m.value, c.unit.trim(), m.delta)
+                return <MacroLine nutrients={sub.nutrients} ok={sub.ok} deltas />
+              })()}
             </li>
           ))}
           <li className="add" onClick={() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', amountDelta: '', unit: '' }] }))}>+ add component</li>
@@ -307,6 +411,5 @@ function FoodForm({ ctx, initial, prefill }) {
           <button onClick={save}>Save</button>
         </div>
       </div>
-    </Screen>
   )
 }

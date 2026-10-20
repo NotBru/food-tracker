@@ -79,3 +79,17 @@ Enter in a nutrient's value or Δ now moves the cursor to "add nutrient", so sev
 (type name, Enter, value, Enter, next name…). The target editor got the same: its "add nutrient" went back below
 the rows (it's the same nutrient table, and Enter jumping upwards would be odd), and Enter in a min or max jumps
 to it.
+
+## Fix (2026-10-16): Enter on an exactly-typed unit kept the first unit
+
+User: "In new consumption, if I go to the units field, press `u` and Enter, it goes back to grams."
+- **Cause:** when the text is exactly one of the food's units, `UnitCombo` lists *all* units, so a prefilled
+  unit can still be switched. The highlighted row was the first in the list, which is the food's own unit (g),
+  so Enter replaced "u" with "g".
+- **Fix:** in that case the exact match is listed first (`[q, ...others]`), so it is the highlighted row and
+  Enter keeps it. Partial text still filters as before.
+- **Verified** (headless Chromium, Egg with 1 u = 50 g, keyboard only):
+  - "u" + Enter keeps "u";
+  - "g" + Enter keeps "g";
+  - "c" (no match) + Enter keeps "c".
+  - No console errors.

@@ -24,9 +24,36 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-20 | [Dashboard: a "last 7 days" window](2026-10-20-last-7-days.md) | accepted |
+| 2026-10-20 | [Daily dashboard: tomorrow](2026-10-20-tomorrow.md) | accepted |
+| 2026-10-19 | [Consumption editor: old concoctions listed last](2026-10-19-old-concoctions-last.md) | accepted |
+| 2026-10-19 | [Food Info tab: components ranked by the breakdown's nutrient](2026-10-19-info-components-by-nutrient.md) | accepted |
+| 2026-10-19 | [Food Info tab: energy and macros first](2026-10-19-info-macros-first.md) | accepted |
+| 2026-10-18 | [Breakdown: group consumptions so they count as one (named)](2026-10-18-breakdown-groups.md) | accepted |
+| 2026-10-18 | [Consumption editor: edit a concoction's components from its consumption](2026-10-18-edit-concoction-consumption.md) | accepted |
+| 2026-10-18 | [Weekly calorie correction: each bound solves the 7-day average](2026-10-18-correction-per-bound.md) | accepted |
+| 2026-10-18 | [Food editor: energy and macros per component](2026-10-18-component-macros.md) | accepted |
+| 2026-10-18 | [Concoctions: made-at time as a tag, not part of the label](2026-10-18-made-tag.md) | accepted |
+| 2026-10-18 | [Consumption editor: add a new concoction and eat it in one go](2026-10-18-consumption-concoction.md) | accepted |
+| 2026-10-17 | [Repeated foods ignored; same ID with different values flagged](2026-10-17-duplicate-foods.md) | accepted |
+| 2026-10-17 | [Food editor: unit dropdown for components; "Auto" per amount](2026-10-17-component-units-auto-amount.md) | accepted |
 | 2026-10-17 | [Nutrients: Omega-3 and Creatine](2026-10-17-omega3-creatine.md) | accepted |
+| 2026-10-17 | [Homescreen: mustard screen buttons; Config moved to the top](2026-10-17-home-mustard-config-top.md) | accepted |
+| 2026-10-17 | [Food editor: make a new food from a component](2026-10-17-component-new-food.md) | accepted |
+| 2026-10-17 | [Homescreen: + buttons beside Consumptions, Foods and Targets](2026-10-17-home-add-buttons.md) | accepted |
+| 2026-10-17 | [Weekly/monthly dashboards: per-day averages](2026-10-17-per-day-averages.md) | accepted |
+| 2026-10-17 | [Weekly calorie correction](2026-10-17-weekly-calorie-correction.md) | superseded in part by correction-per-bound |
 | 2026-10-17 | [Open Food Facts: text search via search-a-licious](2026-10-17-off-search.md) | accepted |
 | 2026-10-16 | [Serve script: reach the app from outside the container](2026-10-16-serve-script.md) | accepted |
+| 2026-10-16 | [Error maths audit](2026-10-16-error-math-audit.md) | accepted |
+| 2026-10-16 | [Food screen: Edit and Info tabs](2026-10-16-food-info.md) | accepted |
+| 2026-10-16 | [Amounts in "u" default to an exact count](2026-10-16-count-unit-exact.md) | accepted |
+| 2026-10-16 | [Nutrient breakdown, error ranges on the dashboard, view in the URL](2026-10-16-breakdown.md) | accepted |
+| 2026-10-16 | [Daily dashboard: day arrows; centred chevrons](2026-10-16-day-arrows.md) | accepted |
+| 2026-10-16 | [Daily dashboard: day slider](2026-10-16-day-slider.md) | superseded by day-arrows |
+| 2026-10-16 | [Dates shown as YYYY-MM-DD everywhere](2026-10-16-iso-dates.md) | accepted |
+| 2026-10-16 | [New food: a second Save at the top](2026-10-16-food-save-top.md) | accepted |
+| 2026-10-16 | ["Today" rolls over without a reload](2026-10-16-day-rollover.md) | accepted |
 | 2026-10-15 | [Native Android port](2026-10-15-android-port.md) | accepted |
 | 2026-10-15 | [Consumption editor: nutrient details drop-down](2026-10-15-consumption-details.md) | accepted |
 | 2026-10-15 | [Calorie budget](2026-10-15-calorie-budget.md) | accepted |

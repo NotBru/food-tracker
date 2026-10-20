@@ -71,17 +71,25 @@ export function deltaFromInput(text) {
   return Number((10 ** -decimals).toFixed(decimals))
 }
 
+/** Counted units ("u"): a count is exact, so its default error is 0. */
+export const isCountUnit = (unit) => String(unit ?? '').trim().toLowerCase() === 'u'
+
+/** Default error of an amount typed as `text` in `unit`: 0 for counted units, otherwise from the digits. */
+export function autoAmountDelta(text, unit) {
+  return isCountUnit(unit) ? 0 : deltaFromInput(text)
+}
+
 /**
  * An amount typed as `text` with its error typed as `deltaText`. A blank error defaults from the digits, like
  * nutrient values ("250" -> ±1, "1.5" -> ±0.1). Stored as {value, text, delta, auto}; the text keeps the precision.
  */
-export function measure(text, deltaText) {
+export function measure(text, deltaText, unit) {
   const t = normalizeNumber(text ?? '')
   const auto = String(deltaText ?? '').trim() === ''
   return {
     value: t === '' ? NaN : Number(t),
     text: t,
-    delta: auto ? deltaFromInput(t) || 0 : Math.abs(Number(deltaText)) || 0,
+    delta: auto ? autoAmountDelta(t, unit) || 0 : Math.abs(Number(deltaText)) || 0,
     auto,
   }
 }
