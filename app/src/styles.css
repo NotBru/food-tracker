@@ -317,3 +317,19 @@ input.invalid, input.invalid:focus { border-color: var(--prot); }
 .info-table td { padding: 6px 4px; border-top: 1px solid var(--line); white-space: nowrap; }
 .info-table td:first-child { white-space: normal; }
 .info-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+/* Consumption info: energy donut (total in the middle) and its legend */
+.info-list li.info-link { cursor: pointer; }
+.donut-wrap { position: relative; width: min(240px, 70%); margin: 8px auto 4px; }
+.donut { display: block; width: 100%; height: auto; transform: rotate(-90deg); }
+.donut-track { fill: none; stroke: var(--panel); stroke-width: 30; }
+.donut-slice { fill: none; stroke-width: 30; cursor: pointer; transition: stroke-width .15s; }
+.donut-slice.on { stroke-width: 36; }
+.donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; text-align: center; }
+.donut-center b { font-size: 32px; font-weight: 800; line-height: 1.1; }
+.donut-center span { font-size: 13px; color: var(--muted); }
+.donut-center small { font-size: 13px; max-width: 60%; }
+.energy-legend tr.kind td:first-child { padding-left: 20px; font-size: 13px; }
+.energy-legend tr.macro td { font-weight: 600; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; vertical-align: 0; }
+.energy-note { margin: 6px 0 14px; }
+.food-info h3.info-amounts { margin-top: 18px; }

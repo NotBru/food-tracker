@@ -4,7 +4,7 @@ import { db, getConfig, getCurrentUser, itemLabel, kindOf, mergeEqualFoodsInDb }
 import { componentsTotal, consumptionNutrients, keepUnit, loadContext, nutrientsFor, resolve, unitsFor } from '../calc'
 import { addDays, dayBounds, prettyDay, toLocalInput, today } from '../time'
 import { NUTRIENTS, amountText, deltaText, emptyNutrients, fmt, measure } from '../nutrients'
-import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, Field, ItemPicker, MacroLine, Screen, UnitCombo, replace, useToday } from '../components'
+import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, Field, ItemPicker, MacroLine, Screen, UnitCombo, go, replace, useToday } from '../components'
 
 export default function Consumptions({ day: dayParam, add }) {
   const dateRef = useRef(null)
@@ -56,7 +56,7 @@ export default function Consumptions({ day: dayParam, add }) {
       <ul className="list">
         <li className="add" onClick={newConsumption}>+ add consumption</li>
         {rows.map(({ consumption, item, n }) => (
-          <li key={consumption.id} onClick={() => setEditing(consumption)}>
+          <li key={consumption.id} onClick={() => go(`/consumptions/${consumption.id}`)}>
             <div className="list-main">
               <span>{item ? <>{itemLabel(item)} <MadeTag item={item} /></> : '(deleted item)'}</span>
               <span className="muted">{toLocalInput(new Date(consumption.datetime)).slice(11)} · {amountText(consumption.amount, consumption.amountText)}{consumption.amountDeltaAuto === false && ` ±${consumption.amountDelta}`} {consumption.unit}</span>
@@ -135,7 +135,8 @@ function concoctionDraft(ctx, form) {
   }
 }
 
-function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClose }) {
+/** The add/edit sheet. Also opened from a consumption's info screen, which leaves it on `onDeleted`. */
+export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClose, onDeleted = onClose }) {
   // Concoctions made before yesterday (logical days) are likely eaten up: listed after every other food.
   const oldBefore = dayBounds(addDays(today(dayStart), -1), dayStart)[0].toISOString()
   const [form, setForm] = useState(() => {
@@ -230,7 +231,7 @@ function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClose }) {
   async function remove() {
     if (confirm('Delete this entry?')) {
       await db.logs.delete(consumption.id)
-      onClose()
+      onDeleted()
     }
   }
 

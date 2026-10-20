@@ -141,8 +141,8 @@ export default function Breakdown({ nutrient, from, to }) {
     <input type="checkbox" className="bd-tick" aria-label="Select" checked={picked.has(e.key)}
       onClick={(ev) => ev.stopPropagation()} onChange={() => toggle(setPicked, e.key)} />
   )
-  // Opens the food (Info tab, components ranked by this nutrient); a deleted food has nowhere to go.
-  const openFood = (r) => r.item && go(`/foods/${r.item.id}?tab=info&nutrient=${nutrient}`)
+  // Opens the consumption's info; its link to the food keeps this nutrient (components ranked by it).
+  const openFood = (r) => go(`/consumptions/${r.c.id}?nutrient=${nutrient}`)
 
   const row = (e) => {
     if (e.groupId == null) {

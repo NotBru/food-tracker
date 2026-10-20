@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { useRoute } from './components'
 import Home from './screens/Home'
 import Consumptions from './screens/Consumptions'
+import ConsumptionInfo from './screens/ConsumptionInfo'
 import { FoodEditor, FoodList } from './screens/Foods'
 import Config from './screens/Config'
 import Targets from './screens/Targets'
@@ -14,6 +15,7 @@ import './styles.css'
 function App() {
   const { parts, query } = useRoute()
   const [a, b] = parts
+  if (a === 'consumptions' && b) return <ConsumptionInfo id={b} nutrient={query.nutrient} />
   if (a === 'consumptions') return <Consumptions day={query.day} add={query.new != null} />
   if (a === 'targets') return <Targets add={query.new != null} />
   if (a === 'config') return <Config />
