@@ -20,7 +20,8 @@ export function FoodList() {
   const rows = ctx.list
     .filter((r) => words.every((w) => searchText(r).includes(w)))
     .map((r) => [r, itemLabel(r)])
-    .sort(([a, la], [b, lb]) => (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || la.localeCompare(lb))
+    // Alphabetical, concoctions after everything else (newest first).
+    .sort(([a, la], [b, lb]) => !!a.madeAt - !!b.madeAt || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || la.localeCompare(lb))
   return (
     <Screen title="Foods">
       <input className="search" type="search" placeholder="Search foods…" value={query} onChange={(e) => setQuery(e.target.value)} />
