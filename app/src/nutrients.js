@@ -7,6 +7,7 @@ export const NUTRIENTS = [
   { key: 'saturatedFat', label: 'Saturated fat', unit: 'g' },
   { key: 'monounsaturatedFat', label: 'Monounsaturated fat', unit: 'g' },
   { key: 'polyunsaturatedFat', label: 'Polyunsaturated fat', unit: 'g' },
+  { key: 'omega3', label: 'Omega-3', unit: 'g' },
   { key: 'transFat', label: 'Trans fat', unit: 'g' },
   { key: 'cholesterol', label: 'Cholesterol', unit: 'mg' },
   { key: 'carbohydrates', label: 'Carbohydrates', unit: 'g', default: 0 },
@@ -44,6 +45,7 @@ export const NUTRIENTS = [
   { key: 'vitaminK', label: 'Vitamin K', unit: 'µg' },
   { key: 'alcohol', label: 'Alcohol', unit: 'g' },
   { key: 'caffeine', label: 'Caffeine', unit: 'mg' },
+  { key: 'creatine', label: 'Creatine', unit: 'g' },
   { key: 'water', label: 'Water', unit: 'g' },
 ]
 

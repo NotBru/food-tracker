@@ -3,6 +3,10 @@
 //     loaded on first use. Licence Ouverte, credit "ANSES-CIQUAL".
 //   Open Food Facts: packaged products, fetched live from the browser. ODbL. Rate limits: 15 product
 //     reads/min and 10 searches/min per IP, so searches only run on Enter, never per keystroke.
+//     Text search uses search-a-licious (search.openfoodfacts.org) through the /off-search proxy in vite.config.js,
+//     since it sends no CORS headers; the legacy cgi/search.pl, mostly answering 503 since 2026-10, is the fallback
+//     where there is no proxy. Search hits lack serving/package sizes and most micronutrients, so picking one
+//     reads the full product (offProductDraft).
 // Both give values per 100 g (or 100 ml). Results become a *draft* food that prefills the "New food" form.
 // Drafts carry a `provenance` attribute (CIQUAL / OFF) plus `source` ({db, id}) for the link back.
 
@@ -92,7 +96,7 @@ const G = 1, MG = 1e3, UG = 1e6
 const OFF_MAP = {
   energy: ['energy-kcal', 1], proteins: ['proteins', G], fat: ['fat', G],
   saturatedFat: ['saturated-fat', G], monounsaturatedFat: ['monounsaturated-fat', G],
-  polyunsaturatedFat: ['polyunsaturated-fat', G], transFat: ['trans-fat', G], cholesterol: ['cholesterol', MG],
+  polyunsaturatedFat: ['polyunsaturated-fat', G], omega3: ['omega-3-fat', G], transFat: ['trans-fat', G], cholesterol: ['cholesterol', MG],
   carbohydrates: ['carbohydrates', G], sugars: ['sugars', G], addedSugars: ['added-sugars', G], fibers: ['fiber', G],
   sodium: ['sodium', MG], salt: ['salt', G], potassium: ['potassium', MG], chloride: ['chloride', MG],
   calcium: ['calcium', MG], phosphorus: ['phosphorus', MG], magnesium: ['magnesium', MG], iron: ['iron', MG],
@@ -102,7 +106,7 @@ const OFF_MAP = {
   vitaminB3: ['vitamin-pp', MG], vitaminB5: ['pantothenic-acid', MG], vitaminB6: ['vitamin-b6', MG],
   vitaminB7: ['biotin', UG], vitaminB9: ['vitamin-b9', UG], vitaminB12: ['vitamin-b12', UG],
   vitaminC: ['vitamin-c', MG], vitaminD: ['vitamin-d', UG], vitaminE: ['vitamin-e', MG], vitaminK: ['vitamin-k', UG],
-  caffeine: ['caffeine', MG], water: ['water', G],
+  caffeine: ['caffeine', MG], creatine: ['creatine', G], water: ['water', G],
 }
 
 // Unit conversion leaves float noise (0.0225 g -> 22.500000000000004 µg); 4 significant digits keeps the label's
@@ -128,7 +132,8 @@ export function offDraft(p) {
   if (serving > 0) units.push({ ...ONE, fromUnit: 'serving', toAmount: serving, toUnit: p.serving_quantity_unit || unit })
   const pack = Number(p.product_quantity)
   if (pack > 0) units.push({ ...ONE, fromUnit: 'package', toAmount: pack, toUnit: p.product_quantity_unit || unit })
-  const brand = (p.brands ?? '').split(',')[0].trim()
+  // Legacy API: "A, B"; search-a-licious: ["A", "B"].
+  const brand = String(Array.isArray(p.brands) ? p.brands[0] ?? '' : p.brands ?? '').split(',')[0].trim()
   return {
     name: (p.product_name || '').trim() || `Product ${p.code}`, brand, attributes: [['provenance', 'OFF']], ...PER_100, unit, units,
     components: [], nutrients: offNutrients(p.nutriments),
@@ -145,25 +150,47 @@ async function offGet(url) {
     throw new Error("Open Food Facts didn't answer (offline, or busy / rate-limited). Try again in a minute.")
   }
   if (r.status === 429) throw new Error('Open Food Facts rate limit reached (10 searches per minute). Try again shortly.')
+  if (r.status === 503) throw new Error('Open Food Facts search is temporarily unavailable. Try again in a minute.')
   if (r.status === 404) return null
   if (!r.ok) throw new Error(`Open Food Facts: HTTP ${r.status}`)
+  // A static host without the proxy answers /off-search with the app's index.html.
+  if (!r.headers.get('content-type')?.includes('json')) return null
   return r.json()
 }
 
-export const isBarcode = (q) => /^\d{8,14}$/.test(q.trim())
+const hasPer100 = (p) => p.nutriments && Object.keys(p.nutriments).some((k) => k.endsWith('_100g'))
+
+// Barcodes are printed in groups ("3 017620 422003"); the small digits outside the bars are part of the code.
+const digitsOnly = (q) => q.replace(/[\s-]/g, '')
+export const isBarcode = (q) => /^\d{8,14}$/.test(digitsOnly(q))
 
 /** Barcode -> [product] (or []); text -> up to 24 products that have nutrition data. */
 export async function searchOff(query) {
   const q = query.trim()
   if (isBarcode(q)) {
-    const res = await offGet(`${OFF}/api/v2/product/${q}.json?fields=${OFF_FIELDS}`)
-    return res?.status === 1 && res.product ? [{ ...res.product, code: res.product.code ?? q }] : []
+    const code = digitsOnly(q)
+    const res = await offGet(`${OFF}/api/v2/product/${code}.json?fields=${OFF_FIELDS}`)
+    return res?.status === 1 && res.product ? [{ ...res.product, code: res.product.code ?? code }] : []
   }
-  const params = new URLSearchParams({
+  const params = new URLSearchParams({ q, page_size: 24, fields: OFF_FIELDS })
+  const res = await offGet(`${import.meta.env.BASE_URL}off-search/search?${params}`)
+  if (res?.hits) return res.hits.filter(hasPer100)
+  const legacy = new URLSearchParams({
     search_terms: q, search_simple: 1, action: 'process', json: 1, page_size: 24, fields: OFF_FIELDS,
   })
-  const res = await offGet(`${OFF}/cgi/search.pl?${params}`)
-  return (res?.products ?? []).filter((p) => p.nutriments && Object.keys(p.nutriments).some((k) => k.endsWith('_100g')))
+  const old = await offGet(`${OFF}/cgi/search.pl?${legacy}`)
+  return (old?.products ?? []).filter(hasPer100)
+}
+
+/** The full product behind a search hit's draft; the hit's own draft if the read fails. */
+export async function offProductDraft(draft) {
+  try {
+    const res = await offGet(`${OFF}/api/v2/product/${draft.source.id}.json?fields=${OFF_FIELDS}`)
+    if (res?.status === 1 && res.product && hasPer100(res.product)) return offDraft({ ...res.product, code: draft.source.id })
+  } catch {
+    // Rate limit or outage: the search hit still has name, brand and the main nutrients.
+  }
+  return draft
 }
 
 export function sourceLabel(source) {

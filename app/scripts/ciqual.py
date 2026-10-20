@@ -57,7 +57,13 @@ CONST = {
     60000: 'alcohol',
     400: 'water',
 }
-KEYS = list(dict.fromkeys(CONST.values()))
+# Omega-3: CIQUAL has no total, only its main parts. 'omega3' is their sum, given only when all three are.
+OMEGA3 = {
+    41833: 'ALA',  # FA 18:3 c9,c12,c15 (n-3)
+    42053: 'EPA',  # FA 20:5 (n-3)
+    42263: 'DHA',  # FA 22:6 (n-3)
+}
+KEYS = list(dict.fromkeys([*CONST.values(), 'omega3']))
 
 
 def rows(path, tag):
@@ -101,6 +107,20 @@ def cell(teneur, lo, hi, trace_delta):
     return text
 
 
+def parts(v):
+    """A cell ("text" or ["text", delta]) -> (value, delta, decimals); a plain text's Δ is from its digits."""
+    text, delta = (v, None) if isinstance(v, str) else v
+    decimals = len(text.split('.')[1]) if '.' in text else 0
+    return float(text), (10 ** -decimals if delta is None else delta), decimals
+
+
+def total(cells):
+    """Sum of cells, errors added (worst case, like calc.js), as ["text", delta]."""
+    ps = [parts(c) for c in cells]
+    decimals = max(d for _, _, d in ps)
+    return [f'{sum(v for v, _, _ in ps):.{decimals}f}', round_sig(sum(d for _, d, _ in ps))]
+
+
 def main(src, version):
     one = lambda pat: glob.glob(os.path.join(src, pat))[0]
     groups = {}
@@ -110,20 +130,29 @@ def main(src, version):
     alim = next(p for p in glob.glob(os.path.join(src, 'alim_*.xml')) if 'alim_grp' not in p)
     for a in rows(alim, 'ALIM'):
         foods[a['alim_code']] = [int(a['alim_code']), a['alim_nom_eng'], a['alim_nom_fr'], a['alim_ssgrp_code'], [''] * len(KEYS)]
-    compo = [c for c in rows(one('compo_*.xml'), 'COMPO') if int(c['const_code']) in CONST and c['alim_code'] in foods]
+    compo = [c for c in rows(one('compo_*.xml'), 'COMPO') if (int(c['const_code']) in CONST or int(c['const_code']) in OMEGA3) and c['alim_code'] in foods]
     # Most common "< x" limit per nutrient: the Δ for "traces" and zeros (half of it, like "< x" itself).
     seen = {}
     for c in compo:
         m = re.fullmatch(r'<\s*([\d,.]+)', c['teneur'].strip())
         if m:
-            seen.setdefault(CONST[int(c['const_code'])], Counter())[float(num(m[1]))] += 1
+            key = CONST.get(int(c['const_code'])) or OMEGA3[int(c['const_code'])]
+            seen.setdefault(key, Counter())[float(num(m[1]))] += 1
     limits = {k: n.most_common(1)[0][0] for k, n in seen.items()}
+    n3 = {}  # alim_code -> {part: cell}
     for c in compo:
-        key = CONST[int(c['const_code'])]
+        key = CONST.get(int(c['const_code'])) or OMEGA3[int(c['const_code'])]
         food = foods[c['alim_code']]
         v = cell(c['teneur'], c.get('min', ''), c.get('max', ''), round_sig(limits[key] / 2) if key in limits else None)
-        if v is not None:
+        if v is None:
+            continue
+        if key in OMEGA3.values():
+            n3.setdefault(c['alim_code'], {})[key] = v
+        else:
             food[4][KEYS.index(key)] = v
+    for code, cells in n3.items():
+        if len(cells) == len(OMEGA3):
+            foods[code][4][KEYS.index('omega3')] = total(cells.values())
     out = {
         'source': f'ANSES-CIQUAL {version}',
         'licence': 'Licence Ouverte / Etalab 2.0',
