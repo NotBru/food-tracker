@@ -147,7 +147,8 @@ export function nutrientsFor(ctx, id, amount, unit, amountDelta = 0, seen = new 
 
   // (amount ± Δ) converted to the base unit, divided by (base amount ± Δ).
   const [baseAmt, baseUnit, baseDelta] = baseAmount(item)
-  const factor = div(mul(span(amount, amountDelta), unitFactorSpan(unit, baseUnit, item.units)), span(baseAmt, baseDelta))
+  const eaten = mul(span(amount, amountDelta), unitFactorSpan(unit, baseUnit, item.units))
+  let factor = div(eaten, span(baseAmt, baseDelta))
   if (!Number.isFinite(factor[0])) return { ...out, ok: false }
 
   if (!item.components?.length) {
@@ -155,6 +156,11 @@ export function nutrientsFor(ctx, id, amount, unit, amountDelta = 0, seen = new 
     return out
   }
   const nextSeen = new Set(seen).add(id)
+  if (isSumOfComponents(ctx, item, baseAmt, baseUnit, baseDelta)) {
+    // Exactly its amount is all of it (as a blank amount eaten saves it): just the components, however much that is.
+    if (eaten[1] === baseAmt && eaten[2] === baseAmt) factor = EXACT(1)
+    else if (addShareInto(out, ctx, item, eaten, baseUnit, nextSeen)) return out
+  }
   for (const c of item.components) {
     const sub = nutrientsFor(ctx, c.itemId, c.amount, c.unit, c.amountDelta, nextSeen)
     if (!sub.ok) out.ok = false
@@ -162,6 +168,71 @@ export function nutrientsFor(ctx, id, amount, unit, amountDelta = 0, seen = new 
     for (const k in sub.nutrients) if (sub.nutrients[k].missing) out.nutrients[k].missing = true
   }
   return out
+}
+
+// --- Recipes whose amount is the sum of their components ------------------------------------------------------
+// When a recipe's amount is its components' sum (Auto, or a concoction added from a consumption), its error is the
+// components' errors over again. Dividing by it as if it were measured on its own counts them twice: all of a
+// 203 ± 75 g concoction holding 660 ± 254 kcal came out at 660 ± 789 kcal. Instead, the components' amounts tᵢ
+// move both the nutrients and the total, so per base unit the recipe holds Σ ρᵢtᵢ / Σ gᵢtᵢ (ρᵢ: nutrient per unit
+// of component i, gᵢ: base units per unit of it), taken at its worst case over every tᵢ, ρᵢ and gᵢ in their ranges.
+
+/** True when the recipe's amount ± Δ is its components' sum, as Auto rounds it (6 and 3 significant digits). */
+function isSumOfComponents(ctx, item, baseAmt, baseUnit, baseDelta) {
+  const total = componentsTotal(ctx, item.components, baseUnit)
+  if (total.problem || !(total.value > 0)) return false
+  const close = (a, b, rel) => Math.abs(a - b) <= rel * Math.max(Math.abs(a), Math.abs(b)) + 1e-9
+  return close(baseAmt, total.value, 1e-5) && close(baseDelta, total.delta, 1e-2)
+}
+
+/**
+ * Largest Σ aᵢtᵢ / Σ bᵢtᵢ over tᵢ ∈ [loᵢ, hiᵢ] (bᵢ ≥ 0). It's at a corner where the parts with the highest aᵢ/bᵢ are
+ * at their high end and the rest at their low end, so only n + 1 corners need trying.
+ */
+function maxRatio(a, b, lo, hi) {
+  const ratio = (i) => (b[i] > 0 ? a[i] / b[i] : Math.sign(a[i]) * Infinity || 0)
+  const order = a.map((_, i) => i).sort((i, j) => ratio(j) - ratio(i) || 0)
+  let best = -Infinity
+  for (let k = 0; k <= order.length; k++) {
+    let num = 0, den = 0
+    order.forEach((i, rank) => { const t = rank < k ? hi[i] : lo[i]; num += a[i] * t; den += b[i] * t })
+    if (den > 0) best = Math.max(best, num / den)
+    else if (num > 0) return Infinity
+  }
+  return best
+}
+
+/**
+ * Nutrients of `eaten` ([nominal, low, high], in the recipe's base unit) of a recipe whose amount is its components'
+ * sum, into `out`. False (and nothing added) if a component's amount can't be put in the base unit.
+ */
+function addShareInto(out, ctx, item, eaten, baseUnit, seen) {
+  const parts = []
+  for (const c of item.components) {
+    const g = unitFactorSpan(c.unit, baseUnit, resolve(ctx, c.itemId)?.units)
+    if (!Number.isFinite(g[2])) return false
+    const [t, lo, hi] = span(c.amount, c.amountDelta)
+    parts.push({ per: nutrientsFor(ctx, c.itemId, 1, c.unit, 0, seen), g, t, lo, hi })
+  }
+  if (parts.some((p) => !p.per.ok)) out.ok = false
+  const [e, eLo, eHi] = eaten
+  const lo = parts.map((p) => p.lo), hi = parts.map((p) => p.hi)
+  for (const { key } of NUTRIENTS) {
+    const ns = parts.map((p) => (key === 'energy' ? calories(p.per.nutrients) : p.per.nutrients[key]))
+    if (!ns.some(Boolean)) continue
+    const t = (out.nutrients[key] = { value: 0, delta: 0, missing: false })
+    // A component without the value counts as 0 of it, flagged as missing (like addInto).
+    const v = ns.map((n) => (n && Number.isFinite(n.value) ? n.value : 0))
+    const d = ns.map((n) => (n && Number.isFinite(n.value) && Number.isFinite(n.delta) ? Math.abs(n.delta) : 0))
+    if (ns.some((n) => n?.estimated)) t.estimated = true
+    if (ns.some((n) => !n || !Number.isFinite(n.value) || n.missing)) t.missing = true
+    const nominal = parts.reduce((s, p, i) => s + v[i] * p.t, 0) / parts.reduce((s, p) => s + p.g[0] * p.t, 0)
+    const high = maxRatio(v.map((x, i) => x + d[i]), parts.map((p) => p.g[1]), lo, hi)
+    const low = -maxRatio(v.map((x, i) => -(x - d[i])), parts.map((p) => p.g[2]), lo, hi)
+    t.value = e * nominal
+    t.delta = Math.max((high >= 0 ? eHi : eLo) * high - t.value, t.value - (low >= 0 ? eLo : eHi) * low)
+  }
+  return true
 }
 
 /** Nutrients of a consumption, `amount ± amountDelta unit` (worst case of all errors involved). */
