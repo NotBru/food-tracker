@@ -4,7 +4,7 @@ import { db, getConfig, getCurrentUser, itemLabel, kindOf, mergeEqualFoodsInDb }
 import { componentsTotal, consumptionNutrients, keepUnit, loadContext, nutrientsFor, resolve, unitsFor } from '../calc'
 import { addDays, dayBounds, prettyDay, toLocalInput, today } from '../time'
 import { NUTRIENTS, amountText, deltaText, emptyNutrients, fmt, measure } from '../nutrients'
-import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, Field, ItemPicker, MacroLine, Screen, UnitCombo, go, replace, useToday } from '../components'
+import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, Field, ItemPicker, MacroLine, Screen, TrashIcon, UnitCombo, go, replace, useToday } from '../components'
 
 export default function Consumptions({ day: dayParam, add }) {
   const dateRef = useRef(null)
@@ -44,6 +44,12 @@ export default function Consumptions({ day: dayParam, add }) {
     setEditing({ datetime: dt.toISOString(), userId: data.user.id, itemId: null, amount: '', unit: '' })
   }
 
+  async function remove(consumption, item) {
+    if (confirm(`Delete ${item ? `“${itemLabel(item)}”` : 'this entry'} at ${toLocalInput(new Date(consumption.datetime)).slice(11)}?`)) {
+      await db.logs.delete(consumption.id)
+    }
+  }
+
   return (
     <Screen title="Consumptions" subtitle={data.user.name} right={<button className="icon" onClick={() => (dateRef.current.showPicker ? dateRef.current.showPicker() : dateRef.current.focus())} aria-label="Pick day">📅</button>}>
       <div className="day-nav">
@@ -56,12 +62,16 @@ export default function Consumptions({ day: dayParam, add }) {
       <ul className="list">
         <li className="add" onClick={newConsumption}>+ add consumption</li>
         {rows.map(({ consumption, item, n }) => (
-          <li key={consumption.id} onClick={() => go(`/consumptions/${consumption.id}`)}>
-            <div className="list-main">
-              <span>{item ? <>{itemLabel(item)} <MadeTag item={item} /></> : '(deleted item)'}</span>
-              <span className="muted">{toLocalInput(new Date(consumption.datetime)).slice(11)} · {amountText(consumption.amount, consumption.amountText)}{consumption.amountDeltaAuto === false && ` ±${consumption.amountDelta}`} {consumption.unit}</span>
+          <li key={consumption.id} className="with-trash" onClick={() => go(`/consumptions/${consumption.id}`)}>
+            <div className="list-body">
+              <div className="list-main">
+                <span>{item ? <>{itemLabel(item)} <MadeTag item={item} /></> : '(deleted item)'}</span>
+                <span className="muted">{toLocalInput(new Date(consumption.datetime)).slice(11)} · {amountText(consumption.amount, consumption.amountText)}{consumption.amountDeltaAuto === false && ` ±${consumption.amountDelta}`} {consumption.unit}</span>
+              </div>
+              <MacroLine nutrients={n.nutrients} ok={n.ok} deltas />
             </div>
-            <MacroLine nutrients={n.nutrients} ok={n.ok} deltas />
+            <button className="icon trash" aria-label="Delete"
+              onClick={(e) => { e.stopPropagation(); remove(consumption, item) }}><TrashIcon /></button>
           </li>
         ))}
       </ul>

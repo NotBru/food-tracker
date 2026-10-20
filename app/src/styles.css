@@ -333,3 +333,8 @@ input.invalid, input.invalid:focus { border-color: var(--prot); }
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; vertical-align: 0; }
 .energy-note { margin: 6px 0 14px; }
 .food-info h3.info-amounts { margin-top: 18px; }
+/* Consumptions list: a trash button at the right of each entry */
+.list li.with-trash { flex-direction: row; align-items: center; gap: 10px; padding-right: 10px; }
+.list li.with-trash > .list-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+button.icon.trash { flex: none; background: var(--bg); color: var(--muted); }
+button.icon.trash:hover { color: var(--prot); }

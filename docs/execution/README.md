@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-20 | [Consumptions list: delete button on each entry](2026-10-20-consumption-trash.md) | accepted |
 | 2026-10-20 | [Foods list: concoctions last](2026-10-20-foods-concoctions-last.md) | accepted |
 | 2026-10-20 | [Consumption info screen, with an energy donut](2026-10-20-consumption-info.md) | accepted |
 | 2026-10-20 | [Dashboard: a "last 7 days" window](2026-10-20-last-7-days.md) | accepted |

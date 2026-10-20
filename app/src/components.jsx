@@ -61,6 +61,15 @@ export function Chevron({ dir = 'left' }) {
   )
 }
 
+/** Trash can for delete buttons; an SVG for the same reason as Chevron. */
+export function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" className="chevron">
+      <path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5" />
+    </svg>
+  )
+}
+
 export function Screen({ title, subtitle, back = true, right, children }) {
   return (
     <div className="screen">
