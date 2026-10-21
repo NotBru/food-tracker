@@ -19,6 +19,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
   set the old one's status to `superseded by <file>` rather than rewriting history.
 - Always link the instruction file(s) the entry serves.
 - Add each entry to the index below, newest first.
+- Work requested but not started yet goes in [`TODO.md`](TODO.md).
 
 ## Index
 
