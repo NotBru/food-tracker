@@ -133,6 +133,9 @@ function Gauge({ bar }) {
 
 /** "1912–2288": the range implied by the error (value ± Δ), floored at 0. */
 const errRange = ({ value, delta }) => `${fmt(Math.max(0, value - (delta || 0)), 0)}–${fmt(value + (delta || 0), 0)}`
+
+/** The error range on its own line, under "unit ±Δ"; a blank line of the same height when there's no error. */
+const ErrRange = ({ val }) => <span className="err-range">{val.delta > 0 ? errRange(val) : '\u00a0'}</span>
 const enterOpen = (open) => (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), open())
 
 const statusMark = (s) => (s === 'ok' ? '✓' : s === 'under' ? '↓' : '↑')
@@ -186,7 +189,8 @@ function BarRow({ row: r, val, range, adj, onOpen }) {
       <span className="dash-label">{r.label}</span>
       <span className={`dash-value ${r.cls}`}>
         {val.estimated ? '~' : ''}{fmt(val.value, 0)}
-        <small> {r.unit} ±{fmt(val.delta)}{val.delta > 0 && ` · ${errRange(val)}`}</small>
+        <small> {r.unit} ±{fmt(val.delta)}</small>
+        <ErrRange val={val} />
       </span>
       {/* Without a target the bar keeps its space, so every row is equally spaced. */}
       <div className={`dash-target ${bar ? '' : 'placeholder'}`} aria-hidden={!bar}>
@@ -229,7 +233,8 @@ function GaugeTile({ row: r, val, range, adj, onOpen }) {
         <Gauge bar={bar} />
         <span className={`gauge-value ${r.cls}`}>{val.estimated ? '~' : ''}{fmt(val.value, 0)}</span>
       </div>
-      <span className="tile-sub">{r.unit} ±{fmt(val.delta)}{val.delta > 0 && ` · ${errRange(val)}`}</span>
+      <span className="tile-sub">{r.unit} ±{fmt(val.delta)}</span>
+      <ErrRange val={val} />
       <RangeLine bar={bar} range={range} unit={r.unit} />
       <WeeklyAdj row={r} adj={adj} />
       <Budget row={r} val={val} range={range} />

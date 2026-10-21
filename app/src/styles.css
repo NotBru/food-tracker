@@ -11,6 +11,7 @@
   --fat: #d2a8ff;
   --kcal: #7ee787;
   --warn: #f2cc60;
+  --range: #56d4dd; /* dashboard: the range implied by the error (value ± Δ) */
   --mustard: #d9a42b; /* homescreen: the Consumptions, Foods and Targets buttons */
   color-scheme: dark;
 }
@@ -94,6 +95,8 @@ h3 { margin: 8px 0 0; font-size: 16px; }
 .dash-label { color: var(--muted); }
 .dash-value { font-size: 34px; font-weight: 800; }
 .dash-value small { font-size: 14px; font-weight: 400; color: var(--muted); }
+.err-range { font-size: 13px; font-weight: 400; color: var(--range); }
+.dash-value .err-range { display: block; line-height: 1.2; }
 .dash-target { grid-column: 2; font-size: 14px; display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
 .bar { position: relative; height: 10px; margin: 4px 0; }
 .dash-target.placeholder { visibility: hidden; }
