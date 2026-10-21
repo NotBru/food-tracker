@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-21 | [md2html.sh: compile markdown notes to self-contained HTML](2026-10-21-md2html.md) | accepted |
 | 2026-10-21 | [Dashboard: the error range on its own line, in its own colour](2026-10-21-error-range-line.md) | accepted |
 | 2026-10-20 | [Recipes whose amount is their components' sum: the error isn't counted twice](2026-10-20-recipe-sum-error.md) | accepted |
 | 2026-10-20 | [Consumptions list: delete button on each entry](2026-10-20-consumption-trash.md) | accepted |
