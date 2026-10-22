@@ -2,14 +2,15 @@ import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, getConfig, getCurrentUser, itemLabel } from '../db'
 import { consumptionNutrients, loadContext, resolve } from '../calc'
-import { NUTRIENTS, amountText, calories, fmt } from '../nutrients'
+import { NUTRIENTS, amountText, calories, fmt, pmText, rangeText } from '../nutrients'
+import { addScaled, bounds, zero } from '../stats'
 import { dayBounds, formatDateTime, prettyDay, toLocalInput } from '../time'
 import { MadeTag, Screen, go } from '../components'
 import { ROWS } from './Home'
 
 // One nutrient over a window (from the dashboard): how much each consumption contributed, as horizontal bars
-// sorted largest first. Each bar is drawn like the dashboard's fill: solid to value − Δ, hatched to value + Δ,
-// a white tick at the value. "Quintiles" cuts the ranked list into five groups of whole consumptions, each as
+// sorted largest first. Each bar is drawn like the dashboard's fill: solid to the interval's low end, hatched to its
+// high end, a white tick at the value. "Quintiles" cuts the ranked list into five groups of whole consumptions, each as
 // close as possible to an equal share of what's left (see quintiles()).
 // Consumptions can be ticked and grouped: a group is one row (and one unit for the quintiles), in every breakdown.
 // The group lives on the consumptions themselves (`log.groupId`, and its optional name in `log.groupName`), so it
@@ -18,21 +19,21 @@ import { ROWS } from './Home'
 const sum = (rows, k) => rows.reduce((s, r) => s + r[k], 0)
 
 /** Per-consumption rows -> entries, largest first: lone consumptions, plus one entry per group adding up its members
- * (also largest first). */
+ * (also largest first). Each has the nutrient as `n` ({value, v, s}) and its `value`. */
 function groupRows(rows) {
   const entries = []
   const groups = new Map()
   for (const r of rows) {
-    if (r.c.groupId == null) { entries.push({ key: `c${r.c.id}`, members: [r], value: r.value, delta: r.delta, estimated: r.estimated }); continue }
+    if (r.c.groupId == null) { entries.push({ key: `c${r.c.id}`, members: [r], n: r.n, value: r.value, estimated: r.estimated }); continue }
     let g = groups.get(r.c.groupId)
     if (!g) {
-      g = { key: `g${r.c.groupId}`, groupId: r.c.groupId, name: r.c.groupName ?? '', members: [], value: 0, delta: 0, estimated: false }
+      g = { key: `g${r.c.groupId}`, groupId: r.c.groupId, name: r.c.groupName ?? '', members: [], n: zero(), value: 0, estimated: false }
       groups.set(r.c.groupId, g)
       entries.push(g)
     }
     g.members.push(r)
-    g.value += r.value
-    g.delta += r.delta
+    addScaled(g.n, r.n)
+    g.value = g.n.value
     g.estimated ||= r.estimated
   }
   for (const g of groups.values()) g.members.sort((a, b) => b.value - a.value)
@@ -81,12 +82,13 @@ function quintiles(rows, total) {
 
 function Bar({ r, scale, cls }) {
   const pct = (x) => `${Math.max(0, Math.min(100, (x / scale) * 100))}%`
-  const lo = Math.max(0, r.value - r.delta)
+  const [lo, hi] = bounds(r.n)
+  const err = hi > lo
   return (
     <div className={`bd-bar ${cls}`}>
-      <div className="bar-fill" style={{ left: 0, width: pct(r.delta ? lo : r.value) }} />
-      {r.delta > 0 && <div className="bar-err" style={{ left: pct(lo), width: `calc(${pct(r.value + r.delta)} - ${pct(lo)})` }} />}
-      {r.delta > 0 && <div className="bar-mean" style={{ left: pct(r.value) }} />}
+      <div className="bar-fill" style={{ left: 0, width: pct(err ? lo : r.value) }} />
+      {err && <div className="bar-err" style={{ left: pct(lo), width: `calc(${pct(hi)} - ${pct(lo)})` }} />}
+      {err && <div className="bar-mean" style={{ left: pct(r.value) }} />}
     </div>
   )
 }
@@ -113,7 +115,7 @@ export default function Breakdown({ nutrient, from, to }) {
       if (!res.ok) { failed++; continue }
       const n = nutrient === 'energy' ? calories(res.nutrients) : res.nutrients[nutrient]
       if (!n || !Number.isFinite(n.value) || n.value <= 0) { missing++; continue }
-      rows.push({ c, item: resolve(ctx, c.itemId), value: n.value, delta: Number.isFinite(n.delta) ? n.delta : 0, estimated: !!n.estimated })
+      rows.push({ c, item: resolve(ctx, c.itemId), n, value: n.value, estimated: !!n.estimated })
     }
     return { rows: groupRows(rows), failed, missing, userId: user.id }
   }, [nutrient, from, to])
@@ -123,16 +125,15 @@ export default function Breakdown({ nutrient, from, to }) {
   if (!data) return <Screen title={meta.label} subtitle={when} />
 
   const { rows } = data
-  const total = sum(rows, 'value')
-  const totalDelta = sum(rows, 'delta')
-  const scale = Math.max(...rows.map((r) => r.value + r.delta), 1)
-  const range = (v, d) => `${fmt(Math.max(0, v - d), 0)}–${fmt(v + d, 0)}`
+  const totalN = rows.reduce((t, r) => addScaled(t, r.n), zero())
+  const total = totalN.value
+  const scale = Math.max(...rows.map((r) => bounds(r.n)[1]), 1)
 
   const time = (c) => (from === to ? toLocalInput(new Date(c.datetime)).slice(11) : formatDateTime(c.datetime))
   const value = (r) => (
     <span className="bd-value">
       {r.estimated ? '~' : ''}{fmt(r.value, 0)}
-      <small> ±{fmt(r.delta)} · {total ? fmt((r.value / total) * 100, 0) : 0}%</small>
+      <small> {pmText(r.n)} · {total ? fmt((r.value / total) * 100, 0) : 0}%</small>
     </span>
   )
   const label = (item) => (item ? <>{itemLabel(item)} <MadeTag item={item} /></> : '(deleted item)')
@@ -155,7 +156,7 @@ export default function Breakdown({ nutrient, from, to }) {
           </div>
           <Bar r={r} scale={scale} cls={meta.cls} />
           <span className="muted small">
-            {time(r.c)} · {amountText(r.c.amount, r.c.amountText)} {r.c.unit} · range {range(r.value, r.delta)} {meta.unit}
+            {time(r.c)} · {amountText(r.c.amount, r.c.amountText)} {r.c.unit} · range {rangeText(r.n)} {meta.unit}
           </span>
         </li>
       )
@@ -172,7 +173,7 @@ export default function Breakdown({ nutrient, from, to }) {
         <Bar r={e} scale={scale} cls={meta.cls} />
         <span className="muted small">
           {e.name ? names : `Group of ${e.members.length}`} · {time({ datetime: times[0] })}{times.length > 1 && times[0] !== times.at(-1) ? `–${time({ datetime: times.at(-1) })}` : ''}
-          {' · '}range {range(e.value, e.delta)} {meta.unit}
+          {' · '}range {rangeText(e.n)} {meta.unit}
         </span>
         {expanded && (
           <ul className="bd-members" onClick={(ev) => ev.stopPropagation()}>
@@ -223,7 +224,7 @@ export default function Breakdown({ nutrient, from, to }) {
   return (
     <Screen title={meta.label} subtitle={when}>
       <p className="bd-total">
-        <b>{fmt(total, 0)}</b> {meta.unit} ±{fmt(totalDelta)} <span className="muted">· range {range(total, totalDelta)} {meta.unit}</span>
+        <b>{fmt(total, 0)}</b> {meta.unit} {pmText(totalN)} <span className="muted">· range {rangeText(totalN)} {meta.unit}</span>
       </p>
       <div className="segmented" role="radiogroup" aria-label="Grouping">
         {[[false, 'Ranked'], [true, 'Quintiles']].map(([v, label]) => (

@@ -1,13 +1,14 @@
 // External food databases (design.md V2: "automatically fetch products from cool databases").
 //   CIQUAL (ANSES, France): ~3.5k generic foods, bundled as public/ciqual.json (built by scripts/ciqual.py),
-//     loaded on first use. Licence Ouverte, credit "ANSES-CIQUAL".
+//     loaded on first use. Licence Ouverte, credit "ANSES-CIQUAL". Its foods are part of the food database,
+//     read-only (ciqualItems); editing one saves a copy.
 //   Open Food Facts: packaged products, fetched live from the browser. ODbL. Rate limits: 15 product
 //     reads/min and 10 searches/min per IP, so searches only run on Enter, never per keystroke.
 //     Text search uses search-a-licious (search.openfoodfacts.org) through the /off-search proxy in vite.config.js,
 //     since it sends no CORS headers; the legacy cgi/search.pl, mostly answering 503 since 2026-10, is the fallback
 //     where there is no proxy. Search hits lack serving/package sizes and most micronutrients, so picking one
 //     reads the full product (offProductDraft).
-// Both give values per 100 g (or 100 ml). Results become a *draft* food that prefills the "New food" form.
+// Both give values per 100 g (or 100 ml). OFF results become a *draft* food that prefills the "New food" form.
 // Drafts carry a `provenance` attribute (CIQUAL / OFF) plus `source` ({db, id}) for the link back.
 
 import { deltaFromInput } from './nutrients'
@@ -51,7 +52,7 @@ export function loadCiqual() {
     })
     .then((t) => ({
       ...t,
-      foods: t.foods.map(([code, en, fr, group, values]) => ({ code, en, fr, group, values, hay: fold(`${en} ${fr}`) })),
+      foods: t.foods.map(([code, en, fr, group, values]) => ({ code, en, fr, group, values })),
     }))
     .catch((e) => {
       ciqual = null // allow a retry
@@ -60,18 +61,16 @@ export function loadCiqual() {
   return ciqual
 }
 
-// Case- and accent-insensitive ("creme" finds "Crème").
-const fold = (s) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
-
-/** Every word must match the English or French name; names starting with the query, then shorter names, first. */
-export function searchCiqual(table, query, limit = 60) {
-  const q = fold(query.trim())
-  const words = q.split(/\s+/).filter(Boolean)
-  if (!words.length) return []
-  return table.foods
-    .filter((f) => words.every((w) => f.hay.includes(w)))
-    .sort((a, b) => fold(b.en).startsWith(q) - fold(a.en).startsWith(q) || a.en.length - b.en.length)
-    .slice(0, limit)
+// CIQUAL foods as read-only foods (calc.js loadContext): id "ciqual:<code>", the subgroup as their category.
+let ciqualFoods = null
+export function ciqualItems() {
+  ciqualFoods ??= loadCiqual()
+    .then((t) => t.foods.map((f) => ({ ...ciqualDraft(t, f), id: `ciqual:${f.code}`, nameFr: f.fr, readOnly: true })))
+    .catch((e) => {
+      ciqualFoods = null
+      throw e
+    })
+  return ciqualFoods
 }
 
 export function ciqualDraft(table, food) {
@@ -84,6 +83,7 @@ export function ciqualDraft(table, food) {
   })
   return {
     name: food.en, brand: '', attributes: [['provenance', 'CIQUAL']], ...PER_100, unit: 'g', units: [], components: [], nutrients,
+    category: food.group,
     source: { db: 'ciqual', id: food.code, version: table.source },
     subtitle: table.groups[food.group] ?? '',
   }

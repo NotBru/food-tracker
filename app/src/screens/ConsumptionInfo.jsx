@@ -10,7 +10,7 @@ import { ConsumptionEditor } from './Consumptions'
 import EnergyChart from './EnergyChart'
 
 // Info screen of one consumption (opened from the Consumptions list or a breakdown): everything for exactly the
-// amount eaten (amount ± Δ, worst case, as everywhere else), with its energy by macro on top (EnergyChart.jsx).
+// amount eaten (amount ± Δ, as everywhere else), with its energy by macro on top (EnergyChart.jsx).
 // ✎ opens the usual editor sheet over it.
 
 /** `nutrient` (opened from a breakdown) is passed on to the food's Info tab, which ranks its components by it. */

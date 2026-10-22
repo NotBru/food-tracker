@@ -202,6 +202,8 @@ export function migrateV1({ ingredients = [], recipes = [], concoctions = [], co
 export const DEFAULT_CONFIG = {
   dayStart: '05:00',
   dashboard: 'gauges', // 'gauges' (2-column tiles) or 'bars' (one row per nutrient)
+  coverage: 0.9, // share of the probability the error intervals hold
+  ciqual: true, // CIQUAL's generic foods listed in the food database
 }
 
 export async function getConfig() {
@@ -355,8 +357,12 @@ export function parseExpiryDays(text) {
   return String(text ?? '').trim() && d > 0 ? d : undefined
 }
 
-/** What food searches match: the label, plus the made-at time so a batch can be found by its date. */
-export const searchText = (item) => `${itemLabel(item)} ${madeText(item)}`.toLowerCase()
+/** Lower case, without accents ("creme" finds "Crème"). */
+export const fold = (s) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
+
+/** What food searches match (folded): the label, plus the made-at time so a batch can be found by its date, plus a
+ * CIQUAL food's French name. */
+export const searchText = (item) => fold(`${itemLabel(item)} ${madeText(item)} ${item.nameFr ?? ''}`)
 
 // --- Import / export -----------------------------------------------------
 // JSON has no NaN, so it is encoded as null and decoded back on import.

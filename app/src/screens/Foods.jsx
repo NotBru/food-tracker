@@ -1,27 +1,36 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { DEFAULT_EXPIRY_DAYS, conflictingFoods, db, findEqualFood, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays, searchText } from '../db'
+import { DEFAULT_EXPIRY_DAYS, conflictingFoods, db, findEqualFood, fold, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays, searchText } from '../db'
 import { baseAmount, componentsTotal, keepUnit, loadContext, nutrientsFor, unitsFor } from '../calc'
 import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measure, normalizeNumber } from '../nutrients'
+import { CATEGORY_GROUPS } from '../errors'
 import { toLocalInput } from '../time'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
 import { AttributesEditor, DateTimeInput, DeltaInput, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, UnitCombo, UnitInput, enterTo, go, replace } from '../components'
 import FoodInfo from './FoodInfo'
 
 // A food is anything you can eat: an ingredient, a recipe (has components) or a concoction (has a made-at time).
-// One list, one editor; what kind a food is follows from its fields.
+// One list, one editor; what kind a food is follows from its fields. CIQUAL's foods are listed too (while searching,
+// after the user's own), read-only: editing one saves a copy.
+
+const CIQUAL_SHOWN = 50
 
 export function FoodList() {
   const [query, setQuery] = useState('')
   const ctx = useLiveQuery(loadContext)
   if (!ctx) return null
   const conflicts = conflictingFoods(ctx.list)
-  const words = query.toLowerCase().split(/\s+/).filter(Boolean)
+  const words = fold(query).split(/\s+/).filter(Boolean)
+  const match = (r) => words.every((w) => searchText(r).includes(w))
   const rows = ctx.list
-    .filter((r) => words.every((w) => searchText(r).includes(w)))
+    .filter(match)
     .map((r) => [r, itemLabel(r)])
     // Alphabetical, concoctions after everything else (newest first).
     .sort(([a, la], [b, lb]) => !!a.madeAt - !!b.madeAt || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || la.localeCompare(lb))
+  if (words.length) {
+    rows.push(...ctx.ciqual.filter(match).map((r) => [r, itemLabel(r)])
+      .sort(([, la], [, lb]) => la.length - lb.length || la.localeCompare(lb)).slice(0, CIQUAL_SHOWN))
+  }
   return (
     <Screen title="Foods">
       <input className="search" type="search" placeholder="Search foods…" value={query} onChange={(e) => setQuery(e.target.value)} />
@@ -52,7 +61,7 @@ export function FoodList() {
 
 // Always shown, on top. Everything else appears once it has a value (or is added from the picker).
 const CORE = ['energy', 'proteins', 'fat', 'carbohydrates']
-const isFilled = (f) => f.text.trim() !== '' || f.delta.trim() !== ''
+const isFilled = (f) => f.text.trim() !== ''
 
 function nutrientsToForm(nutrients) {
   const base = { ...emptyNutrients(), ...(nutrients ?? {}) }
@@ -60,19 +69,18 @@ function nutrientsToForm(nutrients) {
     NUTRIENTS.map(({ key }) => {
       const n = base[key]
       const text = n.text ?? (Number.isFinite(n.value) ? String(n.value) : '')
-      return [key, { text, delta: n.deltaAuto || !Number.isFinite(n.delta) ? '' : String(n.delta) }]
+      return [key, { text }]
     }),
   )
 }
 
+// A value's error is the model's (calc.js): its category's spread and its digits. The digits' Δ is still stored.
 function formToNutrients(form) {
   return Object.fromEntries(
     NUTRIENTS.map(({ key, default: def }) => {
-      const { delta } = form[key]
       const text = normalizeNumber(form[key].text)
       const value = text.trim() === '' ? (def ?? NaN) : Number(text)
-      const auto = delta.trim() === ''
-      return [key, { value, delta: auto ? (text.trim() === '' && def === 0 ? 0 : deltaFromInput(text)) : Number(delta), text: text.trim(), deltaAuto: auto }]
+      return [key, { value, delta: text.trim() === '' && def === 0 ? 0 : deltaFromInput(text), text: text.trim(), deltaAuto: true }]
     }),
   )
 }
@@ -97,7 +105,11 @@ const parents = [] // [{ hash, name, form, extraShown, index, created }]
  * ranks the Info tab's components by that nutrient, and is kept across tab switches. */
 export function FoodEditor({ id, tab, nutrient, nested, name }) {
   const isNew = id === 'new'
-  const data = useLiveQuery(async () => ({ id, ctx: await loadContext(), rec: isNew ? null : await db.items.get(Number(id)) }), [id])
+  const data = useLiveQuery(async () => {
+    const ctx = await loadContext()
+    const rec = isNew ? null : id.startsWith('ciqual:') ? ctx.items.get(id) ?? null : await db.items.get(Number(id))
+    return { id, ctx, rec }
+  }, [id])
   // useLiveQuery keeps the previous result while a new id loads; don't build the form from another food's data.
   if (!data || data.id !== id) return null
   if (!isNew && !data.rec) return <Screen title="Edit food"><p className="muted">Food not found (deleted?).</p></Screen>
@@ -117,7 +129,9 @@ export function FoodEditor({ id, tab, nutrient, nested, name }) {
       {/* The form stays mounted while Info is shown, so unsaved edits survive a look at the info. */}
       <div hidden={info}>
         {/* A new food may come prefilled from "Search external" (draft handed over by external.js). */}
-        <FoodForm key={`${id}:${nested ?? ''}`} ctx={data.ctx} initial={data.rec} prefill={isNew ? peekPendingDraft() : null}
+        {/* A read-only (CIQUAL) food prefills a new one: saving makes the copy. */}
+        <FoodForm key={`${id}:${nested ?? ''}`} ctx={data.ctx} initial={data.rec?.readOnly ? null : data.rec}
+          prefill={isNew ? peekPendingDraft() : data.rec?.readOnly ? data.rec : null} copy={!!data.rec?.readOnly}
           nested={!!parent} name={name} />
       </div>
       {!isNew && <SameIdWarning ctx={data.ctx} item={data.rec} />}
@@ -147,7 +161,7 @@ function withCreated(ctx, { form, index, created }) {
   return { ...form, components: form.components.map((c, j) => (j === index ? { ...c, itemId: created, unit } : c)) }
 }
 
-function FoodForm({ ctx, initial, prefill, nested, name }) {
+function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
   const src = initial ?? prefill
   // Back from a new component: this form's stashed state. Taken off the stack in an effect, since StrictMode runs
   // state initializers twice.
@@ -163,6 +177,7 @@ function FoodForm({ ctx, initial, prefill, nested, name }) {
     isMade: !!src?.madeAt,
     madeAt: toLocalInput(src?.madeAt ? new Date(src.madeAt) : new Date()),
     expiresAfterDays: src?.expiresAfterDays > 0 ? String(src.expiresAfterDays) : '',
+    category: src?.category ?? '',
     components: (src?.components ?? []).map((c) => ({
       ...c, amount: amountText(c.amount, c.amountText), amountDelta: deltaText(c.amountDelta, c.amountDeltaAuto),
     })),
@@ -191,10 +206,10 @@ function FoodForm({ ctx, initial, prefill, nested, name }) {
   // Nutrient just added: its value field gets the cursor once the row exists.
   const [focusKey, setFocusKey] = useState(null)
   const valueRefs = useRef({})
-  const adderRef = useRef(null) // Enter in a nutrient's value or Δ goes here
-  // Optional nutrients only: clears value and Δ (so it's stored as NaN again) and hides the row.
+  const adderRef = useRef(null) // Enter in a nutrient's value goes here
+  // Optional nutrients only: clears the value (so it's stored as NaN again) and hides the row.
   const removeNutrient = (key) => {
-    setForm((f) => ({ ...f, nutrients: { ...f.nutrients, [key]: { text: '', delta: '' } } }))
+    setForm((f) => ({ ...f, nutrients: { ...f.nutrients, [key]: { text: '' } } }))
     setExtraShown((s) => s.filter((k) => k !== key))
   }
   useEffect(() => {
@@ -211,12 +226,15 @@ function FoodForm({ ctx, initial, prefill, nested, name }) {
 
   function toRecord() {
     const base = measure(form.amount, form.amountDelta, form.unit)
+    const composed = form.components.some((c) => c.itemId != null)
     return {
       name: form.name.trim(), brand: form.brand.trim(), attributes: form.attributes,
       amount: base.value > 0 ? base.value : NaN, amountText: base.text, amountDelta: base.delta, amountDeltaAuto: base.auto,
       unit: form.unit.trim(),
       madeAt: form.isMade ? new Date(form.madeAt).toISOString() : null,
       expiresAfterDays: form.isMade ? parseExpiryDays(form.expiresAfterDays) : undefined,
+      // Only a food of its own has a category; a recipe's error comes from its components.
+      category: !composed && form.category ? form.category : undefined,
       units: form.units
         .filter((u) => Number(u.fromAmount) > 0 && u.fromUnit.trim() && Number(u.toAmount) > 0 && u.toUnit.trim())
         .map((u) => {
@@ -283,7 +301,8 @@ function FoodForm({ ctx, initial, prefill, nested, name }) {
   // Into a new component and back: the form slides in (from the right / left), so the switch is seen.
   return (
       <div className={`form ${nested && !restored ? 'slide-in' : restored ? 'slide-back' : ''}`}>
-        {!initial && (
+        {copy && <p className="muted small">A CIQUAL food, read-only: saving makes it a food of your own.</p>}
+        {!initial && !copy && (
           // Save also sits up here, smaller, so a prefilled draft can be saved without scrolling.
           <div className="row ext-row">
             <button className="secondary" onClick={() => go(`/foods/external${form.name.trim() ? `?q=${encodeURIComponent(form.name.trim())}` : ''}`)}>
@@ -304,6 +323,18 @@ function FoodForm({ ctx, initial, prefill, nested, name }) {
         <Field label="Name"><input value={form.name} onChange={(e) => set('name')(e.target.value)} /></Field>
         <Field label="Brand"><input value={form.brand} onChange={(e) => set('brand')(e.target.value)} /></Field>
         <Field label="Attributes"><AttributesEditor value={form.attributes} onChange={set('attributes')} /></Field>
+        {!hasComponents && (
+          <Field label="Category (how much its values vary)">
+            <select value={form.category} onChange={(e) => set('category')(e.target.value)}>
+              <option value="">Unknown</option>
+              {CATEGORY_GROUPS.map(([g, label, subs]) => (
+                <optgroup key={g} label={label}>
+                  {subs.map(([code, sub]) => <option key={code} value={code}>{sub}</option>)}
+                </optgroup>
+              ))}
+            </select>
+          </Field>
+        )}
         <div className="row amount-row">
           <Field label="Per amount">
             <input inputMode="decimal" value={form.amount} placeholder="1" onChange={(e) => set('amount')(e.target.value)} />
@@ -392,14 +423,13 @@ function FoodForm({ ctx, initial, prefill, nested, name }) {
           <>
             <h3>Nutrients</h3>
             <div className="nutrients">
-              <div className="n-row with-x n-head"><span /><span>value</span><span>Δ</span><span /></div>
+              <div className="n-row one-value n-head"><span /><span>value</span><span /></div>
               {[...CORE.map((k) => NUTRIENTS.find((n) => n.key === k)), ...NUTRIENTS.filter((n) => !CORE.includes(n.key) && (isFilled(form.nutrients[n.key]) || extraShown.includes(n.key)))].map((n) => {
                 const f = form.nutrients[n.key]
                 return (
-                  <div className="n-row with-x" key={n.key}>
+                  <div className="n-row one-value" key={n.key}>
                     <span>{n.label} <small className="muted">{n.unit}</small></span>
                     <input ref={(el) => (valueRefs.current[n.key] = el)} inputMode="decimal" value={f.text} placeholder={n.default === 0 ? '0' : 'NaN'} enterKeyHint="next" onKeyDown={enterTo(adderRef)} onChange={(e) => setN(n.key, 'text', e.target.value)} />
-                    <input inputMode="decimal" value={f.delta} placeholder={f.text ? String(+deltaFromInput(f.text).toPrecision(3)) : n.default === 0 ? '0' : 'auto'} enterKeyHint="next" onKeyDown={enterTo(adderRef)} onChange={(e) => setN(n.key, 'delta', e.target.value)} />
                     {CORE.includes(n.key) ? <span /> : (
                       <button className="icon small" aria-label={`Remove ${n.label}`} onClick={() => removeNutrient(n.key)}>×</button>
                     )}

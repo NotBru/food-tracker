@@ -1,24 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { MacroLine, Screen } from '../components'
-import { ciqualDraft, isBarcode, loadCiqual, offDraft, offProductDraft, searchCiqual, searchOff, setPendingDraft } from '../external'
+import { isBarcode, offDraft, offProductDraft, searchOff, setPendingDraft } from '../external'
 
-// "Search external", opened from New food. Picking a result goes back to the form, prefilled (see external.js).
-// CIQUAL is local, so it filters as you type; Open Food Facts searches on Enter (rate-limited).
-
-const SOURCES = [['ciqual', 'Generic (CIQUAL)'], ['off', 'Products (OFF)']]
+// "Search external", opened from New food: Open Food Facts, searched on Enter (rate-limited). Picking a result goes
+// back to the form, prefilled (see external.js). CIQUAL's generic foods are in the food database itself.
 
 export default function External({ initialQuery = '' }) {
-  const [source, setSource] = useState('ciqual')
   const [query, setQuery] = useState(initialQuery)
-
   return (
-    <Screen title="Search external">
-      <div className="segmented" role="radiogroup" aria-label="Database">
-        {SOURCES.map(([v, label]) => (
-          <button key={v} role="radio" aria-checked={source === v} className={source === v ? 'on' : ''} onClick={() => setSource(v)}>{label}</button>
-        ))}
-      </div>
-      {source === 'ciqual' ? <CiqualSearch query={query} setQuery={setQuery} /> : <OffSearch query={query} setQuery={setQuery} />}
+    <Screen title="Search Open Food Facts">
+      <OffSearch query={query} setQuery={setQuery} />
     </Screen>
   )
 }
@@ -43,29 +34,6 @@ function Results({ drafts, empty, onPick = pick }) {
         </li>
       ))}
     </ul>
-  )
-}
-
-function CiqualSearch({ query, setQuery }) {
-  const [table, setTable] = useState(null)
-  const [error, setError] = useState(null)
-  useEffect(() => {
-    loadCiqual().then(setTable, (e) => setError(e.message))
-  }, [])
-  const drafts = useMemo(() => (table ? searchCiqual(table, query).map((f) => ciqualDraft(table, f)) : []), [table, query])
-
-  return (
-    <>
-      <input className="search" type="search" autoFocus placeholder="Search generic foods (English or French)…" value={query}
-        onChange={(e) => setQuery(e.target.value)} />
-      {error ? <p className="warn">{error}</p> : !table ? <p className="muted">Loading the CIQUAL table…</p> : (
-        <Results drafts={drafts} empty={query.trim() ? 'No match.' : `${table.foods.length} foods. Type to search, e.g. "egg boiled".`} />
-      )}
-      <p className="muted small">
-        Data: <a href="https://ciqual.anses.fr/" target="_blank" rel="noreferrer">{table?.source ?? 'ANSES-CIQUAL'}</a>, French food
-        composition table, {table?.licence ?? 'Licence Ouverte'}. Values per 100 g; Δ from the sources' range where given.
-      </p>
-    </>
   )
 }
 

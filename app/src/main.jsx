@@ -1,6 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useRoute } from './components'
+import { getConfig } from './db'
+import { setCoverage } from './stats'
 import Home from './screens/Home'
 import Consumptions from './screens/Consumptions'
 import ConsumptionInfo from './screens/ConsumptionInfo'
@@ -14,6 +17,10 @@ import './styles.css'
 
 function App() {
   const { parts, query } = useRoute()
+  // The error intervals' coverage is set before anything is drawn (stats.js).
+  const config = useLiveQuery(getConfig)
+  if (!config) return null
+  setCoverage(config.coverage)
   const [a, b] = parts
   if (a === 'consumptions' && b) return <ConsumptionInfo id={b} nutrient={query.nutrient} />
   if (a === 'consumptions') return <Consumptions day={query.day} add={query.new != null} />

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { calories, fmt } from '../nutrients'
+import { calories, fmt, pmText } from '../nutrients'
+import { addScaled, zero } from '../stats'
 
 // Energy of an amount of food, computed from the grams of each macro (Atwater 9/4/4, 7 for alcohol), not the
 // energy registered for it: a donut with the total in the middle, fat and carbohydrates split into their kinds, and
@@ -45,7 +46,8 @@ function split(n, node, g) {
   return out
 }
 
-/** Energy from grams, per macro and per kind: {macros: [{…macro, g, delta, kcal, kcalDelta, slices}], total, delta}. */
+/** Energy from grams, per macro and per kind: {macros: [{…macro, g, n, kcal, kcalN, slices}], total, totalN}; the
+ * `…N` are distributions (stats.js) of the grams and the kcal. */
 function energySplit(n) {
   const macros = MACROS.map((m) => {
     const g = grams(n, m.key) ?? 0
@@ -56,13 +58,13 @@ function energySplit(n) {
       // Shades of the macro's colour, from full to about half-way to the background.
       color: leaves.length > 1 ? `color-mix(in srgb, ${m.color} ${100 - (i * 55) / (leaves.length - 1)}%, var(--bg))` : m.color,
     }))
-    const d = Number.isFinite(n[m.key]?.delta) ? n[m.key].delta : 0
-    return { ...m, g, delta: d, kcal: g * f, kcalDelta: d * f, slices }
+    const gN = grams(n, m.key) != null ? n[m.key] : zero()
+    return { ...m, g, n: gN, kcal: g * f, kcalN: addScaled(zero(), gN, f), slices }
   }).filter((m) => !m.optional || m.g > 0)
   return {
     macros,
     total: macros.reduce((s, m) => s + m.kcal, 0),
-    delta: macros.reduce((s, m) => s + m.kcalDelta, 0),
+    totalN: macros.reduce((t, m) => addScaled(t, m.kcalN), zero()),
   }
 }
 
@@ -71,7 +73,7 @@ const C = 2 * Math.PI * R
 const GAP = 2 // px of background between slices
 
 /** Donut of the slices; the centre shows the total, or the slice hovered/tapped. */
-function Donut({ split: { macros, total, delta } }) {
+function Donut({ split: { macros, total, totalN } }) {
   const [active, setActive] = useState(null)
   const slices = macros.flatMap((m) => m.slices.filter((s) => s.kcal > 0).map((s) => ({ ...s, macro: m.label })))
   const many = slices.length > 1
@@ -106,7 +108,7 @@ function Donut({ split: { macros, total, delta } }) {
         ) : (
           <>
             <b>{fmt(total, 0)}</b>
-            <span>±{fmt(delta, 0)} kcal</span>
+            <span>{pmText(totalN, 0)} kcal</span>
           </>
         )}
       </div>
@@ -122,8 +124,8 @@ function EnergyLegend({ split: { macros, total } }) {
         {macros.map((m) => [
           <tr key={m.key} className="macro">
             <td><span className="swatch" style={{ background: m.color }} />{m.label}</td>
-            <td className="num">{fmt(m.g)} ±{fmt(m.delta)} <span className="muted">g</span></td>
-            <td className="num">{fmt(m.kcal, 0)} ±{fmt(m.kcalDelta, 0)} <span className="muted">kcal</span></td>
+            <td className="num">{fmt(m.g)} {pmText(m.n)} <span className="muted">g</span></td>
+            <td className="num">{fmt(m.kcal, 0)} {pmText(m.kcalN, 0)} <span className="muted">kcal</span></td>
             <td className="num">{pct(m.kcal)}</td>
           </tr>,
           // A macro with no kinds listed is one slice; its own row says it all.
@@ -151,7 +153,7 @@ export default function EnergyChart({ nutrients }) {
       <EnergyLegend split={energy} />
       <p className="muted small energy-note">
         From the grams: 9 kcal/g fat, 4 proteins and carbohydrates{energy.macros.some((m) => m.key === 'alcohol') && ', 7 alcohol'}.
-        {!registered.estimated && <> Registered energy: {fmt(registered.value, 0)} ±{fmt(registered.delta, 0)} kcal.</>}
+        {!registered.estimated && <> Registered energy: {fmt(registered.value, 0)} {pmText(registered, 0)} kcal.</>}
       </p>
     </>
   )

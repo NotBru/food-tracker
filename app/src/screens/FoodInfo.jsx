@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { baseAmount, nutrientsFor, resolve, span, unitFactorSpan, unitsFor } from '../calc'
 import { itemLabel } from '../db'
 import { MadeTag } from '../components'
-import { MACROS, NUTRIENTS, calories, fmt, normalizeNumber } from '../nutrients'
+import { MACROS, NUTRIENTS, calories, fmt, normalizeNumber, pmText, rangeText } from '../nutrients'
+import { getCoverage, sdOf } from '../stats'
+import { categoryName } from '../errors'
 import { ROWS } from './Home'
 import EnergyChart from './EnergyChart'
 
-// Info tab of a food: the nutrients for any amount (picked on top), computed with the same interval maths as
+// Info tab of a food: the nutrients for any amount (picked on top), computed with the same error maths as
 // consumptions (calc.js), so what's shown here is exactly what a consumption would get: its energy by macro
 // (EnergyChart.jsx, as on a consumption's info screen), every nutrient, then every amount with its error.
 // Opened from a nutrient's breakdown (`nutrient`), the components are ranked by how much of it each brings, shown
@@ -64,13 +66,20 @@ export default function FoodInfo({ ctx, item, nutrient }) {
       )}
       <h3>Nutrients</h3>
       <p className="muted small">
-        Taken as exact; the ranges include the error of every amount (under Amounts) and of each value
-        {item.components?.length ? ' (summed over the components)' : ''}, worst case.
+        Taken as exact; each range holds {fmt(getCoverage() * 100)}% of the probability. It includes how much a sample of
+        {item.components?.length ? ' each component' : ' this food'} varies (by category), the digits of its values and
+        the error of every amount (under Amounts).
       </p>
       {res && !res.ok && <p className="warn small">Some of it can't be computed (missing food or unit conversion).</p>}
       {res && <NutrientTable nutrients={res.nutrients} />}
       <h3 className="info-amounts">Amounts</h3>
       <ul className="info-list">
+        {!item.components?.length && (
+          <li>
+            <span>Category</span>
+            <span>{categoryName(item.category)}</span>
+          </li>
+        )}
         <li>
           <span>Nutrients are per</span>
           <span><Amount value={baseAmt} lo={span(baseAmt, baseDelta)[1]} hi={span(baseAmt, baseDelta)[2]} unit={baseUnit} delta={baseDelta} /></span>
@@ -97,13 +106,13 @@ export default function FoodInfo({ ctx, item, nutrient }) {
             <li key={`c${i}`} className={lead ? 'has-lead' : undefined}>
               {lead && (
                 <b className="info-lead">
-                  {v ? <>{v.estimated ? '~' : ''}{fmt(v.value)}<small>±{fmt(v.delta)} {lead.unit}</small></> : <>–<small>{lead.unit}</small></>}
+                  {v ? <>{v.estimated ? '~' : ''}{fmt(v.value)}<small>{pmText(v)} {lead.unit}</small></> : <>–<small>{lead.unit}</small></>}
                 </b>
               )}
               <span>{child ? <>{itemLabel(child)} <MadeTag item={child} /></> : '(missing item)'}</span>
               <span>
                 <Amount value={c.amount} lo={lo} hi={hi} unit={c.unit} delta={c.amountDelta || 0} />
-                <span className="muted"> → {sub.ok ? <>{fmt(kcal.value, 0)} ±{fmt(kcal.delta)} kcal</> : "can't compute"}</span>
+                <span className="muted"> → {sub.ok ? <>{fmt(kcal.value, 0)} {pmText(kcal, 0)} kcal</> : "can't compute"}</span>
               </span>
             </li>
           )
@@ -113,11 +122,11 @@ export default function FoodInfo({ ctx, item, nutrient }) {
   )
 }
 
-/** Every known nutrient of `nutrients` (from nutrientsFor): value ± Δ, range and relative error. Also used by the
- * consumption info screen. */
+/** Every known nutrient of `nutrients` (from nutrientsFor): value with its interval, range and relative deviation
+ * (CV). Also used by the consumption info screen. */
 export function NutrientTable({ nutrients }) {
   const rows = ORDERED.map((n) => [n, n.key === 'energy' ? calories(nutrients) : nutrients[n.key]])
-    .filter(([n, v]) => v && Number.isFinite(v.value) && (v.value !== 0 || v.delta > 0 || n.key === 'energy'))
+    .filter(([n, v]) => v && Number.isFinite(v.value) && (v.value !== 0 || sdOf(v) > 0 || n.key === 'energy'))
   return (
     <>
       <table className="info-table">
@@ -125,9 +134,9 @@ export function NutrientTable({ nutrients }) {
           {rows.map(([n, v]) => (
             <tr key={n.key}>
               <td>{n.label}{v.missing && <span className="warn"> *</span>}</td>
-              <td className="num"><b>{v.estimated ? '~' : ''}{fmt(v.value)}</b> ±{fmt(v.delta)} <span className="muted">{n.unit}</span></td>
-              <td className="num muted">{fmt(Math.max(0, v.value - v.delta))}–{fmt(v.value + v.delta)}</td>
-              <td className="num muted">{v.value > 0 ? `±${fmt((v.delta / v.value) * 100, 1)}%` : ''}</td>
+              <td className="num"><b>{v.estimated ? '~' : ''}{fmt(v.value)}</b> {pmText(v)} <span className="muted">{n.unit}</span></td>
+              <td className="num muted">{rangeText(v, 1)}</td>
+              <td className="num muted">{v.value > 0 ? `CV ${fmt((sdOf(v) / v.value) * 100, 1)}%` : ''}</td>
             </tr>
           ))}
         </tbody>

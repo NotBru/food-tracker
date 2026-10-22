@@ -1,4 +1,6 @@
-// Known nutrient keys. Values are stored per ingredient as { value, delta }.
+import { addScaled, bounds, zero } from './stats'
+
+// Known nutrient keys. Values are stored per ingredient as { value, text } (plus the digits' delta, kept but unused).
 // `default: 0` = preset to 0 (design.md); anything else not filled in is stored as NaN.
 export const NUTRIENTS = [
   { key: 'energy', label: 'Energy', unit: 'kcal' },
@@ -97,16 +99,15 @@ export function measure(text, deltaText, unit) {
 export const amountText = (value, text) => text ?? (Number.isFinite(value) ? String(value) : '')
 export const deltaText = (delta, auto) => (auto || !Number.isFinite(delta) ? '' : String(delta))
 
-// Calories shown everywhere: stored energy if known, otherwise Atwater estimate 4/4/9 (+7 alcohol).
+// Calories shown everywhere: stored energy if known, otherwise Atwater estimate 4/4/9 (+7 alcohol), a linear
+// combination of the macros' distributions (stats.js).
 export function calories(n) {
   if (n.energy && Number.isFinite(n.energy.value)) return { ...n.energy, estimated: !!n.energy.estimated }
-  const v = (k) => (Number.isFinite(n[k]?.value) ? n[k].value : 0)
-  const d = (k) => (Number.isFinite(n[k]?.delta) ? n[k].delta : 0)
-  return {
-    value: 4 * v('proteins') + 4 * v('carbohydrates') + 9 * v('fat') + 7 * v('alcohol'),
-    delta: 4 * d('proteins') + 4 * d('carbohydrates') + 9 * d('fat') + 7 * d('alcohol'),
-    estimated: true,
+  const out = { ...zero(), estimated: true }
+  for (const [k, f] of [['proteins', 4], ['carbohydrates', 4], ['fat', 9], ['alcohol', 7]]) {
+    if (Number.isFinite(n[k]?.value)) addScaled(out, n[k], f)
   }
+  return out
 }
 
 export function fmt(x, digits = 1) {
@@ -121,3 +122,14 @@ export function rangeLabel({ min, max } = {}) {
   if (hasMin && hasMax) return `${fmt(min, 0)}–${fmt(max, 0)}`
   return hasMin ? `≥ ${fmt(min, 0)}` : `≤ ${fmt(max, 0)}`
 }
+
+/** A nutrient's interval around its value, "±12" or, when lopsided, "−10 +14" (stats.js bounds). */
+export function pmText(n, digits = 1) {
+  const [lo, hi] = bounds(n)
+  const a = fmt(n.value - lo, digits)
+  const b = fmt(hi - n.value, digits)
+  return a === b ? `±${a}` : `−${a} +${b}`
+}
+
+/** "1912–2288": a nutrient's interval. */
+export const rangeText = (n, digits = 0) => bounds(n).map((x) => fmt(x, digits)).join('–')

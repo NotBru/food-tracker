@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { getConfig, itemLabel, kindOf, madeText, searchText } from './db'
+import { fold, getConfig, itemLabel, kindOf, madeText, searchText } from './db'
 import { today } from './time'
-import { autoAmountDelta, calories, fmt } from './nutrients'
+import { autoAmountDelta, calories, fmt, pmText } from './nutrients'
 
 // --- Current day -----------------------------------------------------------
 // Today's logical day (see time.js), kept current: live queries only re-run on database changes, so screens that
@@ -237,18 +237,20 @@ const isOld = (it, before) => !!(before && it.madeAt && it.madeAt < before)
  */
 /** `onCreate(text)`: if given, a + beside the box, to make a new food from what's typed.
  * `oldBefore` (ISO time): if given, concoctions made before it go last, after every other food.
- * `show(item)`: if given, only foods it accepts are listed. */
+ * `show(item)`: if given, only foods it accepts are listed.
+ * CIQUAL's foods (`ctx.ciqual`) come after the user's own, once something is typed. */
 export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore, show }) {
   const [query, setQuery] = useState(null) // null = closed
   const inputRef = useRef(null)
   const selected = value != null ? ctx.items.get(value) : null
-  const words = (query ?? '').toLowerCase().split(/\s+/).filter(Boolean)
-  const matches = ctx.list
+  const words = fold(query ?? '').split(/\s+/).filter(Boolean)
+  const matches = (words.length ? [...ctx.list, ...ctx.ciqual] : ctx.list)
     .filter((it) => it.id !== exclude && (!show || show(it)))
     .filter((it) => words.every((w) => searchText(it).includes(w)))
     .map((it) => [it, itemLabel(it)])
-    // Most recently made concoctions first, then alphabetical; old concoctions (if `oldBefore`) last, newest first.
-    .sort(([a, la], [b, lb]) => isOld(a, oldBefore) - isOld(b, oldBefore)
+    // Most recently made concoctions first, then alphabetical; old concoctions (if `oldBefore`) last, newest first;
+    // CIQUAL after everything of the user's.
+    .sort(([a, la], [b, lb]) => !!a.readOnly - !!b.readOnly || isOld(a, oldBefore) - isOld(b, oldBefore)
       || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || la.localeCompare(lb))
     .slice(0, 50)
   const nav = useListNav(matches.length, (i) => {
@@ -340,18 +342,18 @@ export function NutrientAdder({ options, onAdd, inputRef }) {
   )
 }
 
-/** "P 12 · F 5 · C 30 · 230 kcal" line; with `deltas`, each value also shows its error ("P 12 ±1 · …"). */
+/** "P 12 · F 5 · C 30 · 230 kcal" line; with `deltas`, each value also shows its interval ("P 12 ±1 · …"). */
 export function MacroLine({ nutrients, ok = true, deltas = false }) {
   if (!ok) return <span className="macros warn">can't compute (unit conversion missing?)</span>
   const v = (k) => nutrients[k]?.value ?? 0
   const kcal = calories(nutrients)
-  const pm = (d, digits) => deltas && <small className="pm"> ±{fmt(Number.isFinite(d) ? d : 0, digits)}</small>
+  const pm = (n, digits) => deltas && n && <small className="pm"> {pmText(n, digits)}</small>
   return (
     <span className="macros">
-      <b className="c-prot">P {fmt(v('proteins'))}{pm(nutrients.proteins?.delta)}</b> ·{' '}
-      <b className="c-fat">F {fmt(v('fat'))}{pm(nutrients.fat?.delta)}</b> ·{' '}
-      <b className="c-carb">C {fmt(v('carbohydrates'))}{pm(nutrients.carbohydrates?.delta)}</b> ·{' '}
-      <b className="c-kcal">{kcal.estimated ? '~' : ''}{fmt(kcal.value, 0)}{pm(kcal.delta, 0)} kcal</b>
+      <b className="c-prot">P {fmt(v('proteins'))}{pm(nutrients.proteins)}</b> ·{' '}
+      <b className="c-fat">F {fmt(v('fat'))}{pm(nutrients.fat)}</b> ·{' '}
+      <b className="c-carb">C {fmt(v('carbohydrates'))}{pm(nutrients.carbohydrates)}</b> ·{' '}
+      <b className="c-kcal">{kcal.estimated ? '~' : ''}{fmt(kcal.value, 0)}{pm(kcal, 0)} kcal</b>
     </span>
   )
 }

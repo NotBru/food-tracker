@@ -34,12 +34,13 @@ product categories. Between-countries datasets are an issue tho.
 
 We'll model this by assuming every new entry draws a sample which, for every nutrient, draws a
 $q_\alpha$ from a lognormal distribution with mean $(1+\varepsilon_{q\alpha})q_{r\alpha}$ and
-standard deviation $\varepsilon_{\delta q\alpha}$, where $\varepsilon_{q\alpha}$ and
-$\varepsilon_{\delta q\alpha}$ are constants that depend on category and nutrient.
+standard deviation $\varepsilon_{\delta q\alpha}(1+\varepsilon_{q\alpha})q_{r\alpha}$,
+where $\varepsilon_{q\alpha}$ and $\varepsilon_{\delta q\alpha}$ are constants that depend on
+category and nutrient.
 
 Let
 - $\hat{q}_\alpha=(1+\varepsilon_{q\alpha})q_{r\alpha}$
-- $\hat{\delta q}_\alpha=\varepsilon_{\delta_q\alpha}$
+- $\hat{\delta q}_\alpha=\varepsilon_{\delta_q\alpha}\hat{q}_\alpha$
 
 ### Ingredient combination
 

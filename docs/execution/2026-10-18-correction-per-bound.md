@@ -1,7 +1,7 @@
 # Weekly calorie correction: each bound solves the 7-day average
 
 - **Date:** 2026-10-18
-- **Status:** accepted
+- **Status:** superseded by [error-model](2026-10-22-error-model.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (Homescreen dashboard, Targets); request in chat
 - **Supersedes in part:** [weekly calorie correction](2026-10-17-weekly-calorie-correction.md) (how the range moves)
 

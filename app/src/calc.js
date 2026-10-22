@@ -1,6 +1,9 @@
-import { db } from './db'
+import { db, getConfig } from './db'
 import { addDays, dayBounds } from './time'
-import { NUTRIENTS, calories } from './nutrients'
+import { NUTRIENTS, calories, deltaFromInput } from './nutrients'
+import { sampling } from './errors'
+import { ciqualItems } from './external'
+import { addProduct, addScaled, bounds, zero } from './stats'
 
 // Built-in conversions to a base unit per dimension.
 const BUILTIN = {
@@ -11,9 +14,9 @@ const BUILTIN = {
 
 const norm = (u) => String(u ?? '').trim().toLowerCase()
 
-// --- Intervals ---------------------------------------------------------------
-// Every amount may carry an error (amount ± Δ). Scale factors are carried as [nominal, low, high] so the error
-// of each nutrient can be taken at the worst case of all amounts involved.
+// --- Amount intervals ----------------------------------------------------------
+// Every amount may carry an error (amount ± Δ). For showing amounts as typed (and adding up a recipe's amount), they
+// are carried as [nominal, low, high]. Nutrients use distributions instead (below).
 
 const EXACT = (f) => [f, f, f]
 const NO_FACTOR = [NaN, NaN, NaN]
@@ -58,35 +61,85 @@ export function unitFactorSpan(fromUnit, toUnit, units = []) {
   return NO_FACTOR
 }
 
-/**
- * Adds `nutrients` scaled by `factor` (a number, or [nominal, low, high]) into `total`. The Δ added is the worst
- * case over (value ± Δ) × [low, high]; for an exact factor that's just Δ·|factor|. Δs of a sum add up.
- */
-function addInto(total, nutrients, factor) {
+// --- Nutrients as distributions ------------------------------------------------------------
+// docs/notes/error-handling.md: each nutrient is {value, v, s} (stats.js), plus `missing` (some food in it has no
+// value) and `estimated` (energy from the macros). Amounts keep their ± Δ as typed, read as a uniform error: σ = Δ/√3.
+
+const uniformSd = (d) => (Math.abs(d) || 0) / Math.sqrt(3)
+
+/** Relative variance of a unit conversion: its two sides' uniform errors. */
+const unitRel2 = (c) => (uniformSd(c.fromDelta) / c.fromAmount) ** 2 + (uniformSd(c.toDelta) / c.toAmount) ** 2
+
+/** [factor, relative variance] from `fromUnit` to `toUnit`, or [NaN, NaN]: unitFactor with the units' errors. */
+export function unitFactorStat(fromUnit, toUnit, units = []) {
+  const from = norm(fromUnit)
+  const to = norm(toUnit)
+  if (from === to) return [1, 0]
+  const builtin = (a, b) => (BUILTIN[a] && BUILTIN[b] && BUILTIN[a][0] === BUILTIN[b][0] ? BUILTIN[a][1] / BUILTIN[b][1] : NaN)
+  const direct = builtin(from, to)
+  if (Number.isFinite(direct)) return [direct, 0]
+  const hop = (a, b) => (a === b ? 1 : builtin(a, b))
+  for (const c of units) {
+    if (!(c.fromAmount > 0 && c.toAmount > 0)) continue
+    const [a, b] = [norm(c.fromUnit), norm(c.toUnit)]
+    let k = hop(from, a) * hop(b, to)
+    if (Number.isFinite(k)) return [k * (c.toAmount / c.fromAmount), unitRel2(c)]
+    k = hop(from, b) * hop(a, to)
+    if (Number.isFinite(k)) return [k * (c.fromAmount / c.toAmount), unitRel2(c)]
+  }
+  return [NaN, NaN]
+}
+
+// Per base amount of a food without components: the label's values, each drawn per sample (category CV) and read
+// within its digits (uniform).
+const baseCache = new WeakMap()
+function baseNutrients(item) {
+  let out = baseCache.get(item)
+  if (out) return out
+  out = {}
+  for (const { key } of NUTRIENTS) {
+    const n = item.nutrients?.[key]
+    if (!n) continue
+    if (!Number.isFinite(n.value)) { out[key] = { value: NaN, v: 0, s: {} }; continue }
+    const [bias, cv] = sampling(item.category, key)
+    const q = (1 + bias) * n.value
+    const label = n.text ? uniformSd(deltaFromInput(n.text)) : 0
+    out[key] = { value: q, v: (cv * q) ** 2 + label ** 2, s: {} }
+  }
+  baseCache.set(item, out)
+  return out
+}
+
+/** Adds `nutrients` × F into `total`, F with mean `f` and variance `phi` (stats.js addProduct). */
+function addInto(total, nutrients, f, phi = 0) {
   if (!nutrients) return
-  const [f, lo, hi] = Array.isArray(factor) ? factor : EXACT(factor)
   for (const { key } of NUTRIENTS) {
     // Unknown energy is estimated from macros per item, so one label without kcal doesn't zero it out.
     const n = key === 'energy' ? calories(nutrients) : nutrients[key]
     if (!n) continue
-    const t = (total[key] ??= { value: 0, delta: 0, missing: false })
+    const t = (total[key] ??= { ...zero(), missing: false })
     if (n.estimated) t.estimated = true
-    if (Number.isFinite(n.value)) {
-      const d = Number.isFinite(n.delta) ? Math.abs(n.delta) : 0
-      const v = n.value * f
-      const corners = [(n.value - d) * lo, (n.value - d) * hi, (n.value + d) * lo, (n.value + d) * hi]
-      t.value += v
-      t.delta += lo === hi ? d * Math.abs(f) : Math.max(Math.max(...corners) - v, v - Math.min(...corners))
-    } else {
-      t.missing = true
-    }
+    if (Number.isFinite(n.value)) addProduct(t, n, f, phi)
+    else t.missing = true
   }
 }
 
-/** Load everything nutrient computation needs, once. */
+/**
+ * Load everything nutrient computation needs, once. `list` is the user's own foods; CIQUAL's are read-only foods
+ * (external.js ciqualItems) that always resolve, so consumptions of them keep working, and are listed (`ciqual`)
+ * only while the config includes them.
+ */
 export async function loadContext() {
-  const list = await db.items.toArray()
-  return { items: new Map(list.map((r) => [r.id, r])), list }
+  const [list, config] = await Promise.all([db.items.toArray(), getConfig()])
+  const items = new Map(list.map((r) => [r.id, r]))
+  let ciqual = []
+  try {
+    ciqual = await ciqualItems()
+  } catch {
+    // Not loaded (offline on first use): own foods only.
+  }
+  for (const it of ciqual) items.set(it.id, it)
+  return { items, list, ciqual: config.ciqual ? ciqual : [] }
 }
 
 /** Keep `unit` if it still works for the newly picked food, otherwise switch to the food's own unit. */
@@ -160,9 +213,9 @@ export function baseAmount(item) {
 }
 
 /**
- * Nutrients for `amount unit` of item `id`. Items with components get them inferred from the components;
- * otherwise their own nutrients are used.
- * Returns { nutrients: {key: {value, delta, missing}}, ok } where ok=false means a unit couldn't be converted
+ * Nutrients for `amount ± amountDelta unit` of item `id`. Items with components get them inferred from the
+ * components; otherwise their own nutrients are used.
+ * Returns { nutrients: {key: {value, v, s, missing}}, ok } where ok=false means a unit couldn't be converted
  * or an item is missing.
  */
 export function nutrientsFor(ctx, id, amount, unit, amountDelta = 0, seen = new Set()) {
@@ -170,97 +223,49 @@ export function nutrientsFor(ctx, id, amount, unit, amountDelta = 0, seen = new 
   const item = resolve(ctx, id)
   if (!item || seen.has(id)) return { ...out, ok: false }
 
-  // (amount ± Δ) converted to the base unit, divided by (base amount ± Δ).
+  // F = amount · (base units per unit) / base amount. A recipe's base amount counts as exact (q̂ = w/P).
   const [baseAmt, baseUnit, baseDelta] = baseAmount(item)
-  const eaten = mul(span(amount, amountDelta), unitFactorSpan(unit, baseUnit, item.units))
-  let factor = div(eaten, span(baseAmt, baseDelta))
-  if (!Number.isFinite(factor[0])) return { ...out, ok: false }
+  const [g, gRel2] = unitFactorStat(unit, baseUnit, item.units)
+  if (!Number.isFinite(g)) return { ...out, ok: false }
+  const own = !item.components?.length
+  const f = (amount * g) / baseAmt
+  const phi = (uniformSd(amountDelta) * g / baseAmt) ** 2 + f * f * (gRel2 + (own ? (uniformSd(baseDelta) / baseAmt) ** 2 : 0))
+  if (!Number.isFinite(f)) return { ...out, ok: false }
 
-  if (!item.components?.length) {
-    addInto(out.nutrients, item.nutrients, factor)
+  if (own) {
+    addInto(out.nutrients, baseNutrients(item), f, phi)
     return out
   }
-  const nextSeen = new Set(seen).add(id)
-  if (isSumOfComponents(ctx, item, baseAmt, baseUnit, baseDelta)) {
-    // Exactly its amount is all of it (as a blank amount eaten saves it): just the components, however much that is.
-    if (eaten[1] === baseAmt && eaten[2] === baseAmt) factor = EXACT(1)
-    else if (addShareInto(out, ctx, item, eaten, baseUnit, nextSeen)) return out
-  }
+  const whole = recipeNutrients(ctx, item, new Set(seen).add(id))
+  if (!whole.ok) out.ok = false
+  addInto(out.nutrients, whole.nutrients, f, phi)
+  for (const k in whole.nutrients) if (whole.nutrients[k].missing) out.nutrients[k].missing = true
+  return out
+}
+
+/**
+ * All of a recipe: its components, each an entry of its own (variances add). A concoction is one sample: every
+ * portion of it shares all of that, so it becomes its shared deviation (stats.js `s`, keyed by the concoction).
+ */
+function recipeNutrients(ctx, item, seen) {
+  const out = { nutrients: {}, ok: true }
   for (const c of item.components) {
-    const sub = nutrientsFor(ctx, c.itemId, c.amount, c.unit, c.amountDelta, nextSeen)
+    const sub = nutrientsFor(ctx, c.itemId, c.amount, c.unit, c.amountDelta, seen)
     if (!sub.ok) out.ok = false
-    addInto(out.nutrients, sub.nutrients, factor)
+    addInto(out.nutrients, sub.nutrients, 1)
     for (const k in sub.nutrients) if (sub.nutrients[k].missing) out.nutrients[k].missing = true
+  }
+  if (item.madeAt) {
+    const key = `concoction:${item.id}`
+    for (const t of Object.values(out.nutrients)) {
+      t.s[key] = Math.sqrt(t.v + (t.s[key] ?? 0) ** 2)
+      t.v = 0
+    }
   }
   return out
 }
 
-// --- Recipes whose amount is the sum of their components ------------------------------------------------------
-// When a recipe's amount is its components' sum (Auto, or a concoction added from a consumption), its error is the
-// components' errors over again. Dividing by it as if it were measured on its own counts them twice: all of a
-// 203 ± 75 g concoction holding 660 ± 254 kcal came out at 660 ± 789 kcal. Instead, the components' amounts tᵢ
-// move both the nutrients and the total, so per base unit the recipe holds Σ ρᵢtᵢ / Σ gᵢtᵢ (ρᵢ: nutrient per unit
-// of component i, gᵢ: base units per unit of it), taken at its worst case over every tᵢ, ρᵢ and gᵢ in their ranges.
-
-/** True when the recipe's amount ± Δ is its components' sum, as Auto rounds it (6 and 3 significant digits). */
-function isSumOfComponents(ctx, item, baseAmt, baseUnit, baseDelta) {
-  const total = componentsTotal(ctx, item.components, baseUnit)
-  if (total.problem || !(total.value > 0)) return false
-  const close = (a, b, rel) => Math.abs(a - b) <= rel * Math.max(Math.abs(a), Math.abs(b)) + 1e-9
-  return close(baseAmt, total.value, 1e-5) && close(baseDelta, total.delta, 1e-2)
-}
-
-/**
- * Largest Σ aᵢtᵢ / Σ bᵢtᵢ over tᵢ ∈ [loᵢ, hiᵢ] (bᵢ ≥ 0). It's at a corner where the parts with the highest aᵢ/bᵢ are
- * at their high end and the rest at their low end, so only n + 1 corners need trying.
- */
-function maxRatio(a, b, lo, hi) {
-  const ratio = (i) => (b[i] > 0 ? a[i] / b[i] : Math.sign(a[i]) * Infinity || 0)
-  const order = a.map((_, i) => i).sort((i, j) => ratio(j) - ratio(i) || 0)
-  let best = -Infinity
-  for (let k = 0; k <= order.length; k++) {
-    let num = 0, den = 0
-    order.forEach((i, rank) => { const t = rank < k ? hi[i] : lo[i]; num += a[i] * t; den += b[i] * t })
-    if (den > 0) best = Math.max(best, num / den)
-    else if (num > 0) return Infinity
-  }
-  return best
-}
-
-/**
- * Nutrients of `eaten` ([nominal, low, high], in the recipe's base unit) of a recipe whose amount is its components'
- * sum, into `out`. False (and nothing added) if a component's amount can't be put in the base unit.
- */
-function addShareInto(out, ctx, item, eaten, baseUnit, seen) {
-  const parts = []
-  for (const c of item.components) {
-    const g = unitFactorSpan(c.unit, baseUnit, resolve(ctx, c.itemId)?.units)
-    if (!Number.isFinite(g[2])) return false
-    const [t, lo, hi] = span(c.amount, c.amountDelta)
-    parts.push({ per: nutrientsFor(ctx, c.itemId, 1, c.unit, 0, seen), g, t, lo, hi })
-  }
-  if (parts.some((p) => !p.per.ok)) out.ok = false
-  const [e, eLo, eHi] = eaten
-  const lo = parts.map((p) => p.lo), hi = parts.map((p) => p.hi)
-  for (const { key } of NUTRIENTS) {
-    const ns = parts.map((p) => (key === 'energy' ? calories(p.per.nutrients) : p.per.nutrients[key]))
-    if (!ns.some(Boolean)) continue
-    const t = (out.nutrients[key] = { value: 0, delta: 0, missing: false })
-    // A component without the value counts as 0 of it, flagged as missing (like addInto).
-    const v = ns.map((n) => (n && Number.isFinite(n.value) ? n.value : 0))
-    const d = ns.map((n) => (n && Number.isFinite(n.value) && Number.isFinite(n.delta) ? Math.abs(n.delta) : 0))
-    if (ns.some((n) => n?.estimated)) t.estimated = true
-    if (ns.some((n) => !n || !Number.isFinite(n.value) || n.missing)) t.missing = true
-    const nominal = parts.reduce((s, p, i) => s + v[i] * p.t, 0) / parts.reduce((s, p) => s + p.g[0] * p.t, 0)
-    const high = maxRatio(v.map((x, i) => x + d[i]), parts.map((p) => p.g[1]), lo, hi)
-    const low = -maxRatio(v.map((x, i) => -(x - d[i])), parts.map((p) => p.g[2]), lo, hi)
-    t.value = e * nominal
-    t.delta = Math.max((high >= 0 ? eHi : eLo) * high - t.value, t.value - (low >= 0 ? eLo : eHi) * low)
-  }
-  return true
-}
-
-/** Nutrients of a consumption, `amount ± amountDelta unit` (worst case of all errors involved). */
+/** Nutrients of a consumption, `amount ± amountDelta unit`. */
 export function consumptionNutrients(ctx, { itemId, amount, unit, amountDelta }) {
   return nutrientsFor(ctx, itemId, amount, unit, amountDelta)
 }
@@ -305,33 +310,34 @@ export function averageTargets(targets, days, dayStart) {
   return out
 }
 
-/** `total` from sumNutrients, divided by `n` days (value and Δ alike). */
+/** `total` from sumNutrients, divided by `n` days (value and deviations alike). */
 export function perDay(total, n) {
   const out = {}
-  for (const k in total) out[k] = { ...total[k], value: total[k].value / n, delta: total[k].delta / n }
+  for (const k in total) out[k] = addScaled({ ...total[k], ...zero() }, total[k], 1 / n)
   return out
 }
 
 /**
- * Progress-bar geometry for `value` against {min?, max?}, in % of the bar's width.
+ * Progress-bar geometry for nutrient `n` ({value, v, s}) against {min?, max?}, in % of the bar's width.
  * With a max, the max sits at 80% (and the min proportionally); with only a min, the min sits at 50%.
- * The fill clips at 100%. `errLo`/`errHi` place the value's error bar (value ± delta) on the same scale.
+ * The fill clips at 100%. `errLo`/`errHi` place the value's interval (stats.js bounds) on the same scale.
  */
-export function targetBar(value, { min, max } = {}, delta = 0) {
+export function targetBar(n, { min, max } = {}) {
   const hasMin = Number.isFinite(min)
   const hasMax = Number.isFinite(max)
   if (!hasMin && !hasMax) return null
+  const value = n.value
   const full = hasMax ? (max > 0 ? max / 0.8 : 1) : min > 0 ? min / 0.5 : 1
   const pos = (x) => Math.min(100, Math.max(0, (x / full) * 100))
-  // Worst case of the error bar: "ok" only if all of [value − Δ, value + Δ] is within the range. If the error bar
-  // spills over both bounds, the side the value itself leans to wins.
-  const d = Number.isFinite(delta) ? Math.abs(delta) : 0
-  const low = hasMin && value - d < min
-  const high = hasMax && value + d > max
+  // design.md: "ok" only if the whole interval is within the range. If it spills over both bounds, the side the
+  // value itself leans to wins.
+  const [lo, hi] = bounds(n)
+  const low = hasMin && lo < min
+  const high = hasMax && hi > max
   const status = low && high ? (value - min < max - value ? 'under' : 'over') : low ? 'under' : high ? 'over' : 'ok'
   return {
     fill: pos(value), minAt: hasMin ? pos(min) : null, maxAt: hasMax ? pos(max) : null, status,
-    errLo: d ? pos(value - d) : null, errHi: d ? pos(value + d) : null,
+    errLo: hi > lo ? pos(lo) : null, errHi: hi > lo ? pos(hi) : null,
   }
 }
 
@@ -343,11 +349,11 @@ export const WEEKLY_CAP = 500 // kcal
 
 /**
  * The calorie target for `day`, set so that eating within it puts the 7-day per-day average within the target.
- * The earlier days are the 6 before `day`; `eaten` is {day: {value, delta}} (kcal) for the ones that have
- * consumptions. Worst case, like the dashboard: the max is held against what was eaten at most (value + Δ), the
- * min against what was eaten at least (value − Δ, ≥ 0).
+ * The earlier days are the 6 before `day`; `eaten` is {day: kcal ({value, v, s})} for the ones that have
+ * consumptions. Like the dashboard, with the earlier days' total as an interval: the max is held against its high
+ * end, the min against its low end.
  * Days without any, or without a calorie target, don't count (so less than a week of data only corrects what's
- * there). For each bound, with N earlier days: (bound' + their worst-case total) / (N + 1) = that bound averaged over those
+ * there). For each bound, with N earlier days: (bound' + their total) / (N + 1) = that bound averaged over those
  * days and `day` (each bound over the days that set it, as in `averageTargets`).
  * Each bound moves on its own, by at most WEEKLY_CAP, never below 0.
  * Returns {range, shift: {min, max}, days, capped: {min, max}}, or null when `day` has no calorie target;
@@ -361,16 +367,15 @@ export function weeklyCorrection(targets, day, dayStart, eaten, key = 'energy') 
   if (!has(day)) return null
   const target = targetForDay(targets, day, dayStart).values[key]
   const earlier = []
-  const total = { min: 0, max: 0 }
+  const sum = zero()
   for (let i = 1; i <= 6; i++) {
     const d = addDays(day, -i)
     if (!(d in eaten) || !has(d)) continue
     earlier.push(d)
-    const { value, delta } = eaten[d]
-    const dd = Number.isFinite(delta) ? Math.abs(delta) : 0
-    total.min += Math.max(0, value - dd)
-    total.max += value + dd
+    addScaled(sum, eaten[d])
   }
+  const [lo, hi] = bounds(sum)
+  const total = { min: Math.max(0, lo), max: hi }
   const avg = averageTargets(targets, [day, ...earlier], dayStart)[key]
   const days = earlier.length
   const range = {}, shift = {}, capped = {}

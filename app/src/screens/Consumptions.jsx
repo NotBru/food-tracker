@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { DEFAULT_EXPIRY_DAYS, db, expiresAt, getConfig, getCurrentUser, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays } from '../db'
 import { componentsTotal, concoctionsLeft, consumptionNutrients, keepUnit, loadContext, nutrientsFor, resolve, unitsFor, usedUp } from '../calc'
 import { addDays, dayBounds, prettyDay, toLocalInput, today } from '../time'
-import { NUTRIENTS, amountText, deltaText, emptyNutrients, fmt, measure } from '../nutrients'
+import { NUTRIENTS, amountText, deltaText, emptyNutrients, fmt, measure, pmText } from '../nutrients'
 import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, Field, ItemPicker, MacroLine, Screen, TrashIcon, UnitCombo, go, replace, useToday } from '../components'
 
 export default function Consumptions({ day: dayParam, add }) {
@@ -362,7 +362,7 @@ function NutrientDetails({ nutrients }) {
               <li key={key}>
                 <span>{label}</span>
                 <span>
-                  {fmt(n.value, 2)}<small className="pm"> ±{fmt(Number.isFinite(n.delta) ? n.delta : 0, 2)}</small> {unit}
+                  {fmt(n.value, 2)}<small className="pm"> {pmText(n, 2)}</small> {unit}
                   {n.missing && <small className="muted" title="Some components don't list it"> +?</small>}
                 </span>
               </li>

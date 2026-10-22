@@ -1,7 +1,7 @@
 # Errors on every amount, worst-case target checks, error bars on the dashboard
 
 - **Date:** 2026-10-15
-- **Status:** accepted
+- **Status:** superseded by [error-model](2026-10-22-error-model.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (Consumptions screen, Foods screen: "Every value should also have a corresponding error", Homescreen: "show whether the target is being reached")
 
 ## Context

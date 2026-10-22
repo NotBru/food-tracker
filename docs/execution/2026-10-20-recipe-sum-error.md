@@ -1,7 +1,7 @@
 # Recipes whose amount is their components' sum: the error isn't counted twice
 
 - **Date:** 2026-10-20
-- **Status:** accepted
+- **Status:** superseded by [error-model](2026-10-22-error-model.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (errors on amounts, worst case); question in chat
 
 ## Context

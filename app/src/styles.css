@@ -154,6 +154,7 @@ h3 { margin: 8px 0 0; font-size: 16px; }
 .n-row { display: grid; grid-template-columns: 1fr 92px 72px; gap: 6px; align-items: center; font-size: 14px; }
 .n-row input { padding: 9px 12px; }
 .n-row.with-x { grid-template-columns: 1fr 84px 64px 34px; }
+.n-row.one-value { grid-template-columns: 1fr 120px 34px; }
 button.icon.small { width: 34px; height: 34px; font-size: 18px; }
 .n-head { color: var(--muted); font-size: 12px; text-align: center; }
 

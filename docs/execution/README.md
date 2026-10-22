@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-22 | [Error model: distributions, food categories, CIQUAL in the food database](2026-10-22-error-model.md) | accepted |
 | 2026-10-22 | [Nutrient variability: plant-food gaps researched and merged](2026-10-22-plant-macros-gaps.md) | accepted |
 | 2026-10-22 | [Nutrient variability: one report, "in depth" dropped from the name](2026-10-22-nutrient-report-rename.md) | accepted |
 | 2026-10-22 | [Nutrient content variability: full deep research, fact-checked](2026-10-22-nutrient-variability-deep-research.md) | accepted |
@@ -31,7 +32,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | 2026-10-22 | [Consumption editor: eaten-up and expired concoctions hidden; "Max" button](2026-10-22-concoction-left-expiry.md) | accepted |
 | 2026-10-21 | [md2html.sh: compile markdown notes to self-contained HTML](2026-10-21-md2html.md) | accepted |
 | 2026-10-21 | [Dashboard: the error range on its own line, in its own colour](2026-10-21-error-range-line.md) | accepted |
-| 2026-10-20 | [Recipes whose amount is their components' sum: the error isn't counted twice](2026-10-20-recipe-sum-error.md) | accepted |
+| 2026-10-20 | [Recipes whose amount is their components' sum: the error isn't counted twice](2026-10-20-recipe-sum-error.md) | superseded by [error-model](2026-10-22-error-model.md) |
 | 2026-10-20 | [Consumptions list: delete button on each entry](2026-10-20-consumption-trash.md) | accepted |
 | 2026-10-20 | [Foods list: concoctions last](2026-10-20-foods-concoctions-last.md) | accepted |
 | 2026-10-20 | [Consumption info screen, with an energy donut](2026-10-20-consumption-info.md) | accepted |
@@ -42,7 +43,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | 2026-10-19 | [Food Info tab: energy and macros first](2026-10-19-info-macros-first.md) | accepted |
 | 2026-10-18 | [Breakdown: group consumptions so they count as one (named)](2026-10-18-breakdown-groups.md) | accepted |
 | 2026-10-18 | [Consumption editor: edit a concoction's components from its consumption](2026-10-18-edit-concoction-consumption.md) | accepted |
-| 2026-10-18 | [Weekly calorie correction: each bound solves the 7-day average](2026-10-18-correction-per-bound.md) | accepted |
+| 2026-10-18 | [Weekly calorie correction: each bound solves the 7-day average](2026-10-18-correction-per-bound.md) | superseded by [error-model](2026-10-22-error-model.md) |
 | 2026-10-18 | [Food editor: energy and macros per component](2026-10-18-component-macros.md) | accepted |
 | 2026-10-18 | [Concoctions: made-at time as a tag, not part of the label](2026-10-18-made-tag.md) | accepted |
 | 2026-10-18 | [Consumption editor: add a new concoction and eat it in one go](2026-10-18-consumption-concoction.md) | accepted |
@@ -71,7 +72,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | 2026-10-15 | [Users](2026-10-15-users.md) | accepted |
 | 2026-10-15 | [Phone-shaped layout, up to 2.5× wide; fixed homescreen buttons](2026-10-15-phone-layout.md) | accepted |
 | 2026-10-15 | [Newest first; consumption unit as text with autocomplete](2026-10-15-newest-first-unit-text.md) | accepted |
-| 2026-10-15 | [Errors on every amount, worst-case targets, error bars](2026-10-15-error-bars.md) | accepted |
+| 2026-10-15 | [Errors on every amount, worst-case targets, error bars](2026-10-15-error-bars.md) | superseded by [error-model](2026-10-22-error-model.md) |
 | 2026-10-15 | [External food databases: CIQUAL and Open Food Facts](2026-10-15-external-databases.md) | accepted |
 | 2026-10-15 | [Targets screen](2026-10-15-targets.md) | accepted |
 | 2026-10-15 | [Rename: Logs → Consumptions](2026-10-15-consumptions-rename.md) | accepted |

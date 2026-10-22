@@ -2,7 +2,8 @@ import { useId, useRef } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, exportAll, getConfig, getCurrentUser, importAll } from '../db'
 import { WEEKLY_CAP, averageTargets, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from '../calc'
-import { NUTRIENTS, calories, fmt, rangeLabel } from '../nutrients'
+import { NUTRIENTS, calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
+import { bounds, sdOf, zero } from '../stats'
 import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, logicalDay, prettyDay, toDateStr, toLocalInput, today, windowDays } from '../time'
 import { Chevron, go, replace, useToday } from '../components'
 
@@ -16,7 +17,7 @@ export const ROWS = [
 
 // Mandatory rows without a target still get a neutral, full bar/gauge (no regions, markers or label).
 const DUMMY = { fill: 100, minAt: null, maxAt: null, status: 'none', dummy: true }
-const barFor = (row, val, range) => targetBar(val.value, range, val.delta) ?? (ROWS.some((r) => r.key === row.key) ? DUMMY : null)
+const barFor = (row, val, range) => targetBar(val, range) ?? (ROWS.some((r) => r.key === row.key) ? DUMMY : null)
 
 function windowTitle(win, first, last, back = 0) {
   if (win === 'daily') return `${back === 0 ? 'Today' : back === 1 ? 'Yesterday' : back === -1 ? 'Tomorrow' : `${back} days ago`} · ${prettyDay(first)}`
@@ -26,7 +27,7 @@ function windowTitle(win, first, last, back = 0) {
 }
 
 // --- Fill pieces ---------------------------------------------------------------
-// The fill (solid up to value − Δ, hatched from there to value + Δ) is cut at the min and max, and each piece takes
+// The fill (solid up to the interval's low end, hatched from there to its high end) is cut at the min and max, and each piece takes
 // the colour of the region it lies in: under (below min), ok, over (above max). A bar without a target: one grey piece.
 
 const regionAt = (bar, x) => (bar.dummy ? 'none' : bar.minAt != null && x < bar.minAt ? 'under' : bar.maxAt != null && x > bar.maxAt ? 'over' : 'ok')
@@ -65,7 +66,7 @@ const arc = (p0, p1) => {
 }
 // Regions are drawn with square ends, overshooting both ends of the gauge, then masked to the square-ended track.
 const OVER = 0.08
-// The fill is solid up to value − Δ; the error range (value ± Δ) continues it as one hatched band: the fill colour,
+// The fill is solid up to the interval's low end; the interval continues it as one hatched band: the fill colour,
 // see-through, with slightly slanted lines in a lighter solid shade. The lines follow the arc, so the slant is the
 // same all round: each goes from the inner edge at p to the outer edge a little further along.
 const HATCH_STEP = 3.2 // arc length between lines (viewBox units)
@@ -131,11 +132,8 @@ function Gauge({ bar }) {
   )
 }
 
-/** "1912–2288": the range implied by the error (value ± Δ), floored at 0. */
-const errRange = ({ value, delta }) => `${fmt(Math.max(0, value - (delta || 0)), 0)}–${fmt(value + (delta || 0), 0)}`
-
-/** The error range on its own line, under "unit ±Δ"; a blank line of the same height when there's no error. */
-const ErrRange = ({ val }) => <span className="err-range">{val.delta > 0 ? errRange(val) : '\u00a0'}</span>
+/** The interval on its own line, under "unit ±x"; a blank line of the same height when there's no error. */
+const ErrRange = ({ val }) => <span className="err-range">{sdOf(val) > 0 ? rangeText(val) : '\u00a0'}</span>
 const enterOpen = (open) => (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), open())
 
 const statusMark = (s) => (s === 'ok' ? '✓' : s === 'under' ? '↓' : '↑')
@@ -150,12 +148,12 @@ function RangeLine({ bar, range, unit }) {
 }
 
 /**
- * Calories only, with a max in the target: what's left to eat, worst case. The most eaten so far is value + Δ, so
- * the budget is max − (value + Δ). One short label either way (a tile cuts long text): negative = over budget.
+ * Calories only, with a max in the target: what's left to eat, against the high end of what was eaten so far.
+ * One short label either way (a tile cuts long text): negative = over budget.
  */
 function Budget({ row, val, range }) {
   if (row.key !== 'energy' || !Number.isFinite(range?.max)) return null
-  const left = range.max - (val.value + (Number.isFinite(val.delta) ? val.delta : 0))
+  const left = range.max - bounds(val)[1]
   return (
     <span className={`budget ${left > 0 ? '' : 'over'}`}>
       Δ Budget: <b>{left < 0 ? '−' : ''}{fmt(Math.abs(left), 0)}</b> {row.unit}
@@ -189,7 +187,7 @@ function BarRow({ row: r, val, range, adj, onOpen }) {
       <span className="dash-label">{r.label}</span>
       <span className={`dash-value ${r.cls}`}>
         {val.estimated ? '~' : ''}{fmt(val.value, 0)}
-        <small> {r.unit} ±{fmt(val.delta)}</small>
+        <small> {r.unit} {pmText(val)}</small>
         <ErrRange val={val} />
       </span>
       {/* Without a target the bar keeps its space, so every row is equally spaced. */}
@@ -233,7 +231,7 @@ function GaugeTile({ row: r, val, range, adj, onOpen }) {
         <Gauge bar={bar} />
         <span className={`gauge-value ${r.cls}`}>{val.estimated ? '~' : ''}{fmt(val.value, 0)}</span>
       </div>
-      <span className="tile-sub">{r.unit} ±{fmt(val.delta)}</span>
+      <span className="tile-sub">{r.unit} {pmText(val)}</span>
       <ErrRange val={val} />
       <RangeLine bar={bar} range={range} unit={r.unit} />
       <WeeklyAdj row={r} adj={adj} />
@@ -284,7 +282,7 @@ export default function Home({ query = {} }) {
     const targets = averageTargets(allTargets, logged.length ? logged : windowList, config.dayStart)
     let adj = null
     if (daily) {
-      // Kcal (value ± Δ) per earlier day that has consumptions.
+      // Kcal per earlier day that has consumptions.
       const byDay = {}
       for (const l of all) if (l.datetime < start.toISOString()) (byDay[logicalDay(l.datetime, config.dayStart)] ??= []).push(consumptionNutrients(ctx, l).nutrients)
       const eaten = Object.fromEntries(Object.entries(byDay).map(([d, list]) => [d, calories(sumNutrients(list))]))
@@ -375,7 +373,7 @@ export default function Home({ query = {} }) {
           <section className={`dashboard ${data.style}`}>
             {data.rows.map((r) => {
               const n = data.total[r.key]
-              const val = r.key === 'energy' ? calories(data.total) : { value: n?.value ?? 0, delta: n?.delta ?? 0 }
+              const val = r.key === 'energy' ? calories(data.total) : n ?? zero()
               const Item = data.style === 'bars' ? BarRow : GaugeTile
               return <Item key={r.key} row={r} val={val} range={data.targets[r.key]} adj={data.adj} onOpen={() => go(`/breakdown/${r.key}?from=${data.first}&to=${data.last}`)} />
             })}
