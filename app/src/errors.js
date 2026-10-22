@@ -4,7 +4,7 @@
 //
 // CVs fitted to USDA SR28 (docs/notes/research_notes/Nutrient content variability/data/scripts/fit_cvs.py): per food,
 // SE·√n / mean, n ≥ 3; energy and carbohydrate from the analysed proximates. SR28's samples are often blends of
-// several items, so these understate the spread between single items. Every bias is 0 for now. Categories are
+// three items, so the spread between single items is √3 times theirs (BLEND). Every bias is 0 for now. Categories are
 // CIQUAL's subgroups; each falls in a class that sets its CVs.
 
 // Nutrients that share a CV.
@@ -151,9 +151,11 @@ export const CATEGORY_GROUPS = [
 const CLASS_OF = new Map(CATEGORY_GROUPS.flatMap(([, , subs]) => subs.map(([code, , cls]) => [code, cls])))
 export const categoryName = (code) => CATEGORY_GROUPS.flatMap(([, , s]) => s).find(([c]) => c === code)?.[1] ?? 'unknown'
 
+const BLEND = Math.sqrt(3)
+
 /** [bias, CV] of nutrient `key` in a food of category `code` (a CIQUAL subgroup; anything else is unknown). */
 export function sampling(code, key) {
   const cls = CLASSES[CLASS_OF.get(code) ?? 'unknown']
   const kind = KIND[key] ?? 'other'
-  return [0, cls[kind] ?? BASE[kind]]
+  return [0, (cls[kind] ?? BASE[kind]) * BLEND]
 }
