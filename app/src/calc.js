@@ -1,7 +1,7 @@
 import { db, getConfig } from './db'
 import { addDays, dayBounds } from './time'
 import { NUTRIENTS, calories, deltaFromInput } from './nutrients'
-import { sampling } from './errors'
+import { entryError, sampling } from './errors'
 import { ciqualItems } from './external'
 import { addProduct, addScaled, bounds, zero } from './stats'
 
@@ -111,8 +111,11 @@ function baseNutrients(item) {
   return out
 }
 
-/** Adds `nutrients` × F into `total`, F with mean `f` and variance `phi` (stats.js addProduct). */
-function addInto(total, nutrients, f, phi = 0) {
+/**
+ * Adds `nutrients` × F into `total`, F with mean `f` and variance `phi` (stats.js addProduct), plus this entry's own
+ * relative error `rel` (its entry error), independent of every other entry.
+ */
+function addInto(total, nutrients, f, phi = 0, rel = 0) {
   if (!nutrients) return
   for (const { key } of NUTRIENTS) {
     // Unknown energy is estimated from macros per item, so one label without kcal doesn't zero it out.
@@ -120,8 +123,10 @@ function addInto(total, nutrients, f, phi = 0) {
     if (!n) continue
     const t = (total[key] ??= { ...zero(), missing: false })
     if (n.estimated) t.estimated = true
-    if (Number.isFinite(n.value)) addProduct(t, n, f, phi)
-    else t.missing = true
+    if (Number.isFinite(n.value)) {
+      addProduct(t, n, f, phi)
+      t.v += (rel * n.value * f) ** 2
+    } else t.missing = true
   }
 }
 
@@ -234,7 +239,7 @@ export function nutrientsFor(ctx, id, amount, unit, amountDelta = 0, seen = new 
   if (!Number.isFinite(f)) return { ...out, ok: false }
 
   if (own) {
-    addInto(out.nutrients, baseNutrients(item), f, phi)
+    addInto(out.nutrients, baseNutrients(item), f, phi, entryError(item))
     return out
   }
   const whole = recipeNutrients(ctx, item, new Set(seen).add(id))

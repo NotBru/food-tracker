@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { DEFAULT_EXPIRY_DAYS, conflictingFoods, db, findEqualFood, fold, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays, searchText } from '../db'
 import { baseAmount, componentsTotal, keepUnit, loadContext, nutrientsFor, unitsFor } from '../calc'
 import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measure, normalizeNumber } from '../nutrients'
-import { CATEGORY_GROUPS } from '../errors'
+import { CATEGORY_GROUPS, DEFAULT_ENTRY_ERROR } from '../errors'
 import { toLocalInput } from '../time'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
 import { AttributesEditor, DateTimeInput, DeltaInput, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, UnitCombo, UnitInput, enterTo, go, replace } from '../components'
@@ -178,6 +178,7 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
     madeAt: toLocalInput(src?.madeAt ? new Date(src.madeAt) : new Date()),
     expiresAfterDays: src?.expiresAfterDays > 0 ? String(src.expiresAfterDays) : '',
     category: src?.category ?? '',
+    entryError: String(+((Number.isFinite(src?.entryError) ? src.entryError : DEFAULT_ENTRY_ERROR) * 100).toPrecision(6)),
     components: (src?.components ?? []).map((c) => ({
       ...c, amount: amountText(c.amount, c.amountText), amountDelta: deltaText(c.amountDelta, c.amountDeltaAuto),
     })),
@@ -235,6 +236,9 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
       expiresAfterDays: form.isMade ? parseExpiryDays(form.expiresAfterDays) : undefined,
       // Only a food of its own has a category; a recipe's error comes from its components.
       category: !composed && form.category ? form.category : undefined,
+      // In %; empty or not a number: the default.
+      entryError: !composed && Number(normalizeNumber(form.entryError)) >= 0 && form.entryError.trim()
+        ? Number(normalizeNumber(form.entryError)) / 100 : undefined,
       units: form.units
         .filter((u) => Number(u.fromAmount) > 0 && u.fromUnit.trim() && Number(u.toAmount) > 0 && u.toUnit.trim())
         .map((u) => {
@@ -333,6 +337,11 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
                 </optgroup>
               ))}
             </select>
+          </Field>
+        )}
+        {!hasComponents && (
+          <Field label="Entry error, % (how far this entry may be from what's eaten; 0 if read off its label)">
+            <input inputMode="decimal" value={form.entryError} onChange={(e) => set('entryError')(e.target.value)} />
           </Field>
         )}
         <div className="row amount-row">
