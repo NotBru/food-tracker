@@ -24,6 +24,9 @@ results, as the food and unit pickers do. The dropdowns were the food's category
   cursor to the next text box, dropdown or text area on the screen (`enterNext`, `focusNextField`); none left: the box
   just closes. A click still only closes the list. The consumption form likewise (the food or a concoction
   component's food → its amount; a unit → the next box), and its "+ add component" row is reached with Tab.
+- Food editor, a component's row: Enter in any of its boxes (amount, ± Δ, unit after picking, ε) goes to "+ add
+  component", so a recipe is typed as food, Enter, amount, Enter, Enter, next food. The ε box selects its value on
+  opening, so typing replaces it.
 - The food editor's "+ add unit" and "+ add component" rows are reached with Tab (`pressable`: a button role, Enter
   or Space presses it); pressed from the keyboard, the cursor goes to the new row's first box. "+ attribute" too
   (to the new attribute's key). Focus shows as an

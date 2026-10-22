@@ -201,6 +201,7 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
   const [extraShown, setExtraShown] = useState(restored?.extraShown ?? [])
   // Back with a new component: the cursor goes to its amount, the one thing left to fill.
   const componentAmountRefs = useRef([])
+  const addComponentRef = useRef(null)
   useEffect(() => {
     const el = restored?.created != null && componentAmountRefs.current[restored.index]
     if (el) { el.focus(); el.scrollIntoView({ block: 'center' }) }
@@ -400,10 +401,11 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
             <li key={i} className="component">
               <ItemPicker ctx={ctx} value={c.itemId} exclude={initial?.id} onCreate={(text) => createComponent(i, text)} enterNext
                 onChange={(itemId) => setC(i, { itemId, unit: keepUnit(ctx, itemId, c.unit) ?? '', entryError: lastEntryError(ctx, logs, itemId) })} />
-              <div className="row">
+              {/* Enter in any of its boxes (a unit picked, ε set) goes on to "+ add component": amount, Enter, next. */}
+              <div className="row" onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); addComponentRef.current?.focus() } }}>
                 <input ref={(el) => (componentAmountRefs.current[i] = el)} inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
                 <DeltaInput value={c.amountDelta} amount={c.amount} unit={c.unit} onChange={(v) => setC(i, { amountDelta: v })} />
-                <UnitCombo units={c.itemId != null ? unitsFor(ctx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} enterNext />
+                <UnitCombo units={c.itemId != null ? unitsFor(ctx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} />
                 <EntryErrorButton value={c.entryError ?? DEFAULT_ENTRY_ERROR} onChange={(x) => setC(i, { entryError: x })} />
                 <button className="icon" onClick={() => setForm((f) => ({ ...f, components: f.components.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
               </div>
@@ -416,7 +418,7 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
               })()}
             </li>
           ))}
-          <li className="add" {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', amountDelta: '', unit: '' }] })))}>+ add component</li>
+          <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', amountDelta: '', unit: '' }] })))}>+ add component</li>
         </ul>
 
         <p>Per {amt} {unit}: <MacroLine nutrients={preview.nutrients} ok={preview.ok} deltas /></p>

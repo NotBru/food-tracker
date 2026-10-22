@@ -168,7 +168,7 @@ export function EntryErrorButton({ value, onChange }) {
     setEditing(false)
   }
   return (
-    <input className="entry-error" inputMode="decimal" autoFocus defaultValue={pct} aria-label="Entry error, %"
+    <input className="entry-error" inputMode="decimal" autoFocus onFocus={(e) => e.target.select()} defaultValue={pct} aria-label="Entry error, %"
       onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()} onBlur={(e) => done(e.target.value)} />
   )
 }
