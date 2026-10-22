@@ -19,7 +19,7 @@ const KIND = {
   vitaminB1: 'bVitamins', vitaminB2: 'bVitamins', vitaminB3: 'bVitamins', vitaminB5: 'bVitamins', vitaminB6: 'bVitamins',
   vitaminB7: 'bVitamins', vitaminB12: 'bVitamins', vitaminE: 'bVitamins',
   vitaminA: 'folateCarotene', vitaminB9: 'folateCarotene', vitaminK: 'folateCarotene',
-  vitaminC: 'vitaminC', vitaminD: 'vitaminD', caffeine: 'other', creatine: 'other',
+  vitaminC: 'vitaminC', vitaminD: 'vitaminD', caffeine: 'caffeine', creatine: 'other',
 }
 
 // Median CV over all foods, then each class's median (a class with fewer than 5 foods
@@ -99,9 +99,13 @@ const CLASSES = {
 // Protein powders test below their label more often than above (30% of 70 products > 10% below, 7% 42–80% below:
 // Schönfeldt et al. 2019), hence the bias. Creatine: a single synthesised compound.
 const SUPPLEMENTS = {
-  water: 0.2, protein: 0.15, carbs: 0.15, sugars: 0.15, fibre: 0.2, fat: 0.15, energy: 0.1, other: 0.05,
+  water: 0.2, protein: 0.15, carbs: 0.15, sugars: 0.15, fibre: 0.2, fat: 0.15, energy: 0.1, other: 0.05, caffeine: 0.05,
 }
 const SUPPLEMENTS_BIAS = { protein: -0.05 }
+
+// Caffeine in any other food is an estimate of a brew: moka coffee measured 128–540 mg/100 mL across coffees and
+// brews (Angeloni et al. 2019). Estimated, not fitted.
+const CAFFEINE = 0.3
 
 // CIQUAL groups and subgroups: [code, name, class], plus supplements (99, not CIQUAL's).
 export const CATEGORY_GROUPS = [
@@ -167,5 +171,6 @@ export function sampling(code, key) {
   const cls = CLASS_OF.get(code) ?? 'unknown'
   const kind = KIND[key] ?? 'other'
   if (cls === 'supplements' && SUPPLEMENTS[kind]) return [SUPPLEMENTS_BIAS[kind] ?? 0, SUPPLEMENTS[kind]]
+  if (kind === 'caffeine') return [0, CAFFEINE]
   return [0, (CLASSES[cls]?.[kind] ?? BASE[kind]) * BLEND]
 }
