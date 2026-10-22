@@ -1,6 +1,6 @@
 # Fact-check, part A: report lines 1–37
 
-Report: `docs/notes/reports/Nutrient content variability in depth.md`. Checked 2026-10-22.
+Report: `docs/notes/reports/Nutrient content variability.md`. Checked 2026-10-22.
 
 How the checks were done:
 - **SR28 figures.** Recomputed independently from the raw `data/raw/sr28asc/NUT_DATA.txt` with fresh scripts kept in the session scratchpad (`check.py`, `check2.py`; run with `python3 -I`). They were also compared with `data/sr28_*.csv`. CV = SE·√n / mean, n ≥ 5, unless stated otherwise.

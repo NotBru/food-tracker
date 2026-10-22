@@ -1,6 +1,6 @@
 # Fact-check, part B: report lines 38–45, "In animal foods, fat swings energy by a third or more"
 
-Report: `docs/notes/reports/Nutrient content variability in depth.md`. Checked 2026-10-22 against primary sources. The report was not edited.
+Report: `docs/notes/reports/Nutrient content variability.md`. Checked 2026-10-22 against primary sources. The report was not edited.
 
 Method notes:
 - **PMC.** PMC returned a reCAPTCHA for PMC9469852, so that full text was read from the Europe PMC full-text XML (`https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9469852/fullTextXML`).

@@ -1,7 +1,7 @@
 # Fact-check part C: report lines 46–55
 
 Section checked: "Storage, soil and sunlight push micronutrients two- to hundredfold" in
-`docs/notes/reports/Nutrient content variability in depth.md`.
+`docs/notes/reports/Nutrient content variability.md`.
 
 Method: every source was opened at the primary level. For Lee & Kader (2000) and Mayer et al. (2021) the full text PDF was
 read. For most other papers the publisher abstract was read through the Europe PMC REST API, looked up by DOI

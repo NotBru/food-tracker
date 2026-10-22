@@ -1,6 +1,6 @@
 # Fact-check, part D: report lines 56–65 ("Labels, brands and databases add a skewed second layer")
 
-Report: `docs/notes/reports/Nutrient content variability in depth.md`. Checked 2026-10-22 against primary sources only:
+Report: `docs/notes/reports/Nutrient content variability.md`. Checked 2026-10-22 against primary sources only:
 - PMC full text (NCBI efetch XML) for Jumpertz 2013, Urban 2010 and Lin 2020.
 - Europe PMC abstracts (REST `resultType=core`) for the other papers.
 - The eCFR XML for 21 CFR 101.9 (version of 2026-10-01).

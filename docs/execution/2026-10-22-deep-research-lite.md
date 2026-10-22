@@ -1,7 +1,7 @@
 # deep-research-lite skill installed; nutrient-variability research
 
 - **Date:** 2026-10-22
-- **Status:** accepted
+- **Status:** superseded by [2026-10-22-nutrient-report-rename.md](2026-10-22-nutrient-report-rename.md)
 - **Instructions:** none — user request in chat: install `deep-research-lite/` properly and research how
   much nutrient content (carbs, kcal, vitamins…) varies between samples/providers, and why
 

@@ -24,8 +24,9 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-22 | [Nutrient variability: one report, "in depth" dropped from the name](2026-10-22-nutrient-report-rename.md) | accepted |
 | 2026-10-22 | [Nutrient content variability: full deep research, fact-checked](2026-10-22-nutrient-variability-deep-research.md) | accepted |
-| 2026-10-22 | [deep-research-lite skill installed; nutrient-variability research](2026-10-22-deep-research-lite.md) | accepted |
+| 2026-10-22 | [deep-research-lite skill installed; nutrient-variability research](2026-10-22-deep-research-lite.md) | superseded by [nutrient-report-rename](2026-10-22-nutrient-report-rename.md) |
 | 2026-10-22 | [Consumption editor: eaten-up and expired concoctions hidden; "Max" button](2026-10-22-concoction-left-expiry.md) | accepted |
 | 2026-10-21 | [md2html.sh: compile markdown notes to self-contained HTML](2026-10-21-md2html.md) | accepted |
 | 2026-10-21 | [Dashboard: the error range on its own line, in its own colour](2026-10-21-error-range-line.md) | accepted |

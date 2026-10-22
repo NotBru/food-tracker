@@ -1,6 +1,6 @@
 # Fact-check part E: report lines 66–100
 
-Scope: "Energy is itself a model with 5–30% built-in error" (l. 66–70), "A per-nutrient uncertainty budget for a tracker" (l. 72–94), Conclusion (l. 96–100) of `docs/notes/reports/Nutrient content variability in depth.md`.
+Scope: "Energy is itself a model with 5–30% built-in error" (l. 66–70), "A per-nutrient uncertainty budget for a tracker" (l. 72–94), Conclusion (l. 96–100) of `docs/notes/reports/Nutrient content variability.md`.
 
 Method: each primary source opened directly (FAO pages fetched and text-searched; PMC full text; Europe PMC REST abstracts for paywalled DOIs; Cambridge abstract page). Budget-table values were compared against `data/sr28_cv_by_nutrient.csv` (min_n = 5 rows, which the report uses), `data/sr28_cv_by_nutrient_group.csv`, `data/sr28_banana_detail.csv` and `data/sr28_cv_selected_foods.csv`. Budget values are the report's own judgement, so they are flagged only where the evidence contradicts them.
 
