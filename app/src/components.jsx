@@ -286,14 +286,15 @@ export function AttributesEditor({ value = [], onChange }) {
           <button className="icon" onClick={() => onChange(value.filter((_, k2) => k2 !== i))} aria-label="Remove">×</button>
         </div>
       ))}
-      <button className="link" onClick={() => onChange([...value, ['', '']])}>+ attribute</button>
+      <button type="button" className="link" {...pressable(() => onChange([...value, ['', '']]))}>+ attribute</button>
     </div>
   )
 }
 
 /**
- * Props for something clickable that isn't a button (a list's "+ add" row): reached with Tab, Enter or Space presses
- * it. Pressed from the keyboard, the cursor then goes to the first box of the row it added (the list's last but one).
+ * Props for an "+ add" control at the end of its list (a list's "+ add" row, "+ attribute"): reached with Tab, Enter
+ * or Space presses it. Pressed from the keyboard, the cursor then goes to the first box of the row it added (the
+ * control's sibling before it).
  */
 export const pressable = (onPress) => ({
   role: 'button',
