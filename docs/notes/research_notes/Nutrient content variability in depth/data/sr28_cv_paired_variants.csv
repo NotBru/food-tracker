@@ -1,0 +1,26 @@
+variant,food_group,n_foods,median_of_food_macro_median_cv,median_of_food_micro_median_cv,median_micro/macro_ratio,share_foods_micro_gt_macro
+core macros incl water,fruit_veg,421,0.140,0.251,1.78,0.81
+core macros incl water,legume_nut_grain,226,0.100,0.218,1.97,0.85
+core macros incl water,meat_fish,407,0.059,0.148,2.45,0.89
+core macros incl water,dairy_egg,100,0.052,0.122,2.30,0.89
+core macros incl water,all,1932,0.079,0.167,1.89,0.83
+macros excl water,fruit_veg,394,0.247,0.255,0.98,0.49
+macros excl water,legume_nut_grain,224,0.137,0.218,1.58,0.74
+macros excl water,meat_fish,405,0.143,0.148,1.05,0.52
+macros excl water,dairy_egg,98,0.066,0.122,1.90,0.80
+macros excl water,all,1879,0.131,0.165,1.23,0.62
+protein+fat only,fruit_veg,392,0.286,0.254,0.91,0.43
+protein+fat only,legume_nut_grain,220,0.133,0.215,1.70,0.77
+protein+fat only,meat_fish,405,0.142,0.148,1.05,0.53
+protein+fat only,dairy_egg,98,0.070,0.122,1.79,0.77
+protein+fat only,all,1866,0.133,0.164,1.19,0.61
+"macros excl water, single-study",fruit_veg,275,0.256,0.244,0.97,0.47
+"macros excl water, single-study",legume_nut_grain,173,0.139,0.224,1.57,0.77
+"macros excl water, single-study",meat_fish,393,0.144,0.148,1.03,0.52
+"macros excl water, single-study",dairy_egg,91,0.070,0.129,1.75,0.78
+"macros excl water, single-study",all,1658,0.122,0.156,1.23,0.63
+"macros excl water, range-consistent",fruit_veg,128,0.180,0.208,1.10,0.55
+"macros excl water, range-consistent",legume_nut_grain,89,0.087,0.152,1.82,0.78
+"macros excl water, range-consistent",meat_fish,132,0.144,0.120,0.89,0.39
+"macros excl water, range-consistent",dairy_egg,47,0.047,0.063,1.34,0.72
+"macros excl water, range-consistent",all,874,0.092,0.107,1.20,0.61

@@ -1,0 +1,1096 @@
+ndb_no,food,sr28_description,nutr_no,nutrient,class,unit,mean_per_100g,n_data_pts,std_error,sd_est,cv,min,max,rel_range_(max-min)/mean,n_studies,src_cd,deriv_cd,stat_cmt
+09040,Banana,"Bananas, raw",255,Water,macro,g,74.91,20,0.286,1.279,0.017,71.30,78.20,0.092,6,1,A,2
+09040,Banana,"Bananas, raw",203,Protein,macro,g,1.09,12,0.022,0.076,0.070,0.75,1.31,0.514,3,1,A,2
+09040,Banana,"Bananas, raw",204,Total fat,macro,g,0.33,19,0.067,0.292,0.885,0.07,0.70,1.909,5,1,A,"1, 2"
+09040,Banana,"Bananas, raw",205,Carbohydrate (by diff.),macro,g,22.84,0,,,,,,,,4,NC,
+09040,Banana,"Bananas, raw",269,Total sugars,macro,g,12.23,8,1.034,2.925,0.239,7.51,16.21,0.711,2,1,A,"2, 3"
+09040,Banana,"Bananas, raw",209,Starch,macro,g,5.38,8,0.564,1.595,0.297,3.00,9.39,1.188,2,1,A,"2, 3"
+09040,Banana,"Bananas, raw",291,"Fibre, total dietary",macro,g,2.6,13,0.129,0.465,0.179,1.7,3.7,0.769,5,1,A,2
+09040,Banana,"Bananas, raw",207,Ash,macro,g,0.82,12,0.030,0.104,0.127,0.43,1.00,0.695,3,1,A,2
+09040,Banana,"Bananas, raw",208,Energy kcal,macro,kcal,89,0,,,,,,,,4,NC,
+09040,Banana,"Bananas, raw",401,Vitamin C,micro,mg,8.7,8,0.434,1.228,0.141,8.0,9.5,0.172,2,1,A,4
+09040,Banana,"Bananas, raw",320,Vitamin A RAE,micro,µg,3,0,,,,,,,,1,AS,
+09040,Banana,"Bananas, raw",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+09040,Banana,"Bananas, raw",321,beta-Carotene,micro,µg,26,10,2.167,6.853,0.264,14,58,1.692,3,1,A,"1, 2"
+09040,Banana,"Bananas, raw",322,alpha-Carotene,micro,µg,25,8,4.438,12.553,0.502,10,75,2.600,3,1,A,"1, 2"
+09040,Banana,"Bananas, raw",417,"Folate, total",micro,µg,20,11,0.472,1.565,0.078,8,27,0.950,3,1,A,2
+09040,Banana,"Bananas, raw",432,"Folate, food",micro,µg,20,11,0.472,1.565,0.078,8,27,0.950,3,1,A,
+09040,Banana,"Bananas, raw",404,Thiamin,micro,mg,0.031,12,0.006,0.021,0.670,0.010,0.051,1.323,3,1,A,2
+09040,Banana,"Bananas, raw",405,Riboflavin,micro,mg,0.073,12,0.008,0.028,0.380,0.050,0.115,0.890,3,1,A,2
+09040,Banana,"Bananas, raw",406,Niacin,micro,mg,0.665,12,0.002,0.007,0.010,0.544,0.749,0.308,3,1,A,2
+09040,Banana,"Bananas, raw",415,Vitamin B6,micro,mg,0.367,12,0.010,0.035,0.094,0.302,0.420,0.322,3,1,A,2
+09040,Banana,"Bananas, raw",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+09040,Banana,"Bananas, raw",323,Vitamin E (alpha-toc.),micro,mg,0.10,15,0.054,0.209,2.091,0.03,0.37,3.400,4,1,A,2
+09040,Banana,"Bananas, raw",430,Vitamin K1,micro,µg,0.5,6,0.075,0.184,0.367,0.2,0.9,1.400,3,1,A,2
+09040,Banana,"Bananas, raw",421,Choline,micro,mg,9.8,0,,,,,,,,1,AS,
+09040,Banana,"Bananas, raw",303,Iron,micro,mg,0.26,42,0.001,0.006,0.025,0.19,0.41,0.846,13,1,A,2
+09040,Banana,"Bananas, raw",309,Zinc,micro,mg,0.15,45,0.001,0.007,0.045,0.11,0.24,0.867,14,1,A,2
+09040,Banana,"Bananas, raw",301,Calcium,micro,mg,5,45,0.047,0.315,0.063,4,7,0.600,14,1,A,2
+09040,Banana,"Bananas, raw",304,Magnesium,micro,mg,27,45,0.475,3.186,0.118,18,38,0.741,14,1,A,2
+09040,Banana,"Bananas, raw",306,Potassium,micro,mg,358,45,1.911,12.819,0.036,308,426,0.330,14,1,A,2
+09040,Banana,"Bananas, raw",307,Sodium,micro,mg,1,45,0.395,2.650,2.650,0,5,5.000,14,1,A,"1, 2"
+09040,Banana,"Bananas, raw",317,Selenium,micro,µg,1.0,31,0.289,1.609,1.609,0.0,5.4,5.400,11,1,A,"1, 2"
+09040,Banana,"Bananas, raw",305,Phosphorus,micro,mg,22,45,0.171,1.147,0.052,15,29,0.636,14,1,A,2
+09040,Banana,"Bananas, raw",312,Copper,micro,mg,0.078,45,0.011,0.074,0.946,0.025,0.186,2.064,14,1,A,"1, 2"
+09040,Banana,"Bananas, raw",315,Manganese,micro,mg,0.270,45,0.007,0.047,0.174,0.116,0.829,2.641,14,1,A,"1, 2"
+09003,"Apple, with skin","Apples, raw, with skin",255,Water,macro,g,85.56,38,0.241,1.486,0.017,82.39,87.52,0.060,4,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",203,Protein,macro,g,0.26,29,0.019,0.102,0.394,0.17,0.57,1.538,3,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",204,Total fat,macro,g,0.17,35,0.011,0.065,0.383,0.05,0.31,1.529,4,1,A,"1, 2"
+09003,"Apple, with skin","Apples, raw, with skin",205,Carbohydrate (by diff.),macro,g,13.81,0,,,,,,,,4,NC,
+09003,"Apple, with skin","Apples, raw, with skin",269,Total sugars,macro,g,10.39,25,0.112,0.560,0.054,8.77,12.01,0.312,2,1,A,"2, 3"
+09003,"Apple, with skin","Apples, raw, with skin",209,Starch,macro,g,0.05,10,0.000,0.000,0.000,0.05,0.05,0.000,1,1,A,"1, 2, 3"
+09003,"Apple, with skin","Apples, raw, with skin",291,"Fibre, total dietary",macro,g,2.4,29,0.276,1.486,0.619,1.4,3.5,0.875,3,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",207,Ash,macro,g,0.19,29,0.018,0.097,0.510,0.07,0.48,2.158,3,1,A,"1, 2"
+09003,"Apple, with skin","Apples, raw, with skin",208,Energy kcal,macro,kcal,52,0,,,,,,,,4,NC,
+09003,"Apple, with skin","Apples, raw, with skin",401,Vitamin C,micro,mg,4.6,3,0.470,0.814,0.177,4.0,5.5,0.326,1,1,A,4
+09003,"Apple, with skin","Apples, raw, with skin",320,Vitamin A RAE,micro,µg,3,14,0.155,0.580,0.193,1,7,2.000,2,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+09003,"Apple, with skin","Apples, raw, with skin",321,beta-Carotene,micro,µg,27,14,1.662,6.219,0.230,11,81,2.593,2,1,A,"1, 2"
+09003,"Apple, with skin","Apples, raw, with skin",322,alpha-Carotene,micro,µg,0,14,0.000,0.000,,0,0,,2,1,A,"1, 2, 3"
+09003,"Apple, with skin","Apples, raw, with skin",417,"Folate, total",micro,µg,3,23,0.611,2.930,0.977,,,,,1,,
+09003,"Apple, with skin","Apples, raw, with skin",432,"Folate, food",micro,µg,3,23,0.611,2.930,0.977,,,,,1,,
+09003,"Apple, with skin","Apples, raw, with skin",404,Thiamin,micro,mg,0.017,23,0.002,0.010,0.564,0.007,0.030,1.353,3,1,A,"1, 2"
+09003,"Apple, with skin","Apples, raw, with skin",405,Riboflavin,micro,mg,0.026,20,0.004,0.018,0.688,0.015,0.049,1.308,2,1,A,"1, 2"
+09003,"Apple, with skin","Apples, raw, with skin",406,Niacin,micro,mg,0.091,13,0.006,0.022,0.238,0.070,0.130,0.659,2,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",415,Vitamin B6,micro,mg,0.041,23,0.001,0.005,0.117,0.028,0.056,0.683,3,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+09003,"Apple, with skin","Apples, raw, with skin",323,Vitamin E (alpha-toc.),micro,mg,0.18,10,,,,0.08,0.38,1.667,2,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",430,Vitamin K1,micro,µg,2.2,20,0.079,0.353,0.161,0.9,4.3,1.545,2,1,A,"2, 3"
+09003,"Apple, with skin","Apples, raw, with skin",421,Choline,micro,mg,3.4,0,,,,,,,,1,AS,
+09003,"Apple, with skin","Apples, raw, with skin",303,Iron,micro,mg,0.12,16,0.009,0.036,0.300,0.09,0.18,0.750,3,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",309,Zinc,micro,mg,0.04,26,0.004,0.020,0.510,0.01,0.08,1.750,4,1,A,"1, 2"
+09003,"Apple, with skin","Apples, raw, with skin",301,Calcium,micro,mg,6,26,0.340,1.734,0.289,4,9,0.833,4,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",304,Magnesium,micro,mg,5,26,0.073,0.372,0.074,4,6,0.400,4,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",306,Potassium,micro,mg,107,26,2.211,11.274,0.105,88,136,0.449,4,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",307,Sodium,micro,mg,1,6,0.071,0.174,0.174,1,2,1.000,2,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",317,Selenium,micro,µg,0.0,7,0.000,0.000,,0.0,0.1,,2,1,A,"1, 2, 3"
+09003,"Apple, with skin","Apples, raw, with skin",305,Phosphorus,micro,mg,11,23,0.337,1.616,0.147,10,13,0.273,3,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",312,Copper,micro,mg,0.027,13,0.001,0.004,0.134,0.019,0.035,0.593,2,1,A,2
+09003,"Apple, with skin","Apples, raw, with skin",315,Manganese,micro,mg,0.035,26,0.002,0.010,0.291,0.026,0.057,0.886,4,1,A,"1, 2"
+09200,Orange,"Oranges, raw, all commercial varieties",255,Water,macro,g,86.75,88,0.121,1.135,0.013,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",203,Protein,macro,g,0.94,69,0.014,0.116,0.124,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",204,Total fat,macro,g,0.12,4,0.010,0.020,0.167,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",205,Carbohydrate (by diff.),macro,g,11.75,0,,,,,,,,4,NC,
+09200,Orange,"Oranges, raw, all commercial varieties",269,Total sugars,macro,g,9.35,0,,,,,,,,4,O,
+09200,Orange,"Oranges, raw, all commercial varieties",291,"Fibre, total dietary",macro,g,2.4,0,,,,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",207,Ash,macro,g,0.44,70,0.006,0.050,0.114,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",208,Energy kcal,macro,kcal,47,0,,,,,,,,4,NC,
+09200,Orange,"Oranges, raw, all commercial varieties",401,Vitamin C,micro,mg,53.2,145,0.718,8.646,0.163,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",320,Vitamin A RAE,micro,µg,11,0,,,,,,,,1,AS,
+09200,Orange,"Oranges, raw, all commercial varieties",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+09200,Orange,"Oranges, raw, all commercial varieties",321,beta-Carotene,micro,µg,71,55,22.319,165.522,2.331,40,237,2.775,3,1,A,2
+09200,Orange,"Oranges, raw, all commercial varieties",322,alpha-Carotene,micro,µg,11,55,5.836,43.281,3.935,0,20,1.818,3,1,A,"1, 2"
+09200,Orange,"Oranges, raw, all commercial varieties",417,"Folate, total",micro,µg,30,154,0.808,10.027,0.334,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",432,"Folate, food",micro,µg,30,154,0.808,10.027,0.334,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",404,Thiamin,micro,mg,0.087,148,0.001,0.012,0.140,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",405,Riboflavin,micro,mg,0.040,0,,,,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",406,Niacin,micro,mg,0.282,145,0.005,0.060,0.214,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",415,Vitamin B6,micro,mg,0.060,100,,,,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+09200,Orange,"Oranges, raw, all commercial varieties",323,Vitamin E (alpha-toc.),micro,mg,0.18,4,0.033,0.066,0.367,0.14,0.25,0.611,3,1,A,2
+09200,Orange,"Oranges, raw, all commercial varieties",430,Vitamin K1,micro,µg,0.0,10,0.029,0.092,,0.0,0.1,,4,1,A,"1, 2"
+09200,Orange,"Oranges, raw, all commercial varieties",421,Choline,micro,mg,8.4,0,,,,,,,,4,BFZN,
+09200,Orange,"Oranges, raw, all commercial varieties",303,Iron,micro,mg,0.10,64,0.004,0.032,0.320,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",309,Zinc,micro,mg,0.07,3,,,,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",301,Calcium,micro,mg,40,0,,,,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",304,Magnesium,micro,mg,10,212,0.171,2.490,0.249,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",306,Potassium,micro,mg,181,180,1.408,18.890,0.104,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",307,Sodium,micro,mg,0,72,0.029,0.246,,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",317,Selenium,micro,µg,0.5,5,0.210,0.470,0.939,,,,,1,A,
+09200,Orange,"Oranges, raw, all commercial varieties",305,Phosphorus,micro,mg,14,68,0.439,3.620,0.259,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",312,Copper,micro,mg,0.045,64,0.003,0.024,0.533,,,,,1,,
+09200,Orange,"Oranges, raw, all commercial varieties",315,Manganese,micro,mg,0.025,64,0.001,0.008,0.320,,,,,1,,
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",255,Water,macro,g,79.25,11,0.373,1.237,0.016,77.70,83.92,0.078,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",203,Protein,macro,g,2.05,11,0.048,0.159,0.078,1.44,2.22,0.380,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",204,Total fat,macro,g,0.09,11,0.012,0.040,0.442,0.08,0.20,1.333,2,1,A,"1, 2"
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",205,Carbohydrate (by diff.),macro,g,17.49,0,,,,,,,,4,NC,
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",269,Total sugars,macro,g,0.82,5,,,,0.50,1.60,1.341,1,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",209,Starch,macro,g,15.29,11,1.525,5.058,0.331,10.54,18.10,0.494,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",291,"Fibre, total dietary",macro,g,2.1,5,,,,1.6,2.4,0.381,1,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",207,Ash,macro,g,1.11,11,0.098,0.325,0.293,0.70,1.38,0.613,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",208,Energy kcal,macro,kcal,77,0,,,,,,,,4,NC,
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",401,Vitamin C,micro,mg,19.7,141,0.769,9.131,0.464,,,,,1,,
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",320,Vitamin A RAE,micro,µg,0,0,,,,,,,,4,NC,
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",321,beta-Carotene,micro,µg,1,11,0.565,1.874,1.874,0,6,6.000,2,11,JO,"1, 2"
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",322,alpha-Carotene,micro,µg,0,11,0.000,0.000,,0,0,,2,11,JO,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",417,"Folate, total",micro,µg,15,11,3.036,10.069,0.671,9,34,1.667,2,1,A,"1, 2"
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",432,"Folate, food",micro,µg,15,11,3.036,10.069,0.671,9,34,1.667,2,1,A,
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",404,Thiamin,micro,mg,0.081,11,0.006,0.020,0.246,0.060,0.095,0.432,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",405,Riboflavin,micro,mg,0.032,11,0.013,0.043,1.347,0.016,0.053,1.156,2,1,A,"1, 2"
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",406,Niacin,micro,mg,1.061,10,0.035,0.111,0.104,0.932,1.300,0.347,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",415,Vitamin B6,micro,mg,0.298,11,0.153,0.507,1.703,0.110,0.604,1.658,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",323,Vitamin E (alpha-toc.),micro,mg,0.01,2,,,,0.00,0.01,1.000,1,1,A,1
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",430,Vitamin K1,micro,µg,2.0,11,0.675,2.239,1.119,0.8,3.6,1.400,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",421,Choline,micro,mg,12.1,0,,,,,,,,4,BFSN,
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",303,Iron,micro,mg,0.81,11,0.054,0.179,0.221,0.47,1.24,0.951,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",309,Zinc,micro,mg,0.30,11,0.003,0.010,0.033,0.27,0.35,0.267,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",301,Calcium,micro,mg,12,11,1.511,5.011,0.418,6,16,0.833,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",304,Magnesium,micro,mg,23,11,0.593,1.967,0.086,19,25,0.261,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",306,Potassium,micro,mg,425,11,14.169,46.993,0.111,368,506,0.325,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",307,Sodium,micro,mg,6,73,0.760,6.493,1.082,,,,,1,,
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",317,Selenium,micro,µg,0.4,2,,,,0.2,0.5,0.750,1,1,A,
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",305,Phosphorus,micro,mg,57,11,1.293,4.288,0.075,48,75,0.474,2,1,A,2
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",312,Copper,micro,mg,0.110,11,0.017,0.056,0.513,0.077,0.185,0.982,2,1,A,"1, 2"
+11352,"Potato, flesh+skin","Potatoes, flesh and skin, raw",315,Manganese,micro,mg,0.153,11,0.027,0.090,0.585,0.116,0.241,0.817,2,1,A,2
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",255,Water,macro,g,94.52,39,0.139,0.868,0.009,92.70,95.73,0.032,11,11,JO,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",203,Protein,macro,g,0.88,19,0.039,0.170,0.193,0.59,1.06,0.534,3,11,JO,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",204,Total fat,macro,g,0.20,26,0.034,0.173,0.867,0.07,0.80,3.650,5,11,JO,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",205,Carbohydrate (by diff.),macro,g,3.89,0,,,,,,,,4,NC,
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",269,Total sugars,macro,g,2.63,0,,,,,,,,4,NC,
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",209,Starch,macro,g,0.00,4,0.000,0.000,,0.00,0.00,,1,1,A,"2, 3"
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",291,"Fibre, total dietary",macro,g,1.2,5,0.234,0.523,0.436,0.7,2.0,1.083,2,6,JA,"2, 3"
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",207,Ash,macro,g,0.50,19,0.018,0.078,0.157,0.37,0.60,0.460,3,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",208,Energy kcal,macro,kcal,18,0,,,,,,,,4,NC,
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",401,Vitamin C,micro,mg,13.7,25,0.860,4.300,0.314,7.8,19.8,0.876,4,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",320,Vitamin A RAE,micro,µg,42,0,,,,,,,,1,AS,
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",321,beta-Carotene,micro,µg,449,70,2.491,20.841,0.046,184,572,0.864,3,1,A,"2, 3"
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",322,alpha-Carotene,micro,µg,101,66,101.455,824.224,8.161,0,112,1.109,3,1,A,"2, 3"
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",417,"Folate, total",micro,µg,15,19,2.252,9.816,0.654,1,36,2.333,3,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",432,"Folate, food",micro,µg,15,19,2.252,9.816,0.654,1,36,2.333,3,6,JA,
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",404,Thiamin,micro,mg,0.037,19,0.004,0.017,0.471,0.020,0.060,1.081,3,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",405,Riboflavin,micro,mg,0.019,19,0.001,0.004,0.229,0.012,0.028,0.842,3,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",406,Niacin,micro,mg,0.594,19,0.032,0.139,0.235,0.445,0.819,0.630,3,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",415,Vitamin B6,micro,mg,0.080,19,0.003,0.013,0.163,0.060,0.097,0.463,3,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",323,Vitamin E (alpha-toc.),micro,mg,0.54,16,0.070,0.280,0.519,0.05,1.02,1.796,4,11,JO,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",430,Vitamin K1,micro,µg,7.9,15,4.743,18.370,2.325,2.2,60.0,7.316,6,11,JO,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",421,Choline,micro,mg,6.7,0,,,,,,,,1,AS,
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",303,Iron,micro,mg,0.27,70,0.015,0.125,0.465,0.14,0.79,2.407,8,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",309,Zinc,micro,mg,0.17,70,0.036,0.301,1.772,0.05,2.42,13.941,8,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",301,Calcium,micro,mg,10,69,0.291,2.417,0.242,7,18,1.100,8,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",304,Magnesium,micro,mg,11,70,0.198,1.657,0.151,7,15,0.727,8,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",306,Potassium,micro,mg,237,67,5.318,43.530,0.184,144,385,1.017,8,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",307,Sodium,micro,mg,5,66,0.565,4.590,0.918,1,24,4.600,8,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",317,Selenium,micro,µg,0.0,36,0.011,0.066,,0.0,0.3,,3,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",305,Phosphorus,micro,mg,24,69,0.534,4.436,0.185,15,37,0.917,8,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",312,Copper,micro,mg,0.059,70,0.002,0.017,0.284,0.012,0.134,2.068,8,6,JA,4
+11529,"Tomato, red, year-round","Tomatoes, red, ripe, raw, year round average",315,Manganese,micro,mg,0.114,70,0.013,0.109,0.954,0.069,0.939,7.632,8,6,JA,4
+11124,Carrot,"Carrots, raw",255,Water,macro,g,88.29,33,0.429,2.464,0.028,85.70,91.23,0.063,7,11,JO,2
+11124,Carrot,"Carrots, raw",203,Protein,macro,g,0.93,19,0.008,0.035,0.037,0.68,1.19,0.548,2,11,JO,2
+11124,Carrot,"Carrots, raw",204,Total fat,macro,g,0.24,26,0.018,0.092,0.382,0.10,0.40,1.250,4,11,JO,2
+11124,Carrot,"Carrots, raw",205,Carbohydrate (by diff.),macro,g,9.58,0,,,,,,,,4,NC,
+11124,Carrot,"Carrots, raw",269,Total sugars,macro,g,4.74,0,,,,,,,,4,NC,
+11124,Carrot,"Carrots, raw",209,Starch,macro,g,1.43,2,,,,0.17,2.70,1.769,1,1,A,1
+11124,Carrot,"Carrots, raw",291,"Fibre, total dietary",macro,g,2.8,4,,,,2.7,3.0,0.107,1,1,A,2
+11124,Carrot,"Carrots, raw",207,Ash,macro,g,0.97,19,0.014,0.061,0.063,0.74,1.50,0.784,2,6,JA,2
+11124,Carrot,"Carrots, raw",208,Energy kcal,macro,kcal,41,0,,,,,,,,4,NC,
+11124,Carrot,"Carrots, raw",401,Vitamin C,micro,mg,5.9,21,1.130,5.178,0.878,0.9,9.2,1.407,2,6,JA,2
+11124,Carrot,"Carrots, raw",320,Vitamin A RAE,micro,µg,835,0,,,,,,,,4,NC,
+11124,Carrot,"Carrots, raw",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+11124,Carrot,"Carrots, raw",321,beta-Carotene,micro,µg,8285,197,1082.194,15189.317,1.833,1990,21000,2.295,14,11,JO,4
+11124,Carrot,"Carrots, raw",322,alpha-Carotene,micro,µg,3477,190,531.987,7332.935,2.109,910,9710,2.531,12,1,A,4
+11124,Carrot,"Carrots, raw",417,"Folate, total",micro,µg,19,19,5.175,22.557,1.187,0,70,3.684,2,6,JA,2
+11124,Carrot,"Carrots, raw",432,"Folate, food",micro,µg,19,19,5.175,22.557,1.187,0,70,3.684,2,6,JA,
+11124,Carrot,"Carrots, raw",404,Thiamin,micro,mg,0.066,21,0.011,0.050,0.764,0.020,0.085,0.985,2,6,JA,2
+11124,Carrot,"Carrots, raw",405,Riboflavin,micro,mg,0.058,19,0.013,0.057,0.977,0.040,0.087,0.810,2,6,JA,2
+11124,Carrot,"Carrots, raw",406,Niacin,micro,mg,0.983,19,0.215,0.937,0.953,0.577,1.410,0.847,2,6,JA,2
+11124,Carrot,"Carrots, raw",415,Vitamin B6,micro,mg,0.138,19,0.030,0.131,0.948,0.090,0.231,1.022,2,6,JA,2
+11124,Carrot,"Carrots, raw",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+11124,Carrot,"Carrots, raw",323,Vitamin E (alpha-toc.),micro,mg,0.66,11,0.269,0.892,1.352,0.25,1.46,1.833,3,11,JO,2
+11124,Carrot,"Carrots, raw",430,Vitamin K1,micro,µg,13.2,4,,,,11.4,14.8,0.258,1,1,A,2
+11124,Carrot,"Carrots, raw",421,Choline,micro,mg,8.8,0,,,,,,,,1,AS,
+11124,Carrot,"Carrots, raw",303,Iron,micro,mg,0.30,75,0.014,0.121,0.404,0.12,1.15,3.433,7,6,JA,2
+11124,Carrot,"Carrots, raw",309,Zinc,micro,mg,0.24,76,0.011,0.096,0.400,0.14,0.37,0.958,7,6,JA,2
+11124,Carrot,"Carrots, raw",301,Calcium,micro,mg,33,75,1.120,9.699,0.294,9,42,1.000,7,6,JA,2
+11124,Carrot,"Carrots, raw",304,Magnesium,micro,mg,12,75,0.367,3.178,0.265,7,19,1.000,7,6,JA,2
+11124,Carrot,"Carrots, raw",306,Potassium,micro,mg,320,76,8.418,73.386,0.229,217,430,0.666,7,6,JA,2
+11124,Carrot,"Carrots, raw",307,Sodium,micro,mg,69,81,3.358,30.222,0.438,23,104,1.174,7,6,JA,2
+11124,Carrot,"Carrots, raw",317,Selenium,micro,µg,0.1,39,0.038,0.237,2.373,0.0,2.0,20.000,4,1,,2
+11124,Carrot,"Carrots, raw",305,Phosphorus,micro,mg,35,75,0.755,6.538,0.187,20,44,0.686,7,6,JA,2
+11124,Carrot,"Carrots, raw",312,Copper,micro,mg,0.045,70,0.007,0.059,1.301,0.009,0.106,2.156,7,6,JA,"1, 2"
+11124,Carrot,"Carrots, raw",315,Manganese,micro,mg,0.143,66,0.006,0.049,0.341,0.063,0.390,2.287,7,6,JA,2
+11090,Broccoli,"Broccoli, raw",255,Water,macro,g,89.30,49,1.036,7.252,0.081,73.73,91.80,0.202,10,11,JO,4
+11090,Broccoli,"Broccoli, raw",203,Protein,macro,g,2.82,23,0.437,2.096,0.743,1.99,3.15,0.411,3,11,JO,4
+11090,Broccoli,"Broccoli, raw",204,Total fat,macro,g,0.37,29,0.004,0.022,0.058,0.33,0.41,0.216,5,11,JO,4
+11090,Broccoli,"Broccoli, raw",205,Carbohydrate (by diff.),macro,g,6.64,0,,,,,,,,4,NC,
+11090,Broccoli,"Broccoli, raw",269,Total sugars,macro,g,1.70,0,,,,,,,,4,NC,
+11090,Broccoli,"Broccoli, raw",209,Starch,macro,g,0.00,1,,,,,,,,1,A,1
+11090,Broccoli,"Broccoli, raw",291,"Fibre, total dietary",macro,g,2.6,13,0.257,0.927,0.356,2.2,3.2,0.385,5,6,JA,4
+11090,Broccoli,"Broccoli, raw",207,Ash,macro,g,0.87,23,0.033,0.158,0.182,0.80,0.91,0.126,3,6,JA,4
+11090,Broccoli,"Broccoli, raw",208,Energy kcal,macro,kcal,34,0,,,,,,,,4,NC,
+11090,Broccoli,"Broccoli, raw",401,Vitamin C,micro,mg,89.2,19,3.977,17.335,0.194,85.2,93.2,0.090,2,11,JO,4
+11090,Broccoli,"Broccoli, raw",320,Vitamin A RAE,micro,µg,31,0,,,,,,,,4,NC,
+11090,Broccoli,"Broccoli, raw",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+11090,Broccoli,"Broccoli, raw",321,beta-Carotene,micro,µg,361,124,7.019,78.160,0.217,54,1080,2.842,5,11,JO,"2, 3"
+11090,Broccoli,"Broccoli, raw",322,alpha-Carotene,micro,µg,25,55,3.172,23.524,0.941,0,179,7.160,4,11,JO,"1, 2, 3"
+11090,Broccoli,"Broccoli, raw",417,"Folate, total",micro,µg,63,27,12.748,66.241,1.051,42,88,0.730,4,11,JO,4
+11090,Broccoli,"Broccoli, raw",432,"Folate, food",micro,µg,63,27,12.748,66.241,1.051,42,88,0.730,4,11,JO,
+11090,Broccoli,"Broccoli, raw",404,Thiamin,micro,mg,0.071,23,0.010,0.048,0.675,0.064,0.090,0.366,3,6,JA,4
+11090,Broccoli,"Broccoli, raw",405,Riboflavin,micro,mg,0.117,23,0.020,0.096,0.820,0.086,0.141,0.470,3,6,JA,4
+11090,Broccoli,"Broccoli, raw",406,Niacin,micro,mg,0.639,23,0.064,0.307,0.480,0.549,0.729,0.282,3,6,JA,4
+11090,Broccoli,"Broccoli, raw",415,Vitamin B6,micro,mg,0.175,23,0.031,0.149,0.850,0.149,0.233,0.480,3,6,JA,4
+11090,Broccoli,"Broccoli, raw",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+11090,Broccoli,"Broccoli, raw",323,Vitamin E (alpha-toc.),micro,mg,0.78,12,0.099,0.343,0.440,0.13,1.59,1.872,4,11,JO,4
+11090,Broccoli,"Broccoli, raw",430,Vitamin K1,micro,µg,101.6,8,3.897,11.022,0.108,76.6,136.4,0.589,2,1,A,"2, 3"
+11090,Broccoli,"Broccoli, raw",421,Choline,micro,mg,18.7,0,,,,,,,,1,AS,
+11090,Broccoli,"Broccoli, raw",303,Iron,micro,mg,0.73,33,0.095,0.546,0.748,0.56,0.82,0.356,3,6,JA,4
+11090,Broccoli,"Broccoli, raw",309,Zinc,micro,mg,0.41,33,0.011,0.063,0.154,0.39,0.43,0.098,3,6,JA,4
+11090,Broccoli,"Broccoli, raw",301,Calcium,micro,mg,47,33,5.130,29.470,0.627,39,53,0.298,3,6,JA,4
+11090,Broccoli,"Broccoli, raw",304,Magnesium,micro,mg,21,33,2.104,12.087,0.576,18,24,0.286,3,6,JA,4
+11090,Broccoli,"Broccoli, raw",306,Potassium,micro,mg,316,37,7.217,43.899,0.139,296,322,0.082,4,11,JO,4
+11090,Broccoli,"Broccoli, raw",307,Sodium,micro,mg,33,42,5.248,34.011,1.031,27,48,0.636,4,11,JO,4
+11090,Broccoli,"Broccoli, raw",317,Selenium,micro,µg,2.5,8,0.106,0.300,0.120,1.4,3.9,1.000,2,6,JA,"2, 3"
+11090,Broccoli,"Broccoli, raw",305,Phosphorus,micro,mg,66,33,3.008,17.280,0.262,63,71,0.121,3,6,JA,4
+11090,Broccoli,"Broccoli, raw",312,Copper,micro,mg,0.049,33,0.012,0.069,1.407,0.038,0.075,0.755,3,6,JA,4
+11090,Broccoli,"Broccoli, raw",315,Manganese,micro,mg,0.210,23,0.007,0.034,0.160,0.196,0.222,0.124,3,6,JA,4
+11457,Spinach,"Spinach, raw",255,Water,macro,g,91.40,1,,,,87.75,94.16,0.070,7,11,JO,
+11457,Spinach,"Spinach, raw",203,Protein,macro,g,2.86,9,0.112,0.336,0.117,,,,,1,,
+11457,Spinach,"Spinach, raw",204,Total fat,macro,g,0.39,7,0.032,0.085,0.217,0.25,0.50,0.641,2,1,,4
+11457,Spinach,"Spinach, raw",205,Carbohydrate (by diff.),macro,g,3.63,0,,,,,,,,4,NC,
+11457,Spinach,"Spinach, raw",269,Total sugars,macro,g,0.42,0,,,,,,,,4,NC,
+11457,Spinach,"Spinach, raw",291,"Fibre, total dietary",macro,g,2.2,1,,,,,,,,1,,
+11457,Spinach,"Spinach, raw",207,Ash,macro,g,1.72,8,0.035,0.099,0.058,,,,,1,,
+11457,Spinach,"Spinach, raw",208,Energy kcal,macro,kcal,23,0,,,,,,,,4,NC,
+11457,Spinach,"Spinach, raw",401,Vitamin C,micro,mg,28.1,7,4.129,10.924,0.389,,,,,1,,
+11457,Spinach,"Spinach, raw",320,Vitamin A RAE,micro,µg,469,0,,,,,,,,1,AS,
+11457,Spinach,"Spinach, raw",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+11457,Spinach,"Spinach, raw",321,beta-Carotene,micro,µg,5626,5,766.716,1714.429,0.305,3970,8900,0.876,1,1,A,4
+11457,Spinach,"Spinach, raw",322,alpha-Carotene,micro,µg,0,4,0.000,0.000,,0,0,,1,1,A,4
+11457,Spinach,"Spinach, raw",417,"Folate, total",micro,µg,194,6,35.597,87.194,0.449,,,,,1,,
+11457,Spinach,"Spinach, raw",432,"Folate, food",micro,µg,194,6,35.597,87.194,0.449,,,,,1,,
+11457,Spinach,"Spinach, raw",404,Thiamin,micro,mg,0.078,9,0.008,0.024,0.308,,,,,1,,
+11457,Spinach,"Spinach, raw",405,Riboflavin,micro,mg,0.189,9,0.008,0.024,0.127,,,,,1,,
+11457,Spinach,"Spinach, raw",406,Niacin,micro,mg,0.724,9,0.032,0.096,0.133,,,,,1,,
+11457,Spinach,"Spinach, raw",415,Vitamin B6,micro,mg,0.195,6,0.008,0.020,0.100,,,,,1,,
+11457,Spinach,"Spinach, raw",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+11457,Spinach,"Spinach, raw",323,Vitamin E (alpha-toc.),micro,mg,2.03,7,0.152,0.402,0.198,1.41,2.70,0.635,2,1,,4
+11457,Spinach,"Spinach, raw",430,Vitamin K1,micro,µg,482.9,1,,,,,,,,1,,
+11457,Spinach,"Spinach, raw",421,Choline,micro,mg,19.3,0,,,,,,,,4,BFSN,
+11457,Spinach,"Spinach, raw",303,Iron,micro,mg,2.71,10,0.522,1.651,0.609,,,,,1,,
+11457,Spinach,"Spinach, raw",309,Zinc,micro,mg,0.53,7,0.039,0.103,0.195,,,,,1,,
+11457,Spinach,"Spinach, raw",301,Calcium,micro,mg,99,9,4.996,14.988,0.151,,,,,1,,
+11457,Spinach,"Spinach, raw",304,Magnesium,micro,mg,79,7,4.794,12.684,0.161,,,,,1,,
+11457,Spinach,"Spinach, raw",306,Potassium,micro,mg,558,10,28.703,90.767,0.163,,,,,1,,
+11457,Spinach,"Spinach, raw",307,Sodium,micro,mg,79,10,10.835,34.263,0.434,,,,,1,,
+11457,Spinach,"Spinach, raw",317,Selenium,micro,µg,1.0,5,0.335,0.749,0.749,,,,,1,A,
+11457,Spinach,"Spinach, raw",305,Phosphorus,micro,mg,49,7,3.479,9.205,0.188,,,,,1,,
+11457,Spinach,"Spinach, raw",312,Copper,micro,mg,0.130,7,0.007,0.019,0.142,,,,,1,,
+11457,Spinach,"Spinach, raw",315,Manganese,micro,mg,0.897,6,0.048,0.118,0.131,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",255,Water,macro,g,11.62,58,0.332,2.528,0.218,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",203,Protein,macro,g,7.13,70,0.134,1.121,0.157,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",204,Total fat,macro,g,0.66,23,0.053,0.254,0.385,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",205,Carbohydrate (by diff.),macro,g,79.95,0,,,,,,,,4,NC,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",269,Total sugars,macro,g,0.12,0,,,,,,,,4,BFZN,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",291,"Fibre, total dietary",macro,g,1.3,0,,,,,,,,4,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",207,Ash,macro,g,0.64,60,0.022,0.170,0.266,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",208,Energy kcal,macro,kcal,365,0,,,,,,,,4,NC,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",401,Vitamin C,micro,mg,0.0,0,,,,,,,,4,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",320,Vitamin A RAE,micro,µg,0,0,,,,,,,,4,NC,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",321,beta-Carotene,micro,µg,0,0,,,,,,,,4,BFZN,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",322,alpha-Carotene,micro,µg,0,0,,,,,,,,4,BFZN,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",417,"Folate, total",micro,µg,8,5,0.962,2.151,0.269,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",432,"Folate, food",micro,µg,8,5,0.962,2.151,0.269,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",404,Thiamin,micro,mg,0.070,1,,,,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",405,Riboflavin,micro,mg,0.049,19,0.011,0.048,0.979,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",406,Niacin,micro,mg,1.600,1,,,,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",415,Vitamin B6,micro,mg,0.164,7,0.008,0.021,0.129,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",323,Vitamin E (alpha-toc.),micro,mg,0.11,0,,,,,,,,4,BFZN,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",430,Vitamin K1,micro,µg,0.1,0,,,,,,,,4,BFZN,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",421,Choline,micro,mg,5.8,0,,,,,,,,4,BFZN,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",303,Iron,micro,mg,0.80,1,,,,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",309,Zinc,micro,mg,1.09,13,0.068,0.245,0.225,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",301,Calcium,micro,mg,28,22,3.052,14.315,0.511,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",304,Magnesium,micro,mg,25,13,1.776,6.403,0.256,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",306,Potassium,micro,mg,115,17,10.363,42.728,0.372,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",307,Sodium,micro,mg,5,10,1.051,3.324,0.665,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",317,Selenium,micro,µg,15.1,7,5.193,13.739,0.910,,,,,1,A,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",305,Phosphorus,micro,mg,115,15,3.642,14.105,0.123,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",312,Copper,micro,mg,0.220,13,0.016,0.058,0.262,,,,,1,,
+20444,"White rice, long-grain, unenriched","Rice, white, long-grain, regular, raw, unenriched",315,Manganese,micro,mg,1.088,6,0.049,0.120,0.110,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",255,Water,macro,g,11.92,72,0.184,1.561,0.131,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",203,Protein,macro,g,10.33,61,0.131,1.023,0.099,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",204,Total fat,macro,g,0.98,29,0.038,0.205,0.209,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",205,Carbohydrate (by diff.),macro,g,76.31,0,,,,,,,,4,NC,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",269,Total sugars,macro,g,0.27,3,,,,0.22,0.31,0.333,2,1,A,2
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",291,"Fibre, total dietary",macro,g,2.7,0,,,,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",207,Ash,macro,g,0.47,61,0.015,0.117,0.249,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",208,Energy kcal,macro,kcal,364,0,,,,,,,,4,NC,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",401,Vitamin C,micro,mg,0.0,0,,,,,,,,4,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",320,Vitamin A RAE,micro,µg,0,1,,,,,,,,1,A,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",321,beta-Carotene,micro,µg,0,1,,,,,,,,1,A,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",322,alpha-Carotene,micro,µg,0,1,,,,,,,,1,A,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",417,"Folate, total",micro,µg,183,9,5.778,17.334,0.095,160,203,0.235,1,1,A,"2, 3"
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",432,"Folate, food",micro,µg,29,9,1.441,4.323,0.149,22,34,0.414,1,1,AS,"2, 3"
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",404,Thiamin,micro,mg,0.785,36,0.015,0.090,0.115,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",405,Riboflavin,micro,mg,0.494,32,0.016,0.091,0.183,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",406,Niacin,micro,mg,5.904,19,0.123,0.536,0.091,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",415,Vitamin B6,micro,mg,0.044,45,0.003,0.020,0.457,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",323,Vitamin E (alpha-toc.),micro,mg,0.06,9,0.008,0.024,0.400,0.02,0.12,1.667,3,1,A,2
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",430,Vitamin K1,micro,µg,0.3,1,,,,,,,,1,A,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",421,Choline,micro,mg,10.4,0,,,,,,,,1,AS,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",303,Iron,micro,mg,4.64,23,0.074,0.355,0.076,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",309,Zinc,micro,mg,0.70,136,0.020,0.233,0.333,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",301,Calcium,micro,mg,15,113,0.370,3.933,0.262,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",304,Magnesium,micro,mg,22,129,0.586,6.656,0.303,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",306,Potassium,micro,mg,107,94,2.696,26.139,0.244,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",307,Sodium,micro,mg,2,82,0.226,2.047,1.023,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",317,Selenium,micro,µg,33.9,46,3.192,21.649,0.639,,,,,1,A,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",305,Phosphorus,micro,mg,108,47,2.395,16.419,0.152,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",312,Copper,micro,mg,0.144,49,0.006,0.042,0.292,,,,,1,,
+20081,"Wheat flour, white, enriched","Wheat flour, white, all-purpose, enriched, bleached",315,Manganese,micro,mg,0.682,48,0.030,0.208,0.305,,,,,1,,
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",255,Water,macro,g,10.74,6,1.455,3.564,0.332,9.19,12.47,0.305,2,1,A,2
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",203,Protein,macro,g,13.21,3,1.185,2.052,0.155,10.84,14.40,0.269,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",204,Total fat,macro,g,2.50,3,0.081,0.140,0.056,2.37,2.65,0.112,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",205,Carbohydrate (by diff.),macro,g,71.97,0,,,,,,,,4,NC,
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",269,Total sugars,macro,g,0.41,3,0.030,0.052,0.127,0.35,0.45,0.244,1,1,A,4
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",209,Starch,macro,g,57.77,3,1.017,1.761,0.030,56.70,59.80,0.054,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",291,"Fibre, total dietary",macro,g,10.7,7,0.269,0.712,0.067,10.0,12.0,0.187,2,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",207,Ash,macro,g,1.58,3,0.012,0.021,0.013,1.56,1.60,0.025,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",208,Energy kcal,macro,kcal,340,0,,,,,,,,4,NC,
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",401,Vitamin C,micro,mg,0.0,0,,,,,,,,4,,
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",320,Vitamin A RAE,micro,µg,0,0,,,,,,,,1,AS,
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",321,beta-Carotene,micro,µg,5,1,,,,,,,,1,A,1
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",322,alpha-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",417,"Folate, total",micro,µg,44,7,4.194,11.096,0.252,,,,,1,,
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",432,"Folate, food",micro,µg,44,7,4.194,11.096,0.252,,,,,1,,
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",404,Thiamin,micro,mg,0.502,3,0.018,0.031,0.062,0.475,0.535,0.120,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",405,Riboflavin,micro,mg,0.165,3,0.002,0.003,0.021,0.162,0.170,0.048,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",406,Niacin,micro,mg,4.957,3,0.231,0.400,0.081,4.510,5.280,0.155,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",415,Vitamin B6,micro,mg,0.407,3,0.023,0.040,0.098,0.368,0.447,0.194,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",323,Vitamin E (alpha-toc.),micro,mg,0.71,3,0.050,0.087,0.122,0.65,0.81,0.225,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",430,Vitamin K1,micro,µg,1.9,2,,,,1.1,2.6,0.789,2,1,A,
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",421,Choline,micro,mg,31.2,0,,,,,,,,1,AS,
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",303,Iron,micro,mg,3.60,3,0.153,0.265,0.074,3.30,3.80,0.139,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",309,Zinc,micro,mg,2.60,3,0.000,0.000,0.000,2.60,2.60,0.000,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",301,Calcium,micro,mg,34,3,1.202,2.082,0.061,32,36,0.118,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",304,Magnesium,micro,mg,137,3,8.819,15.275,0.111,120,150,0.219,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",306,Potassium,micro,mg,363,3,12.019,20.818,0.057,340,380,0.110,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",307,Sodium,micro,mg,2,3,0.058,0.100,0.050,2,3,0.500,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",317,Selenium,micro,µg,61.8,6,10.591,25.943,0.420,18.3,87.0,1.112,4,1,A,2
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",305,Phosphorus,micro,mg,357,3,3.333,5.773,0.016,350,360,0.028,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",312,Copper,micro,mg,0.410,3,0.012,0.021,0.051,0.390,0.430,0.098,1,1,A,"2, 3"
+20080,"Wheat flour, whole-grain","Wheat flour, whole-grain",315,Manganese,micro,mg,4.067,3,0.376,0.651,0.160,3.400,4.700,0.320,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",255,Water,macro,g,10.84,4,0.302,0.604,0.056,10.49,11.75,0.116,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",203,Protein,macro,g,13.15,4,0.053,0.106,0.008,13.00,13.24,0.018,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",204,Total fat,macro,g,6.52,4,0.182,0.364,0.056,6.20,6.92,0.110,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",205,Carbohydrate (by diff.),macro,g,67.70,0,,,,,,,,4,NC,
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",269,Total sugars,macro,g,0.99,4,0.022,0.044,0.044,0.93,1.02,0.091,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",209,Starch,macro,g,57.92,4,0.189,0.378,0.007,57.50,58.40,0.016,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",291,"Fibre, total dietary",macro,g,10.1,4,0.473,0.946,0.094,8.8,11.0,0.218,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",207,Ash,macro,g,1.77,4,0.018,0.036,0.020,1.74,1.81,0.040,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",208,Energy kcal,macro,kcal,379,0,,,,,,,,4,NC,
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",401,Vitamin C,micro,mg,0.0,4,0.000,0.000,,0.0,0.0,,1,1,A,"1, 2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",320,Vitamin A RAE,micro,µg,0,1,,,,,,,,1,A,
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",321,beta-Carotene,micro,µg,0,1,,,,,,,,1,A,1
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",322,alpha-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",417,"Folate, total",micro,µg,32,24,3.485,17.073,0.534,,,,,1,,
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",432,"Folate, food",micro,µg,32,0,,,,,,,,4,NR,
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",404,Thiamin,micro,mg,0.460,4,0.034,0.068,0.148,0.360,0.510,0.326,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",405,Riboflavin,micro,mg,0.155,4,0.058,0.116,0.748,0.090,0.330,1.548,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",406,Niacin,micro,mg,1.125,4,0.048,0.096,0.085,1.000,1.200,0.178,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",415,Vitamin B6,micro,mg,0.100,4,0.004,0.008,0.080,0.090,0.110,0.200,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,4,,
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",323,Vitamin E (alpha-toc.),micro,mg,0.42,4,0.037,0.074,0.176,0.31,0.47,0.381,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",430,Vitamin K1,micro,µg,2.0,4,0.159,0.318,0.159,1.7,2.5,0.400,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",421,Choline,micro,mg,40.4,0,,,,,,,,4,BFSN,
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",303,Iron,micro,mg,4.25,4,0.065,0.130,0.031,4.10,4.40,0.071,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",309,Zinc,micro,mg,3.64,4,0.095,0.190,0.052,3.50,3.90,0.110,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",301,Calcium,micro,mg,52,33,0.923,5.302,0.102,,,,,1,,
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",304,Magnesium,micro,mg,138,4,1.732,3.464,0.025,133,141,0.058,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",306,Potassium,micro,mg,362,4,4.210,8.420,0.023,351,369,0.050,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",307,Sodium,micro,mg,6,4,0.409,0.818,0.136,5,7,0.333,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",317,Selenium,micro,µg,28.9,4,1.700,3.400,0.118,24.5,32.8,0.287,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",305,Phosphorus,micro,mg,410,4,10.553,21.106,0.051,384,434,0.122,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",312,Copper,micro,mg,0.391,4,0.008,0.016,0.041,0.370,0.409,0.100,1,1,A,"2, 3"
+08120,"Oats, regular/quick, dry","Cereals, oats, regular and quick, not fortified, dry",315,Manganese,micro,mg,3.630,5,0.001,0.002,0.001,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",255,Water,macro,g,11.02,40,0.320,2.024,0.184,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",203,Protein,macro,g,21.60,36,0.304,1.824,0.084,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",204,Total fat,macro,g,1.42,12,0.064,0.222,0.156,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",205,Carbohydrate (by diff.),macro,g,62.36,0,,,,,,,,4,NC,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",269,Total sugars,macro,g,2.12,0,,,,,,,,4,BFSN,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",291,"Fibre, total dietary",macro,g,15.5,0,,,,,,,,4,BFSN,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",207,Ash,macro,g,3.60,15,0.066,0.256,0.071,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",208,Energy kcal,macro,kcal,341,0,,,,,,,,4,NC,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",401,Vitamin C,micro,mg,0.0,0,,,,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",320,Vitamin A RAE,micro,µg,0,0,,,,,,,,4,NC,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,4,BFSN,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,4,BFSN,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",417,"Folate, total",micro,µg,444,8,33.838,95.708,0.216,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",432,"Folate, food",micro,µg,444,8,33.838,95.708,0.216,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",404,Thiamin,micro,mg,0.900,26,0.016,0.082,0.091,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",405,Riboflavin,micro,mg,0.193,26,0.007,0.036,0.185,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",406,Niacin,micro,mg,1.955,30,0.062,0.340,0.174,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",415,Vitamin B6,micro,mg,0.286,9,0.006,0.018,0.063,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",323,Vitamin E (alpha-toc.),micro,mg,0.21,0,,,,,,,,4,BFSN,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",430,Vitamin K1,micro,µg,5.6,0,,,,,,,,4,BFSN,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",421,Choline,micro,mg,66.4,0,,,,,,,,4,BFSN,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",303,Iron,micro,mg,5.02,28,0.566,2.995,0.597,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",309,Zinc,micro,mg,3.65,27,0.360,1.871,0.512,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",301,Calcium,micro,mg,123,11,11.539,38.271,0.311,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",304,Magnesium,micro,mg,171,26,2.602,13.268,0.078,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",306,Potassium,micro,mg,1483,9,,,,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",307,Sodium,micro,mg,5,4,0.620,1.240,0.248,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",317,Selenium,micro,µg,3.2,0,,,,,,,,4,BFSN,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",305,Phosphorus,micro,mg,352,11,13.750,45.604,0.130,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",312,Copper,micro,mg,0.841,27,0.047,0.244,0.290,,,,,1,,
+16014,"Black beans, dry","Beans, black, mature seeds, raw",315,Manganese,micro,mg,1.060,26,0.041,0.209,0.197,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",255,Water,macro,g,11.75,58,0.216,1.645,0.140,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",203,Protein,macro,g,22.53,61,0.225,1.757,0.078,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",204,Total fat,macro,g,1.06,65,0.058,0.468,0.441,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",205,Carbohydrate (by diff.),macro,g,61.29,0,,,,,,,,4,NC,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",269,Total sugars,macro,g,2.10,0,,,,,,,,4,BFSN,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",291,"Fibre, total dietary",macro,g,15.2,0,,,,,,,,4,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",207,Ash,macro,g,3.37,58,0.065,0.495,0.147,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",208,Energy kcal,macro,kcal,337,0,,,,,,,,4,NC,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",401,Vitamin C,micro,mg,4.5,1,,,,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",320,Vitamin A RAE,micro,µg,0,0,,,,,,,,4,NC,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,4,BFSN,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,4,BFSN,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",417,"Folate, total",micro,µg,394,32,13.422,75.926,0.193,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",432,"Folate, food",micro,µg,394,32,13.422,75.926,0.193,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",404,Thiamin,micro,mg,0.608,48,0.046,0.319,0.524,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",405,Riboflavin,micro,mg,0.215,48,0.008,0.055,0.258,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",406,Niacin,micro,mg,2.110,47,0.108,0.740,0.351,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",415,Vitamin B6,micro,mg,0.397,32,0.007,0.040,0.100,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",323,Vitamin E (alpha-toc.),micro,mg,0.21,0,,,,,,,,4,BFSN,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",430,Vitamin K1,micro,µg,5.6,0,,,,,,,,4,BFSN,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",421,Choline,micro,mg,65.9,0,,,,,,,,4,BFSN,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",303,Iron,micro,mg,6.69,51,0.243,1.735,0.259,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",309,Zinc,micro,mg,2.79,51,0.064,0.457,0.164,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",301,Calcium,micro,mg,83,50,4.973,35.164,0.424,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",304,Magnesium,micro,mg,138,49,4.450,31.150,0.226,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",306,Potassium,micro,mg,1359,51,24.742,176.693,0.130,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",307,Sodium,micro,mg,12,44,2.153,14.281,1.190,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",317,Selenium,micro,µg,3.2,0,,,,,,,,4,BFSN,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",305,Phosphorus,micro,mg,406,50,11.195,79.161,0.195,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",312,Copper,micro,mg,0.699,50,0.038,0.269,0.384,,,,,1,,
+16032,"Kidney beans, dry","Beans, kidney, red, mature seeds, raw",315,Manganese,micro,mg,1.111,48,0.055,0.381,0.343,,,,,1,,
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",255,Water,macro,g,11.33,20,0.306,1.368,0.121,7.10,16.82,0.858,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",203,Protein,macro,g,21.42,8,0.403,1.140,0.053,20.43,23.60,0.148,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",204,Total fat,macro,g,1.23,20,0.040,0.179,0.145,0.90,1.50,0.488,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",205,Carbohydrate (by diff.),macro,g,62.55,0,,,,,,,,4,NC,
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",269,Total sugars,macro,g,2.11,0,,,,,,,,1,AS,
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",209,Starch,macro,g,34.17,4,1.016,2.032,0.059,31.90,36.50,0.135,1,1,A,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",291,"Fibre, total dietary",macro,g,15.5,4,0.170,0.340,0.022,15.0,15.8,0.052,1,1,A,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",207,Ash,macro,g,3.46,20,0.064,0.286,0.083,3.00,4.00,0.289,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",208,Energy kcal,macro,kcal,347,0,,,,,,,,4,NC,
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",401,Vitamin C,micro,mg,6.3,2,,,,0.3,12.2,1.889,1,1,A,1
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",320,Vitamin A RAE,micro,µg,0,0,,,,,,,,1,AS,
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",321,beta-Carotene,micro,µg,0,2,,,,0,0,,1,1,A,1
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",322,alpha-Carotene,micro,µg,0,2,,,,0,0,,1,1,A,1
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",417,"Folate, total",micro,µg,525,12,23.102,80.028,0.152,421,666,0.467,1,1,A,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",432,"Folate, food",micro,µg,525,12,23.102,80.028,0.152,421,666,0.467,1,1,A,
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",404,Thiamin,micro,mg,0.713,20,0.025,0.112,0.157,0.403,0.970,0.795,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",405,Riboflavin,micro,mg,0.212,20,0.018,0.080,0.380,0.104,0.540,2.057,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",406,Niacin,micro,mg,1.174,20,0.037,0.165,0.141,0.750,1.580,0.707,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",415,Vitamin B6,micro,mg,0.474,16,0.013,0.052,0.110,0.305,0.619,0.662,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,1,,
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",323,Vitamin E (alpha-toc.),micro,mg,0.21,0,,,,,,,,4,NR,
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",430,Vitamin K1,micro,µg,5.6,4,0.293,0.586,0.105,5.2,6.4,0.214,1,1,A,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",421,Choline,micro,mg,66.2,0,,,,,,,,1,AS,
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",303,Iron,micro,mg,5.07,16,0.234,0.936,0.185,3.85,6.83,0.588,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",309,Zinc,micro,mg,2.28,16,0.077,0.308,0.135,1.79,2.81,0.447,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",301,Calcium,micro,mg,113,16,2.275,9.100,0.081,98,127,0.257,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",304,Magnesium,micro,mg,176,16,1.847,7.388,0.042,161,188,0.153,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",306,Potassium,micro,mg,1393,16,10.880,43.520,0.031,1317,1470,0.110,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",307,Sodium,micro,mg,12,12,1.037,3.592,0.299,6,22,1.333,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",317,Selenium,micro,µg,27.9,2,,,,27.3,28.5,0.043,1,1,A,
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",305,Phosphorus,micro,mg,411,16,6.530,26.120,0.064,373,462,0.217,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",312,Copper,micro,mg,0.893,16,0.031,0.124,0.139,0.758,1.240,0.540,2,11,JO,"2, 3"
+16042,"Pinto beans, dry","Beans, pinto, mature seeds, raw",315,Manganese,micro,mg,1.148,16,0.034,0.136,0.118,0.890,1.390,0.436,2,11,JO,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",255,Water,macro,g,76.15,12,0.121,0.419,0.006,75.43,76.94,0.020,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",203,Protein,macro,g,12.56,12,0.102,0.353,0.028,11.81,13.06,0.100,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",204,Total fat,macro,g,9.51,12,0.115,0.398,0.042,8.78,10.30,0.160,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",205,Carbohydrate (by diff.),macro,g,0.72,0,,,,,,,,4,NC,
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",269,Total sugars,macro,g,0.37,6,0.008,0.020,0.053,0.34,0.40,0.162,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",291,"Fibre, total dietary",macro,g,0.0,1,,,,,,,,1,A,
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",207,Ash,macro,g,1.06,12,0.034,0.118,0.111,0.92,1.33,0.387,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",208,Energy kcal,macro,kcal,143,0,,,,,,,,4,NC,
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",401,Vitamin C,micro,mg,0.0,2,,,,,,,2,1,A,
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",320,Vitamin A RAE,micro,µg,160,0,,,,,,,,1,AS,
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",319,Retinol,micro,µg,160,6,6.614,16.201,0.101,139,187,0.300,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",321,beta-Carotene,micro,µg,0,6,0.000,0.000,,0,0,,1,1,A,"1, 2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",322,alpha-Carotene,micro,µg,0,6,0.000,0.000,,0,0,,1,1,A,"1, 2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",417,"Folate, total",micro,µg,47,23,4.966,23.816,0.507,,,,2,1,A,
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",432,"Folate, food",micro,µg,47,23,4.966,23.816,0.507,,,,2,1,A,
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",404,Thiamin,micro,mg,0.040,6,0.003,0.007,0.184,0.030,0.050,0.500,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",405,Riboflavin,micro,mg,0.457,6,0.020,0.049,0.107,0.410,0.520,0.241,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",406,Niacin,micro,mg,0.075,6,0.002,0.005,0.065,0.070,0.080,0.133,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",415,Vitamin B6,micro,mg,0.170,6,0.004,0.010,0.058,0.160,0.185,0.147,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",418,Vitamin B12,micro,µg,0.89,6,0.092,0.225,0.253,0.65,1.20,0.618,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",323,Vitamin E (alpha-toc.),micro,mg,1.05,6,0.116,0.284,0.271,0.77,1.47,0.667,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",430,Vitamin K1,micro,µg,0.3,2,,,,,,,2,1,A,
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",421,Choline,micro,mg,293.8,6,4.687,11.481,0.039,280.5,307.3,0.091,1,1,AS,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",303,Iron,micro,mg,1.75,6,0.044,0.108,0.062,1.63,1.93,0.171,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",309,Zinc,micro,mg,1.29,6,0.017,0.042,0.032,1.24,1.34,0.078,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",301,Calcium,micro,mg,56,6,0.697,1.707,0.030,54,58,0.071,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",304,Magnesium,micro,mg,12,6,0.240,0.588,0.049,11,13,0.167,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",306,Potassium,micro,mg,138,6,1.476,3.615,0.026,132,142,0.072,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",307,Sodium,micro,mg,142,6,1.138,2.788,0.020,139,147,0.056,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",317,Selenium,micro,µg,30.7,6,2.129,5.215,0.170,23.3,37.4,0.459,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",305,Phosphorus,micro,mg,198,6,1.939,4.750,0.024,193,205,0.061,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",312,Copper,micro,mg,0.072,6,0.001,0.002,0.034,0.067,0.075,0.111,1,1,A,"2, 3"
+01123,"Egg, whole, raw","Egg, whole, raw, fresh",315,Manganese,micro,mg,0.028,6,0.001,0.002,0.087,0.025,0.031,0.214,1,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",255,Water,macro,g,88.13,28,0.050,0.265,0.003,87.69,89.20,0.017,2,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",203,Protein,macro,g,3.15,27,0.029,0.151,0.048,3.07,3.31,0.076,2,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",204,Total fat,macro,g,3.27,27,0.024,0.125,0.038,3.07,3.36,0.089,2,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",205,Carbohydrate (by diff.),macro,g,4.78,0,,,,,,,,4,NC,
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",269,Total sugars,macro,g,5.05,0,,,,,,,,1,AS,
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,4,,
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",207,Ash,macro,g,0.67,24,0.004,0.020,0.029,0.66,0.70,0.060,2,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",208,Energy kcal,macro,kcal,61,0,,,,,,,,4,NC,
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",401,Vitamin C,micro,mg,0.0,7,0.000,0.000,,0.0,0.0,,2,1,A,"1, 2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",320,Vitamin A RAE,micro,µg,46,0,,,,,,,,1,AS,
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",319,Retinol,micro,µg,45,4,1.926,3.852,0.086,,,,,1,A,
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",321,beta-Carotene,micro,µg,7,10,0.618,1.954,0.279,2,9,1.000,3,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",322,alpha-Carotene,micro,µg,0,10,0.000,0.000,,0,0,,3,1,A,"1, 2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",417,"Folate, total",micro,µg,5,8,0.534,1.510,0.302,,,,,1,,
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",432,"Folate, food",micro,µg,5,8,0.534,1.510,0.302,,,,,1,,
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",404,Thiamin,micro,mg,0.046,24,0.001,0.005,0.106,0.042,0.048,0.130,2,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",405,Riboflavin,micro,mg,0.169,23,0.001,0.005,0.028,0.156,0.196,0.237,2,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",406,Niacin,micro,mg,0.089,24,0.003,0.015,0.165,0.070,0.122,0.584,2,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",415,Vitamin B6,micro,mg,0.036,24,0.000,0.000,0.000,0.034,0.039,0.139,2,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",418,Vitamin B12,micro,µg,0.45,14,0.021,0.079,0.175,0.27,0.53,0.578,1,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",323,Vitamin E (alpha-toc.),micro,mg,0.07,24,0.003,0.015,0.210,0.03,0.08,0.714,2,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",430,Vitamin K1,micro,µg,0.3,8,0.007,0.020,0.066,0.2,0.3,0.333,2,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",421,Choline,micro,mg,14.3,0,,,,,,,,1,AS,
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",303,Iron,micro,mg,0.03,46,0.002,0.014,0.452,0.00,0.07,2.333,9,1,A,"1, 2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",309,Zinc,micro,mg,0.37,42,0.007,0.045,0.123,0.25,0.47,0.595,9,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",301,Calcium,micro,mg,113,16,1.760,7.040,0.062,112,116,0.035,1,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",304,Magnesium,micro,mg,10,42,0.116,0.752,0.075,7,12,0.500,9,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",306,Potassium,micro,mg,132,41,1.985,12.710,0.096,106,163,0.432,9,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",307,Sodium,micro,mg,43,42,0.548,3.551,0.083,26,58,0.744,9,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",317,Selenium,micro,µg,3.7,29,0.185,0.996,0.269,0.0,8.8,2.378,8,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",305,Phosphorus,micro,mg,84,42,1.087,7.045,0.084,59,95,0.429,9,1,A,"2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",312,Copper,micro,mg,0.025,42,0.001,0.006,0.259,0.000,0.081,3.240,9,1,A,"1, 2, 3"
+01211,"Milk, whole, no added vit A/D","Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",315,Manganese,micro,mg,0.004,41,0.000,0.000,0.000,0.000,0.008,2.000,8,1,A,"1, 2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",255,Water,macro,g,88.13,28,0.050,0.265,0.003,87.69,89.20,0.017,2,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",203,Protein,macro,g,3.15,27,0.029,0.151,0.048,3.07,3.31,0.076,2,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",204,Total fat,macro,g,3.25,0,,,,,,,,4,S,
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",205,Carbohydrate (by diff.),macro,g,4.80,0,,,,,,,,4,NC,
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",269,Total sugars,macro,g,5.05,0,,,,,,,,1,AS,
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,4,,
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",207,Ash,macro,g,0.67,24,0.004,0.020,0.029,0.66,0.70,0.060,2,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",208,Energy kcal,macro,kcal,61,0,,,,,,,,4,NC,
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",401,Vitamin C,micro,mg,0.0,7,0.000,0.000,,0.0,0.0,,2,1,A,"1, 2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",320,Vitamin A RAE,micro,µg,46,0,,,,,,,,1,AS,
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",319,Retinol,micro,µg,45,4,1.926,3.852,0.086,,,,,1,A,
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",321,beta-Carotene,micro,µg,7,10,0.618,1.954,0.279,2,9,1.000,3,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",322,alpha-Carotene,micro,µg,0,10,0.000,0.000,,0,0,,3,1,A,"1, 2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",417,"Folate, total",micro,µg,5,8,0.534,1.510,0.302,,,,,1,,
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",432,"Folate, food",micro,µg,5,8,0.534,1.510,0.302,,,,,1,,
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",404,Thiamin,micro,mg,0.046,24,0.001,0.005,0.106,0.042,0.048,0.130,2,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",405,Riboflavin,micro,mg,0.169,23,0.001,0.005,0.028,0.156,0.196,0.237,2,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",406,Niacin,micro,mg,0.089,24,0.003,0.015,0.165,0.070,0.122,0.584,2,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",415,Vitamin B6,micro,mg,0.036,24,0.000,0.000,0.000,0.034,0.039,0.139,2,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",418,Vitamin B12,micro,µg,0.45,14,0.021,0.079,0.175,0.27,0.53,0.578,1,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",323,Vitamin E (alpha-toc.),micro,mg,0.07,24,0.003,0.015,0.210,0.03,0.08,0.714,2,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",430,Vitamin K1,micro,µg,0.3,8,0.007,0.020,0.066,0.2,0.3,0.333,2,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",421,Choline,micro,mg,14.3,0,,,,,,,,1,AS,
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",303,Iron,micro,mg,0.03,46,0.002,0.014,0.452,0.00,0.07,2.333,9,1,A,"1, 2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",309,Zinc,micro,mg,0.37,42,0.007,0.045,0.123,0.25,0.47,0.595,9,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",301,Calcium,micro,mg,113,16,1.760,7.040,0.062,112,116,0.035,1,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",304,Magnesium,micro,mg,10,42,0.116,0.752,0.075,7,12,0.500,9,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",306,Potassium,micro,mg,132,41,1.985,12.710,0.096,106,163,0.432,9,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",307,Sodium,micro,mg,43,42,0.548,3.551,0.083,26,58,0.744,9,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",317,Selenium,micro,µg,3.7,29,0.185,0.996,0.269,0.0,8.8,2.378,8,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",305,Phosphorus,micro,mg,84,42,1.087,7.045,0.084,59,95,0.429,9,1,A,"2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",312,Copper,micro,mg,0.025,42,0.001,0.006,0.259,0.000,0.081,3.240,9,1,A,"1, 2, 3"
+01077,"Milk, whole, vit D added","Milk, whole, 3.25% milkfat, with added vitamin D",315,Manganese,micro,mg,0.004,41,0.000,0.000,0.000,0.000,0.008,2.000,8,1,A,"1, 2, 3"
+01009,Cheddar,"Cheese, cheddar",255,Water,macro,g,37.02,39,0.190,1.187,0.032,36.15,37.86,0.046,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",203,Protein,macro,g,22.87,39,0.132,0.824,0.036,22.54,24.25,0.075,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",204,Total fat,macro,g,33.31,39,0.156,0.974,0.029,32.95,33.82,0.026,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",205,Carbohydrate (by diff.),macro,g,3.09,0,,,,,,,,4,NC,
+01009,Cheddar,"Cheese, cheddar",269,Total sugars,macro,g,0.48,0,,,,,,,,1,AS,
+01009,Cheddar,"Cheese, cheddar",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,4,,
+01009,Cheddar,"Cheese, cheddar",207,Ash,macro,g,3.71,39,0.028,0.175,0.047,3.66,3.73,0.019,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",208,Energy kcal,macro,kcal,404,0,,,,,,,,4,NC,
+01009,Cheddar,"Cheese, cheddar",401,Vitamin C,micro,mg,0.0,0,,,,,,,,1,,
+01009,Cheddar,"Cheese, cheddar",320,Vitamin A RAE,micro,µg,330,0,,,,,,,,1,AS,
+01009,Cheddar,"Cheese, cheddar",319,Retinol,micro,µg,330,7,,,,256,341,0.258,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",321,beta-Carotene,micro,µg,85,0,,,,,,,,4,BFZN,
+01009,Cheddar,"Cheese, cheddar",322,alpha-Carotene,micro,µg,0,0,,,,,,,,4,BFZN,
+01009,Cheddar,"Cheese, cheddar",417,"Folate, total",micro,µg,27,4,,,,14,30,0.593,,1,A,
+01009,Cheddar,"Cheese, cheddar",432,"Folate, food",micro,µg,27,4,,,,14,30,0.593,,1,A,
+01009,Cheddar,"Cheese, cheddar",404,Thiamin,micro,mg,0.029,28,0.000,0.000,0.000,0.027,0.029,0.069,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",405,Riboflavin,micro,mg,0.428,27,0.014,0.073,0.170,0.407,0.463,0.131,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",406,Niacin,micro,mg,0.059,28,0.006,0.032,0.538,0.039,0.062,0.390,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",415,Vitamin B6,micro,mg,0.066,28,0.003,0.016,0.241,0.065,0.075,0.152,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",418,Vitamin B12,micro,µg,1.10,28,0.054,0.286,0.260,0.88,1.37,0.445,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",323,Vitamin E (alpha-toc.),micro,mg,0.71,13,0.001,0.004,0.005,0.65,0.78,0.183,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",430,Vitamin K1,micro,µg,2.4,2,,,,2.3,2.4,0.042,,1,A,
+01009,Cheddar,"Cheese, cheddar",421,Choline,micro,mg,16.5,0,,,,,,,,1,AS,
+01009,Cheddar,"Cheese, cheddar",303,Iron,micro,mg,0.14,39,0.006,0.037,0.268,0.13,0.16,0.214,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",309,Zinc,micro,mg,3.64,39,0.040,0.250,0.069,3.61,3.74,0.036,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",301,Calcium,micro,mg,710,39,9.090,56.767,0.080,695,717,0.031,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",304,Magnesium,micro,mg,27,39,0.309,1.930,0.071,26,28,0.074,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",306,Potassium,micro,mg,76,39,1.669,10.423,0.137,75,79,0.053,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",307,Sodium,micro,mg,653,39,13.172,82.259,0.126,644,673,0.044,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",317,Selenium,micro,µg,28.5,29,1.055,5.681,0.199,27.7,29.8,0.074,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",305,Phosphorus,micro,mg,455,39,3.702,23.119,0.051,450,464,0.031,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",312,Copper,micro,mg,0.030,39,0.002,0.012,0.416,0.027,0.035,0.267,2,1,A,"2, 3"
+01009,Cheddar,"Cheese, cheddar",315,Manganese,micro,mg,0.027,39,0.002,0.012,0.463,0.024,0.029,0.185,2,1,A,"2, 3"
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",255,Water,macro,g,61.87,107,0.134,1.386,0.022,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",203,Protein,macro,g,17.17,72,0.172,1.459,0.085,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",204,Total fat,macro,g,20.00,72,,,,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",205,Carbohydrate (by diff.),macro,g,0.00,0,,,,,,,,7,Z,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",269,Total sugars,macro,g,0.00,0,,,,,,,,7,Z,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,7,Z,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",207,Ash,macro,g,0.84,72,0.024,0.204,0.242,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",208,Energy kcal,macro,kcal,254,0,,,,,,,,4,NC,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",401,Vitamin C,micro,mg,0.0,0,,,,,,,,7,Z,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",320,Vitamin A RAE,micro,µg,4,0,,,,,,,,1,AS,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",319,Retinol,micro,µg,4,6,0.272,0.666,0.167,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",417,"Folate, total",micro,µg,7,6,0.922,2.258,0.323,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",432,"Folate, food",micro,µg,7,6,0.922,2.258,0.323,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",404,Thiamin,micro,mg,0.043,36,0.002,0.012,0.279,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",405,Riboflavin,micro,mg,0.151,36,0.010,0.060,0.397,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",406,Niacin,micro,mg,4.227,36,0.122,0.732,0.173,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",415,Vitamin B6,micro,mg,0.323,36,0.014,0.084,0.260,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",418,Vitamin B12,micro,µg,2.14,36,0.065,0.390,0.182,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",323,Vitamin E (alpha-toc.),micro,mg,0.17,19,0.007,0.031,0.179,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",430,Vitamin K1,micro,µg,1.8,12,0.161,0.558,0.310,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",421,Choline,micro,mg,56.4,12,2.535,8.781,0.156,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",303,Iron,micro,mg,1.94,36,0.049,0.294,0.152,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",309,Zinc,micro,mg,4.18,36,0.065,0.390,0.093,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",301,Calcium,micro,mg,18,36,2.031,12.186,0.677,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",304,Magnesium,micro,mg,17,36,0.222,1.332,0.078,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",306,Potassium,micro,mg,270,36,2.943,17.658,0.065,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",307,Sodium,micro,mg,66,36,1.070,6.420,0.097,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",317,Selenium,micro,µg,15.0,72,0.877,7.442,0.496,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",305,Phosphorus,micro,mg,158,36,1.849,11.094,0.070,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",312,Copper,micro,mg,0.061,36,0.002,0.012,0.197,,,,,1,AR,
+23572,"Beef, ground 80/20","Beef, ground, 80% lean meat / 20% fat, raw",315,Manganese,micro,mg,0.010,36,0.001,0.006,0.600,,,,,1,AR,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",255,Water,macro,g,73.31,10,0.341,1.078,0.015,,,,,1,A,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",203,Protein,macro,g,22.27,10,0.187,0.591,0.027,,,,,1,A,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",204,Total fat,macro,g,3.54,10,0.237,0.749,0.212,,,,,1,A,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",205,Carbohydrate (by diff.),macro,g,0.00,0,,,,,,,,7,Z,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",269,Total sugars,macro,g,0.00,0,,,,,,,,7,Z,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,7,Z,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",207,Ash,macro,g,1.19,10,0.027,0.085,0.072,,,,,1,A,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",208,Energy kcal,macro,kcal,127,0,,,,,,,,4,NC,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",401,Vitamin C,micro,mg,0.0,0,,,,,,,,7,Z,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",320,Vitamin A RAE,micro,µg,0,0,,,,,,,,1,AS,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",417,"Folate, total",micro,µg,13,0,,,,,,,,4,BFPN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",432,"Folate, food",micro,µg,13,0,,,,,,,,4,BFPN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",404,Thiamin,micro,mg,0.075,0,,,,,,,,4,BFPN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",405,Riboflavin,micro,mg,0.120,0,,,,,,,,4,BFPN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",406,Niacin,micro,mg,6.469,0,,,,,,,,4,BFPN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",415,Vitamin B6,micro,mg,0.628,0,,,,,,,,4,BFPN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",418,Vitamin B12,micro,µg,0.94,0,,,,,,,,4,BFPN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",323,Vitamin E (alpha-toc.),micro,mg,0.28,0,,,,,,,,4,BFSN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",430,Vitamin K1,micro,µg,1.1,0,,,,,,,,4,BFSN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",421,Choline,micro,mg,93.0,0,,,,,,,,4,BFPN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",303,Iron,micro,mg,1.61,0,,,,,,,,4,BFNN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",309,Zinc,micro,mg,4.00,0,,,,,,,,4,BFNN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",301,Calcium,micro,mg,22,0,,,,,,,,4,BFNN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",304,Magnesium,micro,mg,23,0,,,,,,,,4,BFNN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",306,Potassium,micro,mg,357,0,,,,,,,,4,BFNN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",307,Sodium,micro,mg,56,0,,,,,,,,4,BFNN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",317,Selenium,micro,µg,30.8,0,,,,,,,,4,BFNN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",305,Phosphorus,micro,mg,211,0,,,,,,,,4,BFNN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",312,Copper,micro,mg,0.077,0,,,,,,,,4,BFNN,
+23584,"Beef, top sirloin lean, select","Beef, top sirloin, steak, separable lean only, trimmed to 1/8"" fat, select, raw",315,Manganese,micro,mg,0.011,0,,,,,,,,4,BFNN,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",255,Water,macro,g,69.97,24,0.249,1.220,0.017,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",203,Protein,macro,g,22.10,24,0.380,1.862,0.084,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",204,Total fat,macro,g,7.27,24,0.454,2.224,0.306,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",205,Carbohydrate (by diff.),macro,g,0.00,0,,,,,,,,7,Z,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",269,Total sugars,macro,g,0.00,0,,,,,,,,7,Z,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,7,Z,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",207,Ash,macro,g,1.00,24,0.024,0.118,0.118,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",208,Energy kcal,macro,kcal,160,0,,,,,,,,4,NC,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",401,Vitamin C,micro,mg,0.0,0,,,,,,,,7,Z,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",320,Vitamin A RAE,micro,µg,0,0,,,,,,,,1,AS,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",417,"Folate, total",micro,µg,4,0,,,,,,,,4,BFPN,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",432,"Folate, food",micro,µg,4,0,,,,,,,,4,BFPN,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",404,Thiamin,micro,mg,0.051,0,,,,,,,,4,BFPN,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",405,Riboflavin,micro,mg,0.225,4,0.016,0.032,0.142,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",406,Niacin,micro,mg,5.765,4,0.160,0.320,0.056,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",415,Vitamin B6,micro,mg,0.634,4,0.011,0.022,0.035,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",418,Vitamin B12,micro,µg,1.79,4,0.090,0.180,0.101,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",323,Vitamin E (alpha-toc.),micro,mg,0.28,0,,,,,,,,4,BFFN,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",430,Vitamin K1,micro,µg,1.3,0,,,,,,,,4,BFSN,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",421,Choline,micro,mg,54.3,0,,,,,,,,4,BFPN,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",303,Iron,micro,mg,1.65,2,,,,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",309,Zinc,micro,mg,3.86,2,,,,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",301,Calcium,micro,mg,21,2,,,,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",304,Magnesium,micro,mg,11,2,,,,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",306,Potassium,micro,mg,263,2,,,,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",307,Sodium,micro,mg,35,2,,,,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",317,Selenium,micro,µg,22.5,2,,,,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",305,Phosphorus,micro,mg,196,2,,,,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",312,Copper,micro,mg,0.061,2,,,,,,,,1,AR,
+13235,"Beef, T-bone lean, choice","Beef, short loin, t-bone steak, bone-in, separable lean only, trimmed to 1/8"" fat, choice, raw",315,Manganese,micro,mg,0.003,2,,,,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",255,Water,macro,g,70.82,24,0.758,3.713,0.052,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",203,Protein,macro,g,21.19,24,0.247,1.210,0.057,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",204,Total fat,macro,g,6.51,24,0.331,1.622,0.249,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",205,Carbohydrate (by diff.),macro,g,0.39,0,,,,,,,,4,NC,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",269,Total sugars,macro,g,0.00,0,,,,,,,,7,Z,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,7,Z,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",207,Ash,macro,g,1.08,24,0.081,0.397,0.367,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",208,Energy kcal,macro,kcal,145,0,,,,,,,,4,NC,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",401,Vitamin C,micro,mg,0.0,0,,,,,,,,7,Z,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",320,Vitamin A RAE,micro,µg,2,0,,,,,,,,1,AS,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",319,Retinol,micro,µg,2,4,0.261,0.522,0.261,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",417,"Folate, total",micro,µg,4,0,,,,,,,,4,BFNN,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",432,"Folate, food",micro,µg,4,0,,,,,,,,4,BFNN,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",404,Thiamin,micro,mg,0.080,1,,,,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",405,Riboflavin,micro,mg,0.192,4,0.003,0.006,0.031,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",406,Niacin,micro,mg,4.290,4,0.226,0.452,0.105,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",415,Vitamin B6,micro,mg,0.406,4,0.028,0.056,0.138,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",418,Vitamin B12,micro,µg,3.26,4,0.188,0.376,0.115,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",323,Vitamin E (alpha-toc.),micro,mg,0.17,4,0.029,0.058,0.341,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",430,Vitamin K1,micro,µg,1.5,12,,,,0.5,3.1,1.733,1,1,A,2
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",421,Choline,micro,mg,72.6,1,,,,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",303,Iron,micro,mg,2.27,4,0.069,0.138,0.061,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",309,Zinc,micro,mg,7.82,4,0.089,0.178,0.023,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",301,Calcium,micro,mg,12,4,0.218,0.436,0.036,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",304,Magnesium,micro,mg,22,4,0.700,1.400,0.064,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",306,Potassium,micro,mg,361,4,8.407,16.814,0.047,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",307,Sodium,micro,mg,80,4,0.916,1.832,0.023,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",317,Selenium,micro,µg,24.4,4,1.459,2.918,0.120,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",305,Phosphorus,micro,mg,200,4,2.839,5.678,0.028,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",312,Copper,micro,mg,0.081,4,0.004,0.008,0.099,,,,,1,AR,
+13294,"Beef, chuck under blade lean, choice","Beef, chuck, under blade pot roast or steak, boneless, separable lean only, trimmed to 0"" fat, choice, raw",315,Manganese,micro,mg,0.013,4,0.000,0.000,0.000,,,,,1,AR,
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",255,Water,macro,g,76.00,12,0.358,1.240,0.016,74.67,79.27,0.061,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",203,Protein,macro,g,20.95,12,0.555,1.923,0.092,15.58,22.97,0.353,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",204,Total fat,macro,g,2.17,12,0.132,0.457,0.211,1.38,3.21,0.843,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",205,Carbohydrate (by diff.),macro,g,0.00,0,,,,,,,,7,Z,
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",269,Total sugars,macro,g,0.00,0,,,,,,,,7,Z,
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,7,Z,
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",207,Ash,macro,g,1.03,12,0.032,0.111,0.108,0.81,1.17,0.350,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",208,Energy kcal,macro,kcal,109,0,,,,,,,,4,NC,
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",401,Vitamin C,micro,mg,0.0,0,,,,,,,,7,Z,
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",320,Vitamin A RAE,micro,µg,0,0,,,,,,,,1,AS,
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",319,Retinol,micro,µg,0,1,,,,,,,,1,A,1
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",417,"Folate, total",micro,µg,0,1,,,,,,,,1,A,1
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",432,"Folate, food",micro,µg,0,1,,,,,,,,1,A,1
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",404,Thiamin,micro,mg,0.998,12,0.093,0.322,0.323,0.602,1.869,1.270,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",405,Riboflavin,micro,mg,0.342,12,0.027,0.094,0.273,0.233,0.510,0.810,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",406,Niacin,micro,mg,6.684,12,0.330,1.143,0.171,4.100,8.360,0.637,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",415,Vitamin B6,micro,mg,0.777,4,0.041,0.082,0.106,0.678,0.847,0.218,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",418,Vitamin B12,micro,µg,0.51,4,0.051,0.102,0.200,0.36,0.59,0.451,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",323,Vitamin E (alpha-toc.),micro,mg,0.22,1,,,,,,,,1,A,
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",430,Vitamin K1,micro,µg,0.0,0,,,,,,,,7,Z,
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",421,Choline,micro,mg,80.8,4,3.227,6.454,0.080,73.9,87.8,0.172,1,1,AS,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",303,Iron,micro,mg,0.98,12,0.032,0.111,0.113,0.80,1.21,0.418,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",309,Zinc,micro,mg,1.89,12,0.082,0.284,0.150,1.28,2.30,0.540,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",301,Calcium,micro,mg,5,12,0.210,0.727,0.145,4,7,0.600,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",304,Magnesium,micro,mg,27,12,0.963,3.336,0.124,22,36,0.519,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",306,Potassium,micro,mg,399,12,16.350,56.638,0.142,298,536,0.596,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",307,Sodium,micro,mg,53,12,6.102,21.138,0.399,37,117,1.509,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",317,Selenium,micro,µg,30.8,12,3.704,12.831,0.417,13.5,51.3,1.227,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",305,Phosphorus,micro,mg,247,12,7.715,26.726,0.108,223,324,0.409,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",312,Copper,micro,mg,0.090,12,0.005,0.017,0.192,0.058,0.124,0.733,1,1,A,"2, 3"
+10060,"Pork tenderloin, lean","Pork, fresh, loin, tenderloin, separable lean only, raw",315,Manganese,micro,mg,0.015,12,0.001,0.003,0.231,0.009,0.024,1.000,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",255,Water,macro,g,73.62,12,0.448,1.552,0.021,71.21,76.41,0.071,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",203,Protein,macro,g,21.99,12,0.592,2.051,0.093,18.35,24.29,0.270,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",204,Total fat,macro,g,3.71,12,0.253,0.876,0.236,2.29,4.82,0.682,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",205,Carbohydrate (by diff.),macro,g,0.00,0,,,,,,,,7,Z,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",269,Total sugars,macro,g,0.00,0,,,,,,,,7,Z,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,7,Z,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",207,Ash,macro,g,1.01,12,0.043,0.149,0.147,0.80,1.21,0.406,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",208,Energy kcal,macro,kcal,127,0,,,,,,,,4,NC,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",401,Vitamin C,micro,mg,0.0,0,,,,,,,,7,Z,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",320,Vitamin A RAE,micro,µg,0,0,,,,,,,,1,AS,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",417,"Folate, total",micro,µg,0,0,,,,,,,,4,BFPN,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",432,"Folate, food",micro,µg,0,0,,,,,,,,4,BFPN,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",404,Thiamin,micro,mg,0.510,0,,,,,,,,4,BFYN,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",405,Riboflavin,micro,mg,0.198,0,,,,,,,,4,BFYN,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",406,Niacin,micro,mg,6.934,0,,,,,,,,4,BFYN,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",415,Vitamin B6,micro,mg,0.742,0,,,,,,,,4,BFPN,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",418,Vitamin B12,micro,µg,0.50,0,,,,,,,,4,BFPN,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",323,Vitamin E (alpha-toc.),micro,mg,0.13,0,,,,,,,,4,BFSN,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",430,Vitamin K1,micro,µg,0.0,0,,,,,,,,7,Z,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",421,Choline,micro,mg,58.5,0,,,,,,,,4,BFPN,
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",303,Iron,micro,mg,0.65,12,0.016,0.055,0.085,0.54,0.72,0.277,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",309,Zinc,micro,mg,1.86,12,0.042,0.145,0.078,1.72,2.28,0.301,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",301,Calcium,micro,mg,18,12,1.928,6.679,0.371,12,29,0.944,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",304,Magnesium,micro,mg,26,12,0.421,1.458,0.056,23,28,0.192,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",306,Potassium,micro,mg,362,12,7.389,25.596,0.071,304,402,0.271,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",307,Sodium,micro,mg,58,12,1.270,4.399,0.076,51,67,0.276,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",317,Selenium,micro,µg,36.0,12,4.564,15.810,0.439,13.7,57.5,1.217,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",305,Phosphorus,micro,mg,220,12,2.761,9.564,0.043,206,235,0.132,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",312,Copper,micro,mg,0.066,12,0.003,0.010,0.157,0.046,0.082,0.545,1,1,A,"2, 3"
+10040,"Pork loin chop, lean","Pork, fresh, loin, center loin (chops), bone-in, separable lean only, raw",315,Manganese,micro,mg,0.008,12,0.000,0.000,0.000,0.006,0.010,0.500,1,1,A,"1, 2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",255,Water,macro,g,73.90,6,0.260,0.637,0.009,72.94,74.69,0.024,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",203,Protein,macro,g,22.50,6,0.238,0.583,0.026,21.88,23.44,0.069,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",204,Total fat,macro,g,2.62,6,0.220,0.539,0.206,1.86,3.45,0.607,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",205,Carbohydrate (by diff.),macro,g,0.00,0,,,,,,,,7,Z,
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",269,Total sugars,macro,g,0.00,0,,,,,,,,7,Z,
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,7,Z,
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",207,Ash,macro,g,1.13,6,0.010,0.024,0.022,1.10,1.17,0.062,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",208,Energy kcal,macro,kcal,120,0,,,,,,,,4,NC,
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",401,Vitamin C,micro,mg,0.0,0,,,,,,,,7,Z,
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",320,Vitamin A RAE,micro,µg,9,0,,,,,,,,1,AS,
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",319,Retinol,micro,µg,9,2,,,,0,18,2.000,1,1,A,1
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",417,"Folate, total",micro,µg,9,0,,,,,,,,4,BFPN,
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",432,"Folate, food",micro,µg,9,0,,,,,,,,4,BFPN,
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",404,Thiamin,micro,mg,0.094,3,0.011,0.019,0.203,0.073,0.112,0.415,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",405,Riboflavin,micro,mg,0.177,3,0.012,0.021,0.117,0.160,0.200,0.226,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",406,Niacin,micro,mg,9.600,3,0.656,1.136,0.118,8.300,10.400,0.219,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",415,Vitamin B6,micro,mg,0.811,3,0.045,0.078,0.096,0.763,0.901,0.170,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",418,Vitamin B12,micro,µg,0.21,3,0.007,0.012,0.058,0.20,0.22,0.095,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",323,Vitamin E (alpha-toc.),micro,mg,0.56,2,,,,0.28,0.83,0.982,1,1,A,
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",430,Vitamin K1,micro,µg,0.0,1,,,,,,,,1,A,1
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",421,Choline,micro,mg,82.1,0,,,,,,,,1,AS,
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",303,Iron,micro,mg,0.37,6,0.013,0.032,0.086,0.33,0.42,0.243,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",309,Zinc,micro,mg,0.68,6,0.030,0.073,0.108,0.59,0.78,0.279,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",301,Calcium,micro,mg,5,6,0.338,0.828,0.166,4,6,0.400,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",304,Magnesium,micro,mg,28,6,0.473,1.159,0.041,27,30,0.107,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",306,Potassium,micro,mg,334,6,3.420,8.377,0.025,321,343,0.066,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",307,Sodium,micro,mg,45,6,2.309,5.656,0.126,38,52,0.311,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",317,Selenium,micro,µg,22.8,3,3.403,5.894,0.259,17.4,29.1,0.513,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",305,Phosphorus,micro,mg,213,6,2.442,5.982,0.028,207,222,0.070,1,1,A,"2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",312,Copper,micro,mg,0.037,6,0.003,0.007,0.199,0.025,0.049,0.649,1,1,A,"1, 2, 3"
+05062,"Chicken breast, meat only","Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",315,Manganese,micro,mg,0.011,6,0.000,0.000,0.000,0.011,0.011,0.000,1,1,A,"1, 2, 3"
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",255,Water,macro,g,69.46,29,0.278,1.497,0.022,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",203,Protein,macro,g,20.85,29,0.148,0.797,0.038,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",204,Total fat,macro,g,9.25,29,0.243,1.309,0.141,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",205,Carbohydrate (by diff.),macro,g,0.00,0,,,,,,,,7,Z,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",269,Total sugars,macro,g,0.00,0,,,,,,,,7,Z,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,7,Z,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",207,Ash,macro,g,1.01,29,0.058,0.312,0.309,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",208,Energy kcal,macro,kcal,172,0,,,,,,,,4,NC,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",401,Vitamin C,micro,mg,0.0,0,,,,,,,,7,Z,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",320,Vitamin A RAE,micro,µg,24,0,,,,,,,,4,NC,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",319,Retinol,micro,µg,24,0,,,,,,,,4,NR,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",417,"Folate, total",micro,µg,4,4,0.800,1.600,0.400,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",432,"Folate, food",micro,µg,4,4,0.800,1.600,0.400,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",404,Thiamin,micro,mg,0.063,16,0.004,0.016,0.254,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",405,Riboflavin,micro,mg,0.085,16,0.004,0.016,0.188,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",406,Niacin,micro,mg,9.908,16,0.427,1.708,0.172,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",415,Vitamin B6,micro,mg,0.530,11,0.019,0.063,0.119,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",418,Vitamin B12,micro,µg,0.34,0,,,,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",323,Vitamin E (alpha-toc.),micro,mg,0.27,0,,,,,,,,4,CASN,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",430,Vitamin K1,micro,µg,0.0,0,,,,,,,,4,BFYN,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",421,Choline,micro,mg,67.1,0,,,,,,,,4,BFNN,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",303,Iron,micro,mg,0.74,24,0.031,0.152,0.205,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",309,Zinc,micro,mg,0.80,24,0.017,0.083,0.104,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",301,Calcium,micro,mg,11,24,0.498,2.440,0.222,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",304,Magnesium,micro,mg,25,24,0.364,1.783,0.071,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",306,Potassium,micro,mg,220,24,5.320,26.063,0.118,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",307,Sodium,micro,mg,63,24,1.635,8.010,0.127,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",317,Selenium,micro,µg,16.6,0,,,,,,,,1,PAK,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",305,Phosphorus,micro,mg,174,24,3.842,18.822,0.108,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",312,Copper,micro,mg,0.039,24,0.001,0.005,0.126,,,,,1,,
+05057,"Chicken breast, meat+skin","Chicken, broilers or fryers, breast, meat and skin, raw",315,Manganese,micro,mg,0.018,24,0.000,0.000,0.000,,,,,1,,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",255,Water,macro,g,64.89,4,0.677,1.354,0.021,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",203,Protein,macro,g,20.42,4,0.360,0.720,0.035,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",204,Total fat,macro,g,13.42,4,1.275,2.550,0.190,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",205,Carbohydrate (by diff.),macro,g,0.00,0,,,,,,,,7,Z,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",269,Total sugars,macro,g,0.00,0,,,,,,,,4,BFZN,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,7,Z,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",207,Ash,macro,g,1.13,4,0.047,0.094,0.083,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",208,Energy kcal,macro,kcal,208,0,,,,,,,,4,NC,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",401,Vitamin C,micro,mg,3.9,2,,,,,,,,1,,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",320,Vitamin A RAE,micro,µg,58,0,,,,,,,,4,NC,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",319,Retinol,micro,µg,58,0,,,,,,,,4,BFZN,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,4,BFZN,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,4,BFZN,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",417,"Folate, total",micro,µg,26,1,,,,,,,,1,,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",432,"Folate, food",micro,µg,26,1,,,,,,,,1,,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",404,Thiamin,micro,mg,0.207,4,0.017,0.034,0.164,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",405,Riboflavin,micro,mg,0.155,4,0.009,0.018,0.116,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",406,Niacin,micro,mg,8.672,4,0.080,0.160,0.018,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",415,Vitamin B6,micro,mg,0.636,4,0.064,0.128,0.201,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",418,Vitamin B12,micro,µg,3.23,4,0.867,1.734,0.537,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",323,Vitamin E (alpha-toc.),micro,mg,3.55,4,0.263,0.526,0.148,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",430,Vitamin K1,micro,µg,0.5,2,,,,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",421,Choline,micro,mg,78.5,0,,,,,,,,1,AS,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",303,Iron,micro,mg,0.34,4,0.018,0.036,0.106,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",309,Zinc,micro,mg,0.36,4,0.010,0.020,0.056,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",301,Calcium,micro,mg,9,4,0.718,1.436,0.160,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",304,Magnesium,micro,mg,27,4,0.402,0.804,0.030,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",306,Potassium,micro,mg,363,4,5.515,11.030,0.030,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",307,Sodium,micro,mg,59,4,11.244,22.488,0.381,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",317,Selenium,micro,µg,24.0,4,1.252,2.504,0.104,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",305,Phosphorus,micro,mg,240,4,4.230,8.460,0.035,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",312,Copper,micro,mg,0.045,4,0.004,0.008,0.178,,,,1,1,A,
+15236,"Salmon, Atlantic, farmed","Fish, salmon, Atlantic, farmed, raw",315,Manganese,micro,mg,0.011,4,0.000,0.000,0.000,,,,1,1,A,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",255,Water,macro,g,68.50,21,1.146,5.252,0.077,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",203,Protein,macro,g,19.84,9,0.662,1.986,0.100,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",204,Total fat,macro,g,6.34,7,1.772,4.688,0.739,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",205,Carbohydrate (by diff.),macro,g,0.00,0,,,,,,,,7,Z,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,7,Z,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",207,Ash,macro,g,2.54,6,0.894,2.190,0.862,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",208,Energy kcal,macro,kcal,142,0,,,,,,,,4,NC,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",401,Vitamin C,micro,mg,0.0,0,,,,,,,,7,Z,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",320,Vitamin A RAE,micro,µg,12,1,,,,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",319,Retinol,micro,µg,12,1,,,,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",417,"Folate, total",micro,µg,25,1,,,,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",432,"Folate, food",micro,µg,25,1,,,,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",404,Thiamin,micro,mg,0.226,11,0.038,0.126,0.558,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",405,Riboflavin,micro,mg,0.380,6,0.147,0.360,0.948,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",406,Niacin,micro,mg,7.860,13,0.618,2.228,0.283,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",415,Vitamin B6,micro,mg,0.818,4,0.035,0.070,0.086,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",418,Vitamin B12,micro,µg,3.18,10,0.312,0.987,0.310,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",303,Iron,micro,mg,0.80,1,,,,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",309,Zinc,micro,mg,0.64,1,,,,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",301,Calcium,micro,mg,12,3,4.117,7.131,0.594,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",304,Magnesium,micro,mg,29,1,,,,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",306,Potassium,micro,mg,490,3,30.234,52.367,0.107,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",307,Sodium,micro,mg,44,2,,,,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",317,Selenium,micro,µg,36.5,0,,,,,,,,4,CAZN,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",305,Phosphorus,micro,mg,200,1,,,,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",312,Copper,micro,mg,0.250,1,,,,,,,,1,,
+15076,"Salmon, Atlantic, wild","Fish, salmon, Atlantic, wild, raw",315,Manganese,micro,mg,0.016,1,,,,,,,,1,,
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",255,Water,macro,g,72.54,22,,,,71.86,73.15,0.018,3,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",203,Protein,macro,g,22.25,22,,,,21.31,22.89,0.071,3,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",204,Total fat,macro,g,4.69,22,,,,3.91,5.61,0.362,3,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",205,Carbohydrate (by diff.),macro,g,0.00,0,,,,,,,,7,Z,
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",269,Total sugars,macro,g,0.00,1,,,,,,,,1,A,
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",209,Starch,macro,g,0.00,1,,,,,,,,1,A,1
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,7,Z,
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",207,Ash,macro,g,1.26,22,,,,1.20,1.33,0.103,3,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",208,Energy kcal,macro,kcal,131,0,,,,,,,,4,NC,
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",401,Vitamin C,micro,mg,0.0,1,,,,,,,,1,A,1
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",320,Vitamin A RAE,micro,µg,49,0,,,,,,,,1,AS,
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",319,Retinol,micro,µg,49,15,2.577,9.981,0.204,,,,,1,A,
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",417,"Folate, total",micro,µg,6,19,,,,4,8,0.667,2,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",432,"Folate, food",micro,µg,6,19,,,,4,8,0.667,2,1,A,
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",404,Thiamin,micro,mg,0.132,19,,,,0.085,0.180,0.720,2,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",405,Riboflavin,micro,mg,0.207,19,,,,0.118,0.297,0.865,2,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",406,Niacin,micro,mg,8.507,19,,,,8.138,8.877,0.087,2,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",415,Vitamin B6,micro,mg,0.731,19,,,,0.612,0.851,0.327,2,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",418,Vitamin B12,micro,µg,4.69,19,,,,3.43,5.95,0.537,2,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",323,Vitamin E (alpha-toc.),micro,mg,0.83,19,,,,0.71,0.95,0.289,2,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",430,Vitamin K1,micro,µg,0.1,4,0.063,0.126,1.260,0.0,0.3,3.000,,1,A,
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",421,Choline,micro,mg,94.6,0,,,,,,,,4,BFZN,
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",303,Iron,micro,mg,0.43,22,,,,0.42,0.46,0.093,3,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",309,Zinc,micro,mg,0.46,22,,,,0.42,0.49,0.152,3,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",301,Calcium,micro,mg,9,22,,,,7,10,0.333,3,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",304,Magnesium,micro,mg,30,22,,,,30,31,0.033,3,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",306,Potassium,micro,mg,367,22,,,,343,398,0.150,3,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",307,Sodium,micro,mg,78,22,,,,50,112,0.795,3,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",317,Selenium,micro,µg,29.8,19,,,,29.0,30.6,0.054,2,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",305,Phosphorus,micro,mg,257,22,,,,248,266,0.070,3,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",312,Copper,micro,mg,0.064,22,,,,0.060,0.072,0.187,3,1,A,2
+15085,"Salmon, sockeye","Fish, salmon, sockeye, raw",315,Manganese,micro,mg,0.011,22,,,,0.011,0.011,0.000,3,1,A,2
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",255,Water,macro,g,72.66,178,0.162,2.161,0.030,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",203,Protein,macro,g,21.62,178,0.044,0.587,0.027,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",204,Total fat,macro,g,5.93,219,0.161,2.383,0.402,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",205,Carbohydrate (by diff.),macro,g,0.00,0,,,,,,,,7,Z,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",269,Total sugars,macro,g,0.00,0,,,,,,,,7,Z,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",291,"Fibre, total dietary",macro,g,0.0,0,,,,,,,,7,Z,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",207,Ash,macro,g,1.21,178,0.004,0.053,0.044,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",208,Energy kcal,macro,kcal,146,0,,,,,,,,4,NC,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",401,Vitamin C,micro,mg,1.0,4,0.239,0.478,0.478,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",320,Vitamin A RAE,micro,µg,40,0,,,,,,,,4,NC,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",319,Retinol,micro,µg,40,0,,,,,,,,4,BFSN,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",321,beta-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",322,alpha-Carotene,micro,µg,0,0,,,,,,,,7,Z,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",417,"Folate, total",micro,µg,9,3,3.215,5.569,0.619,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",432,"Folate, food",micro,µg,9,3,3.215,5.569,0.619,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",404,Thiamin,micro,mg,0.113,3,0.030,0.052,0.460,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",405,Riboflavin,micro,mg,0.140,3,0.012,0.021,0.148,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",406,Niacin,micro,mg,7.230,3,0.922,1.597,0.221,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",415,Vitamin B6,micro,mg,0.549,3,0.132,0.229,0.416,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",418,Vitamin B12,micro,µg,4.17,3,0.694,1.202,0.288,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",323,Vitamin E (alpha-toc.),micro,mg,0.73,0,,,,,,,,4,BFSN,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",430,Vitamin K1,micro,µg,0.1,0,,,,,,,,4,T,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",421,Choline,micro,mg,109.4,0,,,,,,,,4,BFSN,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",303,Iron,micro,mg,0.56,3,0.077,0.133,0.238,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",309,Zinc,micro,mg,0.41,74,0.017,0.146,0.357,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",301,Calcium,micro,mg,36,1,,,,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",304,Magnesium,micro,mg,31,3,0.897,1.554,0.050,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",306,Potassium,micro,mg,423,47,2.619,17.955,0.042,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",307,Sodium,micro,mg,46,47,1.105,7.575,0.165,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",317,Selenium,micro,µg,36.5,0,,,,,,,,4,CAZN,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",305,Phosphorus,micro,mg,262,3,16.165,27.999,0.107,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",312,Copper,micro,mg,0.051,69,0.003,0.025,0.489,,,,,1,,
+15081,"Salmon, coho, wild","Fish, salmon, coho, wild, raw",315,Manganese,micro,mg,0.014,3,0.001,0.002,0.124,,,,,1,,
+12061,Almonds,"Nuts, almonds",255,Water,macro,g,4.41,90,0.219,2.078,0.471,3.20,6.30,0.703,3,1,A,2
+12061,Almonds,"Nuts, almonds",203,Protein,macro,g,21.15,91,0.117,1.116,0.053,16.82,25.43,0.407,3,1,A,2
+12061,Almonds,"Nuts, almonds",204,Total fat,macro,g,49.93,90,0.286,2.713,0.054,43.70,54.10,0.208,3,1,A,2
+12061,Almonds,"Nuts, almonds",205,Carbohydrate (by diff.),macro,g,21.55,0,,,,,,,,4,NC,
+12061,Almonds,"Nuts, almonds",269,Total sugars,macro,g,4.35,0,,,,,,,,1,AS,
+12061,Almonds,"Nuts, almonds",209,Starch,macro,g,0.72,4,0.101,0.202,0.281,0.66,0.97,0.431,1,1,A,4
+12061,Almonds,"Nuts, almonds",291,"Fibre, total dietary",macro,g,12.5,89,0.295,2.783,0.223,7.9,19.3,0.912,3,1,A,2
+12061,Almonds,"Nuts, almonds",207,Ash,macro,g,2.97,90,0.040,0.379,0.128,2.29,3.42,0.380,3,1,A,2
+12061,Almonds,"Nuts, almonds",208,Energy kcal,macro,kcal,579,0,,,,,,,,4,NC,
+12061,Almonds,"Nuts, almonds",401,Vitamin C,micro,mg,0.0,49,0.000,0.000,,0.0,0.0,,2,1,A,"1, 2"
+12061,Almonds,"Nuts, almonds",320,Vitamin A RAE,micro,µg,0,0,,,,,,,,1,AS,
+12061,Almonds,"Nuts, almonds",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+12061,Almonds,"Nuts, almonds",321,beta-Carotene,micro,µg,1,26,0.676,3.447,3.447,0,6,6.000,4,1,A,"1, 2"
+12061,Almonds,"Nuts, almonds",322,alpha-Carotene,micro,µg,0,9,0.000,0.000,,0,0,,3,1,A,"1, 2"
+12061,Almonds,"Nuts, almonds",417,"Folate, total",micro,µg,44,41,6.482,41.505,0.943,10,107,2.205,2,1,A,2
+12061,Almonds,"Nuts, almonds",432,"Folate, food",micro,µg,44,41,6.482,41.505,0.943,10,107,2.205,2,1,A,
+12061,Almonds,"Nuts, almonds",404,Thiamin,micro,mg,0.205,85,0.009,0.083,0.405,0.095,0.280,0.902,3,1,A,2
+12061,Almonds,"Nuts, almonds",405,Riboflavin,micro,mg,1.138,88,0.115,1.079,0.948,0.460,2.260,1.582,3,1,A,2
+12061,Almonds,"Nuts, almonds",406,Niacin,micro,mg,3.618,88,0.150,1.407,0.389,1.390,5.990,1.271,3,1,A,2
+12061,Almonds,"Nuts, almonds",415,Vitamin B6,micro,mg,0.137,47,0.006,0.041,0.300,0.091,0.290,1.453,2,1,A,2
+12061,Almonds,"Nuts, almonds",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+12061,Almonds,"Nuts, almonds",323,Vitamin E (alpha-toc.),micro,mg,25.63,90,0.290,2.751,0.107,18.20,33.30,0.589,3,1,A,2
+12061,Almonds,"Nuts, almonds",430,Vitamin K1,micro,µg,0.0,8,0.000,0.000,,0.0,0.0,,2,1,A,"1, 2, 3"
+12061,Almonds,"Nuts, almonds",421,Choline,micro,mg,52.1,0,,,,,,,,1,AS,
+12061,Almonds,"Nuts, almonds",303,Iron,micro,mg,3.71,89,0.139,1.311,0.353,2.58,5.12,0.685,3,1,A,2
+12061,Almonds,"Nuts, almonds",309,Zinc,micro,mg,3.12,86,0.062,0.575,0.184,2.02,4.03,0.644,3,1,A,2
+12061,Almonds,"Nuts, almonds",301,Calcium,micro,mg,269,89,7.668,72.340,0.269,198,373,0.651,3,1,A,2
+12061,Almonds,"Nuts, almonds",304,Magnesium,micro,mg,270,88,1.371,12.861,0.048,224,303,0.293,3,1,A,2
+12061,Almonds,"Nuts, almonds",306,Potassium,micro,mg,733,88,16.386,153.714,0.210,543,902,0.490,3,1,A,2
+12061,Almonds,"Nuts, almonds",307,Sodium,micro,mg,1,85,0.467,4.306,4.306,0,11,11.000,3,1,A,"1, 2"
+12061,Almonds,"Nuts, almonds",317,Selenium,micro,µg,4.1,26,2.447,12.477,3.043,0.0,15.0,3.659,4,1,A,"1, 2"
+12061,Almonds,"Nuts, almonds",305,Phosphorus,micro,mg,481,88,6.308,59.174,0.123,364,569,0.426,3,1,A,2
+12061,Almonds,"Nuts, almonds",312,Copper,micro,mg,1.031,86,0.050,0.464,0.450,0.463,1.570,1.074,3,1,A,2
+12061,Almonds,"Nuts, almonds",315,Manganese,micro,mg,2.179,88,0.075,0.704,0.323,1.310,3.980,1.225,3,1,A,2
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",255,Water,macro,g,3.42,10,0.255,0.806,0.236,2.50,4.40,0.556,4,1,A,2
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",203,Protein,macro,g,14.32,7,0.146,0.386,0.027,13.89,14.78,0.062,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",204,Total fat,macro,g,67.10,11,0.583,1.934,0.029,65.00,68.60,0.054,4,1,A,2
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",205,Carbohydrate (by diff.),macro,g,11.74,0,,,,,,,,4,NC,
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",269,Total sugars,macro,g,2.33,7,0.078,0.206,0.089,2.05,2.53,0.206,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",209,Starch,macro,g,0.25,7,0.000,0.000,0.000,0.24,0.26,0.080,2,1,A,"1, 2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",291,"Fibre, total dietary",macro,g,7.5,3,0.232,0.402,0.054,7.1,7.9,0.107,1,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",207,Ash,macro,g,3.43,8,0.079,0.223,0.065,3.28,3.68,0.117,3,1,A,2
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",208,Energy kcal,macro,kcal,659,0,,,,,,,,4,NC,
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",401,Vitamin C,micro,mg,0.7,3,0.000,0.000,0.000,0.7,0.7,0.000,2,1,A,"1, 2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",320,Vitamin A RAE,micro,µg,0,1,,,,,,,,1,A,
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",319,Retinol,micro,µg,0,0,,,,,,,,7,Z,
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",321,beta-Carotene,micro,µg,0,1,,,,,,,,1,A,
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",322,alpha-Carotene,micro,µg,0,1,,,,,,,,1,A,
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",417,"Folate, total",micro,µg,22,4,2.316,4.632,0.211,15,26,0.500,1,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",432,"Folate, food",micro,µg,22,4,2.316,4.632,0.211,15,26,0.500,1,1,A,
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",404,Thiamin,micro,mg,0.617,7,0.053,0.140,0.227,0.430,0.790,0.583,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",405,Riboflavin,micro,mg,0.035,7,0.001,0.003,0.076,0.028,0.042,0.400,2,1,A,"1, 2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",406,Niacin,micro,mg,0.295,7,0.019,0.050,0.170,0.259,0.372,0.383,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",415,Vitamin B6,micro,mg,0.101,7,0.004,0.011,0.105,0.090,0.113,0.228,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",418,Vitamin B12,micro,µg,0.00,0,,,,,,,,7,Z,
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",323,Vitamin E (alpha-toc.),micro,mg,5.65,9,1.091,3.273,0.579,3.81,11.00,1.273,4,1,A,2
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",430,Vitamin K1,micro,µg,0.0,7,0.000,0.000,,0.0,0.0,,2,1,A,"1, 2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",421,Choline,micro,mg,28.8,0,,,,,,,,1,AS,
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",303,Iron,micro,mg,2.43,7,0.030,0.079,0.033,2.32,2.63,0.128,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",309,Zinc,micro,mg,4.06,7,0.043,0.114,0.028,3.85,4.24,0.096,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",301,Calcium,micro,mg,160,7,5.660,14.975,0.094,137,181,0.275,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",304,Magnesium,micro,mg,376,7,3.746,9.911,0.026,361,389,0.074,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",306,Potassium,micro,mg,659,7,8.853,23.423,0.036,623,682,0.090,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",307,Sodium,micro,mg,3,7,0.252,0.667,0.222,2,5,1.000,2,1,A,"1, 2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",317,Selenium,micro,µg,1917.0,15,231.798,897.750,0.468,136.0,2740.0,1.358,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",305,Phosphorus,micro,mg,725,7,5.614,14.853,0.020,696,738,0.058,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",312,Copper,micro,mg,1.743,7,0.021,0.056,0.032,1.640,1.850,0.120,2,1,A,"2, 3"
+12078,Brazil nuts,"Nuts, brazilnuts, dried, unblanched",315,Manganese,micro,mg,1.223,7,0.052,0.138,0.112,1.080,1.450,0.303,2,1,A,"2, 3"

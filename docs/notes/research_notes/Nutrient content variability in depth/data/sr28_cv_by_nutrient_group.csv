@@ -1,0 +1,121 @@
+nutr_no,nutrient,class,food_group,n_foods_cv,median_cv,n_foods_cv_range_consistent,median_cv_range_consistent,n_foods_minmax,median_rel_range_(max-min)/mean
+255,Water,macro,"Fruits & vegetables (0900,1100)",460,0.017,134,0.013,184,0.045
+255,Water,macro,"Legumes, nuts, cereal grains (1200,1600,2000)",246,0.071,92,0.050,108,0.186
+255,Water,macro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",1039,0.033,193,0.022,257,0.060
+255,Water,macro,Dairy & egg (0100),124,0.027,49,0.009,51,0.030
+255,Water,macro,ALL foods,2750,0.033,973,0.025,1136,0.076
+203,Protein,macro,"Fruits & vegetables (0900,1100)",399,0.154,114,0.140,147,0.473
+203,Protein,macro,"Legumes, nuts, cereal grains (1200,1600,2000)",239,0.077,83,0.048,96,0.158
+203,Protein,macro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",1038,0.059,195,0.052,258,0.144
+203,Protein,macro,Dairy & egg (0100),121,0.049,47,0.036,51,0.125
+203,Protein,macro,ALL foods,2637,0.072,924,0.057,1067,0.182
+204,Total fat,macro,"Fruits & vegetables (0900,1100)",374,0.409,127,0.327,156,1.168
+204,Total fat,macro,"Legumes, nuts, cereal grains (1200,1600,2000)",244,0.173,80,0.091,95,0.317
+204,Total fat,macro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",1027,0.247,192,0.220,256,0.572
+204,Total fat,macro,Dairy & egg (0100),124,0.076,44,0.052,47,0.152
+204,Total fat,macro,ALL foods,2611,0.201,936,0.119,1074,0.407
+269,Total sugars,macro,"Fruits & vegetables (0900,1100)",61,0.105,55,0.100,59,0.341
+269,Total sugars,macro,"Legumes, nuts, cereal grains (1200,1600,2000)",48,0.260,29,0.090,49,0.545
+269,Total sugars,macro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",18,0.662,12,0.662,12,2.136
+269,Total sugars,macro,Dairy & egg (0100),25,0.067,22,0.064,22,0.238
+269,Total sugars,macro,ALL foods,343,0.118,299,0.099,334,0.400
+209,Starch,macro,"Fruits & vegetables (0900,1100)",18,0.123,16,0.090,20,0.295
+209,Starch,macro,"Legumes, nuts, cereal grains (1200,1600,2000)",44,0.054,42,0.045,44,0.194
+209,Starch,macro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",1,1.371,1,1.371,1,2.632
+209,Starch,macro,Dairy & egg (0100),0,,0,,0,
+209,Starch,macro,ALL foods,224,0.066,213,0.064,226,0.209
+291,Fibre,macro,"Fruits & vegetables (0900,1100)",108,0.166,84,0.154,108,0.487
+291,Fibre,macro,"Legumes, nuts, cereal grains (1200,1600,2000)",80,0.160,65,0.160,80,0.500
+291,Fibre,macro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",1,1.064,1,1.064,1,2.600
+291,Fibre,macro,Dairy & egg (0100),1,1.770,0,,1,3.000
+291,Fibre,macro,ALL foods,344,0.160,294,0.154,345,0.491
+401,Vitamin C,micro,"Fruits & vegetables (0900,1100)",340,0.335,78,0.243,100,0.815
+401,Vitamin C,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",19,0.612,9,0.111,14,1.286
+401,Vitamin C,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",45,0.184,0,,0,
+401,Vitamin C,micro,Dairy & egg (0100),17,0.627,2,0.000,3,4.500
+401,Vitamin C,micro,ALL foods,591,0.340,129,0.304,163,1.000
+321,beta-Carotene,micro,"Fruits & vegetables (0900,1100)",107,0.269,70,0.223,115,0.929
+321,beta-Carotene,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",8,1.090,4,0.215,8,1.826
+321,beta-Carotene,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",0,,0,,0,
+321,beta-Carotene,micro,Dairy & egg (0100),2,0.279,2,0.279,2,1.000
+321,beta-Carotene,micro,ALL foods,158,0.269,115,0.228,167,0.959
+320,Vitamin A RAE,micro,"Fruits & vegetables (0900,1100)",93,0.323,13,0.206,16,1.081
+320,Vitamin A RAE,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",4,0.319,1,1.502,1,4.000
+320,Vitamin A RAE,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",13,0.314,0,,0,
+320,Vitamin A RAE,micro,Dairy & egg (0100),3,0.302,0,,0,
+320,Vitamin A RAE,micro,ALL foods,115,0.320,14,0.228,17,1.104
+417,"Folate, total",micro,"Fruits & vegetables (0900,1100)",179,0.237,59,0.204,75,0.800
+417,"Folate, total",micro,"Legumes, nuts, cereal grains (1200,1600,2000)",132,0.203,48,0.196,58,1.006
+417,"Folate, total",micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",80,0.410,1,0.262,2,0.733
+417,"Folate, total",micro,Dairy & egg (0100),35,0.430,6,0.058,6,0.200
+417,"Folate, total",micro,ALL foods,557,0.231,184,0.185,218,0.684
+404,Thiamin,micro,"Fruits & vegetables (0900,1100)",332,0.231,81,0.184,107,0.646
+404,Thiamin,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",175,0.213,55,0.179,64,0.620
+404,Thiamin,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",283,0.233,79,0.195,80,0.571
+404,Thiamin,micro,Dairy & egg (0100),65,0.240,19,0.213,26,0.435
+404,Thiamin,micro,ALL foods,1347,0.213,420,0.176,477,0.600
+405,Riboflavin,micro,"Fruits & vegetables (0900,1100)",334,0.231,78,0.214,109,0.735
+405,Riboflavin,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",186,0.250,51,0.226,67,0.885
+405,Riboflavin,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",337,0.163,76,0.165,77,0.483
+405,Riboflavin,micro,Dairy & egg (0100),78,0.155,28,0.084,33,0.258
+405,Riboflavin,micro,ALL foods,1427,0.182,418,0.154,485,0.548
+406,Niacin,micro,"Fruits & vegetables (0900,1100)",332,0.214,86,0.161,111,0.493
+406,Niacin,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",164,0.210,57,0.170,66,0.630
+406,Niacin,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",332,0.138,84,0.115,85,0.306
+406,Niacin,micro,Dairy & egg (0100),74,0.293,27,0.087,31,0.313
+406,Niacin,micro,ALL foods,1395,0.169,440,0.118,498,0.390
+415,Vitamin B6,micro,"Fruits & vegetables (0900,1100)",218,0.191,74,0.151,99,0.708
+415,Vitamin B6,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",134,0.164,44,0.127,50,0.534
+415,Vitamin B6,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",206,0.137,51,0.119,55,0.319
+415,Vitamin B6,micro,Dairy & egg (0100),79,0.167,34,0.085,36,0.247
+415,Vitamin B6,micro,ALL foods,950,0.161,359,0.120,415,0.450
+323,Vitamin E,micro,"Fruits & vegetables (0900,1100)",49,0.320,40,0.264,50,1.000
+323,Vitamin E,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",53,0.234,43,0.209,53,0.710
+323,Vitamin E,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",48,0.155,5,0.289,15,0.478
+323,Vitamin E,micro,Dairy & egg (0100),23,0.205,18,0.205,20,0.667
+323,Vitamin E,micro,ALL foods,306,0.202,224,0.203,272,0.685
+303,Iron,micro,"Fruits & vegetables (0900,1100)",419,0.348,152,0.286,180,1.000
+303,Iron,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",212,0.211,82,0.173,96,0.625
+303,Iron,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",419,0.151,147,0.122,164,0.366
+303,Iron,micro,Dairy & egg (0100),79,0.286,46,0.200,48,0.750
+303,Iron,micro,ALL foods,1922,0.198,907,0.135,992,0.461
+309,Zinc,micro,"Fruits & vegetables (0900,1100)",362,0.233,155,0.230,176,0.920
+309,Zinc,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",196,0.182,81,0.124,87,0.529
+309,Zinc,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",428,0.122,131,0.106,149,0.312
+309,Zinc,micro,Dairy & egg (0100),77,0.095,45,0.055,48,0.258
+309,Zinc,micro,ALL foods,1748,0.148,887,0.105,961,0.366
+301,Calcium,micro,"Fruits & vegetables (0900,1100)",406,0.239,148,0.225,177,0.818
+301,Calcium,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",209,0.191,74,0.123,89,0.559
+301,Calcium,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",390,0.244,126,0.176,150,0.543
+301,Calcium,micro,Dairy & egg (0100),99,0.104,43,0.047,47,0.166
+301,Calcium,micro,ALL foods,1911,0.198,872,0.133,968,0.500
+304,Magnesium,micro,"Fruits & vegetables (0900,1100)",374,0.150,153,0.144,173,0.455
+304,Magnesium,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",189,0.137,71,0.069,82,0.306
+304,Magnesium,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",375,0.081,132,0.075,148,0.234
+304,Magnesium,micro,Dairy & egg (0100),91,0.084,45,0.049,50,0.200
+304,Magnesium,micro,ALL foods,1709,0.095,860,0.067,950,0.243
+306,Potassium,micro,"Fruits & vegetables (0900,1100)",408,0.159,155,0.153,183,0.521
+306,Potassium,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",203,0.162,76,0.092,92,0.384
+306,Potassium,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",417,0.090,147,0.074,164,0.229
+306,Potassium,micro,Dairy & egg (0100),92,0.120,44,0.084,47,0.404
+306,Potassium,micro,ALL foods,1871,0.118,910,0.081,995,0.279
+307,Sodium,micro,"Fruits & vegetables (0900,1100)",330,0.455,112,0.438,134,1.367
+307,Sodium,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",143,0.459,51,0.236,70,0.743
+307,Sodium,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",395,0.127,133,0.131,146,0.419
+307,Sodium,micro,Dairy & egg (0100),81,0.091,47,0.082,50,0.277
+307,Sodium,micro,ALL foods,1607,0.155,800,0.099,887,0.376
+317,Selenium,micro,"Fruits & vegetables (0900,1100)",124,0.858,74,1.819,76,5.678
+317,Selenium,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",112,0.426,75,0.411,83,1.544
+317,Selenium,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",236,0.241,109,0.290,111,0.872
+317,Selenium,micro,Dairy & egg (0100),46,0.299,23,0.136,25,0.367
+317,Selenium,micro,ALL foods,719,0.318,418,0.269,451,0.893
+305,Phosphorus,micro,"Fruits & vegetables (0900,1100)",382,0.157,142,0.138,168,0.552
+305,Phosphorus,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",187,0.134,74,0.080,82,0.355
+305,Phosphorus,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",377,0.080,133,0.064,144,0.209
+305,Phosphorus,micro,Dairy & egg (0100),99,0.094,47,0.032,50,0.149
+305,Phosphorus,micro,ALL foods,1725,0.101,863,0.070,936,0.262
+312,Copper,micro,"Fruits & vegetables (0900,1100)",373,0.305,148,0.316,175,1.092
+312,Copper,micro,"Legumes, nuts, cereal grains (1200,1600,2000)",190,0.220,74,0.134,82,0.456
+312,Copper,micro,"Meat, poultry, fish (0500,1000,1300,1500,1700)",417,0.214,132,0.157,144,0.452
+312,Copper,micro,Dairy & egg (0100),55,0.179,40,0.151,46,0.532
+312,Copper,micro,ALL foods,1694,0.208,852,0.129,935,0.421
