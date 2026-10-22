@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-22 | [deep-research-lite skill installed; nutrient-variability research](2026-10-22-deep-research-lite.md) | accepted |
 | 2026-10-22 | [Consumption editor: eaten-up and expired concoctions hidden; "Max" button](2026-10-22-concoction-left-expiry.md) | accepted |
 | 2026-10-21 | [md2html.sh: compile markdown notes to self-contained HTML](2026-10-21-md2html.md) | accepted |
 | 2026-10-21 | [Dashboard: the error range on its own line, in its own colour](2026-10-21-error-range-line.md) | accepted |
