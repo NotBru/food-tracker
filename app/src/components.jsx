@@ -206,6 +206,72 @@ export function UnitCombo({ units, value, onChange }) {
   )
 }
 
+// --- Phone or computer ---------------------------------------------------------
+// A computer is a device whose main pointer is precise (a mouse or trackpad); a phone's is a finger. A laptop with a
+// touchscreen counts as a computer; a tablet as a phone. Follows a change (a mouse plugged into a tablet).
+
+const FINE = typeof matchMedia === 'function' ? matchMedia('(pointer: fine)') : null
+
+export function useComputer() {
+  const [fine, setFine] = useState(!!FINE?.matches)
+  useEffect(() => {
+    if (!FINE) return
+    const on = () => setFine(FINE.matches)
+    FINE.addEventListener('change', on)
+    return () => FINE.removeEventListener('change', on)
+  }, [])
+  return fine
+}
+
+/**
+ * A dropdown over `options` ([{value, label, group?}]): the native one on a phone; on a computer a text box that
+ * shows the choice and, on focus, every option, the current one highlighted. Typing filters them as the other
+ * pickers do (every word, accents ignored, the group's name counts); ↑/↓/Enter pick, Esc or leaving keeps the choice.
+ */
+export function Select({ value, options, onChange, ...props }) {
+  const computer = useComputer()
+  const [query, setQuery] = useState(null) // null = closed
+  const inputRef = useRef(null)
+  const words = fold(query ?? '').split(/\s+/).filter(Boolean)
+  const matches = options.filter((o) => words.every((w) => fold(`${o.label} ${o.group ?? ''}`).includes(w)))
+  const nav = useListNav(matches.length, (i) => {
+    onChange(matches[i].value)
+    inputRef.current.blur()
+  }, () => inputRef.current.blur())
+
+  if (!computer) {
+    const groups = [...new Set(options.map((o) => o.group))]
+    const opt = (o) => <option key={o.value} value={o.value}>{o.label}</option>
+    return (
+      <select value={value} onChange={(e) => onChange(e.target.value)} {...props}>
+        {groups.map((g) => (g == null
+          ? options.filter((o) => o.group == null).map(opt)
+          : <optgroup key={g} label={g}>{options.filter((o) => o.group === g).map(opt)}</optgroup>))}
+      </select>
+    )
+  }
+  const selected = options.find((o) => o.value === value)
+  return (
+    <div className="picker">
+      <input ref={inputRef} value={query ?? selected?.label ?? ''} autoComplete="off" {...props}
+        onFocus={(e) => { setQuery(''); nav.reset(Math.max(0, options.indexOf(selected))); e.target.select() }}
+        onBlur={() => setQuery(null)}
+        onChange={(e) => { setQuery(e.target.value); nav.reset() }}
+        {...nav.inputProps} />
+      {query !== null && (
+        <ul className="picker-list" ref={nav.listRef}>
+          {matches.map((o, i) => (
+            <li key={o.value} {...nav.itemProps(i)}>
+              {o.label}{o.group && <small className="muted"> · {o.group}</small>}
+            </li>
+          ))}
+          {!matches.length && <li className="muted">No match</li>}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 export function AttributesEditor({ value = [], onChange }) {
   const set = (i, j, v) => onChange(value.map((row, k) => (k === i ? (j === 0 ? [v, row[1]] : [row[0], v]) : row)))
   return (
@@ -241,7 +307,7 @@ export function useListNav(count, onPick, onClose) {
   }
   return {
     listRef,
-    reset: () => setActive(0),
+    reset: (i = 0) => setActive(i),
     inputProps: { onKeyDown },
     itemProps: (i) => ({
       className: i === current ? 'active' : '',

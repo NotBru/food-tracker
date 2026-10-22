@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { baseAmount, nutrientsFor, resolve, span, unitFactorSpan, unitsFor } from '../calc'
 import { itemLabel } from '../db'
-import { MadeTag } from '../components'
+import { MadeTag, Select } from '../components'
 import { MACROS, NUTRIENTS, calories, fmt, normalizeNumber, pmText, rangeText } from '../nutrients'
 import { getCoverage, sdOf } from '../stats'
 import { DEFAULT_ENTRY_ERROR, categoryName } from '../errors'
@@ -54,9 +54,7 @@ export default function FoodInfo({ ctx, item, nutrient }) {
       <div className="row info-per">
         <span className="muted">per</span>
         <input inputMode="decimal" value={perText} onChange={(e) => setPerText(e.target.value)} aria-label="Amount" />
-        <select value={perUnit} onChange={(e) => setPerUnit(e.target.value)} aria-label="Unit">
-          {units.map((u) => <option key={u} value={u}>{u}</option>)}
-        </select>
+        <Select value={perUnit} options={units.map((u) => ({ value: u, label: u }))} onChange={setPerUnit} aria-label="Unit" />
       </div>
       {res && res.ok && (
         <>

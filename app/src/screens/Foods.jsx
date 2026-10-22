@@ -6,8 +6,13 @@ import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measu
 import { CATEGORY_GROUPS, DEFAULT_ENTRY_ERROR } from '../errors'
 import { toLocalInput } from '../time'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
-import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, UnitCombo, UnitInput, enterTo, go, replace } from '../components'
+import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, Select, UnitCombo, UnitInput, enterTo, go, replace } from '../components'
 import FoodInfo from './FoodInfo'
+
+const CATEGORY_OPTIONS = [
+  { value: '', label: 'Unknown' },
+  ...CATEGORY_GROUPS.flatMap(([, group, subs]) => subs.map(([code, label]) => ({ value: code, label, group }))),
+]
 
 // A food is anything you can eat: an ingredient, a recipe (has components) or a concoction (has a made-at time).
 // One list, one editor; what kind a food is follows from its fields. CIQUAL's foods are listed too (while searching,
@@ -330,14 +335,7 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
         <Field label="Attributes"><AttributesEditor value={form.attributes} onChange={set('attributes')} /></Field>
         {!hasComponents && (
           <Field label="Category (how much its values vary)">
-            <select value={form.category} onChange={(e) => set('category')(e.target.value)}>
-              <option value="">Unknown</option>
-              {CATEGORY_GROUPS.map(([g, label, subs]) => (
-                <optgroup key={g} label={label}>
-                  {subs.map(([code, sub]) => <option key={code} value={code}>{sub}</option>)}
-                </optgroup>
-              ))}
-            </select>
+            <Select value={form.category} options={CATEGORY_OPTIONS} onChange={set('category')} />
           </Field>
         )}
         <div className="row amount-row">

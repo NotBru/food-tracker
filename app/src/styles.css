@@ -317,6 +317,8 @@ input.invalid, input.invalid:focus { border-color: var(--prot); }
 .info-per { align-items: center; margin-bottom: 4px; }
 .info-per > span { flex: 0 0 auto; }
 .info-per > input { flex: 0 0 30%; }
+.info-per > .picker { flex: 1; min-width: 0; }
+.info-per .picker-list { position: absolute; left: 0; right: 0; z-index: 5; }
 .info-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 6px; }
 .info-table td { padding: 6px 4px; border-top: 1px solid var(--line); white-space: nowrap; }
 .info-table td:first-child { white-space: normal; }
