@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-22 | [Breakdown from "last 7 days": a Days view first](2026-10-22-last7-days-view.md) | accepted |
 | 2026-10-22 | [Dropdowns: a search box on a computer, native on a phone](2026-10-22-computer-dropdowns.md) | accepted |
 | 2026-10-22 | [Entry error set per consumption](2026-10-22-entry-error-per-log.md) | accepted |
 | 2026-10-22 | [Explore a nutrient across the databases; "provenance" renamed "database"](2026-10-22-explore.md) | accepted |

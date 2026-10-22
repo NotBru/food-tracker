@@ -374,7 +374,7 @@ export default function Home({ query = {} }) {
               const n = data.total[r.key]
               const val = r.key === 'energy' ? calories(data.total) : n ?? zero()
               const Item = data.style === 'bars' ? BarRow : GaugeTile
-              return <Item key={r.key} row={r} val={val} range={data.targets[r.key]} adj={data.adj} onOpen={() => go(`/breakdown/${r.key}?from=${data.first}&to=${data.last}`)} />
+              return <Item key={r.key} row={r} val={val} range={data.targets[r.key]} adj={data.adj} onOpen={() => go(`/breakdown/${r.key}?from=${data.first}&to=${data.last}&win=${win}`)} />
             })}
             <p className="muted">
               {data.count} consumption{data.count === 1 ? '' : 's'}

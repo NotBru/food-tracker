@@ -4,7 +4,7 @@ import { db, getConfig, getCurrentUser, itemLabel } from '../db'
 import { consumptionNutrients, loadContext, resolve } from '../calc'
 import { NUTRIENTS, amountText, calories, fmt, pmText, rangeText } from '../nutrients'
 import { addScaled, bounds, zero } from '../stats'
-import { dayBounds, formatDateTime, prettyDay, toLocalInput } from '../time'
+import { addDays, dayBounds, formatDateTime, logicalDay, prettyDay, toLocalInput } from '../time'
 import { MadeTag, Screen, go } from '../components'
 import { ROWS } from './Home'
 
@@ -15,6 +15,8 @@ import { ROWS } from './Home'
 // Consumptions can be ticked and grouped: a group is one row (and one unit for the quintiles), in every breakdown.
 // The group lives on the consumptions themselves (`log.groupId`, and its optional name in `log.groupName`), so it
 // only ever covers those log entries.
+// From the "last 7 days" dashboard, a "Days" view comes first: one row per day, largest first; a day opens its own
+// breakdown, as from the daily dashboard.
 
 const sum = (rows, k) => rows.reduce((s, r) => s + r[k], 0)
 
@@ -93,8 +95,9 @@ function Bar({ r, scale, cls }) {
   )
 }
 
-export default function Breakdown({ nutrient, from, to }) {
-  const [grouped, setGrouped] = useState(false)
+export default function Breakdown({ nutrient, from, to, win }) {
+  const byDay = win === 'last7' && from !== to
+  const [view, setView] = useState(byDay ? 'days' : 'ranked')
   const [picked, setPicked] = useState(() => new Set()) // entry keys
   const [open, setOpen] = useState(() => new Set()) // groups shown expanded
   const [groupName, setGroupName] = useState('') // for the next group made
@@ -108,6 +111,8 @@ export default function Breakdown({ nutrient, from, to }) {
     const logs = await db.logs.where('[userId+datetime]').between([user.id, start.toISOString()], [user.id, end.toISOString()], true, false).toArray()
     const ctx = await loadContext()
     const rows = []
+    const days = {} // logical day -> every consumption of it with this nutrient, summed
+    for (let d = from; d <= to; d = addDays(d, 1)) days[d] = { day: d, n: zero(), count: 0 }
     let failed = 0
     let missing = 0
     for (const c of logs) {
@@ -116,8 +121,11 @@ export default function Breakdown({ nutrient, from, to }) {
       const n = nutrient === 'energy' ? calories(res.nutrients) : res.nutrients[nutrient]
       if (!n || !Number.isFinite(n.value) || n.value <= 0) { missing++; continue }
       rows.push({ c, item: resolve(ctx, c.itemId), n, value: n.value, estimated: !!n.estimated })
+      const d = days[logicalDay(c.datetime, config.dayStart)]
+      if (d) { addScaled(d.n, n); d.count++; d.estimated ||= !!n.estimated }
     }
-    return { rows: groupRows(rows), failed, missing, userId: user.id }
+    const dayRows = Object.values(days).map((d) => ({ ...d, value: d.n.value })).sort((a, b) => b.value - a.value || (a.day < b.day ? 1 : -1))
+    return { rows: groupRows(rows), dayRows, failed, missing, userId: user.id }
   }, [nutrient, from, to])
 
   const when = from === to ? prettyDay(from) : `${from} → ${to}`
@@ -129,6 +137,7 @@ export default function Breakdown({ nutrient, from, to }) {
   const totalN = rows.reduce((t, r) => addScaled(t, r.n), zero())
   const total = totalN.value
   const scale = Math.max(...rows.map((r) => bounds(r.n)[1]), 1)
+  const dayScale = Math.max(...data.dayRows.map((d) => bounds(d.n)[1]), 1)
 
   const time = (c) => (from === to ? toLocalInput(new Date(c.datetime)).slice(11) : formatDateTime(c.datetime))
   const value = (r) => (
@@ -145,6 +154,19 @@ export default function Breakdown({ nutrient, from, to }) {
   )
   // Opens the consumption's info; its link to the food keeps this nutrient (components ranked by it).
   const openFood = (r) => go(`/consumptions/${r.c.id}?nutrient=${nutrient}`)
+
+  const dayRow = (d) => (
+    <li key={d.day} onClick={() => go(`/breakdown/${nutrient}?from=${d.day}&to=${d.day}`)}>
+      <div className="list-main">
+        <span className="bd-name">{prettyDay(d.day)}</span>
+        {value(d)}
+      </div>
+      <Bar r={d} scale={dayScale} cls={meta.cls} />
+      <span className="muted small">
+        {d.count ? `${d.count} consumption${d.count === 1 ? '' : 's'} · range ${rangeText(d.n)} ${meta.unit}` : `No consumption with ${meta.label.toLowerCase()}`}
+      </span>
+    </li>
+  )
 
   const row = (e) => {
     if (e.groupId == null) {
@@ -228,14 +250,14 @@ export default function Breakdown({ nutrient, from, to }) {
         <b>{fmt(total, 0)}</b> {meta.unit} {pmText(totalN)} <span className="muted">· range {rangeText(totalN)} {meta.unit}</span>
       </p>
       <div className="segmented" role="radiogroup" aria-label="Grouping">
-        {[[false, 'Ranked'], [true, 'Quintiles']].map(([v, label]) => (
-          <button key={label} role="radio" aria-checked={grouped === v} className={grouped === v ? 'on' : ''} onClick={() => setGrouped(v)}>{label}</button>
+        {[...(byDay ? [['days', 'Days']] : []), ['ranked', 'Ranked'], ['quintiles', 'Quintiles']].map(([v, label]) => (
+          <button key={v} role="radio" aria-checked={view === v} className={view === v ? 'on' : ''} onClick={() => setView(v)}>{label}</button>
         ))}
       </div>
 
       {!rows.length && <p className="muted">No consumption with {meta.label.toLowerCase()} in this period.</p>}
-      {grouped
-        ? quintiles(rows, total).map((g) => (
+      {view === 'days' && rows.length > 0 && <ul className="list bd-list">{data.dayRows.map(dayRow)}</ul>}
+      {view === 'quintiles' && quintiles(rows, total).map((g) => (
           <section key={g.name} className="bd-group">
             <h3>
               {g.name}
@@ -243,10 +265,10 @@ export default function Breakdown({ nutrient, from, to }) {
             </h3>
             <ul className="list">{g.rows.map(row)}</ul>
           </section>
-        ))
-        : <ul className="list bd-list">{rows.map(row)}</ul>}
+        ))}
+      {view === 'ranked' && <ul className="list bd-list">{rows.map(row)}</ul>}
 
-      {pickedEntries.length > 0 && (
+      {view !== 'days' && pickedEntries.length > 0 && (
         <div className="bd-groupbar">
           <input value={groupName} onChange={(ev) => setGroupName(ev.target.value)} placeholder="Name (optional)"
             aria-label="Name of the new group" onKeyDown={(ev) => ev.key === 'Enter' && pickedEntries.length >= 2 && makeGroup()} />
