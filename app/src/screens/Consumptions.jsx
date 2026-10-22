@@ -5,7 +5,7 @@ import { componentsTotal, concoctionsLeft, consumptionNutrients, keepUnit, lastE
 import { addDays, dayBounds, prettyDay, toLocalInput, today } from '../time'
 import { NUTRIENTS, amountText, deltaText, emptyNutrients, fmt, measure, normalizeNumber, pmText } from '../nutrients'
 import { DEFAULT_ENTRY_ERROR } from '../errors'
-import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, EntryErrorButton, Field, ItemPicker, MacroLine, Screen, TrashIcon, UnitCombo, go, replace, useToday } from '../components'
+import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, EntryErrorButton, Field, ItemPicker, MacroLine, Screen, TrashIcon, UnitCombo, go, pressable, replace, useToday } from '../components'
 
 export default function Consumptions({ day: dayParam, add }) {
   const dateRef = useRef(null)
@@ -292,11 +292,11 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
             <ul className="list compact">
               {form.components.map((c, i) => (
                 <li key={i} className="component">
-                  <ItemPicker ctx={savedCtx} value={c.itemId} exclude={form.base?.id} oldBefore={oldBefore} show={show} onChange={(id) => setC(i, { itemId: id, unit: keepUnit(savedCtx, id, c.unit) ?? '', entryError: lastEntryError(savedCtx, logs, id) })} />
+                  <ItemPicker ctx={savedCtx} value={c.itemId} exclude={form.base?.id} oldBefore={oldBefore} show={show} enterNext onChange={(id) => setC(i, { itemId: id, unit: keepUnit(savedCtx, id, c.unit) ?? '', entryError: lastEntryError(savedCtx, logs, id) })} />
                   <div className="row">
                     <input inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
                     <DeltaInput value={c.amountDelta} amount={c.amount} unit={c.unit} onChange={(v) => setC(i, { amountDelta: v })} />
-                    <UnitCombo units={c.itemId != null ? unitsFor(savedCtx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} />
+                    <UnitCombo units={c.itemId != null ? unitsFor(savedCtx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} enterNext />
                     <EntryErrorButton value={c.entryError ?? DEFAULT_ENTRY_ERROR} onChange={(x) => setC(i, { entryError: x })} />
                     <button className="icon" onClick={() => setForm((f) => ({ ...f, components: f.components.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
                   </div>
@@ -309,7 +309,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
                   })()}
                 </li>
               ))}
-              <li className="add" onClick={() => setForm((f) => ({ ...f, components: [...f.components, emptyComponent()] }))}>+ add component</li>
+              <li className="add" {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, emptyComponent()] })))}>+ add component</li>
             </ul>
             <p className="small muted">
               {draft.problem ? `Total: ${draft.problem}`
@@ -320,7 +320,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
           </>
         ) : (
           <Field label="Item">
-            <ItemPicker ctx={ctx} value={form.itemId} oldBefore={oldBefore} show={show} onChange={pickItem} />
+            <ItemPicker ctx={ctx} value={form.itemId} oldBefore={oldBefore} show={show} onChange={pickItem} enterNext />
           </Field>
         )}
         <div className="row amount-row">
@@ -331,7 +331,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
             <DeltaInput value={form.amountDelta} amount={form.amount} unit={unit} onChange={set('amountDelta')} />
           </Field>
           <Field label="Unit">
-            <UnitCombo units={itemId != null ? unitsFor(ctx, itemId) : null} value={form.unit} onChange={set('unit')} />
+            <UnitCombo units={itemId != null ? unitsFor(ctx, itemId) : null} value={form.unit} onChange={set('unit')} enterNext />
           </Field>
         </div>
         {ownFood && (

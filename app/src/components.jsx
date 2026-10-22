@@ -309,9 +309,9 @@ export const pressable = (onPress) => ({
   },
 })
 
-/** Focuses the first text box, dropdown or text area after `el` on its screen, or just leaves `el` if none. */
+/** Focuses the first text box, dropdown or text area after `el` on its sheet or screen, or just leaves `el` if none. */
 export function focusNextField(el) {
-  const fields = el.closest('.screen')?.querySelectorAll('input:not([type=checkbox]):not([type=radio]):not([type=file]):not(:disabled), select:not(:disabled), textarea:not(:disabled)') ?? []
+  const fields = el.closest('.sheet, .screen')?.querySelectorAll('input:not([type=checkbox]):not([type=radio]):not([type=file]):not(:disabled), select:not(:disabled), textarea:not(:disabled)') ?? []
   const next = [...fields].find((f) => el.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING && f.offsetParent !== null)
   next ? next.focus() : el.blur()
 }
