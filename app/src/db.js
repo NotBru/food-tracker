@@ -335,6 +335,26 @@ export function itemLabel(item) {
 /** A concoction's made-at time, shown as a tag beside its label (`MadeTag`), never as part of it. */
 export const madeText = (item) => (item?.madeAt ? `made ${formatDateTime(item.madeAt)}` : '')
 
+// A concoction keeps `expiresAfterDays` after it's made. Unset (every food from before it existed) is the default,
+// read here rather than stored, so old databases and old exports follow it without a migration.
+export const DEFAULT_EXPIRY_DAYS = 7
+
+/** When a concoction expires (ISO time), or null for other foods. */
+export function expiresAt(item) {
+  if (!item?.madeAt) return null
+  const days = item.expiresAfterDays > 0 ? item.expiresAfterDays : DEFAULT_EXPIRY_DAYS
+  return new Date(new Date(item.madeAt).getTime() + days * 864e5).toISOString()
+}
+
+/**
+ * Typed "expires after" days -> stored value: a number > 0, or undefined (blank or not a number: the default). Not
+ * null, so the field is dropped (Dexie's update deletes it) and an unset food still matches older copies of itself.
+ */
+export function parseExpiryDays(text) {
+  const d = Number(String(text ?? '').trim().replace(',', '.'))
+  return String(text ?? '').trim() && d > 0 ? d : undefined
+}
+
 /** What food searches match: the label, plus the made-at time so a batch can be found by its date. */
 export const searchText = (item) => `${itemLabel(item)} ${madeText(item)}`.toLowerCase()
 

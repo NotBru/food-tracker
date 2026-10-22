@@ -236,14 +236,15 @@ const isOld = (it, before) => !!(before && it.madeAt && it.madeAt < before)
  * so the picker never asks which kind you want.
  */
 /** `onCreate(text)`: if given, a + beside the box, to make a new food from what's typed.
- * `oldBefore` (ISO time): if given, concoctions made before it go last, after every other food. */
-export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore }) {
+ * `oldBefore` (ISO time): if given, concoctions made before it go last, after every other food.
+ * `show(item)`: if given, only foods it accepts are listed. */
+export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore, show }) {
   const [query, setQuery] = useState(null) // null = closed
   const inputRef = useRef(null)
   const selected = value != null ? ctx.items.get(value) : null
   const words = (query ?? '').toLowerCase().split(/\s+/).filter(Boolean)
   const matches = ctx.list
-    .filter((it) => it.id !== exclude)
+    .filter((it) => it.id !== exclude && (!show || show(it)))
     .filter((it) => words.every((w) => searchText(it).includes(w)))
     .map((it) => [it, itemLabel(it)])
     // Most recently made concoctions first, then alphabetical; old concoctions (if `oldBefore`) last, newest first.

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { conflictingFoods, db, findEqualFood, itemLabel, kindOf, mergeEqualFoodsInDb, searchText } from '../db'
+import { DEFAULT_EXPIRY_DAYS, conflictingFoods, db, findEqualFood, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays, searchText } from '../db'
 import { baseAmount, componentsTotal, keepUnit, loadContext, nutrientsFor, unitsFor } from '../calc'
 import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measure, normalizeNumber } from '../nutrients'
 import { toLocalInput } from '../time'
@@ -162,6 +162,7 @@ function FoodForm({ ctx, initial, prefill, nested, name }) {
     unit: src?.unit ?? (initial ? '' : 'g'),
     isMade: !!src?.madeAt,
     madeAt: toLocalInput(src?.madeAt ? new Date(src.madeAt) : new Date()),
+    expiresAfterDays: src?.expiresAfterDays > 0 ? String(src.expiresAfterDays) : '',
     components: (src?.components ?? []).map((c) => ({
       ...c, amount: amountText(c.amount, c.amountText), amountDelta: deltaText(c.amountDelta, c.amountDeltaAuto),
     })),
@@ -215,6 +216,7 @@ function FoodForm({ ctx, initial, prefill, nested, name }) {
       amount: base.value > 0 ? base.value : NaN, amountText: base.text, amountDelta: base.delta, amountDeltaAuto: base.auto,
       unit: form.unit.trim(),
       madeAt: form.isMade ? new Date(form.madeAt).toISOString() : null,
+      expiresAfterDays: form.isMade ? parseExpiryDays(form.expiresAfterDays) : undefined,
       units: form.units
         .filter((u) => Number(u.fromAmount) > 0 && u.fromUnit.trim() && Number(u.toAmount) > 0 && u.toUnit.trim())
         .map((u) => {
@@ -350,7 +352,12 @@ function FoodForm({ ctx, initial, prefill, nested, name }) {
           <span>Made at a specific time (concoction)</span>
         </label>
         {form.isMade && (
-          <Field label="Made at"><DateTimeInput value={form.madeAt} onChange={set('madeAt')} /></Field>
+          <>
+            <Field label="Made at"><DateTimeInput value={form.madeAt} onChange={set('madeAt')} /></Field>
+            <Field label="Expires after (days)">
+              <input inputMode="decimal" value={form.expiresAfterDays} placeholder={String(DEFAULT_EXPIRY_DAYS)} onChange={(e) => set('expiresAfterDays')(e.target.value)} />
+            </Field>
+          </>
         )}
 
         <h3>Components</h3>

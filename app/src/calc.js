@@ -128,6 +128,31 @@ export function componentsTotal(ctx, components, unit) {
 
 export const resolve = (ctx, id) => ctx.items.get(id)
 
+/**
+ * What is left of each concoction: id -> {value, amount, unit}, in its own amount and unit. Taken off it: every
+ * consumption of it (`logs`, every user's: they share the pot) but `skipLogId` (the one being edited), and every
+ * other concoction it went into. Nominal values; an amount in a unit that doesn't convert is left out.
+ */
+export function concoctionsLeft(ctx, logs, skipLogId) {
+  const left = new Map()
+  for (const it of ctx.list) {
+    if (!it.madeAt) continue
+    const [amount, unit] = baseAmount(it)
+    left.set(it.id, { value: amount, amount, unit })
+  }
+  const take = (id, amount, unit) => {
+    const l = left.get(id)
+    const f = l && unitFactor(unit, l.unit, resolve(ctx, id).units)
+    if (Number.isFinite(f) && amount > 0) l.value -= amount * f
+  }
+  for (const log of logs) if (log.id !== skipLogId) take(log.itemId, log.amount, log.unit)
+  for (const it of ctx.list) if (it.madeAt) for (const c of it.components ?? []) take(c.itemId, c.amount, c.unit)
+  return left
+}
+
+/** Eaten up: nothing left, give or take float rounding. */
+export const usedUp = (left) => !!left && left.value <= left.amount * 1e-6
+
 /** Amount and unit an item's nutrients refer to (plus the amount's error). Without one it counts as 1 portion. */
 export function baseAmount(item) {
   if (item.amount > 0 && item.unit) return [item.amount, item.unit, Math.abs(item.amountDelta) || 0]

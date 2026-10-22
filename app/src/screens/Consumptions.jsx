@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, getConfig, getCurrentUser, itemLabel, kindOf, mergeEqualFoodsInDb } from '../db'
-import { componentsTotal, consumptionNutrients, keepUnit, loadContext, nutrientsFor, resolve, unitsFor } from '../calc'
+import { DEFAULT_EXPIRY_DAYS, db, expiresAt, getConfig, getCurrentUser, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays } from '../db'
+import { componentsTotal, concoctionsLeft, consumptionNutrients, keepUnit, loadContext, nutrientsFor, resolve, unitsFor, usedUp } from '../calc'
 import { addDays, dayBounds, prettyDay, toLocalInput, today } from '../time'
 import { NUTRIENTS, amountText, deltaText, emptyNutrients, fmt, measure } from '../nutrients'
 import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, Field, ItemPicker, MacroLine, Screen, TrashIcon, UnitCombo, go, replace, useToday } from '../components'
@@ -110,6 +110,7 @@ function concoctionFields(ctx, base, consumption) {
   const sum = sumAs(ctx, base.components ?? [], [base.unit])
   return {
     name: base.name ?? '', brand: base.brand ?? '', attributes: base.attributes ?? [],
+    expiresAfterDays: base.expiresAfterDays > 0 ? String(base.expiresAfterDays) : '',
     components: (base.components ?? []).map((c) => ({
       ...c, amount: amountText(c.amount, c.amountText), amountDelta: deltaText(c.amountDelta, c.amountDeltaAuto),
     })),
@@ -140,6 +141,7 @@ function concoctionDraft(ctx, form) {
   return {
     units: [], nutrients: emptyNutrients(), source: null, ...base,
     name: form.name.trim(), brand: form.brand.trim(), attributes: form.attributes, ...amount, components,
+    expiresAfterDays: parseExpiryDays(form.expiresAfterDays),
     madeAt: !base || form.followTime ? new Date(form.datetime).toISOString() : base.madeAt,
     sum, // shown under the components; not stored
   }
@@ -157,11 +159,21 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
       datetime: toLocalInput(new Date(consumption.datetime)),
       amount: edit && isAllOf(consumption, item) ? '' : amountText(consumption.amount, consumption.amountText),
       amountDelta: edit && isAllOf(consumption, item) ? '' : deltaText(consumption.amountDelta, consumption.amountDeltaAuto),
-      concoction: edit, name: '', brand: '', attributes: [], components: [emptyComponent()], base: null,
+      concoction: edit, name: '', brand: '', attributes: [], expiresAfterDays: '', components: [emptyComponent()], base: null,
       ...(edit && concoctionFields(savedCtx, item, consumption)),
     }
   })
   const picked = resolve(savedCtx, form.itemId)
+  // Concoctions eaten up, or expired at the consumption's time, aren't offered. What this consumption took is counted
+  // back in, so editing it still finds its food.
+  const logs = useLiveQuery(() => db.logs.toArray(), [])
+  const left = concoctionsLeft(savedCtx, logs ?? [], consumption.id)
+  const at = new Date(form.datetime)
+  const atIso = Number.isNaN(at.getTime()) ? new Date().toISOString() : at.toISOString()
+  const show = (it) => !it.madeAt || (expiresAt(it) > atIso && !usedUp(left.get(it.id)))
+  // "Max": the rest of the picked concoction, in its own unit, with no error of its own (like "all of it").
+  const rest = !form.concoction && left.get(form.itemId)
+  const maxText = rest && rest.value > 0 ? round(rest.value, 6) : null
   // The checkbox: on a new consumption it makes a new concoction; on an existing one it edits the picked concoction.
   const canEdit = consumption.id && kindOf(picked) === 'concoction'
   const set = (k) => (v) => setForm((f) => ({ ...f, [k]: v }))
@@ -263,11 +275,14 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
             <Field label="Name"><input value={form.name} onChange={(e) => set('name')(e.target.value)} /></Field>
             <Field label="Brand"><input value={form.brand} onChange={(e) => set('brand')(e.target.value)} /></Field>
             <Field label="Attributes"><AttributesEditor value={form.attributes} onChange={set('attributes')} /></Field>
+            <Field label="Expires after (days)">
+              <input inputMode="decimal" value={form.expiresAfterDays} placeholder={String(DEFAULT_EXPIRY_DAYS)} onChange={(e) => set('expiresAfterDays')(e.target.value)} />
+            </Field>
             <h3>Components</h3>
             <ul className="list compact">
               {form.components.map((c, i) => (
                 <li key={i} className="component">
-                  <ItemPicker ctx={savedCtx} value={c.itemId} exclude={form.base?.id} oldBefore={oldBefore} onChange={(id) => setC(i, { itemId: id, unit: keepUnit(savedCtx, id, c.unit) ?? '' })} />
+                  <ItemPicker ctx={savedCtx} value={c.itemId} exclude={form.base?.id} oldBefore={oldBefore} show={show} onChange={(id) => setC(i, { itemId: id, unit: keepUnit(savedCtx, id, c.unit) ?? '' })} />
                   <div className="row">
                     <input inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
                     <DeltaInput value={c.amountDelta} amount={c.amount} unit={c.unit} onChange={(v) => setC(i, { amountDelta: v })} />
@@ -294,7 +309,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
           </>
         ) : (
           <Field label="Item">
-            <ItemPicker ctx={ctx} value={form.itemId} oldBefore={oldBefore} onChange={pickItem} />
+            <ItemPicker ctx={ctx} value={form.itemId} oldBefore={oldBefore} show={show} onChange={pickItem} />
           </Field>
         )}
         <div className="row amount-row">
@@ -308,6 +323,11 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
             <UnitCombo units={itemId != null ? unitsFor(ctx, itemId) : null} value={form.unit} onChange={set('unit')} />
           </Field>
         </div>
+        {maxText && (
+          <button className="secondary" onClick={() => setForm((f) => ({ ...f, amount: maxText, amountDelta: '0', unit: rest.unit }))}>
+            Max: {maxText} {rest.unit} left
+          </button>
+        )}
         {preview && <p><MacroLine nutrients={preview.nutrients} ok={preview.ok} deltas /></p>}
         {preview?.ok && <NutrientDetails nutrients={preview.nutrients} />}
         <div className="row actions">
