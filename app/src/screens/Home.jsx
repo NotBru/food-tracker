@@ -329,7 +329,6 @@ export default function Home({ query = {} }) {
     if (!confirm('Importing REPLACES all current data with the file contents. Continue?')) return
     try {
       await importAll(await f.text())
-      alert('Import done.')
     } catch (err) {
       alert(`Import failed: ${err.message}`)
     }

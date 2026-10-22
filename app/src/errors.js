@@ -96,9 +96,12 @@ const CLASSES = {
 }
 
 // Not in SR28, so estimated, not fitted (and not scaled by BLEND): single-ingredient powders, made to a label.
+// Protein powders test below their label more often than above (30% of 70 products > 10% below, 7% 42–80% below:
+// Schönfeldt et al. 2019), hence the bias. Creatine: a single synthesised compound.
 const SUPPLEMENTS = {
-  water: 0.2, protein: 0.05, carbs: 0.15, sugars: 0.15, fibre: 0.2, fat: 0.15, energy: 0.05, other: 0.03,
+  water: 0.2, protein: 0.15, carbs: 0.15, sugars: 0.15, fibre: 0.2, fat: 0.15, energy: 0.1, other: 0.05,
 }
+const SUPPLEMENTS_BIAS = { protein: -0.05 }
 
 // CIQUAL groups and subgroups: [code, name, class], plus supplements (99, not CIQUAL's).
 export const CATEGORY_GROUPS = [
@@ -163,6 +166,6 @@ const BLEND = Math.sqrt(3)
 export function sampling(code, key) {
   const cls = CLASS_OF.get(code) ?? 'unknown'
   const kind = KIND[key] ?? 'other'
-  if (cls === 'supplements' && SUPPLEMENTS[kind]) return [0, SUPPLEMENTS[kind]]
+  if (cls === 'supplements' && SUPPLEMENTS[kind]) return [SUPPLEMENTS_BIAS[kind] ?? 0, SUPPLEMENTS[kind]]
   return [0, (CLASSES[cls]?.[kind] ?? BASE[kind]) * BLEND]
 }

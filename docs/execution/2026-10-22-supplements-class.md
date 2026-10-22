@@ -1,7 +1,7 @@
 # A supplements category with estimated, tight CVs
 
 - **Date:** 2026-10-22
-- **Status:** accepted
+- **Status:** accepted; the CVs superseded by [supplements-evidence](2026-10-22-supplements-evidence.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md); model from [`docs/notes/error-handling.md`](../notes/error-handling.md)
 
 ## Context

@@ -24,7 +24,8 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
-| 2026-10-22 | [A supplements category with estimated, tight CVs](2026-10-22-supplements-class.md) | accepted |
+| 2026-10-22 | [Supplements: protein powder CVs from label-accuracy studies; import popup removed](2026-10-22-supplements-evidence.md) | accepted |
+| 2026-10-22 | [A supplements category with estimated, tight CVs](2026-10-22-supplements-class.md) | CVs superseded by [supplements-evidence](2026-10-22-supplements-evidence.md) |
 | 2026-10-22 | [Sampling CVs scaled by √3 for blended samples](2026-10-22-cv-blend.md) | accepted |
 | 2026-10-22 | [Sampling CVs fitted to USDA SR28](2026-10-22-cv-fit.md) | accepted |
 | 2026-10-22 | [Error model: distributions, food categories, CIQUAL in the food database](2026-10-22-error-model.md) | accepted; CVs superseded by [cv-fit](2026-10-22-cv-fit.md) |
