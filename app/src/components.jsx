@@ -70,9 +70,9 @@ export function TrashIcon() {
   )
 }
 
-export function Screen({ title, subtitle, back = true, right, children }) {
+export function Screen({ title, subtitle, back = true, right, className = '', children }) {
   return (
-    <div className="screen">
+    <div className={`screen ${className}`.trim()}>
       <header className="topbar">
         {back ? <button className="icon" onClick={() => history.back()} aria-label="Back"><Chevron /></button> : <span />}
         <h1>{title}{subtitle && <small className="subtitle">{subtitle}</small>}</h1>

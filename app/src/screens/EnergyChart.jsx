@@ -68,6 +68,9 @@ function energySplit(n) {
   }
 }
 
+/** Energy from the macros' mean grams: the donut's total. */
+export const macroKcal = (n) => energySplit(n).total
+
 const R = 80
 const C = 2 * Math.PI * R
 const GAP = 2 // px of background between slices

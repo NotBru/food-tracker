@@ -343,11 +343,17 @@ input.invalid, input.invalid:focus { border-color: var(--prot); }
 button.icon.trash { flex: none; background: var(--bg); color: var(--muted); }
 button.icon.trash:hover { color: var(--prot); }
 
-/* Explore (screens/Explore.jsx): the picked food's chart, then the foods and the databases, each scrolling on its own. */
+/* Explore (screens/Explore.jsx): the window's height, split between the picked food's chart, the foods (what's left)
+   and the databases; each scrolls on its own. */
+.screen.explore { height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)); min-height: 0; display: flex; flex-direction: column; }
+.screen.explore > main { flex: 1; min-height: 0; display: flex; flex-direction: column; padding-bottom: 12px; }
+.ex-pie { flex: 0 1 auto; min-height: 0; max-height: 45%; overflow-y: auto; }
 .ex-picked { margin: 0 0 8px; text-align: center; }
-.ex-list { max-height: 45vh; overflow-y: auto; margin-top: 12px; }
+.ex-list { flex: 1 1 0; min-height: 80px; overflow-y: auto; margin-top: 12px; }
+.ex-list li { flex: none; }
 .ex-list li.on { outline: 2px solid var(--accent); outline-offset: -2px; }
-.ex-dbs { list-style: none; margin: 0; padding: 8px 12px; max-height: 25vh; overflow-y: auto; background: var(--panel); border-radius: 16px; }
+.ex-dbs-title { flex: none; margin: 12px 4px 6px; }
+.ex-dbs { flex: none; list-style: none; margin: 0; padding: 8px 12px; max-height: 20%; overflow-y: auto; background: var(--panel); border-radius: 16px; }
 .ex-dbs li { padding: 6px 0; }
 .ex-dbs label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .ex-dbs input { width: auto; }
