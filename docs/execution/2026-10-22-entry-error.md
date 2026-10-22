@@ -1,7 +1,7 @@
 # Entry error per log
 
 - **Date:** 2026-10-22
-- **Status:** accepted
+- **Status:** superseded by [entry-error-per-log](2026-10-22-entry-error-per-log.md) (where it's set)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md); model from [`docs/notes/error-handling.md`](../notes/error-handling.md)
 
 ## Context

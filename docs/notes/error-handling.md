@@ -42,8 +42,8 @@ Let
 - $\hat{q}_\alpha=(1+\varepsilon_{q\alpha})q_{r\alpha}$
 - $\hat{\delta q}_\alpha=\varepsilon_{\delta_q\alpha}\hat{q}_\alpha$
 
-Every entry also has its own entry error $\varepsilon_e$, set per ingredient ID: how far the ID may be from
-what was actually eaten. Default 10%, 0 if read off the product's own label.
+Every entry also has its own entry error $\varepsilon_e$: how far the ingredient ID may be from what was
+actually eaten. Default 10%, 0 if it's the product on the label.
 
 ### Ingredient combination
 

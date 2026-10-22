@@ -3,7 +3,8 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { DEFAULT_EXPIRY_DAYS, db, expiresAt, getConfig, getCurrentUser, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays } from '../db'
 import { componentsTotal, concoctionsLeft, consumptionNutrients, keepUnit, loadContext, nutrientsFor, resolve, unitsFor, usedUp } from '../calc'
 import { addDays, dayBounds, prettyDay, toLocalInput, today } from '../time'
-import { NUTRIENTS, amountText, deltaText, emptyNutrients, fmt, measure, pmText } from '../nutrients'
+import { NUTRIENTS, amountText, deltaText, emptyNutrients, fmt, measure, normalizeNumber, pmText } from '../nutrients'
+import { DEFAULT_ENTRY_ERROR } from '../errors'
 import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, Field, ItemPicker, MacroLine, Screen, TrashIcon, UnitCombo, go, replace, useToday } from '../components'
 
 export default function Consumptions({ day: dayParam, add }) {
@@ -159,6 +160,8 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
       datetime: toLocalInput(new Date(consumption.datetime)),
       amount: edit && isAllOf(consumption, item) ? '' : amountText(consumption.amount, consumption.amountText),
       amountDelta: edit && isAllOf(consumption, item) ? '' : deltaText(consumption.amountDelta, consumption.amountDeltaAuto),
+      // In %; blank = the default.
+      entryError: String(+((Number.isFinite(consumption.entryError) ? consumption.entryError : DEFAULT_ENTRY_ERROR) * 100).toPrecision(6)),
       concoction: edit, name: '', brand: '', attributes: [], expiresAfterDays: '', components: [emptyComponent()], base: null,
       ...(edit && concoctionFields(savedCtx, item, consumption)),
     }
@@ -193,8 +196,12 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
   // Its unit defaults to the concoction's own.
   const unit = form.concoction && itemId != null && (all || !form.unit.trim()) ? draft.unit : form.unit
   const amount = m.value
+  // Entry error: a food of its own only (a recipe's components take the default). Blank or not a number: the default.
+  const ownFood = !form.concoction && !picked?.components?.length
+  const typedError = Number(normalizeNumber(form.entryError))
+  const logError = ownFood && form.entryError.trim() && typedError >= 0 ? typedError / 100 : undefined
   const preview = itemId != null && amount > 0 && unit
-    ? consumptionNutrients(ctx, { itemId, amount, unit, amountDelta: m.delta }) : null
+    ? consumptionNutrients(ctx, { itemId, amount, unit, amountDelta: m.delta, entryError: logError }) : null
 
   function pickItem(itemId) {
     setForm((f) => ({ ...f, itemId, unit: keepUnit(ctx, itemId, f.unit) }))
@@ -221,6 +228,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
     const rec = {
       datetime: new Date(form.datetime).toISOString(), userId: consumption.userId, itemId: form.itemId,
       amount, amountText: m.text, amountDelta: m.delta, amountDeltaAuto: m.auto, unit: form.unit.trim(),
+      entryError: logError,
     }
     if (consumption.id) await db.logs.update(consumption.id, rec)
     else await db.logs.add(rec)
@@ -320,6 +328,11 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
             <UnitCombo units={itemId != null ? unitsFor(ctx, itemId) : null} value={form.unit} onChange={set('unit')} />
           </Field>
         </div>
+        {ownFood && (
+          <Field label="Entry error, % (how far the food may be from what's eaten; 0 if it's the product on the label)">
+            <input inputMode="decimal" value={form.entryError} placeholder={fmt(DEFAULT_ENTRY_ERROR * 100)} onChange={(e) => set('entryError')(e.target.value)} />
+          </Field>
+        )}
         {form.concoction && (
           <Field label="Expires after (days)">
             <input inputMode="decimal" value={form.expiresAfterDays} placeholder={String(DEFAULT_EXPIRY_DAYS)} onChange={(e) => set('expiresAfterDays')(e.target.value)} />

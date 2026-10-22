@@ -4,7 +4,7 @@ import { itemLabel } from '../db'
 import { MadeTag } from '../components'
 import { MACROS, NUTRIENTS, calories, fmt, normalizeNumber, pmText, rangeText } from '../nutrients'
 import { getCoverage, sdOf } from '../stats'
-import { categoryName, entryError } from '../errors'
+import { DEFAULT_ENTRY_ERROR, categoryName } from '../errors'
 import { ROWS } from './Home'
 import EnergyChart from './EnergyChart'
 
@@ -68,7 +68,7 @@ export default function FoodInfo({ ctx, item, nutrient }) {
       <p className="muted small">
         Taken as exact; each range holds {fmt(getCoverage() * 100)}% of the probability. It includes how much a sample of
         {item.components?.length ? ' each component' : ' this food'} varies (by category), how far the entry may be from
-        what's eaten (its entry error), the digits of its values and the error of every amount (under Amounts).
+        what's eaten ({fmt(DEFAULT_ENTRY_ERROR * 100)}%, set per consumption), the digits of its values and the error of every amount (under Amounts).
       </p>
       {res && !res.ok && <p className="warn small">Some of it can't be computed (missing food or unit conversion).</p>}
       {res && <NutrientTable nutrients={res.nutrients} />}
@@ -78,12 +78,6 @@ export default function FoodInfo({ ctx, item, nutrient }) {
           <li>
             <span>Category</span>
             <span>{categoryName(item.category)}</span>
-          </li>
-        )}
-        {!item.components?.length && (
-          <li>
-            <span>Entry error</span>
-            <span>{fmt(entryError(item) * 100, 2)}%</span>
           </li>
         )}
         <li>

@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, getConfig, itemLabel } from '../db'
 import { consumptionNutrients, loadContext, resolve, span } from '../calc'
-import { amountText } from '../nutrients'
+import { amountText, fmt } from '../nutrients'
+import { DEFAULT_ENTRY_ERROR } from '../errors'
 import { formatDateTime } from '../time'
 import { MadeTag, MacroLine, Screen, go } from '../components'
 import { Amount, NutrientTable } from './FoodInfo'
@@ -37,6 +38,12 @@ export default function ConsumptionInfo({ id, nutrient }) {
           <span><Amount value={log.amount} lo={lo} hi={hi} unit={log.unit} delta={log.amountDelta || 0} /></span>
           {log.amountText && log.amountText !== String(log.amount) && <span className="muted small">typed as {amountText(log.amount, log.amountText)}</span>}
         </li>
+        {item && !item.components?.length && (
+          <li>
+            <span>Entry error</span>
+            <span>{fmt((Number.isFinite(log.entryError) ? log.entryError : DEFAULT_ENTRY_ERROR) * 100, 2)}%</span>
+          </li>
+        )}
         {item && (
           <li className="info-link" onClick={() => go(`/foods/${item.id}?tab=info${nutrient ? `&nutrient=${nutrient}` : ''}`)}>
             <span>Food</span>

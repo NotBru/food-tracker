@@ -1,7 +1,7 @@
 import { db, getConfig } from './db'
 import { addDays, dayBounds } from './time'
 import { NUTRIENTS, calories, deltaFromInput } from './nutrients'
-import { entryError, sampling } from './errors'
+import { DEFAULT_ENTRY_ERROR, sampling } from './errors'
 import { ciqualItems } from './external'
 import { addProduct, addScaled, bounds, zero } from './stats'
 
@@ -220,11 +220,11 @@ export function baseAmount(item) {
 
 /**
  * Nutrients for `amount ± amountDelta unit` of item `id`. Items with components get them inferred from the
- * components; otherwise their own nutrients are used.
+ * components; otherwise their own nutrients are used, with entry error `rel` (a consumption's) or else the default.
  * Returns { nutrients: {key: {value, v, s, missing}}, ok } where ok=false means a unit couldn't be converted
  * or an item is missing.
  */
-export function nutrientsFor(ctx, id, amount, unit, amountDelta = 0, seen = new Set()) {
+export function nutrientsFor(ctx, id, amount, unit, amountDelta = 0, seen = new Set(), rel = undefined) {
   const out = { nutrients: {}, ok: true }
   const item = resolve(ctx, id)
   if (!item || seen.has(id)) return { ...out, ok: false }
@@ -239,7 +239,7 @@ export function nutrientsFor(ctx, id, amount, unit, amountDelta = 0, seen = new 
   if (!Number.isFinite(f)) return { ...out, ok: false }
 
   if (own) {
-    addInto(out.nutrients, baseNutrients(item), f, phi, entryError(item))
+    addInto(out.nutrients, baseNutrients(item), f, phi, Number.isFinite(rel) ? rel : DEFAULT_ENTRY_ERROR)
     return out
   }
   const whole = recipeNutrients(ctx, item, new Set(seen).add(id))
@@ -271,9 +271,9 @@ function recipeNutrients(ctx, item, seen) {
   return out
 }
 
-/** Nutrients of a consumption, `amount ± amountDelta unit`. */
-export function consumptionNutrients(ctx, { itemId, amount, unit, amountDelta }) {
-  return nutrientsFor(ctx, itemId, amount, unit, amountDelta)
+/** Nutrients of a consumption, `amount ± amountDelta unit`, with its own entry error if it has one. */
+export function consumptionNutrients(ctx, { itemId, amount, unit, amountDelta, entryError }) {
+  return nutrientsFor(ctx, itemId, amount, unit, amountDelta, undefined, entryError)
 }
 
 export function sumNutrients(list) {

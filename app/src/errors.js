@@ -167,12 +167,12 @@ export const CATEGORY_GROUPS = [
 const CLASS_OF = new Map(CATEGORY_GROUPS.flatMap(([, , subs]) => subs.map(([code, , cls]) => [code, cls])))
 export const categoryName = (code) => CATEGORY_GROUPS.flatMap(([, , s]) => s).find(([c]) => c === code)?.[1] ?? 'unknown'
 
-// Entry error: how far the entry may be from what was eaten (a generic or approximate entry, brand, cut, recipe), per
-// food, 0 for one read off the exact product's label. Every log draws its own. 10% by default: the Dutch duplicate-diet
-// check of computed against analysed days (J Food Comp Anal 2015, 43:68) puts a weighed day at ~4% SD, i.e. ~13% per
-// food over ~10 foods, ~10% of it not in the CVs above.
+// Entry error: how far the food logged may be from what was eaten (a generic or approximate entry, brand, cut,
+// recipe), set per consumption (0 for a product read off its own label); recipe components and anything without one
+// take the default. Every log draws its own. 10%: the Dutch duplicate-diet check of computed against analysed days
+// (J Food Comp Anal 2015, 43:68) puts a weighed day at ~4% SD, i.e. ~13% per food over ~10 foods, ~10% of it not in
+// the CVs above.
 export const DEFAULT_ENTRY_ERROR = 0.1
-export const entryError = (item) => (Number.isFinite(item?.entryError) ? item.entryError : DEFAULT_ENTRY_ERROR)
 
 /** [bias, CV] of nutrient `key` in a food of category `code` (a CIQUAL subgroup; anything else is unknown). */
 export function sampling(code, key) {
