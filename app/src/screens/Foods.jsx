@@ -6,7 +6,7 @@ import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measu
 import { CATEGORY_GROUPS, DEFAULT_ENTRY_ERROR } from '../errors'
 import { toLocalInput } from '../time'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
-import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, Select, UnitCombo, UnitInput, enterTo, go, replace } from '../components'
+import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, Select, pressable, UnitCombo, UnitInput, enterTo, go, replace } from '../components'
 import FoodInfo from './FoodInfo'
 
 const CATEGORY_OPTIONS = [
@@ -377,7 +377,7 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
               </div>
             </li>
           ))}
-          <li className="add" onClick={() => setForm((f) => ({ ...f, units: [...f.units, { fromAmount: '1', fromDelta: '0', fromUnit: '', toAmount: '', toDelta: '', toUnit: f.unit.trim() || 'g' }] }))}>+ add unit</li>
+          <li className="add" {...pressable(() => setForm((f) => ({ ...f, units: [...f.units, { fromAmount: '1', fromDelta: '0', fromUnit: '', toAmount: '', toDelta: '', toUnit: f.unit.trim() || 'g' }] })))}>+ add unit</li>
         </ul>
         <p className="muted small">g/kg/mg/oz/lb and ml/l/cl/dl/tsp/tbsp/cup convert automatically.</p>
 
@@ -416,7 +416,7 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
               })()}
             </li>
           ))}
-          <li className="add" onClick={() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', amountDelta: '', unit: '' }] }))}>+ add component</li>
+          <li className="add" {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', amountDelta: '', unit: '' }] })))}>+ add component</li>
         </ul>
 
         <p>Per {amt} {unit}: <MacroLine nutrients={preview.nutrients} ok={preview.ok} deltas /></p>

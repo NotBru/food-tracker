@@ -23,6 +23,9 @@ results, as the food and unit pickers do. The dropdowns were the food's category
 - Food editor (user's follow-up): picking with Enter in the category, a component's food or its unit moves the
   cursor to the next text box, dropdown or text area on the screen (`enterNext`, `focusNextField`); none left: the box
   just closes. A click still only closes the list. Other screens keep the old behaviour.
+- The food editor's "+ add unit" and "+ add component" rows are reached with Tab (`pressable`: a button role, Enter
+  or Space presses it); pressed from the keyboard, the cursor goes to the new row's first box. Focus shows as an
+  accent border.
 
 ## Alternatives considered
 

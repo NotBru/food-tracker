@@ -291,6 +291,23 @@ export function AttributesEditor({ value = [], onChange }) {
   )
 }
 
+/**
+ * Props for something clickable that isn't a button (a list's "+ add" row): reached with Tab, Enter or Space presses
+ * it. Pressed from the keyboard, the cursor then goes to the first box of the row it added (the list's last but one).
+ */
+export const pressable = (onPress) => ({
+  role: 'button',
+  tabIndex: 0,
+  onClick: onPress,
+  onKeyDown: (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return
+    e.preventDefault()
+    const list = e.currentTarget.parentElement
+    onPress()
+    setTimeout(() => [...list.children].at(-2)?.querySelector('input')?.focus())
+  },
+})
+
 /** Focuses the first text box, dropdown or text area after `el` on its screen, or just leaves `el` if none. */
 export function focusNextField(el) {
   const fields = el.closest('.screen')?.querySelectorAll('input:not([type=checkbox]):not([type=radio]):not([type=file]):not(:disabled), select:not(:disabled), textarea:not(:disabled)') ?? []
