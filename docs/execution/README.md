@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-22 | [Nutrient variability: plant-food gaps researched and merged](2026-10-22-plant-macros-gaps.md) | accepted |
 | 2026-10-22 | [Nutrient variability: one report, "in depth" dropped from the name](2026-10-22-nutrient-report-rename.md) | accepted |
 | 2026-10-22 | [Nutrient content variability: full deep research, fact-checked](2026-10-22-nutrient-variability-deep-research.md) | accepted |
 | 2026-10-22 | [deep-research-lite skill installed; nutrient-variability research](2026-10-22-deep-research-lite.md) | superseded by [nutrient-report-rename](2026-10-22-nutrient-report-rename.md) |
