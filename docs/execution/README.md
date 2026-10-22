@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-22 | [Every entry of a food shares its error; a bakery class](2026-10-22-same-food-shared.md) | accepted |
 | 2026-10-22 | [Sampling CVs from FoodData Central Foundation Foods](2026-10-22-foundation-foods-cvs.md) | accepted |
 | 2026-10-22 | [Caffeine: its own wide CV](2026-10-22-caffeine-cv.md) | accepted |
 | 2026-10-22 | [Supplements: protein powder CVs from label-accuracy studies; import popup removed](2026-10-22-supplements-evidence.md) | accepted |

@@ -34,7 +34,9 @@ SWEET = re.compile(r'Cake|Cookie|Pie|Pastr|Doughnut|Danish|Croissant|Muffin|Brow
 def cls(ndb):
     g, desc = foods[ndb]
     if g == '0100': return 'eggs' if desc.startswith('Egg') else 'dairy'
-    if g == '1800': return 'sweets' if SWEET.search(desc) else 'grains'
+    if g == '1800':  # bakery: breads, rolls, tortillas (moist); crackers and the like go with grains
+        if SWEET.search(desc): return 'sweets'
+        return 'bakery' if (num(data[ndb].get('255', {}).get('val', '')) or 0) > 20 else 'grains'
     return {'0200': 'seasonings', '0300': 'baby', '0400': 'fats', '0500': 'meat', '0600': 'dishes', '0700': 'meat',
             '0800': 'grains', '0900': 'fruit', '1000': 'meat', '1100': 'produce', '1200': 'nuts', '1300': 'meat',
             '1400': 'beverages', '1500': 'fish', '1600': 'produce', '1700': 'meat', '1900': 'sweets', '2000': 'grains',
@@ -72,7 +74,7 @@ for ndb, nd in data.items():
         if k and x is not None: byk[k].append(x)
     vw, vp, vf, va = (var(nd.get(k)) for k in ('255', '203', '204', '207'))
     e, carb = num(nd.get('208', {}).get('val', '')), num(nd.get('205', {}).get('val', ''))
-    if e and e > 0 and not nd.get('221'):
+    if e and e > 0 and not num(nd.get('221', {}).get('val', '0')):
         if carb and carb > 1:
             if None not in (vw, vf, va): byk['energy'].append(math.sqrt(16 * vw + 16 * va + 25 * vf) / e)
         elif None not in (vp, vf): byk['energy'].append(math.sqrt(16 * vp + 81 * vf) / e)
@@ -82,7 +84,7 @@ for ndb, nd in data.items():
         per[k]['all'].append(st.median(xs))
         if c: per[k][c].append(st.median(xs))
 
-CLASSES = ['produce', 'fruit', 'nuts', 'grains', 'meat', 'fish', 'eggs', 'dairy', 'fats', 'dishes', 'sweets',
+CLASSES = ['produce', 'fruit', 'nuts', 'grains', 'bakery', 'meat', 'fish', 'eggs', 'dairy', 'fats', 'dishes', 'sweets',
            'beverages', 'seasonings', 'baby']
 KINDS = ['water', 'protein', 'carbs', 'sugars', 'fibre', 'fat', 'energy', 'alcohol', 'majorMinerals', 'minerals',
          'trace', 'bVitamins', 'folateCarotene', 'vitaminC', 'vitaminD', 'other']

@@ -8,7 +8,7 @@ analysed. Per sample, carbohydrate = 100 - water - protein - fat - ash (0 for fo
 A food's CV for a kind is the median over that kind's nutrients; a class's, the median over its foods (>= MIN_FOODS).
 Usage: python3 -I fit_cvs_foundation.py <foundation csv dir> <out_csv>
 """
-import csv, os, statistics as st, sys
+import csv, os, re, statistics as st, sys
 from collections import defaultdict
 
 src, out = sys.argv[1], sys.argv[2]
@@ -35,6 +35,7 @@ factor_food = {r['id']: r['fdc_id'] for r in rows('food_nutrient_conversion_fact
 nfactor = {factor_food[r['food_nutrient_conversion_factor_id']]: float(r['value'])
            for r in rows('food_protein_conversion_factor.csv') if r['food_nutrient_conversion_factor_id'] in factor_food}
 
+SWEET = re.compile(r'Cake|Cookie|Pie|Pastr|Doughnut|Danish|Croissant|Muffin|Brownie|Sweet roll|Cream puff|Eclair|Strudel', re.I)
 SUGARS = {'1010', '1011', '1012', '1013', '1014', '1075'}
 KIND = {
     '1051': 'water', '1004': 'fat', '1258': 'fat', '1292': 'fat', '1293': 'fat', '1253': 'fat', '1079': 'fibre',
@@ -69,9 +70,10 @@ def cls(f):
     code = cat.get(food[f]['food_category_id'], '')
     desc = food[f]['description']
     if code == '0100': return 'eggs' if desc.lower().startswith('egg') else 'dairy'
+    if code == '1800': return 'sweets' if SWEET.search(desc) else 'bakery'
     return {'0200': 'seasonings', '0300': 'baby', '0400': 'fats', '0500': 'meat', '0600': 'dishes', '0700': 'meat',
             '0800': 'grains', '0900': 'fruit', '1000': 'meat', '1100': 'produce', '1200': 'nuts', '1300': 'meat',
-            '1400': 'beverages', '1500': 'fish', '1600': 'produce', '1700': 'meat', '1800': 'grains', '1900': 'sweets',
+            '1400': 'beverages', '1500': 'fish', '1600': 'produce', '1700': 'meat', '1900': 'sweets',
             '2000': 'grains', '2100': 'dishes', '2200': 'dishes', '3600': 'dishes'}.get(code)
 
 def cv(xs):
@@ -105,7 +107,7 @@ for f in foundation:
         if c: per[k][c].append(st.median(xs))
 
 print('samples that are one purchase:', f'{sum(1 for a in singles if a <= 1) / len(singles):.0%}', 'of', len(singles))
-CLASSES = ['produce', 'fruit', 'nuts', 'grains', 'meat', 'fish', 'eggs', 'dairy', 'fats', 'dishes', 'sweets',
+CLASSES = ['produce', 'fruit', 'nuts', 'grains', 'bakery', 'meat', 'fish', 'eggs', 'dairy', 'fats', 'dishes', 'sweets',
            'beverages', 'seasonings', 'baby']
 KINDS = ['water', 'protein', 'carbs', 'sugars', 'fibre', 'fat', 'energy', 'majorMinerals', 'minerals', 'trace',
          'bVitamins', 'folateCarotene', 'vitaminC', 'vitaminD', 'caffeine']

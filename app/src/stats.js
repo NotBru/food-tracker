@@ -1,8 +1,8 @@
 // Errors as distributions (docs/notes/error-handling.md): every quantity is carried as its mean and deviation, and
 // only turned into a lognormal at the end, to show an interval. A value is {value, v, s}:
 //   v: variance of independent errors (different samples, different ingredients: variances add);
-//   s: {sampleKey: sd} for errors shared by every entry of one sample (a concoction's portions): deviations of the
-//      same sample add linearly, different samples' in quadrature.
+//   s: {sampleKey: sd} for errors shared by every entry of one sample (every entry of a food, a concoction's
+//      portions): deviations of the same sample add linearly, different samples' in quadrature.
 
 export const zero = () => ({ value: 0, v: 0, s: {} })
 

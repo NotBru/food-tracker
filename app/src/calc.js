@@ -90,7 +90,7 @@ export function unitFactorStat(fromUnit, toUnit, units = []) {
   return [NaN, NaN]
 }
 
-// Per base amount of a food without components: the label's values, each drawn per sample (category CV) and read
+// Per base amount of a food without components: the label's values, drawn once per food (category CV) and read
 // within its digits (uniform).
 const baseCache = new WeakMap()
 function baseNutrients(item) {
@@ -104,7 +104,8 @@ function baseNutrients(item) {
     const [bias, cv] = sampling(item.category, key)
     const q = (1 + bias) * n.value
     const label = n.text ? uniformSd(deltaFromInput(n.text)) : 0
-    out[key] = { value: q, v: (cv * q) ** 2 + label ** 2, s: {} }
+    // Every entry of a food is the same sample (same pack, same bakery, same cut): its error is shared.
+    out[key] = { value: q, v: 0, s: { [`food:${item.id}`]: Math.sqrt((cv * q) ** 2 + label ** 2) } }
   }
   baseCache.set(item, out)
   return out

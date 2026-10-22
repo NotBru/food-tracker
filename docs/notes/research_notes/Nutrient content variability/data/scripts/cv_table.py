@@ -6,7 +6,7 @@ Usage: python3 -I cv_table.py <foundation_fitted_cvs.csv> <sr28_fitted_cvs.csv>
 import csv, statistics as st, sys
 
 MIN_FOODS = 10
-CLASSES = ['unknown', 'produce', 'fruit', 'nuts', 'grains', 'meat', 'fish', 'eggs', 'dairy', 'fats', 'dishes', 'sweets',
+CLASSES = ['unknown', 'produce', 'fruit', 'nuts', 'grains', 'bakery', 'meat', 'fish', 'eggs', 'dairy', 'fats', 'dishes', 'sweets',
            'beverages', 'seasonings', 'baby']
 KINDS = ['water', 'protein', 'carbs', 'sugars', 'fibre', 'fat', 'energy', 'alcohol', 'majorMinerals', 'minerals',
          'trace', 'bVitamins', 'folateCarotene', 'vitaminC', 'vitaminD', 'other']
