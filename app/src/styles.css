@@ -376,3 +376,7 @@ input.switch:checked::after { transform: translateX(16px); }
 input.switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* With their ranges, the legend's numbers don't fit a phone side by side: they may wrap. */
 .energy-legend td.num { white-space: normal; }
+
+/* A component's entry error (components.jsx EntryErrorButton): small, in its row. */
+.row > .entry-error { flex: none; background: var(--bg); width: auto; padding: 8px 10px; font-size: 13px; white-space: nowrap; }
+.row > input.entry-error { width: 64px; }

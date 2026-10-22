@@ -152,6 +152,28 @@ export function DeltaInput({ value, onChange, amount, unit }) {
 }
 
 /**
+ * Entry error of a recipe's component (a fraction): a button showing it ("ε 10%"); tapped, it turns into a box,
+ * saved on Enter or when leaving it (a blank or not a number keeps the old value).
+ */
+export function EntryErrorButton({ value, onChange }) {
+  const [editing, setEditing] = useState(false)
+  const pct = fmt(value * 100, 2)
+  if (!editing) {
+    return <button type="button" className="secondary entry-error" title="Entry error (0 if it's the product on the label)"
+      onClick={() => setEditing(true)}>ε {pct}%</button>
+  }
+  const done = (text) => {
+    const x = Number(text.trim().replace(',', '.'))
+    if (text.trim() && x >= 0) onChange(x / 100)
+    setEditing(false)
+  }
+  return (
+    <input className="entry-error" inputMode="decimal" autoFocus defaultValue={pct} aria-label="Entry error, %"
+      onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()} onBlur={(e) => done(e.target.value)} />
+  )
+}
+
+/**
  * Unit for a consumption: free text with autocomplete over the units the food converts to (`units`, own unit
  * first). Disabled until a food is picked. Typing filters the list; ↑/↓/Enter pick, Esc closes.
  */

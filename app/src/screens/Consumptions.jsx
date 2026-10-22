@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { DEFAULT_EXPIRY_DAYS, db, expiresAt, getConfig, getCurrentUser, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays } from '../db'
-import { componentsTotal, concoctionsLeft, consumptionNutrients, keepUnit, loadContext, nutrientsFor, resolve, unitsFor, usedUp } from '../calc'
+import { componentsTotal, concoctionsLeft, consumptionNutrients, keepUnit, lastEntryError, loadContext, nutrientsFor, resolve, unitsFor, usedUp } from '../calc'
 import { addDays, dayBounds, prettyDay, toLocalInput, today } from '../time'
 import { NUTRIENTS, amountText, deltaText, emptyNutrients, fmt, measure, normalizeNumber, pmText } from '../nutrients'
 import { DEFAULT_ENTRY_ERROR } from '../errors'
-import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, Field, ItemPicker, MacroLine, Screen, TrashIcon, UnitCombo, go, replace, useToday } from '../components'
+import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, EntryErrorButton, Field, ItemPicker, MacroLine, Screen, TrashIcon, UnitCombo, go, replace, useToday } from '../components'
 
 export default function Consumptions({ day: dayParam, add }) {
   const dateRef = useRef(null)
@@ -129,7 +129,10 @@ function concoctionDraft(ctx, form) {
   const components = form.components.filter((c) => c.itemId != null)
     .map((c) => {
       const m = measure(c.amount, c.amountDelta, c.unit)
-      return { itemId: c.itemId, amount: m.value, amountText: m.text, amountDelta: m.delta, amountDeltaAuto: m.auto, unit: c.unit.trim() }
+      return {
+        itemId: c.itemId, amount: m.value, amountText: m.text, amountDelta: m.delta, amountDeltaAuto: m.auto, unit: c.unit.trim(),
+        entryError: Number.isFinite(c.entryError) ? c.entryError : undefined,
+      }
     })
   if (!components.length) return { problem: 'add a component' }
   const { base } = form
@@ -203,8 +206,10 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
   const preview = itemId != null && amount > 0 && unit
     ? consumptionNutrients(ctx, { itemId, amount, unit, amountDelta: m.delta, entryError: logError }) : null
 
+  // A food picked brings the entry error it was last logged with (calc.js lastEntryError).
+  const pctText = (x) => String(+(x * 100).toPrecision(6))
   function pickItem(itemId) {
-    setForm((f) => ({ ...f, itemId, unit: keepUnit(ctx, itemId, f.unit) }))
+    setForm((f) => ({ ...f, itemId, unit: keepUnit(ctx, itemId, f.unit), entryError: pctText(lastEntryError(savedCtx, logs, itemId)) }))
   }
 
   function toggleConcoction(on) {
@@ -287,18 +292,19 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
             <ul className="list compact">
               {form.components.map((c, i) => (
                 <li key={i} className="component">
-                  <ItemPicker ctx={savedCtx} value={c.itemId} exclude={form.base?.id} oldBefore={oldBefore} show={show} onChange={(id) => setC(i, { itemId: id, unit: keepUnit(savedCtx, id, c.unit) ?? '' })} />
+                  <ItemPicker ctx={savedCtx} value={c.itemId} exclude={form.base?.id} oldBefore={oldBefore} show={show} onChange={(id) => setC(i, { itemId: id, unit: keepUnit(savedCtx, id, c.unit) ?? '', entryError: lastEntryError(savedCtx, logs, id) })} />
                   <div className="row">
                     <input inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
                     <DeltaInput value={c.amountDelta} amount={c.amount} unit={c.unit} onChange={(v) => setC(i, { amountDelta: v })} />
                     <UnitCombo units={c.itemId != null ? unitsFor(savedCtx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} />
+                    <EntryErrorButton value={c.entryError ?? DEFAULT_ENTRY_ERROR} onChange={(x) => setC(i, { entryError: x })} />
                     <button className="icon" onClick={() => setForm((f) => ({ ...f, components: f.components.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
                   </div>
                   {/* What this component brings in, live, as in the food editor. */}
                   {(() => {
                     const cm = measure(c.amount, c.amountDelta, c.unit)
                     if (c.itemId == null || !(cm.value >= 0)) return null
-                    const sub = nutrientsFor(savedCtx, c.itemId, cm.value, c.unit.trim(), cm.delta)
+                    const sub = nutrientsFor(savedCtx, c.itemId, cm.value, c.unit.trim(), cm.delta, undefined, c.entryError)
                     return <MacroLine nutrients={sub.nutrients} ok={sub.ok} deltas />
                   })()}
                 </li>

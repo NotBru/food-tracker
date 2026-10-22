@@ -256,7 +256,7 @@ export function nutrientsFor(ctx, id, amount, unit, amountDelta = 0, seen = new 
 function recipeNutrients(ctx, item, seen) {
   const out = { nutrients: {}, ok: true }
   for (const c of item.components) {
-    const sub = nutrientsFor(ctx, c.itemId, c.amount, c.unit, c.amountDelta, seen)
+    const sub = nutrientsFor(ctx, c.itemId, c.amount, c.unit, c.amountDelta, seen, c.entryError)
     if (!sub.ok) out.ok = false
     addInto(out.nutrients, sub.nutrients, 1)
     for (const k in sub.nutrients) if (sub.nutrients[k].missing) out.nutrients[k].missing = true
@@ -269,6 +269,18 @@ function recipeNutrients(ctx, item, seen) {
     }
   }
   return out
+}
+
+/**
+ * Entry error to start a new consumption or component of food `itemId` with: that of its latest consumption (in any
+ * user's `logs`), else of a component of it in a recipe, else the default.
+ */
+export function lastEntryError(ctx, logs, itemId) {
+  let last = null
+  for (const l of logs ?? []) if (l.itemId === itemId && (!last || l.datetime > last.datetime)) last = l
+  if (last) return Number.isFinite(last.entryError) ? last.entryError : DEFAULT_ENTRY_ERROR
+  const c = ctx.list.flatMap((it) => it.components ?? []).find((c) => c.itemId === itemId && Number.isFinite(c.entryError))
+  return c ? c.entryError : DEFAULT_ENTRY_ERROR
 }
 
 /** Nutrients of a consumption, `amount ± amountDelta unit`, with its own entry error if it has one. */

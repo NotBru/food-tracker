@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { DEFAULT_EXPIRY_DAYS, conflictingFoods, db, findEqualFood, fold, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays, searchText } from '../db'
-import { baseAmount, componentsTotal, keepUnit, loadContext, nutrientsFor, unitsFor } from '../calc'
+import { baseAmount, componentsTotal, keepUnit, lastEntryError, loadContext, nutrientsFor, unitsFor } from '../calc'
 import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measure, normalizeNumber } from '../nutrients'
-import { CATEGORY_GROUPS } from '../errors'
+import { CATEGORY_GROUPS, DEFAULT_ENTRY_ERROR } from '../errors'
 import { toLocalInput } from '../time'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
-import { AttributesEditor, DateTimeInput, DeltaInput, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, UnitCombo, UnitInput, enterTo, go, replace } from '../components'
+import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, UnitCombo, UnitInput, enterTo, go, replace } from '../components'
 import FoodInfo from './FoodInfo'
 
 // A food is anything you can eat: an ingredient, a recipe (has components) or a concoction (has a made-at time).
@@ -190,6 +190,8 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
     source: src?.source ?? null,
   }))
   useEffect(() => { if (prefill) clearPendingDraft() }, [prefill])
+  // A component picked starts with the entry error its food was last logged with (calc.js lastEntryError).
+  const logs = useLiveQuery(() => db.logs.toArray(), [])
   // Extra (non-core) nutrients shown even while empty, because the user just added them.
   const [extraShown, setExtraShown] = useState(restored?.extraShown ?? [])
   // Back with a new component: the cursor goes to its amount, the one thing left to fill.
@@ -248,7 +250,10 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
       components: form.components.filter((c) => c.itemId != null)
         .map((c) => {
           const m = measure(c.amount, c.amountDelta, c.unit)
-          return { itemId: c.itemId, amount: m.value, amountText: m.text, amountDelta: m.delta, amountDeltaAuto: m.auto, unit: c.unit.trim() }
+          return {
+            itemId: c.itemId, amount: m.value, amountText: m.text, amountDelta: m.delta, amountDeltaAuto: m.auto, unit: c.unit.trim(),
+            entryError: Number.isFinite(c.entryError) ? c.entryError : undefined,
+          }
         }),
       nutrients: formToNutrients(form.nutrients),
       source: form.source,
@@ -396,18 +401,19 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
           {form.components.map((c, i) => (
             <li key={i} className="component">
               <ItemPicker ctx={ctx} value={c.itemId} exclude={initial?.id} onCreate={(text) => createComponent(i, text)}
-                onChange={(itemId) => setC(i, { itemId, unit: keepUnit(ctx, itemId, c.unit) ?? '' })} />
+                onChange={(itemId) => setC(i, { itemId, unit: keepUnit(ctx, itemId, c.unit) ?? '', entryError: lastEntryError(ctx, logs, itemId) })} />
               <div className="row">
                 <input ref={(el) => (componentAmountRefs.current[i] = el)} inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
                 <DeltaInput value={c.amountDelta} amount={c.amount} unit={c.unit} onChange={(v) => setC(i, { amountDelta: v })} />
                 <UnitCombo units={c.itemId != null ? unitsFor(ctx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} />
+                <EntryErrorButton value={c.entryError ?? DEFAULT_ENTRY_ERROR} onChange={(x) => setC(i, { entryError: x })} />
                 <button className="icon" onClick={() => setForm((f) => ({ ...f, components: f.components.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
               </div>
               {/* What this component brings in, live, once it has a food and an amount. */}
               {(() => {
                 const m = measure(c.amount, c.amountDelta, c.unit)
                 if (c.itemId == null || !(m.value >= 0)) return null
-                const sub = nutrientsFor(ctx, c.itemId, m.value, c.unit.trim(), m.delta)
+                const sub = nutrientsFor(ctx, c.itemId, m.value, c.unit.trim(), m.delta, undefined, c.entryError)
                 return <MacroLine nutrients={sub.nutrients} ok={sub.ok} deltas />
               })()}
             </li>
