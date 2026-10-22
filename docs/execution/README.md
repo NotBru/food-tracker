@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-22 | [Sampling CVs from FoodData Central Foundation Foods](2026-10-22-foundation-foods-cvs.md) | proposed |
 | 2026-10-22 | [Caffeine: its own wide CV](2026-10-22-caffeine-cv.md) | accepted |
 | 2026-10-22 | [Supplements: protein powder CVs from label-accuracy studies; import popup removed](2026-10-22-supplements-evidence.md) | accepted |
 | 2026-10-22 | [A supplements category with estimated, tight CVs](2026-10-22-supplements-class.md) | CVs superseded by [supplements-evidence](2026-10-22-supplements-evidence.md) |
