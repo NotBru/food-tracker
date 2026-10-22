@@ -275,9 +275,6 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
             <Field label="Name"><input value={form.name} onChange={(e) => set('name')(e.target.value)} /></Field>
             <Field label="Brand"><input value={form.brand} onChange={(e) => set('brand')(e.target.value)} /></Field>
             <Field label="Attributes"><AttributesEditor value={form.attributes} onChange={set('attributes')} /></Field>
-            <Field label="Expires after (days)">
-              <input inputMode="decimal" value={form.expiresAfterDays} placeholder={String(DEFAULT_EXPIRY_DAYS)} onChange={(e) => set('expiresAfterDays')(e.target.value)} />
-            </Field>
             <h3>Components</h3>
             <ul className="list compact">
               {form.components.map((c, i) => (
@@ -323,6 +320,11 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
             <UnitCombo units={itemId != null ? unitsFor(ctx, itemId) : null} value={form.unit} onChange={set('unit')} />
           </Field>
         </div>
+        {form.concoction && (
+          <Field label="Expires after (days)">
+            <input inputMode="decimal" value={form.expiresAfterDays} placeholder={String(DEFAULT_EXPIRY_DAYS)} onChange={(e) => set('expiresAfterDays')(e.target.value)} />
+          </Field>
+        )}
         {maxText && (
           <button className="secondary" onClick={() => setForm((f) => ({ ...f, amount: maxText, amountDelta: '0', unit: rest.unit }))}>
             Max: {maxText} {rest.unit} left
