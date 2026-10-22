@@ -335,7 +335,7 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
         <Field label="Attributes"><AttributesEditor value={form.attributes} onChange={set('attributes')} /></Field>
         {!hasComponents && (
           <Field label="Category (how much its values vary)">
-            <Select value={form.category} options={CATEGORY_OPTIONS} onChange={set('category')} />
+            <Select value={form.category} options={CATEGORY_OPTIONS} onChange={set('category')} enterNext />
           </Field>
         )}
         <div className="row amount-row">
@@ -398,12 +398,12 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
         <ul className="list compact">
           {form.components.map((c, i) => (
             <li key={i} className="component">
-              <ItemPicker ctx={ctx} value={c.itemId} exclude={initial?.id} onCreate={(text) => createComponent(i, text)}
+              <ItemPicker ctx={ctx} value={c.itemId} exclude={initial?.id} onCreate={(text) => createComponent(i, text)} enterNext
                 onChange={(itemId) => setC(i, { itemId, unit: keepUnit(ctx, itemId, c.unit) ?? '', entryError: lastEntryError(ctx, logs, itemId) })} />
               <div className="row">
                 <input ref={(el) => (componentAmountRefs.current[i] = el)} inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
                 <DeltaInput value={c.amountDelta} amount={c.amount} unit={c.unit} onChange={(v) => setC(i, { amountDelta: v })} />
-                <UnitCombo units={c.itemId != null ? unitsFor(ctx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} />
+                <UnitCombo units={c.itemId != null ? unitsFor(ctx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} enterNext />
                 <EntryErrorButton value={c.entryError ?? DEFAULT_ENTRY_ERROR} onChange={(x) => setC(i, { entryError: x })} />
                 <button className="icon" onClick={() => setForm((f) => ({ ...f, components: f.components.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
               </div>

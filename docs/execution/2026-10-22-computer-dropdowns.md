@@ -20,6 +20,9 @@ results, as the food and unit pickers do. The dropdowns were the food's category
   or leaving keeps the choice. Options carry their group as a muted suffix ("cheese and similar · Milk and milk
   products").
 - Both dropdowns use it. In Food info's "per" row the list floats over the content instead of pushing the row.
+- Food editor (user's follow-up): picking with Enter in the category, a component's food or its unit moves the
+  cursor to the next text box, dropdown or text area on the screen (`enterNext`, `focusNextField`); none left: the box
+  just closes. A click still only closes the list. Other screens keep the old behaviour.
 
 ## Alternatives considered
 

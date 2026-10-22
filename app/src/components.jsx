@@ -175,18 +175,20 @@ export function EntryErrorButton({ value, onChange }) {
 
 /**
  * Unit for a consumption: free text with autocomplete over the units the food converts to (`units`, own unit
- * first). Disabled until a food is picked. Typing filters the list; ↑/↓/Enter pick, Esc closes.
+ * first). Disabled until a food is picked. Typing filters the list; ↑/↓/Enter pick, Esc closes. `enterNext`: Enter
+ * moves on to the next field.
  */
-export function UnitCombo({ units, value, onChange }) {
+export function UnitCombo({ units, value, onChange, enterNext }) {
   const [open, setOpen] = useState(false)
   const inputRef = useRef(null)
   const q = (value ?? '').trim().toLowerCase()
   // While the text is exactly one of the units, show them all (it was just picked or prefilled), that one first:
   // it's the highlighted row, so Enter keeps what was typed.
   const matches = !units ? [] : units.includes(q) ? [q, ...units.filter((u) => u !== q)] : units.filter((u) => u.includes(q))
-  const nav = useListNav(matches.length, (i) => {
+  const nav = useListNav(matches.length, (i, byEnter) => {
     onChange(matches[i])
     setOpen(false)
+    if (byEnter && enterNext) focusNextField(inputRef.current)
   }, () => setOpen(false))
   if (!units) return <input disabled placeholder="pick a food first" />
   return (
@@ -227,16 +229,17 @@ export function useComputer() {
  * A dropdown over `options` ([{value, label, group?}]): the native one on a phone; on a computer a text box that
  * shows the choice and, on focus, every option, the current one highlighted. Typing filters them as the other
  * pickers do (every word, accents ignored, the group's name counts); ↑/↓/Enter pick, Esc or leaving keeps the choice.
+ * `enterNext`: Enter moves on to the next field.
  */
-export function Select({ value, options, onChange, ...props }) {
+export function Select({ value, options, onChange, enterNext, ...props }) {
   const computer = useComputer()
   const [query, setQuery] = useState(null) // null = closed
   const inputRef = useRef(null)
   const words = fold(query ?? '').split(/\s+/).filter(Boolean)
   const matches = options.filter((o) => words.every((w) => fold(`${o.label} ${o.group ?? ''}`).includes(w)))
-  const nav = useListNav(matches.length, (i) => {
+  const nav = useListNav(matches.length, (i, byEnter) => {
     onChange(matches[i].value)
-    inputRef.current.blur()
+    byEnter && enterNext ? focusNextField(inputRef.current) : inputRef.current.blur()
   }, () => inputRef.current.blur())
 
   if (!computer) {
@@ -288,8 +291,15 @@ export function AttributesEditor({ value = [], onChange }) {
   )
 }
 
+/** Focuses the first text box, dropdown or text area after `el` on its screen, or just leaves `el` if none. */
+export function focusNextField(el) {
+  const fields = el.closest('.screen')?.querySelectorAll('input:not([type=checkbox]):not([type=radio]):not([type=file]):not(:disabled), select:not(:disabled), textarea:not(:disabled)') ?? []
+  const next = [...fields].find((f) => el.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING && f.offsetParent !== null)
+  next ? next.focus() : el.blur()
+}
+
 /**
- * Keyboard navigation for an autocomplete list: ↑/↓ move, Enter picks, Esc closes.
+ * Keyboard navigation for an autocomplete list: ↑/↓ move, Enter picks, Esc closes. `onPick(i, byEnter)`.
  * Spread `inputProps` on the input; use `itemProps(i)` on each option and `listRef` on the list.
  */
 export function useListNav(count, onPick, onClose) {
@@ -302,7 +312,7 @@ export function useListNav(count, onPick, onClose) {
   function onKeyDown(e) {
     if (e.key === 'ArrowDown') { e.preventDefault(); setActive(Math.min(current + 1, count - 1)) }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(Math.max(current - 1, 0)) }
-    else if (e.key === 'Enter' && count > 0) { e.preventDefault(); onPick(current) }
+    else if (e.key === 'Enter' && count > 0) { e.preventDefault(); onPick(current, true) }
     else if (e.key === 'Escape') onClose()
   }
   return {
@@ -323,11 +333,12 @@ const isOld = (it, before) => !!(before && it.madeAt && it.madeAt < before)
  * One search box over every food: ingredients, recipes and concoctions are interchangeable,
  * so the picker never asks which kind you want.
  */
-/** `onCreate(text)`: if given, a + beside the box, to make a new food from what's typed.
+/** `enterNext`: picking with Enter moves on to the next field (focusNextField) instead of leaving the box.
+ * `onCreate(text)`: if given, a + beside the box, to make a new food from what's typed.
  * `oldBefore` (ISO time): if given, concoctions made before it go last, after every other food.
  * `show(item)`: if given, only foods it accepts are listed.
  * CIQUAL's foods (`ctx.ciqual`) come after the user's own, once something is typed. */
-export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore, show }) {
+export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore, show, enterNext }) {
   const [query, setQuery] = useState(null) // null = closed
   const inputRef = useRef(null)
   const selected = value != null ? ctx.items.get(value) : null
@@ -341,9 +352,9 @@ export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore,
     .sort(([a, la], [b, lb]) => !!a.readOnly - !!b.readOnly || isOld(a, oldBefore) - isOld(b, oldBefore)
       || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || la.localeCompare(lb))
     .slice(0, 50)
-  const nav = useListNav(matches.length, (i) => {
+  const nav = useListNav(matches.length, (i, byEnter) => {
     onChange(matches[i][0].id)
-    inputRef.current.blur()
+    byEnter && enterNext ? focusNextField(inputRef.current) : inputRef.current.blur()
   }, () => inputRef.current.blur())
 
   return (
