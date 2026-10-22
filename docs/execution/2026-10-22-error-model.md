@@ -1,7 +1,7 @@
 # Error model: distributions instead of worst-case bounds; categories; CIQUAL in the food database
 
 - **Date:** 2026-10-22
-- **Status:** accepted
+- **Status:** accepted; the CV priors superseded by [cv-fit](2026-10-22-cv-fit.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md); model from [`docs/notes/error-handling.md`](../notes/error-handling.md)
 
 ## Context

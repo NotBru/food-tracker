@@ -24,7 +24,8 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
-| 2026-10-22 | [Error model: distributions, food categories, CIQUAL in the food database](2026-10-22-error-model.md) | accepted |
+| 2026-10-22 | [Sampling CVs fitted to USDA SR28](2026-10-22-cv-fit.md) | accepted |
+| 2026-10-22 | [Error model: distributions, food categories, CIQUAL in the food database](2026-10-22-error-model.md) | accepted; CVs superseded by [cv-fit](2026-10-22-cv-fit.md) |
 | 2026-10-22 | [Nutrient variability: plant-food gaps researched and merged](2026-10-22-plant-macros-gaps.md) | accepted |
 | 2026-10-22 | [Nutrient variability: one report, "in depth" dropped from the name](2026-10-22-nutrient-report-rename.md) | accepted |
 | 2026-10-22 | [Nutrient content variability: full deep research, fact-checked](2026-10-22-nutrient-variability-deep-research.md) | accepted |

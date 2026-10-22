@@ -2,9 +2,10 @@
 // sample, whose amount of nutrient α per gram is lognormal with mean (1 + bias)·label and deviation CV × that mean.
 // Bias and CV depend on the food's category and the nutrient.
 //
-// v1 priors, from the per-nutrient uncertainty budget of docs/notes/reports/Nutrient content variability.md (single
-// weighed item, well-identified food), widened where the report says to (ripeness, cut, origin unknown). Every bias
-// is 0 for now. Categories are CIQUAL's subgroups; each falls in a class that sets its CVs.
+// CVs fitted to USDA SR28 (docs/notes/research_notes/Nutrient content variability/data/scripts/fit_cvs.py): per food,
+// SE·√n / mean, n ≥ 3; energy and carbohydrate from the analysed proximates. SR28's samples are often blends of
+// several items, so these understate the spread between single items. Every bias is 0 for now. Categories are
+// CIQUAL's subgroups; each falls in a class that sets its CVs.
 
 // Nutrients that share a CV.
 const KIND = {
@@ -21,38 +22,77 @@ const KIND = {
   vitaminC: 'vitaminC', vitaminD: 'vitaminD', caffeine: 'other', creatine: 'other',
 }
 
-// Default CVs (the report's table), then each class's overrides.
+// Median CV over all foods, then each class's median (a class with fewer than 5 foods
+// for a nutrient uses the all-foods median).
 const BASE = {
-  water: 0.03, protein: 0.1, carbs: 0.1, sugars: 0.12, fibre: 0.2, fat: 0.2, energy: 0.1, alcohol: 0.05,
-  majorMinerals: 0.12, minerals: 0.18, trace: 0.8, bVitamins: 0.2, folateCarotene: 0.28, vitaminC: 0.35, vitaminD: 0.8,
-  other: 0.25,
+  water: 0.031, protein: 0.073, carbs: 0.092, sugars: 0.09, fibre: 0.14, fat: 0.17, energy: 0.043,
+  alcohol: 0.076, majorMinerals: 0.1, minerals: 0.18, trace: 0.23, bVitamins: 0.17, folateCarotene: 0.23,
+  vitaminC: 0.34, vitaminD: 0.48, other: 0.089,
 }
 const CLASSES = {
-  // Not known: wide everywhere.
+  // Not known: the 75th percentile over all foods.
   unknown: {
-    water: 0.1, protein: 0.25, carbs: 0.25, sugars: 0.35, fibre: 0.35, fat: 0.4, energy: 0.25, alcohol: 0.15,
-    majorMinerals: 0.3, minerals: 0.35, trace: 1, bVitamins: 0.35, folateCarotene: 0.45, vitaminC: 0.5, vitaminD: 1, other: 0.4,
+    water: 0.067, protein: 0.13, carbs: 0.21, sugars: 0.22, fibre: 0.23, fat: 0.3, energy: 0.084, alcohol: 0.11,
+    majorMinerals: 0.18, minerals: 0.3, trace: 0.44, bVitamins: 0.27, folateCarotene: 0.44, vitaminC: 0.58,
+    vitaminD: 0.7, other: 0.22,
   },
-  // Watery produce: dry matter alone varies 6–24%, fat is in traces.
-  produce: { protein: 0.15, carbs: 0.15, sugars: 0.25, fat: 0.4, energy: 0.15, minerals: 0.2 },
-  // Ripeness moves sugar and starch.
-  fruit: { protein: 0.15, carbs: 0.12, sugars: 0.25, fat: 0.4, energy: 0.12 },
-  nuts: { protein: 0.08, fat: 0.08, energy: 0.08, trace: 1 },
-  grains: { protein: 0.12, carbs: 0.05, fat: 0.15, energy: 0.05 },
-  // Fat follows cut and trim.
-  meat: { protein: 0.07, fat: 0.25, energy: 0.15, trace: 0.25 },
-  // Fat follows season, wild vs farmed; iodine and vitamin D vary a lot.
-  fish: { protein: 0.07, fat: 0.3, energy: 0.15, trace: 0.4 },
-  eggs: { protein: 0.06, fat: 0.08, energy: 0.06, trace: 0.4, vitaminD: 0.5 },
-  dairy: { protein: 0.07, fat: 0.08, sugars: 0.1, energy: 0.07, trace: 0.5, vitaminD: 0.5 },
-  fats: { fat: 0.02, energy: 0.02 },
-  // A recipe of someone else's: proportions vary.
-  dishes: { protein: 0.2, carbs: 0.2, sugars: 0.3, fat: 0.3, energy: 0.2, minerals: 0.25 },
-  sweets: { protein: 0.12, carbs: 0.06, sugars: 0.08, fat: 0.12, energy: 0.06 },
-  beverages: { water: 0.01, sugars: 0.08, energy: 0.08, minerals: 0.3, other: 0.3 },
-  seasonings: { minerals: 0.2 },
-  // Regulated composition.
-  baby: { protein: 0.1, carbs: 0.1, sugars: 0.1, fat: 0.1, energy: 0.1, bVitamins: 0.2, folateCarotene: 0.2, vitaminC: 0.25, vitaminD: 0.25 },
+  produce: {
+    water: 0.022, protein: 0.11, carbs: 0.15, sugars: 0.17, fibre: 0.12, fat: 0.29, energy: 0.084,
+    majorMinerals: 0.15, minerals: 0.24, trace: 0.7, bVitamins: 0.21, folateCarotene: 0.22, vitaminC: 0.34,
+    vitaminD: 0.5,
+  },
+  fruit: {
+    water: 0.014, protein: 0.15, carbs: 0.072, sugars: 0.087, fibre: 0.17, fat: 0.36, energy: 0.054,
+    majorMinerals: 0.15, minerals: 0.29, trace: 0.58, bVitamins: 0.21, folateCarotene: 0.3, vitaminC: 0.29,
+  },
+  nuts: {
+    water: 0.15, protein: 0.061, carbs: 0.13, sugars: 0.09, fibre: 0.1, fat: 0.038, energy: 0.012,
+    majorMinerals: 0.063, minerals: 0.14, trace: 0.45, bVitamins: 0.13, folateCarotene: 0.23, vitaminC: 0.61,
+  },
+  grains: {
+    water: 0.067, protein: 0.066, carbs: 0.025, sugars: 0.11, fibre: 0.15, fat: 0.15, energy: 0.018,
+    majorMinerals: 0.12, minerals: 0.16, trace: 0.31, bVitamins: 0.18, folateCarotene: 0.2, vitaminC: 0.17,
+  },
+  meat: {
+    water: 0.032, protein: 0.057, carbs: 1.3, sugars: 0.44, fat: 0.19, energy: 0.082, majorMinerals: 0.076,
+    minerals: 0.15, trace: 0.21, bVitamins: 0.14, folateCarotene: 0.42, vitaminC: 0.25, vitaminD: 0.48,
+  },
+  fish: {
+    water: 0.024, protein: 0.068, carbs: 0.47, fat: 0.26, energy: 0.095, majorMinerals: 0.12, minerals: 0.33,
+    trace: 0.2, bVitamins: 0.24, folateCarotene: 0.32, vitaminC: 0.46, vitaminD: 0.67,
+  },
+  eggs: {
+    water: 0.014, protein: 0.032, carbs: 0.77, sugars: 0.23, fat: 0.053, majorMinerals: 0.077, minerals: 0.13,
+    trace: 0.29, bVitamins: 0.21, folateCarotene: 0.2,
+  },
+  dairy: {
+    water: 0.027, protein: 0.053, carbs: 0.22, sugars: 0.061, fat: 0.095, energy: 0.038, majorMinerals: 0.1,
+    minerals: 0.14, trace: 0.27, bVitamins: 0.16, folateCarotene: 0.32, vitaminC: 0.65,
+  },
+  fats: {
+    water: 0.048, protein: 0.37, carbs: 0.24, sugars: 0.034, fat: 0.049, energy: 0.008, majorMinerals: 0.11,
+    minerals: 0.24, bVitamins: 0.24, folateCarotene: 0.5,
+  },
+  dishes: {
+    water: 0.025, protein: 0.062, carbs: 0.087, sugars: 0.084, fibre: 0.14, fat: 0.09, energy: 0.033,
+    majorMinerals: 0.061, minerals: 0.095, trace: 0.13, bVitamins: 0.12, folateCarotene: 0.18, vitaminC: 0.4,
+  },
+  sweets: {
+    water: 0.1, protein: 0.1, carbs: 0.046, sugars: 0.041, fibre: 0.15, fat: 0.13, energy: 0.042,
+    majorMinerals: 0.18, minerals: 0.23, trace: 0.27, bVitamins: 0.22, folateCarotene: 0.18, vitaminC: 0.51,
+  },
+  beverages: {
+    water: 0.003, protein: 0.23, carbs: 0.048, sugars: 0.046, fat: 0.35, alcohol: 0.076, majorMinerals: 0.21,
+    minerals: 0.4, trace: 0.43, bVitamins: 0.24, folateCarotene: 0.32, vitaminC: 0.28, other: 0.049,
+  },
+  seasonings: {
+    water: 0.19, protein: 0.13, carbs: 0.088, fibre: 0.16, fat: 0.23, energy: 0.056, majorMinerals: 0.18,
+    minerals: 0.33, trace: 0.25, bVitamins: 0.51, folateCarotene: 0.73, vitaminC: 0.89,
+  },
+  baby: {
+    water: 0.016, protein: 0.09, carbs: 0.16, fat: 0.2, majorMinerals: 0.12, minerals: 0.3, trace: 0.16,
+    bVitamins: 0.17, folateCarotene: 0.2, vitaminC: 0.28,
+  },
 }
 
 // CIQUAL groups and subgroups: [code, name, class].
