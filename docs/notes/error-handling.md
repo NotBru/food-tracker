@@ -32,7 +32,7 @@ A deepresearch on the actual variance to be expected ([report](./reports/Nutrien
 found that the reported $q_{r\alpha}$ has *somewhat* consistent errors and biases on different
 product categories. Between-countries datasets are an issue tho.
 
-We'll model this by assuming every new entry draws a sample which, for every nutrient, draws a
+We'll model this by assuming every ingredient ID is one sample which, for every nutrient, draws a
 $q_\alpha$ from a lognormal distribution with mean $(1+\varepsilon_{q\alpha})q_{r\alpha}$ and
 standard deviation $\varepsilon_{\delta q\alpha}(1+\varepsilon_{q\alpha})q_{r\alpha}$,
 where $\varepsilon_{q\alpha}$ and $\varepsilon_{\delta q\alpha}$ are constants that depend on
@@ -41,6 +41,9 @@ category and nutrient.
 Let
 - $\hat{q}_\alpha=(1+\varepsilon_{q\alpha})q_{r\alpha}$
 - $\hat{\delta q}_\alpha=\varepsilon_{\delta_q\alpha}\hat{q}_\alpha$
+
+Every entry also has its own entry error $\varepsilon_e$, set per ingredient ID: how far the ID may be from
+what was actually eaten. Default 10%, 0 if read off the product's own label.
 
 ### Ingredient combination
 
@@ -61,9 +64,8 @@ When they come from different samples, each sample has its own variance. Since t
 identically independently distributed, their variances add linearly (standard deviations do a
 quadrature sum). This scales proportional to the square root of the number of portions.
 
-For concoctions, it's clear that the errors should add up linearly. For everything else, we're gonna
-assume it's more likely for people to include one or *more* samples in the same entry, and as such
-we're gonna add it as independent samples.
+Entries of the same ingredient ID are taken as the same sample: their sampling errors add up linearly.
+Same for a concoction's portions. Entry errors are independent.
 
 #### Diferent ingredients
 
@@ -77,12 +79,14 @@ distribution at the end.
 
 For one atomic entry (i.e., not the composition of many ingredients):
 - $w_\alpha = w \hat{q}_\alpha$ is the mean
-- ${\delta w_\alpha}^2 = w^2 {\hat{\delta q}_\alpha}^2 + {\hat{q}_\alpha}^2 {\delta w}^2 + {\delta w}^2 {\hat{\delta q}_\alpha}^2$
-  is the variance, $\delta w$ being the scale's error
+- $\delta s_\alpha = w \hat{\delta q}_\alpha$ is the sample's deviation
+- ${\delta e_\alpha}^2 = {\hat{q}_\alpha}^2 {\delta w}^2 + {\delta w}^2 {\hat{\delta q}_\alpha}^2 + \varepsilon_e^2 w^2 {\hat{q}_\alpha}^2$
+  is the entry's own variance, $\delta w$ being the scale's error
+- ${\delta w_\alpha}^2 = {\delta s_\alpha}^2 + {\delta e_\alpha}^2$
 
-For entries $i$ of the same sample, deviations add linearly:
+For entries $i$ of the same sample, sample deviations add linearly:
 - $w_\alpha = \sum_i w_{i\alpha}$
-- $\delta w_\alpha = \sum_i \delta w_{i\alpha}$
+- ${\delta w_\alpha}^2 = \left(\sum_i \delta s_{i\alpha}\right)^2 + \sum_i {\delta e_{i\alpha}}^2$
 
 For everything else, variances add:
 - $w_\alpha = \sum_i w_{i\alpha}$
@@ -90,7 +94,7 @@ For everything else, variances add:
 
 A concoction of total weight $P$ is just a sample with $\hat{q}_\alpha = w_\alpha/P$ and
 $\hat{\delta q}_\alpha = \delta w_\alpha/P$, $w_\alpha$ and $\delta w_\alpha$ from its ingredients. Its
-portions are entries of the same sample.
+portions are entries of the same sample, all of $\delta w_\alpha$ being its sample deviation.
 
 At the end, a mean $m$ and deviation $s$ become a lognormal with:
 - $\sigma^2 = \ln(1 + s^2/m^2)$
