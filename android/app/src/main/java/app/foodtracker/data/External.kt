@@ -30,7 +30,7 @@ import java.text.Normalizer
 //   Open Food Facts: packaged products, fetched live. ODbL. Rate limits: 10 searches/min per IP, so searches only
 //     run on submit, never per keystroke.
 // Both give values per 100 g (or 100 ml). Results become a draft food that prefills the "New food" form, with a
-// `provenance` attribute (CIQUAL / OFF) and `source` ({db, id}) for the link back.
+// `database` attribute (CIQUAL / OFF) and `source` ({db, id}) for the link back.
 
 /** A food ready to prefill the editor, plus a line to show in the result list. */
 data class Draft(val item: Item, val subtitle: String)
@@ -102,7 +102,7 @@ object Ciqual {
             }
         }
         val item = per100(Item(
-            name = food.en, attributes = listOf(listOf("provenance", "CIQUAL")), unit = "g", nutrients = nutrients,
+            name = food.en, attributes = listOf(listOf("database", "CIQUAL")), unit = "g", nutrients = nutrients,
             source = Source("ciqual", food.code, table.source),
         ))
         return Draft(item, table.groups[food.group] ?: "")
@@ -169,7 +169,7 @@ object OpenFoodFacts {
         val code = p.str("code") ?: ""
         val item = per100(Item(
             name = (p.str("product_name") ?: "").trim().ifEmpty { "Product $code" }, brand = brand,
-            attributes = listOf(listOf("provenance", "OFF")), unit = unit, units = units,
+            attributes = listOf(listOf("database", "OFF")), unit = unit, units = units,
             nutrients = nutrients((p["nutriments"] as? JsonObject) ?: JsonObject(emptyMap())),
             source = Source("off", JsonPrimitive(code)),
         ))

@@ -13,6 +13,7 @@ import Targets from './screens/Targets'
 import External from './screens/External'
 import Users from './screens/Users'
 import Breakdown from './screens/Breakdown'
+import Explore from './screens/Explore'
 import './styles.css'
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
   if (a === 'targets') return <Targets add={query.new != null} />
   if (a === 'config') return <Config />
   if (a === 'users') return <Users />
+  if (a === 'explore') return <Explore nutrient={b} />
   if (a === 'breakdown') return <Breakdown nutrient={b} from={query.from} to={query.to} />
   if (a === 'foods' && b === 'external') return <External initialQuery={query.q} />
   if (a === 'foods') return b ? <FoodEditor id={b} tab={query.tab} nutrient={query.nutrient} nested={query.in} name={query.name} /> : <FoodList />

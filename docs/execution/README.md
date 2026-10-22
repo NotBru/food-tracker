@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-22 | [Explore a nutrient across the databases; "provenance" renamed "database"](2026-10-22-explore.md) | accepted |
 | 2026-10-22 | [Entry error per log](2026-10-22-entry-error.md) | accepted |
 | 2026-10-22 | [Every entry of a food shares its error; a bakery class](2026-10-22-same-food-shared.md) | accepted |
 | 2026-10-22 | [Sampling CVs from FoodData Central Foundation Foods](2026-10-22-foundation-foods-cvs.md) | accepted |

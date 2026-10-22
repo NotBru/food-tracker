@@ -122,7 +122,8 @@ export default function Breakdown({ nutrient, from, to }) {
 
   const when = from === to ? prettyDay(from) : `${from} → ${to}`
   if (!meta?.label) return <Screen title="Breakdown"><p className="muted">Unknown nutrient.</p></Screen>
-  if (!data) return <Screen title={meta.label} subtitle={when} />
+  const explore = <button className="icon" onClick={() => go(`/explore/${nutrient}`)} aria-label="Explore" title="Explore">🔍</button>
+  if (!data) return <Screen title={meta.label} subtitle={when} right={explore} />
 
   const { rows } = data
   const totalN = rows.reduce((t, r) => addScaled(t, r.n), zero())
@@ -222,7 +223,7 @@ export default function Breakdown({ nutrient, from, to }) {
   }
 
   return (
-    <Screen title={meta.label} subtitle={when}>
+    <Screen title={meta.label} subtitle={when} right={explore}>
       <p className="bd-total">
         <b>{fmt(total, 0)}</b> {meta.unit} {pmText(totalN)} <span className="muted">· range {rangeText(totalN)} {meta.unit}</span>
       </p>

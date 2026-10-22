@@ -188,7 +188,7 @@ class UiTest {
         rule.waitUntil(20_000) { runBlocking { repo.ctx.first().list.any { it.source?.db == "ciqual" } } }
         val item = runBlocking { repo.ctx.first().list.first { it.source?.db == "ciqual" } }
         assertTrue(item.name.contains("entil"))
-        assertEquals(listOf("provenance", "CIQUAL"), item.attributes.single())
+        assertEquals(listOf("database", "CIQUAL"), item.attributes.single())
     }
 
     @Test fun targetsUsersConfig() {

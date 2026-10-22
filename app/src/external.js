@@ -9,7 +9,7 @@
 //     where there is no proxy. Search hits lack serving/package sizes and most micronutrients, so picking one
 //     reads the full product (offProductDraft).
 // Both give values per 100 g (or 100 ml). OFF results become a *draft* food that prefills the "New food" form.
-// Drafts carry a `provenance` attribute (CIQUAL / OFF) plus `source` ({db, id}) for the link back.
+// Drafts carry a `database` attribute (CIQUAL / OFF) plus `source` ({db, id}) for the link back.
 
 import { deltaFromInput } from './nutrients'
 
@@ -82,7 +82,7 @@ export function ciqualDraft(table, food) {
     nutrients[key] = nutrient(text, delta)
   })
   return {
-    name: food.en, brand: '', attributes: [['provenance', 'CIQUAL']], ...PER_100, unit: 'g', units: [], components: [], nutrients,
+    name: food.en, brand: '', attributes: [['database', 'CIQUAL']], ...PER_100, unit: 'g', units: [], components: [], nutrients,
     category: food.group,
     source: { db: 'ciqual', id: food.code, version: table.source },
     subtitle: table.groups[food.group] ?? '',
@@ -135,7 +135,7 @@ export function offDraft(p) {
   // Legacy API: "A, B"; search-a-licious: ["A", "B"].
   const brand = String(Array.isArray(p.brands) ? p.brands[0] ?? '' : p.brands ?? '').split(',')[0].trim()
   return {
-    name: (p.product_name || '').trim() || `Product ${p.code}`, brand, attributes: [['provenance', 'OFF']], ...PER_100, unit, units,
+    name: (p.product_name || '').trim() || `Product ${p.code}`, brand, attributes: [['database', 'OFF']], ...PER_100, unit, units,
     components: [], nutrients: offNutrients(p.nutriments),
     source: { db: 'off', id: p.code },
     subtitle: [brand, p.quantity].filter(Boolean).join(' · '),

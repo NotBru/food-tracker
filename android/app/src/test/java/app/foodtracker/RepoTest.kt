@@ -103,7 +103,7 @@ class RepoTest {
         assertTrue(hits.isNotEmpty())
         val draft = Ciqual.draft(table, Ciqual.search(table, "egg boiled").first())
         assertEquals(100.0, draft.item.amount, 0.0)
-        assertEquals(listOf("provenance", "CIQUAL"), draft.item.attributes.single())
+        assertEquals(listOf("database", "CIQUAL"), draft.item.attributes.single())
         assertTrue(draft.item.nutrients.getValue("proteins").value > 5)
     }
 

@@ -11,7 +11,7 @@
       {
         "name": "Bread",
         "brand": "",
-        "attributes": [["provenance", "CIQUAL"]],
+        "attributes": [["database", "CIQUAL"]],
         "amount": 100,
         "amountText": "100",
         "amountDelta": 0,
