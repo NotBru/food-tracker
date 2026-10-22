@@ -24,11 +24,11 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
-| 2026-10-22 | [Sampling CVs from FoodData Central Foundation Foods](2026-10-22-foundation-foods-cvs.md) | proposed |
+| 2026-10-22 | [Sampling CVs from FoodData Central Foundation Foods](2026-10-22-foundation-foods-cvs.md) | accepted |
 | 2026-10-22 | [Caffeine: its own wide CV](2026-10-22-caffeine-cv.md) | accepted |
 | 2026-10-22 | [Supplements: protein powder CVs from label-accuracy studies; import popup removed](2026-10-22-supplements-evidence.md) | accepted |
 | 2026-10-22 | [A supplements category with estimated, tight CVs](2026-10-22-supplements-class.md) | CVs superseded by [supplements-evidence](2026-10-22-supplements-evidence.md) |
-| 2026-10-22 | [Sampling CVs scaled by √3 for blended samples](2026-10-22-cv-blend.md) | accepted |
+| 2026-10-22 | [Sampling CVs scaled by √3 for blended samples](2026-10-22-cv-blend.md) | superseded by [foundation-foods-cvs](2026-10-22-foundation-foods-cvs.md) |
 | 2026-10-22 | [Sampling CVs fitted to USDA SR28](2026-10-22-cv-fit.md) | accepted |
 | 2026-10-22 | [Error model: distributions, food categories, CIQUAL in the food database](2026-10-22-error-model.md) | accepted; CVs superseded by [cv-fit](2026-10-22-cv-fit.md) |
 | 2026-10-22 | [Nutrient variability: plant-food gaps researched and merged](2026-10-22-plant-macros-gaps.md) | accepted |

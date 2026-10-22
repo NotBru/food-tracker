@@ -1,7 +1,7 @@
 # Sampling CVs from FoodData Central Foundation Foods
 
 - **Date:** 2026-10-22
-- **Status:** proposed
+- **Status:** accepted
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md); model from [`docs/notes/error-handling.md`](../notes/error-handling.md)
 
 ## Context
@@ -9,16 +9,18 @@
 The user asked for more data for the CVs than SR28. Foundation Foods (FDC, 2026-04-30 release) publishes each
 sample's analyses; 75% of its 3708 samples are one store purchase, not a blend.
 
-## Decision (proposed)
+## Decision
 
 `data/scripts/fit_cvs_foundation.py` fits per-class CVs from the spread between samples (protein from nitrogen ×
 the food's factor; carbohydrate and energy computed per sample, so correlations are kept). Output:
-`data/foundation_fitted_cvs.csv`. Not yet in `app/src/errors.js`.
+`data/foundation_fitted_cvs.csv`. `data/scripts/cv_table.py` builds the tables of `app/src/errors.js` from both fits.
 
 Against SR28 (106 class × kind pairs) its CVs are 1.1× SR28's (median), not √3 ≈ 1.7×. Energy: meat 8.7% (SR28 ×√3:
 14%), produce 10% (15%), grains 1.2% (3%), base 6.3% (7.4%).
 
-Proposal: Foundation Foods where a class has ≥ 5 foods for a kind, SR28 × 1.1 elsewhere, replacing √3.
+Foundation Foods where a class has ≥ 10 foods for a kind, SR28 × 1.09 (the median ratio) elsewhere, replacing √3
+(user's choice). 10, not 5: Foundation Foods' "dishes" are 6 hummus-like products against SR28's 472.
+User's 2026-10-21 asado (309 g vacío, 797 kcal): −172/+199 → −114/+126 at 90%.
 
 ## Other sources checked
 
@@ -32,4 +34,5 @@ Proposal: Foundation Foods where a class has ≥ 5 foods for a kind, SR28 × 1.1
 
 ## Open questions
 
-- Replace √3 with the Foundation Foods fit?
+- Argenfoods as a food source: ~470 foods with macros in per-group XLS files, INFOODS-tagged, but no licence stated
+  (© UNLu) and no CORS, so it can't be bundled or fetched from the browser without UNLu's permission.
