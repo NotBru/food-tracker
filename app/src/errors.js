@@ -95,7 +95,12 @@ const CLASSES = {
   },
 }
 
-// CIQUAL groups and subgroups: [code, name, class].
+// Not in SR28, so estimated, not fitted (and not scaled by BLEND): single-ingredient powders, made to a label.
+const SUPPLEMENTS = {
+  water: 0.2, protein: 0.05, carbs: 0.15, sugars: 0.15, fibre: 0.2, fat: 0.15, energy: 0.05, other: 0.03,
+}
+
+// CIQUAL groups and subgroups: [code, name, class], plus supplements (99, not CIQUAL's).
 export const CATEGORY_GROUPS = [
   ['01', 'Starters and dishes', [
     ['0101', 'mixed salads', 'dishes'], ['0102', 'soups', 'dishes'], ['0103', 'dishes', 'dishes'],
@@ -146,6 +151,7 @@ export const CATEGORY_GROUPS = [
     ['1101', 'baby milk and beverages', 'baby'], ['1102', 'baby dishes', 'baby'], ['1103', 'baby deserts', 'baby'],
     ['1104', 'baby biscuits and cereals', 'baby'],
   ]],
+  ['99', 'Supplements', [['9901', 'creatine, protein powders and similar', 'supplements']]],
 ]
 
 const CLASS_OF = new Map(CATEGORY_GROUPS.flatMap(([, , subs]) => subs.map(([code, , cls]) => [code, cls])))
@@ -155,7 +161,8 @@ const BLEND = Math.sqrt(3)
 
 /** [bias, CV] of nutrient `key` in a food of category `code` (a CIQUAL subgroup; anything else is unknown). */
 export function sampling(code, key) {
-  const cls = CLASSES[CLASS_OF.get(code) ?? 'unknown']
+  const cls = CLASS_OF.get(code) ?? 'unknown'
   const kind = KIND[key] ?? 'other'
-  return [0, (cls[kind] ?? BASE[kind]) * BLEND]
+  if (cls === 'supplements' && SUPPLEMENTS[kind]) return [0, SUPPLEMENTS[kind]]
+  return [0, (CLASSES[cls]?.[kind] ?? BASE[kind]) * BLEND]
 }
