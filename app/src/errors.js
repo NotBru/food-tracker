@@ -1,5 +1,5 @@
-// Sampling error of a food's nutrient values (docs/notes/error-handling.md): every entry of a food draws its own
-// sample, whose amount of nutrient α per gram is lognormal with mean (1 + bias)·label and deviation CV × that mean.
+// Sampling error of a food's nutrient values (docs/notes/error-handling.md): a food is one sample, shared by all its
+// entries, whose amount of nutrient α per gram is lognormal with mean (1 + bias)·label and deviation CV × that mean.
 // Bias and CV depend on the food's category and the nutrient.
 //
 // CVs from USDA data (docs/notes/research_notes/Nutrient content variability/data/scripts/cv_table.py): the spread
