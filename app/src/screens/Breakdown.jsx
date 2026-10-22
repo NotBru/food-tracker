@@ -3,9 +3,9 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db, getConfig, getCurrentUser, itemLabel } from '../db'
 import { consumptionNutrients, loadContext, resolve } from '../calc'
 import { NUTRIENTS, amountText, calories, fmt, pmText, rangeText } from '../nutrients'
-import { addScaled, bounds, zero } from '../stats'
+import { addScaled, bounds, variance, zero } from '../stats'
 import { addDays, dayBounds, formatDateTime, logicalDay, prettyDay, toLocalInput } from '../time'
-import { MadeTag, Screen, go } from '../components'
+import { MadeTag, Screen, go, replace } from '../components'
 import { ROWS } from './Home'
 
 // One nutrient over a window (from the dashboard): how much each consumption contributed, as horizontal bars
@@ -17,29 +17,43 @@ import { ROWS } from './Home'
 // only ever covers those log entries.
 // From the "last 7 days" dashboard, a "Days" view comes first: one row per day, largest first; a day opens its own
 // breakdown, as from the daily dashboard.
+// "per 100 kcal" shows every row as its nutrient over its own calories instead (the header: over the window's calories,
+// from every consumption); see per100().
 
 const sum = (rows, k) => rows.reduce((s, r) => s + r[k], 0)
 
 /** Per-consumption rows -> entries, largest first: lone consumptions, plus one entry per group adding up its members
- * (also largest first). Each has the nutrient as `n` ({value, v, s}) and its `value`. */
+ * (also largest first). Each has the nutrient as `n` ({value, v, s}), its `value` and its calories `e`. */
 function groupRows(rows) {
   const entries = []
   const groups = new Map()
   for (const r of rows) {
-    if (r.c.groupId == null) { entries.push({ key: `c${r.c.id}`, members: [r], n: r.n, value: r.value, estimated: r.estimated }); continue }
+    if (r.c.groupId == null) { entries.push({ key: `c${r.c.id}`, members: [r], n: r.n, e: r.e, value: r.value, estimated: r.estimated }); continue }
     let g = groups.get(r.c.groupId)
     if (!g) {
-      g = { key: `g${r.c.groupId}`, groupId: r.c.groupId, name: r.c.groupName ?? '', members: [], n: zero(), value: 0, estimated: false }
+      g = { key: `g${r.c.groupId}`, groupId: r.c.groupId, name: r.c.groupName ?? '', members: [], n: zero(), e: zero(), value: 0, estimated: false }
       groups.set(r.c.groupId, g)
       entries.push(g)
     }
     g.members.push(r)
     addScaled(g.n, r.n)
+    addScaled(g.e, r.e)
     g.value = g.n.value
     g.estimated ||= r.estimated
   }
   for (const g of groups.values()) g.members.sort((a, b) => b.value - a.value)
   return entries.sort((a, b) => b.value - a.value)
+}
+
+/**
+ * `a` per 100 kcal of `e`. Its deviation combines both relative errors as if they were independent: the shared
+ * structure of a ratio isn't modelled, so the interval is approximate (wider than it should be where a food's nutrient
+ * and calories err together). Nothing (0) when either is 0.
+ */
+function per100(a, e) {
+  if (!(a.value > 0 && e.value > 0)) return zero()
+  const value = (a.value / e.value) * 100
+  return { value, v: value * value * (variance(a) / a.value ** 2 + variance(e) / e.value ** 2), s: {} }
 }
 
 // Not crypto.randomUUID: it needs a secure context, and the app is also served over plain http (serve.sh).
@@ -95,8 +109,9 @@ function Bar({ r, scale, cls }) {
   )
 }
 
-export default function Breakdown({ nutrient, from, to, win }) {
+export default function Breakdown({ nutrient, from, to, win, per }) {
   const byDay = win === 'last7' && from !== to
+  const perKcal = per === 'kcal' && nutrient !== 'energy'
   const [view, setView] = useState(byDay ? 'days' : 'ranked')
   const [picked, setPicked] = useState(() => new Set()) // entry keys
   const [open, setOpen] = useState(() => new Set()) // groups shown expanded
@@ -112,20 +127,23 @@ export default function Breakdown({ nutrient, from, to, win }) {
     const ctx = await loadContext()
     const rows = []
     const days = {} // logical day -> every consumption of it with this nutrient, summed
-    for (let d = from; d <= to; d = addDays(d, 1)) days[d] = { day: d, n: zero(), count: 0 }
+    for (let d = from; d <= to; d = addDays(d, 1)) days[d] = { day: d, n: zero(), e: zero(), count: 0 }
+    const totalE = zero() // every consumption's calories, with this nutrient or not
     let failed = 0
     let missing = 0
     for (const c of logs) {
       const res = consumptionNutrients(ctx, c)
       if (!res.ok) { failed++; continue }
-      const n = nutrient === 'energy' ? calories(res.nutrients) : res.nutrients[nutrient]
-      if (!n || !Number.isFinite(n.value) || n.value <= 0) { missing++; continue }
-      rows.push({ c, item: resolve(ctx, c.itemId), n, value: n.value, estimated: !!n.estimated })
+      const e = calories(res.nutrients)
       const d = days[logicalDay(c.datetime, config.dayStart)]
+      addScaled(totalE, e)
+      if (d) addScaled(d.e, e)
+      const n = nutrient === 'energy' ? e : res.nutrients[nutrient]
+      if (!n || !Number.isFinite(n.value) || n.value <= 0) { missing++; continue }
+      rows.push({ c, item: resolve(ctx, c.itemId), n, e, value: n.value, estimated: !!n.estimated })
       if (d) { addScaled(d.n, n); d.count++; d.estimated ||= !!n.estimated }
     }
-    const dayRows = Object.values(days).map((d) => ({ ...d, value: d.n.value })).sort((a, b) => b.value - a.value || (a.day < b.day ? 1 : -1))
-    return { rows: groupRows(rows), dayRows, failed, missing, userId: user.id }
+    return { rows: groupRows(rows), days: Object.values(days), totalE, failed, missing, userId: user.id }
   }, [nutrient, from, to])
 
   const when = from === to ? prettyDay(from) : `${from} → ${to}`
@@ -133,17 +151,29 @@ export default function Breakdown({ nutrient, from, to, win }) {
   const explore = <button className="icon" onClick={() => go(`/explore/${nutrient}`)} aria-label="Explore" title="Explore">🔍</button>
   if (!data) return <Screen title={meta.label} subtitle={when} right={explore} />
 
-  const { rows } = data
-  const totalN = rows.reduce((t, r) => addScaled(t, r.n), zero())
+  const totalN = data.rows.reduce((t, r) => addScaled(t, r.n), zero())
   const total = totalN.value
-  const scale = Math.max(...rows.map((r) => bounds(r.n)[1]), 1)
-  const dayScale = Math.max(...data.dayRows.map((d) => bounds(d.n)[1]), 1)
+  // per 100 kcal: entries (and group members) without calories are left out; everything is re-ranked by the ratio.
+  const largestFirst = (a, b) => b.value - a.value
+  const asRatio = (x) => { const n = per100(x.n, x.e); return { ...x, n, value: n.value } }
+  const rows = perKcal
+    ? data.rows.filter((r) => r.e.value > 0).map((r) => ({ ...asRatio(r), members: r.members.filter((m) => m.e.value > 0).map(asRatio).sort(largestFirst) })).sort(largestFirst)
+    : data.rows
+  const noKcal = perKcal ? data.rows.length - rows.length : 0
+  const dayRows = data.days.map((d) => (perKcal ? asRatio(d) : { ...d, value: d.n.value })).sort((a, b) => largestFirst(a, b) || (a.day < b.day ? 1 : -1))
+  const shown = perKcal ? per100(totalN, data.totalE) : totalN
+  const unit = perKcal ? `${meta.unit}/100 kcal` : meta.unit
+  const dg = perKcal ? 1 : 0 // digits
+  const scale = Math.max(...rows.map((r) => bounds(r.n)[1]), perKcal ? 0 : 1) || 1
+  const dayScale = Math.max(...dayRows.map((d) => bounds(d.n)[1]), perKcal ? 0 : 1) || 1
+  const shownView = perKcal && view === 'quintiles' ? 'ranked' : view // quintiles split a total: not for ratios
+  const setPer = (on) => replace(`/breakdown/${nutrient}?${new URLSearchParams({ from, to, ...(win && { win }), ...(on && { per: 'kcal' }) })}`)
 
   const time = (c) => (from === to ? toLocalInput(new Date(c.datetime)).slice(11) : formatDateTime(c.datetime))
   const value = (r) => (
     <span className="bd-value">
-      {r.estimated ? '~' : ''}{fmt(r.value, 0)}
-      <small> {pmText(r.n)} · {total ? fmt((r.value / total) * 100, 0) : 0}%</small>
+      {r.estimated ? '~' : ''}{fmt(r.value, dg)}
+      <small> {pmText(r.n)} · {perKcal ? `${fmt(r.e.value, 0)} kcal` : `${total ? fmt((r.value / total) * 100, 0) : 0}%`}</small>
     </span>
   )
   const label = (item) => (item ? <>{itemLabel(item)} <MadeTag item={item} /></> : '(deleted item)')
@@ -156,14 +186,14 @@ export default function Breakdown({ nutrient, from, to, win }) {
   const openFood = (r) => go(`/consumptions/${r.c.id}?nutrient=${nutrient}`)
 
   const dayRow = (d) => (
-    <li key={d.day} onClick={() => go(`/breakdown/${nutrient}?from=${d.day}&to=${d.day}`)}>
+    <li key={d.day} onClick={() => go(`/breakdown/${nutrient}?from=${d.day}&to=${d.day}${perKcal ? '&per=kcal' : ''}`)}>
       <div className="list-main">
         <span className="bd-name">{prettyDay(d.day)}</span>
         {value(d)}
       </div>
       <Bar r={d} scale={dayScale} cls={meta.cls} />
       <span className="muted small">
-        {d.count ? `${d.count} consumption${d.count === 1 ? '' : 's'} · range ${rangeText(d.n)} ${meta.unit}` : `No consumption with ${meta.label.toLowerCase()}`}
+        {d.count ? `${d.count} consumption${d.count === 1 ? '' : 's'} · range ${rangeText(d.n, dg)} ${unit}` : `No consumption with ${meta.label.toLowerCase()}`}
       </span>
     </li>
   )
@@ -179,7 +209,7 @@ export default function Breakdown({ nutrient, from, to, win }) {
           </div>
           <Bar r={r} scale={scale} cls={meta.cls} />
           <span className="muted small">
-            {time(r.c)} · {amountText(r.c.amount, r.c.amountText)} {r.c.unit} · range {rangeText(r.n)} {meta.unit}
+            {time(r.c)} · {amountText(r.c.amount, r.c.amountText)} {r.c.unit} · range {rangeText(r.n, dg)} {unit}
           </span>
         </li>
       )
@@ -196,7 +226,7 @@ export default function Breakdown({ nutrient, from, to, win }) {
         <Bar r={e} scale={scale} cls={meta.cls} />
         <span className="muted small">
           {e.name ? names : `Group of ${e.members.length}`} · {time({ datetime: times[0] })}{times.length > 1 && times[0] !== times.at(-1) ? `–${time({ datetime: times.at(-1) })}` : ''}
-          {' · '}range {rangeText(e.n)} {meta.unit}
+          {' · '}range {rangeText(e.n, dg)} {unit}
         </span>
         {expanded && (
           <ul className="bd-members" onClick={(ev) => ev.stopPropagation()}>
@@ -247,17 +277,24 @@ export default function Breakdown({ nutrient, from, to, win }) {
   return (
     <Screen title={meta.label} subtitle={when} right={explore}>
       <p className="bd-total">
-        <b>{fmt(total, 0)}</b> {meta.unit} {pmText(totalN)} <span className="muted">· range {rangeText(totalN)} {meta.unit}</span>
+        <b>{fmt(shown.value, dg)}</b> {unit} {pmText(shown)} <span className="muted">· range {rangeText(shown, dg)} {unit}</span>
       </p>
+      {nutrient !== 'energy' && (
+        <div className="segmented bd-per" role="radiogroup" aria-label="Amount">
+          {[[false, 'Total'], [true, 'per 100 kcal']].map(([v, label]) => (
+            <button key={label} role="radio" aria-checked={perKcal === v} className={perKcal === v ? 'on' : ''} onClick={() => setPer(v)}>{label}</button>
+          ))}
+        </div>
+      )}
       <div className="segmented" role="radiogroup" aria-label="Grouping">
-        {[...(byDay ? [['days', 'Days']] : []), ['ranked', 'Ranked'], ['quintiles', 'Quintiles']].map(([v, label]) => (
-          <button key={v} role="radio" aria-checked={view === v} className={view === v ? 'on' : ''} onClick={() => setView(v)}>{label}</button>
+        {[...(byDay ? [['days', 'Days']] : []), ['ranked', 'Ranked'], ...(perKcal ? [] : [['quintiles', 'Quintiles']])].map(([v, label]) => (
+          <button key={v} role="radio" aria-checked={shownView === v} className={shownView === v ? 'on' : ''} onClick={() => setView(v)}>{label}</button>
         ))}
       </div>
 
       {!rows.length && <p className="muted">No consumption with {meta.label.toLowerCase()} in this period.</p>}
-      {view === 'days' && rows.length > 0 && <ul className="list bd-list">{data.dayRows.map(dayRow)}</ul>}
-      {view === 'quintiles' && quintiles(rows, total).map((g) => (
+      {shownView === 'days' && rows.length > 0 && <ul className="list bd-list">{dayRows.map(dayRow)}</ul>}
+      {shownView === 'quintiles' && quintiles(rows, total).map((g) => (
           <section key={g.name} className="bd-group">
             <h3>
               {g.name}
@@ -266,9 +303,9 @@ export default function Breakdown({ nutrient, from, to, win }) {
             <ul className="list">{g.rows.map(row)}</ul>
           </section>
         ))}
-      {view === 'ranked' && <ul className="list bd-list">{rows.map(row)}</ul>}
+      {shownView === 'ranked' && <ul className="list bd-list">{rows.map(row)}</ul>}
 
-      {view !== 'days' && pickedEntries.length > 0 && (
+      {shownView !== 'days' && pickedEntries.length > 0 && (
         <div className="bd-groupbar">
           <input value={groupName} onChange={(ev) => setGroupName(ev.target.value)} placeholder="Name (optional)"
             aria-label="Name of the new group" onKeyDown={(ev) => ev.key === 'Enter' && pickedEntries.length >= 2 && makeGroup()} />
@@ -278,8 +315,9 @@ export default function Breakdown({ nutrient, from, to, win }) {
         </div>
       )}
 
-      {(data.missing > 0 || data.failed > 0) && (
+      {(data.missing > 0 || data.failed > 0 || noKcal > 0) && (
         <p className="muted small">
+          {noKcal > 0 && <>{noKcal} without calories left out. </>}
           {data.missing > 0 && <>{data.missing} consumption{data.missing === 1 ? '' : 's'} without {meta.label.toLowerCase()}. </>}
           {data.failed > 0 && <span className="warn">{data.failed} couldn't be computed.</span>}
         </p>

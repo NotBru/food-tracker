@@ -286,6 +286,7 @@ input.invalid, input.invalid:focus { border-color: var(--prot); }
 .bd-bar { position: relative; height: 10px; background: var(--bg); margin: 2px 0; }
 .bd-bar .bar-fill, .bd-bar .bar-err { position: absolute; top: 0; bottom: 0; }
 .segmented + .list, .segmented + .bd-group, .segmented + p { margin-top: 12px; }
+.bd-per + .segmented { margin-top: 8px; }
 .bd-group h3 { margin: 16px 4px 8px; font-size: 15px; }
 .bd-group h3 .muted { font-weight: 400; }
 .bd-tick { width: 18px; height: 18px; margin: 0 8px 0 0; padding: 0; vertical-align: -3px; accent-color: var(--accent); }
