@@ -273,15 +273,20 @@ function recipeNutrients(ctx, item, seen) {
 }
 
 /**
- * Entry error to start a new consumption or component of food `itemId` with: that of its latest consumption (in any
- * user's `logs`), else of a component of it in a recipe, else the default.
+ * Entry error to start a new consumption or component of food `itemId` with. A consumption: that of the food's latest
+ * consumption (in any user's `logs`), else of a component of it, else the default. A component (`component`): that of
+ * the food in the latest concoction made with it (then in a recipe), else of its latest consumption, else the default.
  */
-export function lastEntryError(ctx, logs, itemId) {
+export function lastEntryError(ctx, logs, itemId, component = false) {
   let last = null
   for (const l of logs ?? []) if (l.itemId === itemId && (!last || l.datetime > last.datetime)) last = l
-  if (last) return Number.isFinite(last.entryError) ? last.entryError : DEFAULT_ENTRY_ERROR
-  const c = ctx.list.flatMap((it) => it.components ?? []).find((c) => c.itemId === itemId && Number.isFinite(c.entryError))
-  return c ? c.entryError : DEFAULT_ENTRY_ERROR
+  const fromLog = last && (Number.isFinite(last.entryError) ? last.entryError : DEFAULT_ENTRY_ERROR)
+  // Concoctions newest first, then recipes (no made-at time).
+  const parents = ctx.list.filter((it) => it.components?.some((c) => c.itemId === itemId))
+    .sort((a, b) => (b.madeAt ?? '').localeCompare(a.madeAt ?? ''))
+  const c = parents[0]?.components.find((c) => c.itemId === itemId)
+  const fromComponent = c && (Number.isFinite(c.entryError) ? c.entryError : DEFAULT_ENTRY_ERROR)
+  return (component ? fromComponent ?? fromLog : fromLog ?? fromComponent) ?? DEFAULT_ENTRY_ERROR
 }
 
 /** Nutrients of a consumption, `amount ± amountDelta unit`, with its own entry error if it has one. */

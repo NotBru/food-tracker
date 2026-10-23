@@ -293,7 +293,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
             <ul className="list compact">
               {form.components.map((c, i) => (
                 <li key={i} className="component">
-                  <ItemPicker ctx={savedCtx} value={c.itemId} exclude={form.base?.id} oldBefore={oldBefore} show={show} enterNext onChange={(id) => setC(i, { itemId: id, unit: keepUnit(savedCtx, id, c.unit) ?? '', entryError: lastEntryError(savedCtx, logs, id) })} />
+                  <ItemPicker ctx={savedCtx} value={c.itemId} exclude={form.base?.id} oldBefore={oldBefore} show={show} enterNext onChange={(id) => setC(i, { itemId: id, unit: keepUnit(savedCtx, id, c.unit) ?? '', entryError: lastEntryError(savedCtx, logs, id, true) })} />
                   {/* Enter in any of its boxes (a unit picked, ε set) goes on to "+ add component", as in the food editor. */}
                   <div className="row" onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); addComponentRef.current?.focus() } }}>
                     <input inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />

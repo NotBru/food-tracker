@@ -195,7 +195,8 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
     source: src?.source ?? null,
   }))
   useEffect(() => { if (prefill) clearPendingDraft() }, [prefill])
-  // A component picked starts with the entry error its food was last logged with (calc.js lastEntryError).
+  // A component picked starts with the entry error its food last had in a concoction, else was last logged with
+  // (calc.js lastEntryError).
   const logs = useLiveQuery(() => db.logs.toArray(), [])
   // Components are offered as in the consumption form: concoctions eaten up, or expired when this one is made (now,
   // for a plain food), left out; ones made before yesterday (logical days) last. What this food took is counted back.
@@ -407,7 +408,7 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
           {form.components.map((c, i) => (
             <li key={i} className="component">
               <ItemPicker ctx={ctx} value={c.itemId} exclude={initial?.id} oldBefore={oldBefore} show={show} onCreate={(text) => createComponent(i, text)} enterNext
-                onChange={(itemId) => setC(i, { itemId, unit: keepUnit(ctx, itemId, c.unit) ?? '', entryError: lastEntryError(ctx, logs, itemId) })} />
+                onChange={(itemId) => setC(i, { itemId, unit: keepUnit(ctx, itemId, c.unit) ?? '', entryError: lastEntryError(ctx, logs, itemId, true) })} />
               {/* Enter in any of its boxes (a unit picked, ε set) goes on to "+ add component": amount, Enter, next. */}
               <div className="row" onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); addComponentRef.current?.focus() } }}>
                 <input ref={(el) => (componentAmountRefs.current[i] = el)} inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />

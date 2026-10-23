@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-23 | [A component's entry error starts from the food's last concoction](2026-10-23-component-entry-error.md) | accepted |
 | 2026-10-23 | [Ghost: one grey band on the real bar's scale; "7-day adj." line removed](2026-10-23-ghost-band.md) | accepted |
 | 2026-10-23 | [Ghost bar: the uncapped correction, not the uncorrected target](2026-10-23-uncapped-ghost.md) | accepted; drawing superseded by [ghost-band](2026-10-23-ghost-band.md) |
 | 2026-10-23 | [7-day calorie correction: caps in Config; a ghost of the uncorrected bar](2026-10-23-correction-caps-ghost.md) | accepted; ghost superseded by [uncapped-ghost](2026-10-23-uncapped-ghost.md) |
@@ -31,7 +32,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | 2026-10-22 | [Breakdown: "Total" or "per 100 kcal"](2026-10-22-breakdown-per-kcal.md) | accepted |
 | 2026-10-22 | [Breakdown from "last 7 days": a Days view first](2026-10-22-last7-days-view.md) | accepted |
 | 2026-10-22 | [Dropdowns: a search box on a computer, native on a phone](2026-10-22-computer-dropdowns.md) | accepted |
-| 2026-10-22 | [Entry error set per consumption](2026-10-22-entry-error-per-log.md) | accepted |
+| 2026-10-22 | [Entry error set per consumption](2026-10-22-entry-error-per-log.md) | accepted; components' default superseded by [component-entry-error](2026-10-23-component-entry-error.md) |
 | 2026-10-22 | [Explore a nutrient across the databases; "provenance" renamed "database"](2026-10-22-explore.md) | accepted |
 | 2026-10-22 | [Entry error per log](2026-10-22-entry-error.md) | superseded |
 | 2026-10-22 | [Every entry of a food shares its error; a bakery class](2026-10-22-same-food-shared.md) | accepted |
