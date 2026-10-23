@@ -373,8 +373,9 @@ export function targetBar(n, { min, max } = {}) {
  * there). For each bound, with N earlier days: (bound' + their total) / (N + 1) = that bound averaged over those
  * days and `day` (each bound over the days that set it, as in `averageTargets`).
  * Each bound moves on its own, by at most `cap` (kcal, {min, max}: one per bound), never below 0.
- * Returns {range, base, shift: {min, max}, days, capped: {min, max}}, or null when `day` has no calorie target;
- * `base` is `day`'s own (uncorrected) range; `shift` and `capped` only have the bounds `day`'s target has.
+ * Returns {range, uncapped, shift: {min, max}, days, capped: {min, max}}, or null when `day` has no calorie target;
+ * `uncapped` is the range with no cap (still never below 0); `shift` and `capped` only have the bounds `day`'s
+ * target has.
  */
 export function weeklyCorrection(targets, day, dayStart, eaten, cap, key = 'energy') {
   const has = (d) => {
@@ -395,13 +396,14 @@ export function weeklyCorrection(targets, day, dayStart, eaten, cap, key = 'ener
   const total = { min: Math.max(0, lo), max: hi }
   const avg = averageTargets(targets, [day, ...earlier], dayStart)[key]
   const days = earlier.length
-  const range = {}, shift = {}, capped = {}
+  const range = {}, uncapped = {}, shift = {}, capped = {}
   for (const k of ['min', 'max']) {
     if (!Number.isFinite(target[k])) continue
     const owed = (days + 1) * avg[k] - total[k] - target[k]
     shift[k] = Math.max(-cap[k], Math.min(cap[k], owed))
     capped[k] = shift[k] !== owed
     range[k] = Math.max(0, target[k] + shift[k])
+    uncapped[k] = Math.max(0, target[k] + owed)
   }
-  return { range, base: target, shift, days, capped }
+  return { range, uncapped, shift, days, capped }
 }

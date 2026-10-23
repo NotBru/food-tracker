@@ -58,7 +58,7 @@ export default function Config() {
         </Field>
         <label className="check">
           <input type="checkbox" checked={form.adjGhost} onChange={(e) => setForm({ ...form, adjGhost: e.target.checked })} />
-          <span>Ghost of the uncorrected calorie bar over the corrected one</span>
+          <span>Ghost of the uncapped calorie bar (no correction caps) over the capped one</span>
         </label>
         <label className="check">
           <input type="checkbox" checked={form.ciqual} onChange={(e) => setForm({ ...form, ciqual: e.target.checked })} />

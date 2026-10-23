@@ -248,7 +248,7 @@ form.row.search > button { flex: 0 0 auto; }
 .g-err-bg { fill: none; stroke: currentColor; stroke-opacity: .4; stroke-width: 10; stroke-linecap: butt; }
 .g-mean { fill: none; stroke: #fff; stroke-width: 3; }
 .bar-mean { position: absolute; top: -2px; bottom: -2px; width: 3px; transform: translateX(-50%); background: #fff; transition: left .3s; }
-/* Ghost of the uncorrected calorie bar/gauge (config): very faint grey over the real one. */
+/* Ghost of the uncapped calorie bar/gauge (config): very faint grey over the real one. */
 .bar-ghost { position: absolute; inset: 0; pointer-events: none; }
 .bar-ghost-fill { position: absolute; top: 0; bottom: 0; left: 0; background: rgb(160 160 160 / .22); transition: width .3s; }
 .bar-ghost-tick { position: absolute; top: -3px; bottom: -3px; width: 2px; transform: translateX(-50%); background: rgb(160 160 160 / .45); }

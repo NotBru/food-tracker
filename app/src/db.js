@@ -205,7 +205,7 @@ export const DEFAULT_CONFIG = {
   coverage: 0.9, // share of the probability the error intervals hold
   ciqual: true, // CIQUAL's generic foods listed in the food database
   adjCap: { min: 500, max: 500 }, // kcal: how far the 7-day correction may move each bound of the daily calorie target
-  adjGhost: false, // dashboard: the uncorrected calorie bar/gauge drawn as a faint grey ghost over the corrected one
+  adjGhost: false, // dashboard: the calorie bar/gauge the uncapped correction would give, a faint grey ghost over the real one
 }
 
 export async function getConfig() {

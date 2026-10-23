@@ -18,9 +18,9 @@ export const ROWS = [
 // Mandatory rows without a target still get a neutral, full bar/gauge (no regions, markers or label).
 const DUMMY = { fill: 100, minAt: null, maxAt: null, status: 'none', dummy: true }
 const barFor = (row, val, range) => targetBar(val, range) ?? (ROWS.some((r) => r.key === row.key) ? DUMMY : null)
-/** Daily calories with the ghost on: the bar the uncorrected target would give, when the correction moved it. */
-const ghostFor = (row, val, adj) =>
-  row.key === 'energy' && adj?.ghost && adj.days && Object.values(adj.shift).some((x) => Math.round(x) !== 0) ? targetBar(val, adj.base) : null
+/** Daily calories with the ghost on, when a cap was hit: the bar the uncapped correction would give. */
+const ghostFor = (row, val, adj) => (row.key === 'energy' && hasGhost(adj) ? targetBar(val, adj.uncapped) : null)
+const hasGhost = (adj) => adj?.ghost && adj.days && Object.values(adj.capped).some(Boolean)
 
 function windowTitle(win, first, last, back = 0) {
   if (win === 'daily') return `${back === 0 ? 'Today' : back === 1 ? 'Yesterday' : back === -1 ? 'Tomorrow' : `${back} days ago`} · ${prettyDay(first)}`
@@ -136,7 +136,7 @@ function Gauge({ bar, ghost }) {
   )
 }
 
-// The ghost: the bar the uncorrected target would give, very faint grey over the real one. Its fill (to the same end
+// The ghost: the bar the uncapped correction would give, very faint grey over the real one. Its fill (to the same end
 // as the real fill) and its min/max as ticks a little past the track's edges.
 const tick = (p, r0 = G.r - G.w / 2 - 2, r1 = G.r + G.w / 2 + 2) => `M ${pt(p, r0)} L ${pt(p, r1)}`
 function GaugeGhost({ ghost }) {
@@ -200,9 +200,12 @@ function WeeklyAdj({ row, adj }) {
   const caps = ['min', 'max'].filter((k) => adj.capped[k]).map((k) => `${k} ${fmt(adj.cap[k], 0)} kcal`).join(', ')
   const title = `Range this day must land in for the ${adj.days + 1}-day average to be within the target${capped ? ` (capped: ${caps})` : ''}`
   return (
-    <span className="weekly-adj" title={title}>
-      7-day adj. {text} {row.unit}{capped ? ' (cap)' : ''}
-    </span>
+    <>
+      <span className="weekly-adj" title={title}>
+        7-day adj. {text} {row.unit}{capped ? ' (cap)' : ''}
+      </span>
+      {hasGhost(adj) && <span className="weekly-adj uncapped">Uncapped: {rangeLabel(adj.uncapped)} {row.unit}</span>}
+    </>
   )
 }
 

@@ -1,7 +1,7 @@
 # 7-day calorie correction: caps in Config; a ghost of the uncorrected bar
 
 - **Date:** 2026-10-23
-- **Status:** accepted
+- **Status:** accepted; the ghost superseded by [uncapped-ghost](2026-10-23-uncapped-ghost.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (Config screen, Homescreen dashboard); request in chat
 
 ## Context
