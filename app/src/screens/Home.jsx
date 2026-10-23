@@ -22,9 +22,9 @@ const barFor = (row, val, range) => targetBar(val, range) ?? (ROWS.some((r) => r
  * Daily calories with the ghost on, when a cap was hit: where the uncapped correction's range would lie, as
  * {from, to} in % of the real bar (same scale, so it lines up with the fill and the coloured regions).
  */
-function ghostFor(row, range, adj) {
+function ghostFor(row, val, range, adj) {
   if (row.key !== 'energy' || !adj?.ghost || !adj.days || !Object.values(adj.capped).some(Boolean)) return null
-  const pos = barScale(range)
+  const pos = barScale(range, val)
   const { min, max } = adj.uncapped
   return { from: Number.isFinite(min) ? pos(min) : 0, to: Number.isFinite(max) ? pos(max) : 100 }
 }
@@ -175,7 +175,7 @@ function Budget({ row, val, range }) {
 /** Dashboard style "bars": one full-width row per nutrient with a horizontal bar over tinted regions. */
 function BarRow({ row: r, val, range, adj, onOpen }) {
   const bar = barFor(r, val, range)
-  const ghost = ghostFor(r, range, adj)
+  const ghost = ghostFor(r, val, range, adj)
   return (
     <div className="dash-row" role="button" tabIndex={0} onClick={onOpen} onKeyDown={enterOpen(onOpen)}>
       <span className="dash-label">{r.label}</span>
@@ -218,7 +218,7 @@ function BarRow({ row: r, val, range, adj, onOpen }) {
 /** Dashboard style "gauges": equal tiles in a 2-column grid, value inside a semicircle gauge. */
 function GaugeTile({ row: r, val, range, adj, onOpen }) {
   const bar = barFor(r, val, range)
-  const ghost = ghostFor(r, range, adj)
+  const ghost = ghostFor(r, val, range, adj)
   return (
     <div className="tile" role="button" tabIndex={0} onClick={onOpen} onKeyDown={enterOpen(onOpen)}>
       <span className="tile-label">{r.label}</span>

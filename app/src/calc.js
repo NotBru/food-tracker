@@ -341,23 +341,30 @@ export function perDay(total, n) {
   return out
 }
 
-/** x → % of the width of the bar for target {min?, max?} (see targetBar), clipped to 0–100. */
-export function barScale({ min, max }) {
-  const full = Number.isFinite(max) ? (max > 0 ? max / 0.8 : 1) : min > 0 ? min / 0.5 : 1
+/**
+ * x → % of the width of the bar for target {min?, max?} and value `n` (see targetBar), clipped to 0–100. 80% is the
+ * higher of the max and the top of the value's interval; with only a min, the min sits at 50% unless that top
+ * would then pass 80%.
+ */
+export function barScale({ min, max }, n) {
+  const top = n ? bounds(n)[1] : NaN
+  const atTop = Number.isFinite(top) && top > 0 ? top / 0.8 : 0
+  const full = Math.max(Number.isFinite(max) ? max / 0.8 : min > 0 ? min / 0.5 : 0, atTop) || 1
   return (x) => Math.min(100, Math.max(0, (x / full) * 100))
 }
 
 /**
  * Progress-bar geometry for nutrient `n` ({value, v, s}) against {min?, max?}, in % of the bar's width.
- * With a max, the max sits at 80% (and the min proportionally); with only a min, the min sits at 50%.
- * The fill clips at 100%. `errLo`/`errHi` place the value's interval (stats.js bounds) on the same scale.
+ * 80% is the higher of the max and the top of the value's interval (the min proportionally); with only a min, the
+ * min sits at 50%, or lower if the interval's top would pass 80%. So the value and its interval never clip.
+ * `errLo`/`errHi` place the value's interval (stats.js bounds) on the same scale.
  */
 export function targetBar(n, { min, max } = {}) {
   const hasMin = Number.isFinite(min)
   const hasMax = Number.isFinite(max)
   if (!hasMin && !hasMax) return null
   const value = n.value
-  const pos = barScale({ min, max })
+  const pos = barScale({ min, max }, n)
   // design.md: "ok" only if the whole interval is within the range. If it spills over both bounds, the side the
   // value itself leans to wins.
   const [lo, hi] = bounds(n)

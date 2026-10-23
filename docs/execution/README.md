@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-23 | [Bars and gauges: 80% is the higher of the max and the value's top](2026-10-23-bar-scale-top.md) | accepted |
 | 2026-10-23 | [Consumption of a concoction: no "Edit the concoction" checkbox](2026-10-23-concoction-edit-removed.md) | accepted |
 | 2026-10-23 | [Consumption of a concoction: "Edit the concoction" starts unticked](2026-10-23-concoction-edit-off.md) | superseded by [concoction-edit-removed](2026-10-23-concoction-edit-removed.md) |
 | 2026-10-23 | [CIQUAL liquids: a "100 ml = X g" unit from their composition](2026-10-23-ciqual-ml.md) | accepted |
