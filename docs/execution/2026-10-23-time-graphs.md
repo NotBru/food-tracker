@@ -35,6 +35,10 @@ the error bars for the measurements too, in the same filling style as the dashbo
   shows its target and no fill.
 - One y scale per chart: the highest of the days' bounds and interval tops sits at 90%. There are up to four
   1/2/5 gridlines, and dates at the start, middle and end.
+- Sliding: dragging a chart sideways moves the days in every chart, one day per column width (right = earlier),
+  never past today. A "Today" button next to the days box jumps back. The last day shown is `?end=` in the URL
+  (none = today). A drag starts past 6 px, so a tap still picks a day. Vertical swipes still scroll the page
+  (`touch-action: pan-y`).
 - Tapping a column (hover with a mouse) picks that day in every chart. The line under each chart gives the value,
   ± error, the interval, and the target with ✓/↑/↓; tapping that line opens the day's breakdown. The picked day
   starts as today.

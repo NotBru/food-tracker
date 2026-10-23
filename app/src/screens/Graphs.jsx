@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, getConfig, getCurrentUser } from '../db'
 import { averageTargets, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from '../calc'
@@ -31,29 +31,43 @@ function ticks(top) {
   return { step, list }
 }
 
-export default function Graphs({ days: daysParam }) {
+/** `days` (how many) and `end` (the last day shown; none = today) live in the URL, like the dashboard's view. */
+export default function Graphs({ days: daysParam, end: endParam }) {
   const span = Number.isInteger(Number(daysParam)) && daysParam >= 1 && daysParam <= MAX_DAYS ? Number(daysParam) : DEFAULT_DAYS
+  const day = useToday()
+  const last = endParam && day && endParam < day ? endParam : day
+  const setView = (n, e) => {
+    const qs = new URLSearchParams({ ...(n !== DEFAULT_DAYS && { days: n }), ...(e && day && e < day && { end: e }) }).toString()
+    replace(`/graphs${qs ? `?${qs}` : ''}`)
+  }
   // The box's text while typing; the URL follows each valid number.
   const [text, setText] = useState(String(span))
-  const setSpan = (n) => replace(`/graphs${n === DEFAULT_DAYS ? '' : `?days=${n}`}`)
+  const setSpan = (n) => setView(n, last)
   const onType = (t) => {
     setText(t)
     const n = Number(t)
     if (Number.isInteger(n) && n >= 1 && n <= MAX_DAYS) setSpan(n)
   }
-  const day = useToday()
+  // Sliding a chart moves every chart: `cols` columns from where the drag started (right = earlier days).
+  const panFrom = useRef(null)
+  const pan = (cols, done) => {
+    panFrom.current ??= last
+    const e = addDays(panFrom.current, -cols)
+    setView(span, e < day ? e : day)
+    if (done) panFrom.current = null
+  }
   const [sel, setSel] = useState(null)
 
   const data = useLiveQuery(async () => {
-    if (!day) return null
+    if (!last) return null
     const config = await getConfig()
-    const first = addDays(day, -(span - 1))
+    const first = addDays(last, -(span - 1))
     const list = []
-    for (let d = first; d <= day; d = addDays(d, 1)) list.push(d)
+    for (let d = first; d <= last; d = addDays(d, 1)) list.push(d)
     // The 7 days before are loaded too, for the weekly calorie correction and the 7-day average (from the day before
     // the first, so its band comes in from the left edge instead of starting mid-column).
     const from = dayBounds(addDays(first, -7), config.dayStart)[0]
-    const end = dayBounds(day, config.dayStart)[1]
+    const end = dayBounds(last, config.dayStart)[1]
     const user = await getCurrentUser()
     const logs = await db.logs.where('[userId+datetime]').between([user.id, from.toISOString()], [user.id, end.toISOString()], true, false).toArray()
     const ctx = await loadContext()
@@ -77,7 +91,7 @@ export default function Graphs({ days: daysParam }) {
       return [d, had.length ? perDay(sumNutrients(had), had.length) : null]
     }))
     return { list, totals, week, targets, rows: [...ROWS, ...extra] }
-  }, [day, span])
+  }, [last, span])
 
   const shown = sel && data?.list.includes(sel) ? sel : data?.list.at(-1)
   return (
@@ -88,14 +102,15 @@ export default function Graphs({ days: daysParam }) {
         <input inputMode="numeric" value={text} aria-label="Days" onChange={(e) => onType(e.target.value)}
           onBlur={() => setText(String(span))} />
         <span className="muted">days</span>
+        <button className="secondary tg-today" onClick={() => setView(span)} disabled={last === day}>Today</button>
       </div>
-      {data?.rows.map((r) => <TimeChart key={r.key} row={r} data={data} shown={shown} onPick={setSel} />)}
+      {data?.rows.map((r) => <TimeChart key={r.key} row={r} data={data} shown={shown} onPick={setSel} onPan={pan} />)}
     </Screen>
   )
 }
 
 /** One nutrient over the days: the columns, a y axis, a few dates, and the picked day spelled out underneath. */
-function TimeChart({ row, data, shown, onPick }) {
+function TimeChart({ row, data, shown, onPick, onPan }) {
   const { list, totals, week, targets } = data
   const of = (t) => t && (row.key === 'energy' ? calories(t) : t[row.key] ?? zero())
   const valueOf = (d) => of(totals[d])
@@ -119,6 +134,25 @@ function TimeChart({ row, data, shown, onPick }) {
     const i = Math.floor(((e.clientX - box.left) / box.width) * list.length)
     onPick(list[Math.max(0, Math.min(list.length - 1, i))])
   }
+  // A tap picks a day; a drag sideways (past a few pixels) slides the days, a column per column width. A mouse picks
+  // on hover too.
+  const drag = useRef(null)
+  const cols = (e) => Math.round((e.clientX - drag.current.x) / drag.current.w)
+  const down = (e) => {
+    drag.current = { x: e.clientX, w: e.currentTarget.getBoundingClientRect().width / list.length, moved: false }
+    e.currentTarget.setPointerCapture(e.pointerId)
+  }
+  const move = (e) => {
+    if (!drag.current) return e.pointerType === 'mouse' && pick(e)
+    if (!drag.current.moved && Math.abs(e.clientX - drag.current.x) > 6) drag.current.moved = true
+    if (drag.current.moved) onPan(cols(e), false)
+  }
+  const up = (e) => {
+    if (!drag.current) return
+    if (drag.current.moved) onPan(cols(e), true)
+    else if (e.type === 'pointerup') pick(e)
+    drag.current = null
+  }
   const v = valueOf(shown)
   const avg = avgOf(shown)
   const range = targets[shown]?.[row.key]
@@ -135,7 +169,7 @@ function TimeChart({ row, data, shown, onPick }) {
         <div className="tg-y" aria-hidden="true">
           {grid.map((t) => <span key={t} style={{ bottom: `${pos(t)}%` }}>{fmt(t, digits)}</span>)}
         </div>
-        <div className="tg-plot" role="img" aria-label={`${row.label} per day`} onPointerDown={pick} onPointerMove={(e) => e.pointerType === 'mouse' && pick(e)}>
+        <div className="tg-plot" role="img" aria-label={`${row.label} per day`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
           {list.map((d) => <Column key={d} val={valueOf(d)} range={targets[d][row.key]} pos={pos} picked={d === shown} />)}
           {grid.map((t) => <div key={t} className="tg-grid" style={{ bottom: `${pos(t)}%` }} />)}
           <WeekOverlay list={list} avgOf={avgOf} pos={pos} />

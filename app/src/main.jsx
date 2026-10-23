@@ -29,7 +29,7 @@ function App() {
   if (a === 'targets') return <Targets add={query.new != null} />
   if (a === 'config') return <Config />
   if (a === 'users') return <Users />
-  if (a === 'graphs') return <Graphs days={query.days} />
+  if (a === 'graphs') return <Graphs days={query.days} end={query.end} />
   if (a === 'explore') return <Explore nutrient={b} />
   if (a === 'breakdown') return <Breakdown key={`${b} ${query.from} ${query.to}`} nutrient={b} from={query.from} to={query.to} win={query.win} per={query.per} />
   if (a === 'foods' && b === 'external') return <External initialQuery={query.q} />
