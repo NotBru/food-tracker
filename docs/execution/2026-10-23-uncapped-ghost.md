@@ -19,4 +19,4 @@ normal thing. I want to know how much I should actually be eating if the caps we
 
 ## Consequences
 
-- The uncapped min can drop to (near) 0 after heavy days: it's held against the low end of the earlier days' interval.
+- After heavy days the uncapped min can drop to (near) 0: the whole excess is repaid in one day.
