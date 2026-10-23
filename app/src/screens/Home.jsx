@@ -43,7 +43,7 @@ function windowTitle(win, first, last, back = 0) {
 const regionAt = (bar, x) => (bar.dummy ? 'none' : bar.minAt != null && x < bar.minAt ? 'under' : bar.maxAt != null && x > bar.maxAt ? 'over' : 'ok')
 
 /** [{from, to, region, hatched}] covering 0 → end of the fill, in % of the bar. */
-function fillPieces(bar) {
+export function fillPieces(bar) {
   const solidEnd = bar.errLo ?? bar.fill
   const spans = [[0, solidEnd, false]]
   if (bar.errLo != null && bar.errHi > bar.errLo) spans.push([bar.errLo, bar.errHi, true])
@@ -57,7 +57,7 @@ function fillPieces(bar) {
 }
 const fillEnd = (bar) => (bar.errLo != null ? bar.errHi : bar.fill)
 // With an error range, a short white tick across the band (a little past its edges) marks the estimate itself (value).
-const hasMean = (bar) => bar.errLo != null && bar.errHi > bar.errLo
+export const hasMean = (bar) => bar.errLo != null && bar.errHi > bar.errLo
 
 // --- Gauge -------------------------------------------------------------------
 // Semicircle version of the target bar: same scale (targetBar), tinted regions (no min/max markers; the colours
@@ -147,7 +147,7 @@ function Gauge({ bar, ghost }) {
 const ErrRange = ({ val }) => <span className="err-range">{sdOf(val) > 0 ? rangeText(val) : '\u00a0'}</span>
 const enterOpen = (open) => (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), open())
 
-const statusMark = (s) => (s === 'ok' ? '✓' : s === 'under' ? '↓' : '↑')
+export const statusMark = (s) => (s === 'ok' ? '✓' : s === 'under' ? '↓' : '↑')
 
 /** "1800–2200 kcal ✓" line, or a blank line of the same height when there's no target. */
 function RangeLine({ bar, range, unit }) {
@@ -380,6 +380,7 @@ export default function Home({ query = {} }) {
             </p>
           </section>
         )}
+        <button className="secondary time-graphs" onClick={() => go('/graphs')}>Time graphs</button>
 
         <nav className="menu">
           {/* Looking at another day (past, or tomorrow): open that day's consumptions (+: add one on that day). */}

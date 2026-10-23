@@ -357,14 +357,14 @@ export function barScale({ min, max }, n) {
  * Progress-bar geometry for nutrient `n` ({value, v, s}) against {min?, max?}, in % of the bar's width.
  * 80% is the higher of the max and the top of the value's interval (the min proportionally); with only a min, the
  * min sits at 50%, or lower if the interval's top would pass 80%. So the value and its interval never clip.
- * `errLo`/`errHi` place the value's interval (stats.js bounds) on the same scale.
+ * `errLo`/`errHi` place the value's interval (stats.js bounds) on the same scale. `pos` swaps in another scale
+ * (time graphs: one for every day).
  */
-export function targetBar(n, { min, max } = {}) {
+export function targetBar(n, { min, max } = {}, pos = barScale({ min, max }, n)) {
   const hasMin = Number.isFinite(min)
   const hasMax = Number.isFinite(max)
   if (!hasMin && !hasMax) return null
   const value = n.value
-  const pos = barScale({ min, max }, n)
   // design.md: "ok" only if the whole interval is within the range. If it spills over both bounds, the side the
   // value itself leans to wins.
   const [lo, hi] = bounds(n)
