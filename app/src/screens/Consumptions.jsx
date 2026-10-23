@@ -155,6 +155,7 @@ function concoctionDraft(ctx, form) {
 export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClose, onDeleted = onClose }) {
   // Concoctions made before yesterday (logical days) are likely eaten up: listed after every other food.
   const oldBefore = dayBounds(addDays(today(dayStart), -1), dayStart)[0].toISOString()
+  const addComponentRef = useRef(null)
   const [form, setForm] = useState(() => {
     const item = consumption.id ? resolve(savedCtx, consumption.itemId) : null
     const edit = kindOf(item) === 'concoction'
@@ -293,10 +294,11 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
               {form.components.map((c, i) => (
                 <li key={i} className="component">
                   <ItemPicker ctx={savedCtx} value={c.itemId} exclude={form.base?.id} oldBefore={oldBefore} show={show} enterNext onChange={(id) => setC(i, { itemId: id, unit: keepUnit(savedCtx, id, c.unit) ?? '', entryError: lastEntryError(savedCtx, logs, id) })} />
-                  <div className="row">
+                  {/* Enter in any of its boxes (a unit picked, ε set) goes on to "+ add component", as in the food editor. */}
+                  <div className="row" onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); addComponentRef.current?.focus() } }}>
                     <input inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
                     <DeltaInput value={c.amountDelta} amount={c.amount} unit={c.unit} onChange={(v) => setC(i, { amountDelta: v })} />
-                    <UnitCombo units={c.itemId != null ? unitsFor(savedCtx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} enterNext />
+                    <UnitCombo units={c.itemId != null ? unitsFor(savedCtx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} />
                     <EntryErrorButton value={c.entryError ?? DEFAULT_ENTRY_ERROR} onChange={(x) => setC(i, { entryError: x })} />
                     <button className="icon" onClick={() => setForm((f) => ({ ...f, components: f.components.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
                   </div>
@@ -309,7 +311,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
                   })()}
                 </li>
               ))}
-              <li className="add" {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, emptyComponent()] })))}>+ add component</li>
+              <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, emptyComponent()] })))}>+ add component</li>
             </ul>
             <p className="small muted">
               {draft.problem ? `Total: ${draft.problem}`
