@@ -28,6 +28,9 @@ the error bars for the measurements too, in the same filling style as the dashbo
   each day; the user: "No likey. I want only two lines (the bars), and interpolate linearly. Fill between the two
   with a dark grey filling".) It breaks where a week has no consumptions, has a key in each chart's title, and gets
   its own line under the chart. The chart's scale takes its interval tops into account.
+  The day before the first is computed too (7 days before the first are loaded), half a column left of the plot,
+  which clips it, so the band comes in from the left edge rather than starting mid-column. It still ends mid-column
+  on the right: tomorrow has no average yet.
 - Calories use each day's weekly-corrected target, as the daily dashboard showed it. A day without consumptions
   shows its target and no fill.
 - One y scale per chart: the highest of the days' bounds and interval tops sits at 90%. There are up to four

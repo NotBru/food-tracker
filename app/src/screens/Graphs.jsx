@@ -50,8 +50,9 @@ export default function Graphs({ days: daysParam }) {
     const first = addDays(day, -(span - 1))
     const list = []
     for (let d = first; d <= day; d = addDays(d, 1)) list.push(d)
-    // The 6 days before are loaded too, for the weekly calorie correction and the 7-day average.
-    const from = dayBounds(addDays(first, -6), config.dayStart)[0]
+    // The 7 days before are loaded too, for the weekly calorie correction and the 7-day average (from the day before
+    // the first, so its band comes in from the left edge instead of starting mid-column).
+    const from = dayBounds(addDays(first, -7), config.dayStart)[0]
     const end = dayBounds(day, config.dayStart)[1]
     const user = await getCurrentUser()
     const logs = await db.logs.where('[userId+datetime]').between([user.id, from.toISOString()], [user.id, end.toISOString()], true, false).toArray()
@@ -71,7 +72,7 @@ export default function Graphs({ days: daysParam }) {
     const targeted = new Set(allTargets.flatMap((t) => Object.keys(t.values)))
     const extra = NUTRIENTS.filter((n) => targeted.has(n.key) && !ROWS.some((r) => r.key === n.key))
       .map((n) => ({ key: n.key, label: n.label, unit: n.unit, cls: '' }))
-    const week = Object.fromEntries(list.map((d) => {
+    const week = Object.fromEntries([addDays(first, -1), ...list].map((d) => {
       const had = [0, 1, 2, 3, 4, 5, 6].map((i) => totals[addDays(d, -i)]).filter(Boolean)
       return [d, had.length ? perDay(sumNutrients(had), had.length) : null]
     }))
@@ -175,11 +176,12 @@ function TimeChart({ row, data, shown, onPick }) {
  * when stretched.
  */
 function WeekOverlay({ list, avgOf, pos }) {
-  const pts = list.map((d, i) => {
+  // The day before the first is in too, half a column left of the plot (which clips it): the band enters at the edge.
+  const pts = [addDays(list[0], -1), ...list].map((d, i) => {
     const a = avgOf(d)
     if (!a) return null
     const [lo, hi] = bounds(a)
-    return { x: i + 0.5, lo: 100 - pos(lo), hi: 100 - pos(hi) }
+    return { x: i - 0.5, lo: 100 - pos(lo), hi: 100 - pos(hi) }
   })
   // Breaks where a day has no average (7 days without consumptions).
   const runs = [[]]
