@@ -342,11 +342,6 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
         <Field label="Name"><input value={form.name} onChange={(e) => set('name')(e.target.value)} /></Field>
         <Field label="Brand"><input value={form.brand} onChange={(e) => set('brand')(e.target.value)} /></Field>
         <Field label="Attributes"><AttributesEditor value={form.attributes} onChange={set('attributes')} /></Field>
-        {!hasComponents && (
-          <Field label="Category (how much its values vary)">
-            <Select value={form.category} options={CATEGORY_OPTIONS} onChange={set('category')} enterNext />
-          </Field>
-        )}
         <div className="row amount-row">
           <Field label="Per amount">
             <input inputMode="decimal" value={form.amount} placeholder="1" onChange={(e) => set('amount')(e.target.value)} />
@@ -456,6 +451,13 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
               })()}
             </div>
           </>
+        )}
+
+        {/* Last: it only matters once the food is known to be a nutrients entry, not components. */}
+        {!hasComponents && (
+          <Field label="Category (how much its values vary)">
+            <Select value={form.category} options={CATEGORY_OPTIONS} onChange={set('category')} enterNext />
+          </Field>
         )}
 
         <div className="row actions">
