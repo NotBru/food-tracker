@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-23 | [Consumption of a concoction: "Edit the concoction" starts unticked](2026-10-23-concoction-edit-off.md) | accepted |
 | 2026-10-23 | [CIQUAL liquids: a "100 ml = X g" unit from their composition](2026-10-23-ciqual-ml.md) | accepted |
 | 2026-10-23 | [A component's entry error starts from the food's last concoction](2026-10-23-component-entry-error.md) | accepted |
 | 2026-10-23 | [Ghost: one grey band on the real bar's scale; "7-day adj." line removed](2026-10-23-ghost-band.md) | accepted |
@@ -61,7 +62,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | 2026-10-19 | [Food Info tab: components ranked by the breakdown's nutrient](2026-10-19-info-components-by-nutrient.md) | accepted |
 | 2026-10-19 | [Food Info tab: energy and macros first](2026-10-19-info-macros-first.md) | accepted |
 | 2026-10-18 | [Breakdown: group consumptions so they count as one (named)](2026-10-18-breakdown-groups.md) | accepted |
-| 2026-10-18 | [Consumption editor: edit a concoction's components from its consumption](2026-10-18-edit-concoction-consumption.md) | accepted |
+| 2026-10-18 | [Consumption editor: edit a concoction's components from its consumption](2026-10-18-edit-concoction-consumption.md) | accepted; default superseded by [concoction-edit-off](2026-10-23-concoction-edit-off.md) |
 | 2026-10-18 | [Weekly calorie correction: each bound solves the 7-day average](2026-10-18-correction-per-bound.md) | superseded by [error-model](2026-10-22-error-model.md) |
 | 2026-10-18 | [Food editor: energy and macros per component](2026-10-18-component-macros.md) | accepted |
 | 2026-10-18 | [Concoctions: made-at time as a tag, not part of the label](2026-10-18-made-tag.md) | accepted |

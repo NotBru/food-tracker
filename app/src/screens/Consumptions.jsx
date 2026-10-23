@@ -157,17 +157,15 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
   const oldBefore = dayBounds(addDays(today(dayStart), -1), dayStart)[0].toISOString()
   const addComponentRef = useRef(null)
   const [form, setForm] = useState(() => {
-    const item = consumption.id ? resolve(savedCtx, consumption.itemId) : null
-    const edit = kindOf(item) === 'concoction'
+    // A consumption of a concoction opens on the consumption; the checkbox opens the concoction itself.
     return {
       ...consumption,
       datetime: toLocalInput(new Date(consumption.datetime)),
-      amount: edit && isAllOf(consumption, item) ? '' : amountText(consumption.amount, consumption.amountText),
-      amountDelta: edit && isAllOf(consumption, item) ? '' : deltaText(consumption.amountDelta, consumption.amountDeltaAuto),
+      amount: amountText(consumption.amount, consumption.amountText),
+      amountDelta: deltaText(consumption.amountDelta, consumption.amountDeltaAuto),
       // In %; blank = the default.
       entryError: String(+((Number.isFinite(consumption.entryError) ? consumption.entryError : DEFAULT_ENTRY_ERROR) * 100).toPrecision(6)),
-      concoction: edit, name: '', brand: '', attributes: [], expiresAfterDays: '', components: [emptyComponent()], base: null,
-      ...(edit && concoctionFields(savedCtx, item, consumption)),
+      concoction: false, name: '', brand: '', attributes: [], expiresAfterDays: '', components: [emptyComponent()], base: null,
     }
   })
   const picked = resolve(savedCtx, form.itemId)
@@ -217,7 +215,9 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
     if (consumption.id) {
       // Editing: on loads the picked concoction (unsaved edits to it are dropped when unticked); off turns a blank
       // "all of it" into the amount it stood for.
-      if (on) return setForm((f) => ({ ...f, concoction: true, ...concoctionFields(savedCtx, picked, consumption) }))
+      // A consumption that was all of it stays "all" (a blank amount) as the components change.
+      if (on) return setForm((f) => ({ ...f, concoction: true, ...concoctionFields(savedCtx, picked, consumption),
+        ...(f.itemId === consumption.itemId && isAllOf(consumption, picked) && { amount: '', amountDelta: '' }) }))
       return setForm((f) => ({ ...f, concoction: false, base: null,
         ...(all && { amount: picked.amountText ?? String(picked.amount), amountDelta: '0', unit: picked.unit }) }))
     }
