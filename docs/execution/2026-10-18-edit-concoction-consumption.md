@@ -1,7 +1,7 @@
 # Consumption editor: edit a concoction's components from its consumption
 
 - **Date:** 2026-10-18
-- **Status:** accepted
+- **Status:** superseded by [concoction-edit-removed](2026-10-23-concoction-edit-removed.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (Consumptions screen; Foods screen → Made at, Components); request in chat
 
 ## Context

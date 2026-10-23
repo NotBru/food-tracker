@@ -1,7 +1,7 @@
 # Consumption of a concoction: "Edit the concoction" starts unticked
 
 - **Date:** 2026-10-23
-- **Status:** accepted
+- **Status:** superseded by [concoction-edit-removed](2026-10-23-concoction-edit-removed.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md); request in chat
 - **Supersedes in part:** [edit-concoction-consumption](2026-10-18-edit-concoction-consumption.md) (opening on the concoction)
 
