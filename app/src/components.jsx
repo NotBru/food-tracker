@@ -294,20 +294,25 @@ export function AttributesEditor({ value = [], onChange }) {
 /**
  * Props for an "+ add" control at the end of its list (a list's "+ add" row, "+ attribute"): reached with Tab, Enter
  * or Space presses it. Pressed from the keyboard, the cursor then goes to the first box of the row it added (the
- * control's sibling before it).
+ * control's sibling before it). `focusOnClick`: a click does that too.
  */
-export const pressable = (onPress) => ({
-  role: 'button',
-  tabIndex: 0,
-  onClick: onPress,
-  onKeyDown: (e) => {
-    if (e.key !== 'Enter' && e.key !== ' ') return
-    e.preventDefault()
+export const pressable = (onPress, { focusOnClick } = {}) => {
+  const press = (e) => {
     const list = e.currentTarget.parentElement
     onPress()
     setTimeout(() => [...list.children].at(-2)?.querySelector('input')?.focus())
-  },
-})
+  }
+  return {
+    role: 'button',
+    tabIndex: 0,
+    onClick: focusOnClick ? press : onPress,
+    onKeyDown: (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return
+      e.preventDefault()
+      press(e)
+    },
+  }
+}
 
 /** Focuses the first text box, dropdown or text area after `el` on its sheet or screen, or just leaves `el` if none. */
 export function focusNextField(el) {

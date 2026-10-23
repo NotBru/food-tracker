@@ -31,6 +31,8 @@ results, as the food and unit pickers do. The dropdowns were the food's category
   or Space presses it); pressed from the keyboard, the cursor goes to the new row's first box. "+ attribute" too
   (to the new attribute's key). Focus shows as an
   accent border.
+- "+ add component" (food editor and consumption form), clicked too, puts the cursor in the new component's "Search
+  foods…" box (user's follow-up; `pressable`'s `focusOnClick`).
 
 ## Alternatives considered
 

@@ -418,7 +418,7 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
               })()}
             </li>
           ))}
-          <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', amountDelta: '', unit: '' }] })))}>+ add component</li>
+          <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', amountDelta: '', unit: '' }] })), { focusOnClick: true })}>+ add component</li>
         </ul>
 
         <p>Per {amt} {unit}: <MacroLine nutrients={preview.nutrients} ok={preview.ok} deltas /></p>
