@@ -48,14 +48,19 @@ export default function Config() {
           <input inputMode="decimal" value={form.coverage} placeholder={pct(DEFAULT_CONFIG.coverage)}
             onChange={(e) => setForm({ ...form, coverage: e.target.value })} />
         </Field>
-        <Field label="7-day calorie correction: the min moves at most (kcal)">
-          <input inputMode="decimal" value={form.capMin} placeholder={String(DEFAULT_CONFIG.adjCap.min)}
-            onChange={(e) => setForm({ ...form, capMin: e.target.value })} />
-        </Field>
-        <Field label="7-day calorie correction: the max moves at most (kcal)">
-          <input inputMode="decimal" value={form.capMax} placeholder={String(DEFAULT_CONFIG.adjCap.max)}
-            onChange={(e) => setForm({ ...form, capMax: e.target.value })} />
-        </Field>
+        <div className="field">
+          <span>7-day calorie correction: each bound moves at most (kcal)</span>
+          <div className="row">
+            <Field label="Min">
+              <input inputMode="decimal" value={form.capMin} placeholder={String(DEFAULT_CONFIG.adjCap.min)}
+                onChange={(e) => setForm({ ...form, capMin: e.target.value })} />
+            </Field>
+            <Field label="Max">
+              <input inputMode="decimal" value={form.capMax} placeholder={String(DEFAULT_CONFIG.adjCap.max)}
+                onChange={(e) => setForm({ ...form, capMax: e.target.value })} />
+            </Field>
+          </div>
+        </div>
         <label className="check">
           <input type="checkbox" checked={form.adjGhost} onChange={(e) => setForm({ ...form, adjGhost: e.target.checked })} />
           <span>Ghost of the uncapped calorie bar (no correction caps) over the capped one</span>
