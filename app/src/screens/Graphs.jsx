@@ -14,7 +14,10 @@ import { ROWS, fillPieces, hasMean, statusMark } from './Home'
 // at the estimate. Calories use the day's weekly-corrected target, as the daily dashboard did that day.
 // A day without consumptions is no data: its target shows, no fill.
 
-const SPANS = [14, 30, 90]
+// Days shown: the slider covers up to MAX_SLIDER; the box takes up to MAX_DAYS.
+const DEFAULT_DAYS = 30
+const MAX_SLIDER = 180
+const MAX_DAYS = 730
 
 /** Ticks at 1/2/5 × 10^k below `top`: the finest step that gives at most four. */
 function ticks(top) {
@@ -27,7 +30,15 @@ function ticks(top) {
 }
 
 export default function Graphs({ days: daysParam }) {
-  const span = SPANS.includes(Number(daysParam)) ? Number(daysParam) : 30
+  const span = Number.isInteger(Number(daysParam)) && daysParam >= 1 && daysParam <= MAX_DAYS ? Number(daysParam) : DEFAULT_DAYS
+  // The box's text while typing; the URL follows each valid number.
+  const [text, setText] = useState(String(span))
+  const setSpan = (n) => replace(`/graphs${n === DEFAULT_DAYS ? '' : `?days=${n}`}`)
+  const onType = (t) => {
+    setText(t)
+    const n = Number(t)
+    if (Number.isInteger(n) && n >= 1 && n <= MAX_DAYS) setSpan(n)
+  }
   const day = useToday()
   const [sel, setSel] = useState(null)
 
@@ -64,11 +75,12 @@ export default function Graphs({ days: daysParam }) {
   const shown = sel && data?.list.includes(sel) ? sel : data?.list.at(-1)
   return (
     <Screen className="graphs" title="Time graphs" subtitle={data ? `${data.list[0]} → ${data.list.at(-1)} · daily` : ''}>
-      <div className="segmented" role="radiogroup" aria-label="Period">
-        {SPANS.map((n) => (
-          <button key={n} role="radio" aria-checked={span === n} className={span === n ? 'on' : ''}
-            onClick={() => replace(`/graphs${n === 30 ? '' : `?days=${n}`}`)}>{n} days</button>
-        ))}
+      <div className="tg-days">
+        <input type="range" min="1" max={MAX_SLIDER} value={Math.min(span, MAX_SLIDER)} aria-label="Days"
+          onChange={(e) => { setText(e.target.value); setSpan(Number(e.target.value)) }} />
+        <input inputMode="numeric" value={text} aria-label="Days" onChange={(e) => onType(e.target.value)}
+          onBlur={() => setText(String(span))} />
+        <span className="muted">days</span>
       </div>
       {data?.rows.map((r) => <TimeChart key={r.key} row={r} data={data} shown={shown} onPick={setSel} />)}
     </Screen>
@@ -88,7 +100,7 @@ function TimeChart({ row, data, shown, onPick }) {
   }
   const full = top > 0 ? top / 0.9 : 1
   const pos = (x) => Math.min(100, Math.max(0, (x / full) * 100))
-  const { step, list: grid } = ticks(full)
+  const { step, list: grid } = ticks(top > 0 ? full : 0) // nothing to measure: no gridlines
   const digits = step < 1 ? Math.ceil(-Math.log10(step)) : 0
 
   const pick = (e) => {

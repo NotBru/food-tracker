@@ -13,8 +13,9 @@ the error bars for the measurements too, in the same filling style as the dashbo
 ## Decision
 
 - Home: a "Time graphs" button between the dashboard and the menu → `#/graphs` (`screens/Graphs.jsx`).
-- One chart per dashboard row: the macros, plus any nutrient a target mentions. Last 14, 30 (default) or 90 days,
-  ending today; `?days=` keeps the choice in the URL.
+- One chart per dashboard row: the macros, plus any nutrient a target mentions. The last N days, ending today: a
+  slider (1–180) and a box (1–730), 30 by default; `?days=` keeps the choice in the URL. (First 14/30/90 buttons;
+  the user asked for "a slider with a textbox".)
 - Each day is a column, with no gaps between them. A column is a dashboard bar turned upright (`Home.jsx`'s
   `fillPieces`, `.zone`, `.bar-fill`, `.bar-err`):
   - the day's target as tinted regions (below min, within, above max);
