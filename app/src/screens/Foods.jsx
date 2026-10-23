@@ -342,24 +342,6 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
         <Field label="Name"><input value={form.name} onChange={(e) => set('name')(e.target.value)} /></Field>
         <Field label="Brand"><input value={form.brand} onChange={(e) => set('brand')(e.target.value)} /></Field>
         <Field label="Attributes"><AttributesEditor value={form.attributes} onChange={set('attributes')} /></Field>
-        <div className="row amount-row">
-          <Field label="Per amount">
-            <input inputMode="decimal" value={form.amount} placeholder="1" onChange={(e) => set('amount')(e.target.value)} />
-          </Field>
-          <Field label="± Δ">
-            <DeltaInput value={form.amountDelta} amount={form.amount} unit={form.unit} onChange={set('amountDelta')} />
-          </Field>
-          <Field label="Unit"><UnitInput value={form.unit} placeholder="portion" onChange={set('unit')} /></Field>
-        </div>
-        {hasComponents && (
-          <p className="small">
-            {total.problem
-              ? <span className="muted">Can't add up the components: {total.problem}</span>
-              : <><button className="link" onClick={autoAmount}>Auto</button>{' '}
-                <span className="muted">sum of components: {round(total.value, 6)} ± {round(total.delta, 3)} {totalUnit}</span></>}
-          </p>
-        )}
-
         <h3>Units</h3>
         <ul className="list compact">
           {form.units.map((u, i) => (
@@ -424,6 +406,23 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
           <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', amountDelta: '', unit: '' }] })), { focusOnClick: true, scrollUp: true })}>+ add component</li>
         </ul>
 
+        <div className="row amount-row">
+          <Field label="Per amount">
+            <input inputMode="decimal" value={form.amount} placeholder="1" onChange={(e) => set('amount')(e.target.value)} />
+          </Field>
+          <Field label="± Δ">
+            <DeltaInput value={form.amountDelta} amount={form.amount} unit={form.unit} onChange={set('amountDelta')} />
+          </Field>
+          <Field label="Unit"><UnitInput value={form.unit} placeholder="portion" onChange={set('unit')} /></Field>
+        </div>
+        {hasComponents && (
+          <p className="small">
+            {total.problem
+              ? <span className="muted">Can't add up the components: {total.problem}</span>
+              : <><button className="link" onClick={autoAmount}>Auto</button>{' '}
+                <span className="muted">sum of components: {round(total.value, 6)} ± {round(total.delta, 3)} {totalUnit}</span></>}
+          </p>
+        )}
         <p>Per {amt} {unit}: <MacroLine nutrients={preview.nutrients} ok={preview.ok} deltas /></p>
 
         {hasComponents ? (
