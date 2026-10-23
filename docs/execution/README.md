@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-23 | ["Below min" in the same red as "above max"](2026-10-23-under-colour.md) | accepted |
 | 2026-10-23 | [Time graphs: each dashboard nutrient per day](2026-10-23-time-graphs.md) | accepted |
 | 2026-10-23 | [Bars and gauges: 80% is the higher of the max and the value's top](2026-10-23-bar-scale-top.md) | accepted |
 | 2026-10-23 | [Consumption of a concoction: no "Edit the concoction" checkbox](2026-10-23-concoction-edit-removed.md) | accepted |

@@ -102,18 +102,18 @@ h3 { margin: 8px 0 0; font-size: 16px; }
 .dash-target.placeholder { visibility: hidden; }
 .bar-track { position: absolute; inset: 0; background: var(--bg); overflow: hidden; }
 .zone { position: absolute; top: 0; bottom: 0; opacity: .28; }
-.zone.under { background: var(--warn); }
+.zone.under { background: var(--prot); }
 .zone.ok { background: var(--kcal); }
 .zone.over { background: var(--prot); }
 .bar-fillbox { position: absolute; top: 0; bottom: 0; left: 0; overflow: hidden; transition: width .3s; }
 .bar-fill { position: absolute; top: 0; bottom: 0; background: currentColor; }
 /* Fill pieces take the colour of the region they lie in. */
-.r-under { color: var(--warn); }
+.r-under { color: var(--prot); }
 .r-ok { color: var(--kcal); }
 .r-over { color: var(--prot); }
 .r-none { color: var(--muted); }
 .bar.ok, .bar-label.ok { color: var(--kcal); }
-.bar.under, .bar-label.under { color: var(--warn); }
+.bar.under, .bar-label.under { color: var(--prot); }
 .bar.over, .bar-label.over { color: var(--prot); }
 .c-prot { color: var(--prot); }
 .c-carb { color: var(--carb); }
@@ -213,13 +213,13 @@ button.icon.small { width: 34px; height: 34px; font-size: 18px; }
 .g-track { fill: none; stroke: var(--bg); stroke-width: 10; }
 .g-mask { fill: none; stroke: #fff; stroke-width: 10; stroke-linecap: butt; }
 .g-zone { fill: none; stroke-width: 10; opacity: .28; }
-.g-zone.under { stroke: var(--warn); }
+.g-zone.under { stroke: var(--prot); }
 .g-zone.ok { stroke: var(--kcal); }
 .g-zone.over { stroke: var(--prot); }
 .g-fill { fill: none; stroke: currentColor; stroke-width: 10; stroke-linecap: butt; }
 .g-fill-mask { fill: none; stroke: #fff; stroke-width: 10; stroke-linecap: butt; }
 .gauge.ok { color: var(--kcal); }
-.gauge.under { color: var(--warn); }
+.gauge.under { color: var(--prot); }
 .gauge.over { color: var(--prot); }
 
 /* Segmented two-way toggle */
