@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, getConfig, getCurrentUser } from '../db'
-import { averageTargets, consumptionNutrients, loadContext, sumNutrients, targetBar, weeklyCorrection } from '../calc'
+import { averageTargets, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from '../calc'
 import { NUTRIENTS, calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf, zero } from '../stats'
 import { addDays, dayBounds, logicalDay, prettyDay } from '../time'
@@ -13,6 +13,8 @@ import { ROWS, fillPieces, hasMean, statusMark } from './Home'
 // of the day's interval and hatched from there to its high end, each piece in its region's colour, and a white tick
 // at the estimate. Calories use the day's weekly-corrected target, as the daily dashboard did that day.
 // A day without consumptions is no data: its target shows, no fill.
+// Over the columns, the 7-day average: per day, the per-day average over it and the 6 days before (those with
+// consumptions, as the dashboard's windows), a line through the estimates with an error bar at each day.
 
 // Days shown: the slider covers up to MAX_SLIDER; the box takes up to MAX_DAYS.
 const DEFAULT_DAYS = 30
@@ -48,7 +50,7 @@ export default function Graphs({ days: daysParam }) {
     const first = addDays(day, -(span - 1))
     const list = []
     for (let d = first; d <= day; d = addDays(d, 1)) list.push(d)
-    // The 6 days before are loaded too, for the weekly calorie correction.
+    // The 6 days before are loaded too, for the weekly calorie correction and the 7-day average.
     const from = dayBounds(addDays(first, -6), config.dayStart)[0]
     const end = dayBounds(day, config.dayStart)[1]
     const user = await getCurrentUser()
@@ -69,7 +71,11 @@ export default function Graphs({ days: daysParam }) {
     const targeted = new Set(allTargets.flatMap((t) => Object.keys(t.values)))
     const extra = NUTRIENTS.filter((n) => targeted.has(n.key) && !ROWS.some((r) => r.key === n.key))
       .map((n) => ({ key: n.key, label: n.label, unit: n.unit, cls: '' }))
-    return { list, totals, targets, rows: [...ROWS, ...extra] }
+    const week = Object.fromEntries(list.map((d) => {
+      const had = [0, 1, 2, 3, 4, 5, 6].map((i) => totals[addDays(d, -i)]).filter(Boolean)
+      return [d, had.length ? perDay(sumNutrients(had), had.length) : null]
+    }))
+    return { list, totals, week, targets, rows: [...ROWS, ...extra] }
   }, [day, span])
 
   const shown = sel && data?.list.includes(sel) ? sel : data?.list.at(-1)
@@ -89,14 +95,18 @@ export default function Graphs({ days: daysParam }) {
 
 /** One nutrient over the days: the columns, a y axis, a few dates, and the picked day spelled out underneath. */
 function TimeChart({ row, data, shown, onPick }) {
-  const { list, totals, targets } = data
-  const valueOf = (d) => totals[d] && (row.key === 'energy' ? calories(totals[d]) : totals[d][row.key] ?? zero())
-  // One scale for the chart: the highest of the days' bounds and intervals' tops at 90% of the height.
+  const { list, totals, week, targets } = data
+  const of = (t) => t && (row.key === 'energy' ? calories(t) : t[row.key] ?? zero())
+  const valueOf = (d) => of(totals[d])
+  const avgOf = (d) => of(week[d])
+  // One scale for the chart: the highest of the days' bounds and intervals' tops (the average's too) at 90% of the
+  // height.
   let top = 0
   for (const d of list) {
     const r = targets[d][row.key] ?? {}
     const v = valueOf(d)
-    top = Math.max(top, ...[r.min, r.max, v && bounds(v)[1]].filter(Number.isFinite))
+    const a = avgOf(d)
+    top = Math.max(top, ...[r.min, r.max, v && bounds(v)[1], a && bounds(a)[1]].filter(Number.isFinite))
   }
   const full = top > 0 ? top / 0.9 : 1
   const pos = (x) => Math.min(100, Math.max(0, (x / full) * 100))
@@ -109,13 +119,17 @@ function TimeChart({ row, data, shown, onPick }) {
     onPick(list[Math.max(0, Math.min(list.length - 1, i))])
   }
   const v = valueOf(shown)
+  const avg = avgOf(shown)
   const range = targets[shown]?.[row.key]
   const bar = v && targetBar(v, range, pos)
   const labelled = [0, Math.floor((list.length - 1) / 2), list.length - 1]
 
   return (
     <section className="tg">
-      <h3>{row.label} <small className="muted">{row.unit}</small></h3>
+      <h3>
+        {row.label} <small className="muted">{row.unit}</small>
+        <span className="tg-key"><svg viewBox="0 0 16 8" aria-hidden="true"><path d="M0 4 H16" /></svg>7-day average</span>
+      </h3>
       <div className="tg-chart">
         <div className="tg-y" aria-hidden="true">
           {grid.map((t) => <span key={t} style={{ bottom: `${pos(t)}%` }}>{fmt(t, digits)}</span>)}
@@ -123,6 +137,7 @@ function TimeChart({ row, data, shown, onPick }) {
         <div className="tg-plot" role="img" aria-label={`${row.label} per day`} onPointerDown={pick} onPointerMove={(e) => e.pointerType === 'mouse' && pick(e)}>
           {list.map((d) => <Column key={d} val={valueOf(d)} range={targets[d][row.key]} pos={pos} picked={d === shown} />)}
           {grid.map((t) => <div key={t} className="tg-grid" style={{ bottom: `${pos(t)}%` }} />)}
+          <WeekOverlay list={list} avgOf={avgOf} pos={pos} />
         </div>
         <div className="tg-x" aria-hidden="true">
           {labelled.map((i) => (
@@ -141,8 +156,43 @@ function TimeChart({ row, data, shown, onPick }) {
         {range && (Number.isFinite(range.min) || Number.isFinite(range.max)) && (
           <span className={`bar-label ${bar?.status ?? ''}`}> · {rangeLabel(range)} {bar ? statusMark(bar.status) : ''}</span>
         )}
+        <br />
+        <span className="muted">7-day average · </span>
+        {avg ? (
+          <>
+            <b className="tg-avg">{avg.estimated ? '~' : ''}{fmt(avg.value, 0)}</b> {row.unit} {pmText(avg)}
+            {sdOf(avg) > 0 && <span className="err-range"> ({rangeText(avg)})</span>}
+          </>
+        ) : <span className="muted">no consumptions</span>}
       </p>
     </section>
+  )
+}
+
+/**
+ * The 7-day average over the columns: a line through the estimates, and at each day an error bar (its interval)
+ * with short caps. Drawn in column units across, % of the plot up; strokes keep their width when stretched.
+ */
+function WeekOverlay({ list, avgOf, pos }) {
+  const pts = list.map((d, i) => {
+    const a = avgOf(d)
+    if (!a) return null
+    const [lo, hi] = bounds(a)
+    return { x: i + 0.5, y: 100 - pos(a.value), lo: 100 - pos(lo), hi: 100 - pos(hi) }
+  })
+  // The line breaks where a day has no average (7 days without consumptions).
+  const runs = [[]]
+  for (const p of pts) p ? runs.at(-1).push(p) : runs.push([])
+  const line = runs.filter((r) => r.length).map((r) => r.map((p, j) => `${j ? 'L' : 'M'} ${p.x} ${p.y}`).join(' ')).join(' ')
+  const cap = Math.min(0.3, 0.3 * (list.length / 30)) // narrower relative to a column when columns are wide
+  const bars = pts.filter((p) => p && p.lo > p.hi)
+    .map((p) => `M ${p.x} ${p.lo} V ${p.hi} M ${p.x - cap} ${p.lo} H ${p.x + cap} M ${p.x - cap} ${p.hi} H ${p.x + cap}`).join(' ')
+  return (
+    <svg className="tg-week" viewBox={`0 0 ${list.length} 100`} preserveAspectRatio="none" aria-hidden="true">
+      <path className="tg-week-halo" d={`${bars} ${line}`} />
+      <path className="tg-week-bars" d={bars} />
+      <path className="tg-week-line" d={line} />
+    </svg>
   )
 }
 

@@ -21,6 +21,11 @@ the error bars for the measurements too, in the same filling style as the dashbo
   - the day's target as tinted regions (below min, within, above max);
   - the fill, solid up to the interval's low end and hatched up to its high end, each piece in its region's colour;
   - a white tick at the estimate.
+- Over the columns, the 7-day average (asked for later the same day): for each day, the per-day average over it
+  and the 6 days before. As in the dashboard's windows, only days with consumptions count (`calc.js perDay`). It's
+  drawn as a blue line through the estimates, with an error bar (the interval, capped) at each day and a dark halo
+  so it reads over every fill. It breaks where a week has no consumptions, has a key in each chart's title, and
+  gets its own line under the chart. The chart's scale takes its interval tops into account.
 - Calories use each day's weekly-corrected target, as the daily dashboard showed it. A day without consumptions
   shows its target and no fill.
 - One y scale per chart: the highest of the days' bounds and interval tops sits at 90%. There are up to four
