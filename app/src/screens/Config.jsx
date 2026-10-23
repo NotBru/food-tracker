@@ -8,14 +8,24 @@ const pct = (p) => String(+(p * 100).toPrecision(4))
 export default function Config() {
   const [form, setForm] = useState(null)
   useEffect(() => {
-    getConfig().then((c) => setForm({ dayStart: c.dayStart, dashboard: c.dashboard, coverage: pct(c.coverage), ciqual: c.ciqual }))
+    getConfig().then((c) => setForm({
+      dayStart: c.dayStart, dashboard: c.dashboard, coverage: pct(c.coverage), ciqual: c.ciqual,
+      capMin: String(c.adjCap.min), capMax: String(c.adjCap.max), adjGhost: c.adjGhost,
+    }))
   }, [])
   if (!form) return null
 
   async function save() {
     const p = Number(form.coverage.trim().replace(',', '.')) / 100
     if (!(p > 0 && p < 1)) return alert('The interval must hold more than 0% and less than 100%.')
-    await saveConfig({ dayStart: form.dayStart || DEFAULT_CONFIG.dayStart, dashboard: form.dashboard, coverage: p, ciqual: form.ciqual })
+    // A blank cap is the default; 0 turns the correction off for that bound.
+    const kcal = (text, def) => (text.trim() === '' ? def : Number(text.trim().replace(',', '.')))
+    const adjCap = { min: kcal(form.capMin, DEFAULT_CONFIG.adjCap.min), max: kcal(form.capMax, DEFAULT_CONFIG.adjCap.max) }
+    if (!(adjCap.min >= 0 && adjCap.max >= 0)) return alert('The 7-day correction caps must be 0 kcal or more.')
+    await saveConfig({
+      dayStart: form.dayStart || DEFAULT_CONFIG.dayStart, dashboard: form.dashboard, coverage: p, ciqual: form.ciqual,
+      adjCap, adjGhost: form.adjGhost,
+    })
     history.back()
   }
 
@@ -38,6 +48,18 @@ export default function Config() {
           <input inputMode="decimal" value={form.coverage} placeholder={pct(DEFAULT_CONFIG.coverage)}
             onChange={(e) => setForm({ ...form, coverage: e.target.value })} />
         </Field>
+        <Field label="7-day calorie correction: the min moves at most (kcal)">
+          <input inputMode="decimal" value={form.capMin} placeholder={String(DEFAULT_CONFIG.adjCap.min)}
+            onChange={(e) => setForm({ ...form, capMin: e.target.value })} />
+        </Field>
+        <Field label="7-day calorie correction: the max moves at most (kcal)">
+          <input inputMode="decimal" value={form.capMax} placeholder={String(DEFAULT_CONFIG.adjCap.max)}
+            onChange={(e) => setForm({ ...form, capMax: e.target.value })} />
+        </Field>
+        <label className="check">
+          <input type="checkbox" checked={form.adjGhost} onChange={(e) => setForm({ ...form, adjGhost: e.target.checked })} />
+          <span>Ghost of the uncorrected calorie bar over the corrected one</span>
+        </label>
         <label className="check">
           <input type="checkbox" checked={form.ciqual} onChange={(e) => setForm({ ...form, ciqual: e.target.checked })} />
           <span>CIQUAL's generic foods in the food database</span>

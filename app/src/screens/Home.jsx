@@ -1,7 +1,7 @@
 import { useId, useRef } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, exportAll, getConfig, getCurrentUser, importAll } from '../db'
-import { WEEKLY_CAP, averageTargets, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from '../calc'
+import { averageTargets, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from '../calc'
 import { NUTRIENTS, calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf, zero } from '../stats'
 import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, logicalDay, prettyDay, toDateStr, toLocalInput, today, windowDays } from '../time'
@@ -18,6 +18,9 @@ export const ROWS = [
 // Mandatory rows without a target still get a neutral, full bar/gauge (no regions, markers or label).
 const DUMMY = { fill: 100, minAt: null, maxAt: null, status: 'none', dummy: true }
 const barFor = (row, val, range) => targetBar(val, range) ?? (ROWS.some((r) => r.key === row.key) ? DUMMY : null)
+/** Daily calories with the ghost on: the bar the uncorrected target would give, when the correction moved it. */
+const ghostFor = (row, val, adj) =>
+  row.key === 'energy' && adj?.ghost && adj.days && Object.values(adj.shift).some((x) => Math.round(x) !== 0) ? targetBar(val, adj.base) : null
 
 function windowTitle(win, first, last, back = 0) {
   if (win === 'daily') return `${back === 0 ? 'Today' : back === 1 ? 'Yesterday' : back === -1 ? 'Tomorrow' : `${back} days ago`} · ${prettyDay(first)}`
@@ -82,7 +85,7 @@ function hatch(p0, p1) {
   return d.join(' ')
 }
 
-function Gauge({ bar }) {
+function Gauge({ bar, ghost }) {
   const maskId = useId()
   const f = (x) => (x ?? 0) / 100
   const lo = (x) => (x > 0 ? x : -OVER) // a region touching an end overshoots it
@@ -128,7 +131,30 @@ function Gauge({ bar }) {
           {hasMean(bar) && <path className="g-mean" d={`M ${pt(f(bar.fill), G.r - G.w / 2 - 2)} L ${pt(f(bar.fill), G.r + G.w / 2 + 2)}`} />}
         </>
       )}
+      {ghost && <GaugeGhost ghost={ghost} />}
     </svg>
+  )
+}
+
+// The ghost: the bar the uncorrected target would give, very faint grey over the real one. Its fill (to the same end
+// as the real fill) and its min/max as ticks a little past the track's edges.
+const tick = (p, r0 = G.r - G.w / 2 - 2, r1 = G.r + G.w / 2 + 2) => `M ${pt(p, r0)} L ${pt(p, r1)}`
+function GaugeGhost({ ghost }) {
+  const f = (x) => x / 100
+  return (
+    <g className="ghost">
+      {fillEnd(ghost) > 0 && <path className="g-ghost-fill" d={arc(0, f(fillEnd(ghost)))} />}
+      {[ghost.minAt, ghost.maxAt].filter((x) => x != null).map((x) => <path key={x} className="g-ghost-tick" d={tick(f(x))} />)}
+    </g>
+  )
+}
+
+function BarGhost({ ghost }) {
+  return (
+    <div className="bar-ghost">
+      <div className="bar-ghost-fill" style={{ width: `${fillEnd(ghost)}%` }} />
+      {[ghost.minAt, ghost.maxAt].filter((x) => x != null).map((x) => <div key={x} className="bar-ghost-tick" style={{ left: `${x}%` }} />)}
+    </div>
   )
 }
 
@@ -171,7 +197,8 @@ function WeeklyAdj({ row, adj }) {
   const capped = Object.values(adj.capped).some(Boolean)
   const signed = (x) => `${x < 0 ? '−' : '+'}${fmt(Math.abs(x), 0)}`
   const text = new Set(shifts).size === 1 ? signed(shifts[0]) : shifts.map(signed).join('/')
-  const title = `Range this day must land in for the ${adj.days + 1}-day average to be within the target${capped ? ` (capped at ${WEEKLY_CAP} kcal)` : ''}`
+  const caps = ['min', 'max'].filter((k) => adj.capped[k]).map((k) => `${k} ${fmt(adj.cap[k], 0)} kcal`).join(', ')
+  const title = `Range this day must land in for the ${adj.days + 1}-day average to be within the target${capped ? ` (capped: ${caps})` : ''}`
   return (
     <span className="weekly-adj" title={title}>
       7-day adj. {text} {row.unit}{capped ? ' (cap)' : ''}
@@ -182,6 +209,7 @@ function WeeklyAdj({ row, adj }) {
 /** Dashboard style "bars": one full-width row per nutrient with a horizontal bar over tinted regions. */
 function BarRow({ row: r, val, range, adj, onOpen }) {
   const bar = barFor(r, val, range)
+  const ghost = ghostFor(r, val, adj)
   return (
     <div className="dash-row" role="button" tabIndex={0} onClick={onOpen} onKeyDown={enterOpen(onOpen)}>
       <span className="dash-label">{r.label}</span>
@@ -210,6 +238,7 @@ function BarRow({ row: r, val, range, adj, onOpen }) {
                 </div>
               </div>
               {hasMean(bar) && <div className="bar-mean" style={{ left: `${bar.fill}%` }} />}
+              {ghost && <BarGhost ghost={ghost} />}
             </>
           )}
         </div>
@@ -224,11 +253,12 @@ function BarRow({ row: r, val, range, adj, onOpen }) {
 /** Dashboard style "gauges": equal tiles in a 2-column grid, value inside a semicircle gauge. */
 function GaugeTile({ row: r, val, range, adj, onOpen }) {
   const bar = barFor(r, val, range)
+  const ghost = ghostFor(r, val, adj)
   return (
     <div className="tile" role="button" tabIndex={0} onClick={onOpen} onKeyDown={enterOpen(onOpen)}>
       <span className="tile-label">{r.label}</span>
       <div className="gauge-wrap">
-        <Gauge bar={bar} />
+        <Gauge bar={bar} ghost={ghost} />
         <span className={`gauge-value ${r.cls}`}>{val.estimated ? '~' : ''}{fmt(val.value, 0)}</span>
       </div>
       <span className="tile-sub">{r.unit} {pmText(val)}</span>
@@ -286,8 +316,11 @@ export default function Home({ query = {} }) {
       const byDay = {}
       for (const l of all) if (l.datetime < start.toISOString()) (byDay[logicalDay(l.datetime, config.dayStart)] ??= []).push(consumptionNutrients(ctx, l).nutrients)
       const eaten = Object.fromEntries(Object.entries(byDay).map(([d, list]) => [d, calories(sumNutrients(list))]))
-      adj = weeklyCorrection(allTargets, first, config.dayStart, eaten)
-      if (adj) targets.energy = adj.range
+      adj = weeklyCorrection(allTargets, first, config.dayStart, eaten, config.adjCap)
+      if (adj) {
+        targets.energy = adj.range
+        Object.assign(adj, { cap: config.adjCap, ghost: config.adjGhost })
+      }
     }
     // Every nutrient that any target mentions gets a row, even if no target covers this window.
     const targeted = new Set(allTargets.flatMap((t) => Object.keys(t.values)))

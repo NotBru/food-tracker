@@ -364,8 +364,6 @@ export function targetBar(n, { min, max } = {}) {
 // The daily calorie goal moves to make up for the days before it: the range shown for `day` is the one `day` must
 // land in for the 7-day per-day average (the 6 days before `day`, plus `day`) to be within the target, capped.
 
-export const WEEKLY_CAP = 500 // kcal
-
 /**
  * The calorie target for `day`, set so that eating within it puts the 7-day per-day average within the target.
  * The earlier days are the 6 before `day`; `eaten` is {day: kcal ({value, v, s})} for the ones that have
@@ -374,11 +372,11 @@ export const WEEKLY_CAP = 500 // kcal
  * Days without any, or without a calorie target, don't count (so less than a week of data only corrects what's
  * there). For each bound, with N earlier days: (bound' + their total) / (N + 1) = that bound averaged over those
  * days and `day` (each bound over the days that set it, as in `averageTargets`).
- * Each bound moves on its own, by at most WEEKLY_CAP, never below 0.
- * Returns {range, shift: {min, max}, days, capped: {min, max}}, or null when `day` has no calorie target;
- * `shift` and `capped` only have the bounds `day`'s target has.
+ * Each bound moves on its own, by at most `cap` (kcal, {min, max}: one per bound), never below 0.
+ * Returns {range, base, shift: {min, max}, days, capped: {min, max}}, or null when `day` has no calorie target;
+ * `base` is `day`'s own (uncorrected) range; `shift` and `capped` only have the bounds `day`'s target has.
  */
-export function weeklyCorrection(targets, day, dayStart, eaten, key = 'energy') {
+export function weeklyCorrection(targets, day, dayStart, eaten, cap, key = 'energy') {
   const has = (d) => {
     const r = targetForDay(targets, d, dayStart)?.values?.[key]
     return Number.isFinite(r?.min) || Number.isFinite(r?.max)
@@ -401,9 +399,9 @@ export function weeklyCorrection(targets, day, dayStart, eaten, key = 'energy') 
   for (const k of ['min', 'max']) {
     if (!Number.isFinite(target[k])) continue
     const owed = (days + 1) * avg[k] - total[k] - target[k]
-    shift[k] = Math.max(-WEEKLY_CAP, Math.min(WEEKLY_CAP, owed))
+    shift[k] = Math.max(-cap[k], Math.min(cap[k], owed))
     capped[k] = shift[k] !== owed
     range[k] = Math.max(0, target[k] + shift[k])
   }
-  return { range, shift, days, capped }
+  return { range, base: target, shift, days, capped }
 }

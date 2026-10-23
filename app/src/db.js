@@ -204,6 +204,8 @@ export const DEFAULT_CONFIG = {
   dashboard: 'gauges', // 'gauges' (2-column tiles) or 'bars' (one row per nutrient)
   coverage: 0.9, // share of the probability the error intervals hold
   ciqual: true, // CIQUAL's generic foods listed in the food database
+  adjCap: { min: 500, max: 500 }, // kcal: how far the 7-day correction may move each bound of the daily calorie target
+  adjGhost: false, // dashboard: the uncorrected calorie bar/gauge drawn as a faint grey ghost over the corrected one
 }
 
 export async function getConfig() {

@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-23 | [7-day calorie correction: caps in Config; a ghost of the uncorrected bar](2026-10-23-correction-caps-ghost.md) | accepted |
 | 2026-10-23 | [Food editor components: concoctions offered as in the consumption form; "+ add component" scrolls up](2026-10-23-food-editor-components-criterion.md) | accepted |
 | 2026-10-22 | [Breakdown: "Total" or "per 100 kcal"](2026-10-22-breakdown-per-kcal.md) | accepted |
 | 2026-10-22 | [Breakdown from "last 7 days": a Days view first](2026-10-22-last7-days-view.md) | accepted |
