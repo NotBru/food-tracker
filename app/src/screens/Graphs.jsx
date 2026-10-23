@@ -14,7 +14,7 @@ import { ROWS, fillPieces, hasMean, statusMark } from './Home'
 // at the estimate. Calories use the day's weekly-corrected target, as the daily dashboard did that day.
 // A day without consumptions is no data: its target shows, no fill.
 // Over the columns, the 7-day average: per day, the per-day average over it and the 6 days before (those with
-// consumptions, as the dashboard's windows), a line through the estimates with an error bar at each day.
+// consumptions, as the dashboard's windows): its interval as a dark grey band between two lines.
 
 // Days shown: the slider covers up to MAX_SLIDER; the box takes up to MAX_DAYS.
 const DEFAULT_DAYS = 30
@@ -128,7 +128,7 @@ function TimeChart({ row, data, shown, onPick }) {
     <section className="tg">
       <h3>
         {row.label} <small className="muted">{row.unit}</small>
-        <span className="tg-key"><svg viewBox="0 0 16 8" aria-hidden="true"><path d="M0 4 H16" /></svg>7-day average</span>
+        <span className="tg-key"><svg viewBox="0 0 16 10" aria-hidden="true"><rect x="0" y="1" width="16" height="8" /><path d="M0 1 H16 M0 9 H16" /></svg>7-day average</span>
       </h3>
       <div className="tg-chart">
         <div className="tg-y" aria-hidden="true">
@@ -170,28 +170,28 @@ function TimeChart({ row, data, shown, onPick }) {
 }
 
 /**
- * The 7-day average over the columns: a line through the estimates, and at each day an error bar (its interval)
- * with short caps. Drawn in column units across, % of the plot up; strokes keep their width when stretched.
+ * The 7-day average over the columns: its interval as two lines, low and high ends joined straight from day to day,
+ * and dark grey filled between them. Drawn in column units across, % of the plot up; strokes keep their width
+ * when stretched.
  */
 function WeekOverlay({ list, avgOf, pos }) {
   const pts = list.map((d, i) => {
     const a = avgOf(d)
     if (!a) return null
     const [lo, hi] = bounds(a)
-    return { x: i + 0.5, y: 100 - pos(a.value), lo: 100 - pos(lo), hi: 100 - pos(hi) }
+    return { x: i + 0.5, lo: 100 - pos(lo), hi: 100 - pos(hi) }
   })
-  // The line breaks where a day has no average (7 days without consumptions).
+  // Breaks where a day has no average (7 days without consumptions).
   const runs = [[]]
   for (const p of pts) p ? runs.at(-1).push(p) : runs.push([])
-  const line = runs.filter((r) => r.length).map((r) => r.map((p, j) => `${j ? 'L' : 'M'} ${p.x} ${p.y}`).join(' ')).join(' ')
-  const cap = Math.min(0.3, 0.3 * (list.length / 30)) // narrower relative to a column when columns are wide
-  const bars = pts.filter((p) => p && p.lo > p.hi)
-    .map((p) => `M ${p.x} ${p.lo} V ${p.hi} M ${p.x - cap} ${p.lo} H ${p.x + cap} M ${p.x - cap} ${p.hi} H ${p.x + cap}`).join(' ')
+  const path = (r, k) => r.map((p, j) => `${j ? 'L' : 'M'} ${p.x} ${p[k]}`).join(' ')
+  const kept = runs.filter((r) => r.length)
+  const band = kept.map((r) => `${path(r, 'hi')} ${path([...r].reverse(), 'lo').replace('M', 'L')} Z`).join(' ')
+  const edges = kept.map((r) => `${path(r, 'hi')} ${path(r, 'lo')}`).join(' ')
   return (
     <svg className="tg-week" viewBox={`0 0 ${list.length} 100`} preserveAspectRatio="none" aria-hidden="true">
-      <path className="tg-week-halo" d={`${bars} ${line}`} />
-      <path className="tg-week-bars" d={bars} />
-      <path className="tg-week-line" d={line} />
+      <path className="tg-week-band" d={band} />
+      <path className="tg-week-edge" d={edges} />
     </svg>
   )
 }
