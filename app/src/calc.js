@@ -190,9 +190,10 @@ export const resolve = (ctx, id) => ctx.items.get(id)
 /**
  * What is left of each concoction: id -> {value, amount, unit}, in its own amount and unit. Taken off it: every
  * consumption of it (`logs`, every user's: they share the pot) but `skipLogId` (the one being edited), and every
- * other concoction it went into. Nominal values; an amount in a unit that doesn't convert is left out.
+ * other concoction it went into but `skipItemId` (the one being edited). Nominal values; an amount in a unit that
+ * doesn't convert is left out.
  */
-export function concoctionsLeft(ctx, logs, skipLogId) {
+export function concoctionsLeft(ctx, logs, skipLogId, skipItemId) {
   const left = new Map()
   for (const it of ctx.list) {
     if (!it.madeAt) continue
@@ -205,7 +206,7 @@ export function concoctionsLeft(ctx, logs, skipLogId) {
     if (Number.isFinite(f) && amount > 0) l.value -= amount * f
   }
   for (const log of logs) if (log.id !== skipLogId) take(log.itemId, log.amount, log.unit)
-  for (const it of ctx.list) if (it.madeAt) for (const c of it.components ?? []) take(c.itemId, c.amount, c.unit)
+  for (const it of ctx.list) if (it.madeAt && it.id !== skipItemId) for (const c of it.components ?? []) take(c.itemId, c.amount, c.unit)
   return left
 }
 

@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-23 | [Food editor components: concoctions offered as in the consumption form; "+ add component" scrolls up](2026-10-23-food-editor-components-criterion.md) | accepted |
 | 2026-10-22 | [Breakdown: "Total" or "per 100 kcal"](2026-10-22-breakdown-per-kcal.md) | accepted |
 | 2026-10-22 | [Breakdown from "last 7 days": a Days view first](2026-10-22-last7-days-view.md) | accepted |
 | 2026-10-22 | [Dropdowns: a search box on a computer, native on a phone](2026-10-22-computer-dropdowns.md) | accepted |
@@ -42,7 +43,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | 2026-10-22 | [Nutrient variability: one report, "in depth" dropped from the name](2026-10-22-nutrient-report-rename.md) | accepted |
 | 2026-10-22 | [Nutrient content variability: full deep research, fact-checked](2026-10-22-nutrient-variability-deep-research.md) | accepted |
 | 2026-10-22 | [deep-research-lite skill installed; nutrient-variability research](2026-10-22-deep-research-lite.md) | superseded by [nutrient-report-rename](2026-10-22-nutrient-report-rename.md) |
-| 2026-10-22 | [Consumption editor: eaten-up and expired concoctions hidden; "Max" button](2026-10-22-concoction-left-expiry.md) | accepted |
+| 2026-10-22 | [Consumption editor: eaten-up and expired concoctions hidden; "Max" button](2026-10-22-concoction-left-expiry.md) | accepted; food editor's components superseded by [food-editor-components-criterion](2026-10-23-food-editor-components-criterion.md) |
 | 2026-10-21 | [md2html.sh: compile markdown notes to self-contained HTML](2026-10-21-md2html.md) | accepted |
 | 2026-10-21 | [Dashboard: the error range on its own line, in its own colour](2026-10-21-error-range-line.md) | accepted |
 | 2026-10-20 | [Recipes whose amount is their components' sum: the error isn't counted twice](2026-10-20-recipe-sum-error.md) | superseded by [error-model](2026-10-22-error-model.md) |

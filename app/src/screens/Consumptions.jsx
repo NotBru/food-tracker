@@ -311,7 +311,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
                   })()}
                 </li>
               ))}
-              <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, emptyComponent()] })), { focusOnClick: true })}>+ add component</li>
+              <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, emptyComponent()] })), { focusOnClick: true, scrollUp: true })}>+ add component</li>
             </ul>
             <p className="small muted">
               {draft.problem ? `Total: ${draft.problem}`

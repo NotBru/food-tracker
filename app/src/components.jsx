@@ -294,13 +294,18 @@ export function AttributesEditor({ value = [], onChange }) {
 /**
  * Props for an "+ add" control at the end of its list (a list's "+ add" row, "+ attribute"): reached with Tab, Enter
  * or Space presses it. Pressed from the keyboard, the cursor then goes to the first box of the row it added (the
- * control's sibling before it). `focusOnClick`: a click does that too.
+ * control's sibling before it). `focusOnClick`: a click does that too. `scrollUp`: the new row is then scrolled to the
+ * top, so a dropdown opening under its box has room (after the on-screen keyboard is up).
  */
-export const pressable = (onPress, { focusOnClick } = {}) => {
+export const pressable = (onPress, { focusOnClick, scrollUp } = {}) => {
   const press = (e) => {
     const list = e.currentTarget.parentElement
     onPress()
-    setTimeout(() => [...list.children].at(-2)?.querySelector('input')?.focus())
+    setTimeout(() => {
+      const row = [...list.children].at(-2)
+      row?.querySelector('input')?.focus()
+      if (row && scrollUp) setTimeout(() => row.scrollIntoView({ block: 'start', behavior: 'smooth' }), 300)
+    })
   }
   return {
     role: 'button',

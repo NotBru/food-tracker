@@ -1,7 +1,7 @@
 # Consumption editor: eaten-up and expired concoctions hidden; "Max" button
 
 - **Date:** 2026-10-22
-- **Status:** accepted
+- **Status:** accepted; "Where", for the food editor's components, superseded by [food-editor-components-criterion](2026-10-23-food-editor-components-criterion.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (Foods screen → Made at); request in chat
 
 ## Context

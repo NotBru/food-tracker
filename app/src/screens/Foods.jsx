@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { DEFAULT_EXPIRY_DAYS, conflictingFoods, db, findEqualFood, fold, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays, searchText } from '../db'
-import { baseAmount, componentsTotal, keepUnit, lastEntryError, loadContext, nutrientsFor, unitsFor } from '../calc'
+import { DEFAULT_EXPIRY_DAYS, conflictingFoods, db, expiresAt, findEqualFood, fold, getConfig, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays, searchText } from '../db'
+import { baseAmount, componentsTotal, concoctionsLeft, keepUnit, lastEntryError, loadContext, nutrientsFor, unitsFor, usedUp } from '../calc'
 import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measure, normalizeNumber } from '../nutrients'
 import { CATEGORY_GROUPS, DEFAULT_ENTRY_ERROR } from '../errors'
-import { toLocalInput } from '../time'
+import { addDays, dayBounds, toLocalInput, today } from '../time'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
 import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, Select, pressable, UnitCombo, UnitInput, enterTo, go, replace } from '../components'
 import FoodInfo from './FoodInfo'
@@ -113,7 +113,7 @@ export function FoodEditor({ id, tab, nutrient, nested, name }) {
   const data = useLiveQuery(async () => {
     const ctx = await loadContext()
     const rec = isNew ? null : id.startsWith('ciqual:') ? ctx.items.get(id) ?? null : await db.items.get(Number(id))
-    return { id, ctx, rec }
+    return { id, ctx, rec, dayStart: (await getConfig()).dayStart }
   }, [id])
   // useLiveQuery keeps the previous result while a new id loads; don't build the form from another food's data.
   if (!data || data.id !== id) return null
@@ -135,7 +135,7 @@ export function FoodEditor({ id, tab, nutrient, nested, name }) {
       <div hidden={info}>
         {/* A new food may come prefilled from "Search external" (draft handed over by external.js). */}
         {/* A read-only (CIQUAL) food prefills a new one: saving makes the copy. */}
-        <FoodForm key={`${id}:${nested ?? ''}`} ctx={data.ctx} initial={data.rec?.readOnly ? null : data.rec}
+        <FoodForm key={`${id}:${nested ?? ''}`} ctx={data.ctx} dayStart={data.dayStart} initial={data.rec?.readOnly ? null : data.rec}
           prefill={isNew ? peekPendingDraft() : data.rec?.readOnly ? data.rec : null} copy={!!data.rec?.readOnly}
           nested={!!parent} name={name} />
       </div>
@@ -166,7 +166,7 @@ function withCreated(ctx, { form, index, created }) {
   return { ...form, components: form.components.map((c, j) => (j === index ? { ...c, itemId: created, unit } : c)) }
 }
 
-function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
+function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
   const src = initial ?? prefill
   // Back from a new component: this form's stashed state. Taken off the stack in an effect, since StrictMode runs
   // state initializers twice.
@@ -197,6 +197,13 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
   useEffect(() => { if (prefill) clearPendingDraft() }, [prefill])
   // A component picked starts with the entry error its food was last logged with (calc.js lastEntryError).
   const logs = useLiveQuery(() => db.logs.toArray(), [])
+  // Components are offered as in the consumption form: concoctions eaten up, or expired when this one is made (now,
+  // for a plain food), left out; ones made before yesterday (logical days) last. What this food took is counted back.
+  const oldBefore = dayBounds(addDays(today(dayStart), -1), dayStart)[0].toISOString()
+  const left = concoctionsLeft(ctx, logs ?? [], null, initial?.id)
+  const at = new Date(form.isMade ? form.madeAt : Date.now())
+  const atIso = Number.isNaN(at.getTime()) ? new Date().toISOString() : at.toISOString()
+  const show = (it) => !it.madeAt || (expiresAt(it) > atIso && !usedUp(left.get(it.id)))
   // Extra (non-core) nutrients shown even while empty, because the user just added them.
   const [extraShown, setExtraShown] = useState(restored?.extraShown ?? [])
   // Back with a new component: the cursor goes to its amount, the one thing left to fill.
@@ -399,7 +406,7 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
         <ul className="list compact">
           {form.components.map((c, i) => (
             <li key={i} className="component">
-              <ItemPicker ctx={ctx} value={c.itemId} exclude={initial?.id} onCreate={(text) => createComponent(i, text)} enterNext
+              <ItemPicker ctx={ctx} value={c.itemId} exclude={initial?.id} oldBefore={oldBefore} show={show} onCreate={(text) => createComponent(i, text)} enterNext
                 onChange={(itemId) => setC(i, { itemId, unit: keepUnit(ctx, itemId, c.unit) ?? '', entryError: lastEntryError(ctx, logs, itemId) })} />
               {/* Enter in any of its boxes (a unit picked, ε set) goes on to "+ add component": amount, Enter, next. */}
               <div className="row" onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); addComponentRef.current?.focus() } }}>
@@ -418,7 +425,7 @@ function FoodForm({ ctx, initial, prefill, copy, nested, name }) {
               })()}
             </li>
           ))}
-          <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', amountDelta: '', unit: '' }] })), { focusOnClick: true })}>+ add component</li>
+          <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', amountDelta: '', unit: '' }] })), { focusOnClick: true, scrollUp: true })}>+ add component</li>
         </ul>
 
         <p>Per {amt} {unit}: <MacroLine nutrients={preview.nutrients} ok={preview.ok} deltas /></p>

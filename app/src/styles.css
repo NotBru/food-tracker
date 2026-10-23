@@ -140,7 +140,7 @@ h3 { margin: 8px 0 0; font-size: 16px; }
 .list li.add { background: none; border: 2px dashed var(--line); color: var(--accent); font-weight: 600; text-align: center; }
 .list li.add:focus-visible { outline: none; border-color: var(--accent); }
 .list li.component input, .list li.component select { background: var(--bg); }
-.list li.component { cursor: default; gap: 8px; }
+.list li.component { cursor: default; gap: 8px; scroll-margin-top: 76px; } /* scrolled up: clear of the top bar */
 .list-main { display: flex; justify-content: space-between; gap: 8px; }
 .macros { font-size: 13px; }
 .macros b { font-weight: 600; }
