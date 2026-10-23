@@ -1,7 +1,7 @@
 # Ghost bar: the uncapped correction, not the uncorrected target
 
 - **Date:** 2026-10-23
-- **Status:** accepted
+- **Status:** accepted; the drawing and the "Uncapped" line superseded by [ghost-band](2026-10-23-ghost-band.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (Homescreen dashboard); request in chat
 - **Supersedes in part:** [correction-caps-ghost](2026-10-23-correction-caps-ghost.md) (what the ghost shows)
 

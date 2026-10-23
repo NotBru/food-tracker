@@ -336,6 +336,12 @@ export function perDay(total, n) {
   return out
 }
 
+/** x → % of the width of the bar for target {min?, max?} (see targetBar), clipped to 0–100. */
+export function barScale({ min, max }) {
+  const full = Number.isFinite(max) ? (max > 0 ? max / 0.8 : 1) : min > 0 ? min / 0.5 : 1
+  return (x) => Math.min(100, Math.max(0, (x / full) * 100))
+}
+
 /**
  * Progress-bar geometry for nutrient `n` ({value, v, s}) against {min?, max?}, in % of the bar's width.
  * With a max, the max sits at 80% (and the min proportionally); with only a min, the min sits at 50%.
@@ -346,8 +352,7 @@ export function targetBar(n, { min, max } = {}) {
   const hasMax = Number.isFinite(max)
   if (!hasMin && !hasMax) return null
   const value = n.value
-  const full = hasMax ? (max > 0 ? max / 0.8 : 1) : min > 0 ? min / 0.5 : 1
-  const pos = (x) => Math.min(100, Math.max(0, (x / full) * 100))
+  const pos = barScale({ min, max })
   // design.md: "ok" only if the whole interval is within the range. If it spills over both bounds, the side the
   // value itself leans to wins.
   const [lo, hi] = bounds(n)
