@@ -73,6 +73,33 @@ export function ciqualItems() {
   return ciqualFoods
 }
 
+// CIQUAL is per 100 g, but liquids are measured in ml: they get "100 ml = X g", the density from their composition,
+// 1/ρ = Σ wᵢ/ρᵢ (g/ml: water 1, fat 0.925, protein 1.33, carbohydrates 1.6, fibre 1.31, alcohol 0.789, Choi & Okos;
+// the rest, minerals and anything not given, as carbohydrates). Within about 3% for milks, juices, oils, beer and
+// wine; 5% for spirits, and when the water (an oil's fat) isn't given and is taken as what's left.
+const LIQUID_GROUPS = new Set(['0102', '0501', '0504', '0601', '0602', '0603', '0902', '0904', '1101'])
+const isLiquid = (food) => (LIQUID_GROUPS.has(food.group) || /\b(drink|beverage)/i.test(food.en))
+  && !/powder|dehydrated(?! and reconstituted)|granul|freeze-dried|ground|leaf|leaves/i.test(food.en)
+const OILS = new Set(['0902', '0904'])
+const DENSITY = { water: 1, fat: 0.925, proteins: 1.33, carbohydrates: 1.6, fibers: 1.31, alcohol: 0.789 }
+
+function mlUnit(food, nutrients) {
+  const w = {}
+  for (const k in DENSITY) if (Number.isFinite(nutrients[k]?.value)) w[k] = nutrients[k].value
+  const sum = () => Object.values(w).reduce((a, b) => a + b, 0)
+  const main = OILS.has(food.group) ? 'fat' : 'water'
+  const guessed = !(main in w)
+  if (guessed) w[main] = Math.max(0, 100 - sum())
+  if (guessed && main === 'water' && w.water < 50) return null // more likely a dry food than a liquid
+  const rest = Math.max(0, 100 - sum())
+  const density = 100 / (Object.entries(w).reduce((a, [k, x]) => a + x / DENSITY[k], 0) + rest / DENSITY.carbohydrates)
+  const g = Number((100 * density).toFixed(1))
+  // Spirits shrink when mixed (vodka is ~4% denser than this), so they get the wider error too.
+  const delta = Number((g * (guessed || w.alcohol > 10 ? 0.05 : 0.03)).toFixed(1))
+  return { fromAmount: 100, fromText: '100', fromDelta: 0, fromDeltaAuto: false, fromUnit: 'ml',
+    toAmount: g, toText: String(g), toDelta: delta, toDeltaAuto: false, toUnit: 'g' }
+}
+
 export function ciqualDraft(table, food) {
   const nutrients = {}
   table.keys.forEach((key, i) => {
@@ -81,8 +108,10 @@ export function ciqualDraft(table, food) {
     const [text, delta] = Array.isArray(v) ? v : [v]
     nutrients[key] = nutrient(text, delta)
   })
+  const ml = isLiquid(food) && mlUnit(food, nutrients)
+  const units = ml ? [ml] : []
   return {
-    name: food.en, brand: '', attributes: [['database', 'CIQUAL']], ...PER_100, unit: 'g', units: [], components: [], nutrients,
+    name: food.en, brand: '', attributes: [['database', 'CIQUAL']], ...PER_100, unit: 'g', units, components: [], nutrients,
     category: food.group,
     source: { db: 'ciqual', id: food.code, version: table.source },
     subtitle: table.groups[food.group] ?? '',

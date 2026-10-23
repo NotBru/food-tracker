@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-23 | [CIQUAL liquids: a "100 ml = X g" unit from their composition](2026-10-23-ciqual-ml.md) | accepted |
 | 2026-10-23 | [A component's entry error starts from the food's last concoction](2026-10-23-component-entry-error.md) | accepted |
 | 2026-10-23 | [Ghost: one grey band on the real bar's scale; "7-day adj." line removed](2026-10-23-ghost-band.md) | accepted |
 | 2026-10-23 | [Ghost bar: the uncapped correction, not the uncorrected target](2026-10-23-uncapped-ghost.md) | accepted; drawing superseded by [ghost-band](2026-10-23-ghost-band.md) |
