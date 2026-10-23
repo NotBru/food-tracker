@@ -22,7 +22,7 @@ look at while typing. This reverses the "Where" point of
 - The other pickers in the food editor still list everything.
 - **Scrolling**: "+ add component" (food editor and consumption form), clicked or pressed, scrolls the new
   component to the top of the view once the on-screen keyboard is up (`pressable`'s `scrollUp`, after 300 ms, as
-  with "+ add nutrient"). The dropdown (up to 260 px) then opens below it in the visible part. A `scroll-margin-top`
+  with "+ add nutrient"). It jumps with no animation (user's follow-up). The dropdown (up to 260 px) then opens below it in the visible part. A `scroll-margin-top`
   keeps the row clear of the sticky top bar.
 
 ## Alternatives considered

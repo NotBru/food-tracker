@@ -304,7 +304,7 @@ export const pressable = (onPress, { focusOnClick, scrollUp } = {}) => {
     setTimeout(() => {
       const row = [...list.children].at(-2)
       row?.querySelector('input')?.focus()
-      if (row && scrollUp) setTimeout(() => row.scrollIntoView({ block: 'start', behavior: 'smooth' }), 300)
+      if (row && scrollUp) setTimeout(() => row.scrollIntoView({ block: 'start' }), 300)
     })
   }
   return {
