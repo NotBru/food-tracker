@@ -172,7 +172,10 @@ db.version(12).stores({}).upgrade(async (tx) => {
   await tx.table('logs').bulkPut(merged.logs)
 })
 
-export const TABLES = ['users', 'items', 'logs', 'targets', 'config']
+// v13: weigh-ins, per user like consumptions (see docs/execution/2026-10-24-weight.md).
+db.version(13).stores({ weights: '++id, [userId+datetime]' })
+
+export const TABLES = ['users', 'items', 'logs', 'targets', 'weights', 'config']
 
 /** v1 rows -> v2 rows. Refs `{type, id}` become plain item ids. */
 export function migrateV1({ ingredients = [], recipes = [], concoctions = [], conversions = [], logs = [] }) {
@@ -230,12 +233,13 @@ export function setCurrentUser(id) {
   return db.config.put({ key: 'currentUser', value: id })
 }
 
-/** Deletes a user with their consumptions and targets. The last user can't be deleted. */
+/** Deletes a user with their consumptions, targets and weigh-ins. The last user can't be deleted. */
 export async function deleteUser(id) {
-  await db.transaction('rw', db.users, db.logs, db.targets, db.config, async () => {
+  await db.transaction('rw', db.users, db.logs, db.targets, db.weights, db.config, async () => {
     if ((await db.users.count()) <= 1) throw new Error('The last user can\'t be deleted.')
     await db.logs.where('userId').equals(id).delete()
     await db.targets.where('userId').equals(id).delete()
+    await db.weights.where('[userId+datetime]').between([id, Dexie.minKey], [id, Dexie.maxKey]).delete()
     await db.users.delete(id)
     if ((await db.config.get('currentUser'))?.value === id) await db.config.delete('currentUser')
   })
