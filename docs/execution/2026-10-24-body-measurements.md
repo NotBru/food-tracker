@@ -1,7 +1,7 @@
 # Body measurements: weight, body fat, waist (and lean mass from them)
 
 - **Date:** 2026-10-24
-- **Status:** accepted
+- **Status:** accepted; data format superseded by [body-errors](2026-10-24-body-errors.md)
 - **Instructions:** none (not in [`docs/instructions/design.md`](../instructions/design.md)); request in chat
 
 ## Context

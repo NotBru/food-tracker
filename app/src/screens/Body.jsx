@@ -1,20 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import Dexie from 'dexie'
-import { db, getConfig, getCurrentUser } from '../db'
+import { db, getBodyFields, getConfig, getCurrentUser, saveBodyFields } from '../db'
 import { consumptionNutrients, loadContext, sumNutrients } from '../calc'
-import { calories, fmt, normalizeNumber, pmText, rangeText } from '../nutrients'
+import { calories, deltaText, fmt, measure, pmText, rangeText } from '../nutrients'
 import { addDays, dayBounds, formatDateTime, logicalDay, toLocalInput } from '../time'
-import { DateTimeInput, Field, Screen, replace, useToday } from '../components'
-import { FIELDS, KCAL_PER_KG, MAINT_DAYS, MEASURES, MIN_SPAN, MIN_WEIGH_INS, dailyMeans, maintenance, weekMean } from '../body'
+import { DateTimeInput, DeltaInput, Screen, TrashIcon, replace, useToday } from '../components'
+import { KCAL_PER_KG, MAINT_DAYS, MIN_SPAN, MIN_WEIGH_INS, dailyValues, fieldValue, inputFields, maintenance, measures, newFieldKey, weekMean } from '../body'
 
-// Body measurements (weight, body fat, waist), newest first; the 7-day averages, and what weight says about
-// maintenance calories (body.js).
+// Body measurements (weight, body fat, muscle, waist, and the user's own fields), each with its ± Δ, newest first;
+// the 7-day averages, and what weight says about maintenance calories (body.js).
 
-const byKey = Object.fromEntries(MEASURES.map((m) => [m.key, m]))
-/** "78.1 kg · 18.5% fat · 84 cm waist": what one entry holds. */
-const entryText = (m) => [m.kg != null && `${m.kg} kg`, m.bodyFat != null && `${m.bodyFat}% fat`, m.waist != null && `${m.waist} cm waist`]
-  .filter(Boolean).join(' · ')
+/** "78.1 kg · 18.5% fat · 84 cm waist · Neck 38 cm": what one entry holds, each value as typed. */
+function entryText(entry, fields) {
+  return fields.filter((f) => entry.values?.[f.key]).map((f) => {
+    const m = entry.values[f.key]
+    const pm = m.auto ? '' : ` ±${m.delta}`
+    return f.short ? `${m.text}${pm} ${f.short}` : `${f.label} ${m.text}${pm} ${f.unit}`.trim()
+  }).join(' · ')
+}
 
 export default function Body({ add }) {
   const day = useToday()
@@ -22,10 +26,11 @@ export default function Body({ add }) {
     if (!day) return null
     const config = await getConfig()
     const user = await getCurrentUser()
+    const custom = await getBodyFields()
     const rows = await db.weights.where('[userId+datetime]').between([user.id, Dexie.minKey], [user.id, Dexie.maxKey]).reverse().toArray()
     // Each measure's 7-day average today, for those ever measured.
-    const weeks = MEASURES.map((m) => ({ ...m, week: weekMean(dailyMeans(rows, m.of, config.dayStart), day) }))
-      .filter((m) => rows.some((r) => m.of(r) != null))
+    const weeks = measures(custom).filter((m) => rows.some((r) => m.of(r)))
+      .map((m) => ({ ...m, week: weekMean(dailyValues(rows, m.of, config.dayStart), day) }))
     // Calories per day over the estimate's window.
     const from = dayBounds(addDays(day, -(MAINT_DAYS - 1)), config.dayStart)[0]
     const end = dayBounds(day, config.dayStart)[1]
@@ -34,10 +39,12 @@ export default function Body({ add }) {
     const byDay = {}
     for (const l of logs) (byDay[logicalDay(l.datetime, config.dayStart)] ??= []).push(consumptionNutrients(ctx, l).nutrients)
     const eaten = Object.fromEntries(Object.entries(byDay).map(([d, ns]) => [d, calories(sumNutrients(ns))]))
-    return { user, rows, weeks, maint: maintenance(dailyMeans(rows, byKey.kg.of, config.dayStart), eaten, day) }
+    const weight = dailyValues(rows, (e) => fieldValue(e, 'kg'), config.dayStart)
+    return { user, custom, rows, weeks, maint: maintenance(weight, eaten, day) }
   }, [day])
   const [editing, setEditing] = useState(null)
-  const newEntry = () => setEditing({ datetime: new Date().toISOString(), userId: data.user.id })
+  const [fieldsOpen, setFieldsOpen] = useState(false)
+  const newEntry = () => setEditing({ datetime: new Date().toISOString(), userId: data.user.id, values: {} })
   // Opened with ?new (the homescreen's +): straight into a new entry, once; the flag leaves the URL.
   const added = useRef(false)
   useEffect(() => {
@@ -48,11 +55,13 @@ export default function Body({ add }) {
   }, [add, data])
 
   if (!data) return null
-  const { user, rows, weeks, maint } = data
+  const { user, custom, rows, weeks, maint } = data
+  const fields = inputFields(custom)
   // A new entry's fields show the last value of each as a hint.
-  const lastOf = Object.fromEntries(FIELDS.map((f) => [f, rows.find((r) => r[f] != null)?.[f]]))
+  const lastOf = Object.fromEntries(fields.map((f) => [f.key, rows.find((r) => r.values?.[f.key])?.values[f.key].text]))
   return (
-    <Screen title="Body measurements" subtitle={user.name}>
+    <Screen title="Body measurements" subtitle={user.name}
+      right={<button className="icon" onClick={() => setFieldsOpen(true)} aria-label="Fields">⚙️</button>}>
       <section className="weight-sum">
         <p className="muted small">7-day averages</p>
         {weeks.map((m) => (
@@ -68,13 +77,14 @@ export default function Body({ add }) {
         {rows.map((r) => (
           <li key={r.id} onClick={() => setEditing(r)}>
             <div className="list-main">
-              <b>{entryText(r)}</b>
+              <b>{entryText(r, fields)}</b>
               <span className="muted nowrap">{formatDateTime(r.datetime)}</span>
             </div>
           </li>
         ))}
       </ul>
-      {editing && <EntryEditor entry={editing} last={lastOf} onClose={() => setEditing(null)} />}
+      {editing && <EntryEditor entry={editing} fields={fields} last={lastOf} onClose={() => setEditing(null)} />}
+      {fieldsOpen && <FieldsEditor custom={custom} onClose={() => setFieldsOpen(false)} />}
     </Screen>
   )
 }
@@ -107,28 +117,28 @@ function Maintenance({ maint }) {
   )
 }
 
-// The fields of an entry: any may be left blank, but not all.
-const INPUTS = [
-  { key: 'kg', label: 'Weight (kg)', max: 500 },
-  { key: 'bodyFat', label: 'Body fat (%)', max: 75 },
-  { key: 'waist', label: 'Waist (cm)', max: 300, hint: 'at the navel, relaxed, breathing out' },
-]
-
-function EntryEditor({ entry, last, onClose }) {
-  const [texts, setTexts] = useState(Object.fromEntries(INPUTS.map((f) => [f.key, entry[f.key] != null ? String(entry[f.key]) : ''])))
+/** An entry: a value and ± Δ per field (blank Δ: from the digits), any left blank but not all, and a time. */
+function EntryEditor({ entry, fields, last, onClose }) {
+  const [texts, setTexts] = useState(Object.fromEntries(fields.map((f) => {
+    const m = entry.values?.[f.key]
+    return [f.key, { value: m?.text ?? '', delta: m ? deltaText(m.delta, m.auto) : '' }]
+  })))
+  const set = (key, part) => (v) => setTexts({ ...texts, [key]: { ...texts[key], [part]: v } })
   const [datetime, setDatetime] = useState(toLocalInput(new Date(entry.datetime)))
   const refs = useRef([])
   async function save() {
-    const rec = { userId: entry.userId, datetime: new Date(datetime).toISOString() }
-    for (const f of INPUTS) {
-      const t = texts[f.key].trim()
-      if (!t) continue
-      const x = Number(normalizeNumber(t.replace(',', '.')))
-      if (!(x > 0 && x < f.max)) return alert(`${f.label}: not a measurement.`)
-      rec[f.key] = x
+    const values = {}
+    for (const f of fields) {
+      const t = texts[f.key]
+      if (!t.value.trim()) continue
+      const m = measure(t.value.trim().replace(',', '.'), t.delta.trim().replace(',', '.'))
+      if (!Number.isFinite(m.value)) return alert(`${f.label}: not a number.`)
+      values[f.key] = m
     }
-    if (!FIELDS.some((k) => rec[k] != null)) return alert('Type at least one measurement.')
-    // put, not update: a field cleared is gone.
+    if (!Object.keys(values).length) return alert('Type at least one measurement.')
+    // A field this list doesn't show (a custom field since removed) is kept.
+    const kept = Object.fromEntries(Object.entries(entry.values ?? {}).filter(([k]) => !fields.some((f) => f.key === k)))
+    const rec = { userId: entry.userId, datetime: new Date(datetime).toISOString(), values: { ...kept, ...values } }
     await db.weights.put(entry.id ? { ...rec, id: entry.id } : rec)
     onClose()
   }
@@ -138,7 +148,7 @@ function EntryEditor({ entry, last, onClose }) {
       onClose()
     }
   }
-  // Enter moves to the next field; on the last, saves.
+  // Enter moves to the next field's value; on the last, saves.
   const onKey = (i) => (e) => {
     if (e.key !== 'Enter') return
     e.preventDefault()
@@ -149,19 +159,76 @@ function EntryEditor({ entry, last, onClose }) {
     <div className="modal" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
         <h2>{entry.id ? 'Edit measurements' : 'New measurements'}</h2>
-        {INPUTS.map((f, i) => (
-          <Field key={f.key} label={f.label}>
-            <input ref={(el) => (refs.current[i] = el)} autoFocus={i === 0} inputMode="decimal" value={texts[f.key]}
-              placeholder={[last[f.key] != null && !entry.id && `last ${last[f.key]}`, f.hint].filter(Boolean).join(' · ')}
-              enterKeyHint={i < INPUTS.length - 1 ? 'next' : 'done'} onKeyDown={onKey(i)}
-              onChange={(e) => setTexts({ ...texts, [f.key]: e.target.value })} />
-          </Field>
-        ))}
-        <Field label="Time">
+        <div className="nutrients">
+          <div className="n-row n-head"><span /><span>value</span><span>± Δ</span></div>
+          {fields.map((f, i) => (
+            <div className="n-row" key={f.key}>
+              <span>
+                {f.label} <small className="muted">{f.unit}</small>
+                {f.hint && <small className="muted body-hint">{f.hint}</small>}
+              </span>
+              <input ref={(el) => (refs.current[i] = el)} autoFocus={i === 0} inputMode="decimal" value={texts[f.key].value}
+                placeholder={!entry.id && last[f.key] ? last[f.key] : ''} aria-label={f.label}
+                enterKeyHint={i < fields.length - 1 ? 'next' : 'done'} onKeyDown={onKey(i)} onChange={(e) => set(f.key, 'value')(e.target.value)} />
+              <DeltaInput value={texts[f.key].delta} amount={texts[f.key].value} onChange={set(f.key, 'delta')} />
+            </div>
+          ))}
+        </div>
+        <label className="field">
+          <span>Time</span>
           <DateTimeInput value={datetime} onChange={setDatetime} />
-        </Field>
+        </label>
         <div className="row actions">
           {entry.id && <button className="danger" onClick={remove}>Delete</button>}
+          <button className="secondary" onClick={onClose}>Cancel</button>
+          <button onClick={save}>Save</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** The user's own fields: a name and a unit each; added, renamed, removed (with their values, after asking). */
+function FieldsEditor({ custom, onClose }) {
+  const [rows, setRows] = useState(custom.map((f) => ({ ...f })))
+  const setRow = (i, part) => (e) => setRows(rows.map((r, j) => (j === i ? { ...r, [part]: e.target.value } : r)))
+  const [removed, setRemoved] = useState([])
+  async function save() {
+    const kept = rows.map((r) => ({ ...r, label: r.label.trim(), unit: r.unit.trim() }))
+    if (kept.some((r) => !r.label)) return alert('Every field needs a name.')
+    if (removed.length) {
+      const all = await db.weights.toArray()
+      const using = all.filter((e) => removed.some((k) => e.values?.[k]))
+      if (using.length && !confirm(`${using.length} entr${using.length === 1 ? 'y has' : 'ies have'} values in the removed fields. Delete those values?`)) return
+      await db.transaction('rw', db.weights, async () => {
+        for (const e of using) {
+          const values = Object.fromEntries(Object.entries(e.values).filter(([k]) => !removed.includes(k)))
+          if (Object.keys(values).length) await db.weights.update(e.id, { values })
+          else await db.weights.delete(e.id)
+        }
+      })
+    }
+    await saveBodyFields(kept)
+    onClose()
+  }
+  return (
+    <div className="modal" onClick={onClose}>
+      <div className="sheet" onClick={(e) => e.stopPropagation()}>
+        <h2>Fields</h2>
+        <p className="muted small">Weight, body fat, muscle mass and waist are always there; lean mass follows from weight and body fat. Add any other measurement here, for every user.</p>
+        <div className="nutrients">
+          {rows.length > 0 && <div className="n-row with-x body-field n-head"><span /><span>name</span><span>unit</span><span /></div>}
+          {rows.map((r, i) => (
+            <div className="n-row with-x body-field" key={r.key}>
+              <span />
+              <input value={r.label} placeholder="e.g. Neck" aria-label="Name" autoFocus={!r.label} onChange={setRow(i, 'label')} />
+              <input value={r.unit} placeholder="cm" aria-label="Unit" onChange={setRow(i, 'unit')} />
+              <button className="icon small" aria-label={`Remove ${r.label}`} onClick={() => { setRows(rows.filter((_, j) => j !== i)); setRemoved([...removed, r.key]) }}><TrashIcon /></button>
+            </div>
+          ))}
+          <button className="secondary" onClick={() => setRows([...rows, { key: newFieldKey(), label: '', unit: '' }])}>+ add field</button>
+        </div>
+        <div className="row actions">
           <button className="secondary" onClick={onClose}>Cancel</button>
           <button onClick={save}>Save</button>
         </div>

@@ -1,6 +1,7 @@
 import Dexie from 'dexie'
 import { deltaFromInput, isCountUnit } from './nutrients'
 import { formatDateTime } from './time'
+import { bodyValues } from './body'
 
 export const db = new Dexie('food-tracker')
 
@@ -176,6 +177,10 @@ db.version(12).stores({}).upgrade(async (tx) => {
 // docs/execution/2026-10-24-body-measurements.md). Named `weights` from when it held only weight.
 db.version(13).stores({ weights: '++id, [userId+datetime]' })
 
+// v14: each body measurement keeps its ± Δ: {values: {field: {value, text, delta, auto}}}, Δ from the digits for the
+// old ones (see docs/execution/2026-10-24-body-errors.md).
+db.version(14).stores({}).upgrade((tx) => tx.table('weights').toCollection().modify(bodyValues))
+
 export const TABLES = ['users', 'items', 'logs', 'targets', 'weights', 'config']
 
 /** v1 rows -> v2 rows. Refs `{type, id}` become plain item ids. */
@@ -219,6 +224,15 @@ export async function getConfig() {
 
 export function saveConfig(value) {
   return db.config.put({ key: 'main', value })
+}
+
+/** The user's own body measurement fields, [{key, label, unit}] (body.js); shared by all users, like foods. */
+export async function getBodyFields() {
+  return (await db.config.get('bodyFields'))?.value ?? []
+}
+
+export function saveBodyFields(fields) {
+  return db.config.put({ key: 'bodyFields', value: fields })
 }
 
 // --- Users -----------------------------------------------------------------
@@ -413,6 +427,7 @@ export async function importAll(text) {
   if (!tables.users?.length) tables.users = [{ ...DEFAULT_USER }]
   tables.items = (tables.items ?? []).map(refreshAutoDeltas).map(countUnitDeltas)
   tables.logs = (tables.logs ?? []).map(countUnitDeltas)
+  tables.weights = (tables.weights ?? []).map(bodyValues)
   const merged = mergeEqualFoods(tables.items, tables.logs)
   tables.items = merged.items
   tables.logs = merged.logs

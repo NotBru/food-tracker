@@ -1,13 +1,13 @@
 import { Fragment, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import Dexie from 'dexie'
-import { db, getConfig, getCurrentUser } from '../db'
+import { db, getBodyFields, getConfig, getCurrentUser } from '../db'
 import { averageTargets, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from '../calc'
 import { NUTRIENTS, calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf, zero } from '../stats'
 import { addDays, dayBounds, logicalDay, prettyDay } from '../time'
 import { Screen, go, replace, useToday } from '../components'
-import { MEASURES, dailyMeans, weekMean } from '../body'
+import { dailyValues, measures, weekMean } from '../body'
 import { ROWS, fillPieces, hasMean, statusMark } from './Home'
 
 // Time graphs: per nutrient on the dashboard, one column per day, back to back. Each column is a dashboard bar
@@ -18,8 +18,8 @@ import { ROWS, fillPieces, hasMean, statusMark } from './Home'
 // Over the columns, the 7-day average: per day, the per-day average over it and the 6 days before (those with
 // consumptions, as the dashboard's windows): its interval as a dark grey band between two lines.
 // Body measurements come right after calories, one chart each that has ever been measured (weight, body fat, lean
-// mass, waist): a dot per day measured and its 7-day average the same way (the mean of the days measured, ± its
-// standard error), on a scale fitted to the values rather than from 0.
+// mass, muscle, waist, the user's own): a dot per day measured with its error bar, and its 7-day average the same
+// way as above (body.js weekMean), on a scale fitted to the values rather than from 0.
 
 // Days shown: the slider covers up to MAX_SLIDER; the box takes up to MAX_DAYS.
 const DEFAULT_DAYS = 30
@@ -98,11 +98,11 @@ export default function Graphs({ days: daysParam, end: endParam }) {
     }))
     // Body measurements: the user's few rows, all of them (a measure never taken: no chart).
     const body = await db.weights.where('[userId+datetime]').between([user.id, Dexie.minKey], [user.id, Dexie.maxKey]).toArray()
-    const measures = MEASURES.filter((m) => body.some((r) => m.of(r) != null)).map((m) => {
-      const daily = dailyMeans(body, m.of, config.dayStart)
+    const shownMeasures = measures(await getBodyFields()).filter((m) => body.some((r) => m.of(r))).map((m) => {
+      const daily = dailyValues(body, m.of, config.dayStart)
       return { ...m, daily, week: Object.fromEntries([addDays(first, -1), ...list].map((d) => [d, weekMean(daily, d)])) }
     })
-    return { list, totals, week, targets, measures, rows: [...ROWS, ...extra] }
+    return { list, totals, week, targets, measures: shownMeasures, rows: [...ROWS, ...extra] }
   }, [last, span])
 
   const shown = sel && data?.list.includes(sel) ? sel : data?.list.at(-1)
@@ -159,20 +159,24 @@ function usePlotPointer(list, onPick, onPan) {
   }
 }
 
-/** A body measurement over the days: a dot per day measured, the 7-day average band, on a scale fitted to them. */
+/**
+ * A body measurement over the days: a dot per day measured with its interval as a bar, the 7-day average band, on a
+ * scale fitted to them.
+ */
 function MeasureChart({ list, measure, shown, onPick, onPan }) {
   const { label, unit, minRange, daily, week } = measure
   const avgOf = (d) => week[d]
   // The scale: the values and the average's interval in view (the day before the first too), with a margin, at
-  // least `minRange` tall.
+  // least `minRange` tall (a user's field: 5% of its value, or 1).
   const vals = []
   for (const d of [addDays(list[0], -1), ...list]) {
-    if (daily[d] != null && d >= list[0]) vals.push(daily[d])
+    if (daily[d] && d >= list[0]) vals.push(...bounds(daily[d]))
     if (week[d]) vals.push(...bounds(week[d]))
   }
   let lo = vals.length ? Math.min(...vals) : 0
   let hi = vals.length ? Math.max(...vals) : 0
-  const pad = Math.max(0.1 * (hi - lo), (minRange - (hi - lo)) / 2)
+  const least = minRange ?? Math.max(Math.abs(hi) * 0.05, 1)
+  const pad = Math.max(0.1 * (hi - lo), (least - (hi - lo)) / 2)
   lo -= pad
   hi += pad
   const pos = (x) => Math.min(100, Math.max(0, ((x - lo) / (hi - lo)) * 100))
@@ -196,7 +200,7 @@ function MeasureChart({ list, measure, shown, onPick, onPan }) {
         <div className="tg-plot" role="img" aria-label={`${label} per day`} {...pointer}>
           {list.map((d) => (
             <div key={d} className={`tg-col ${d === shown ? 'picked' : ''}`}>
-              {daily[d] != null && <div className="tg-dot" style={{ bottom: `${pos(daily[d])}%` }} />}
+              {daily[d] && <Dot val={daily[d]} pos={pos} />}
             </div>
           ))}
           {grid.map((t) => <div key={t} className="tg-grid" style={{ bottom: `${pos(t)}%` }} />)}
@@ -210,7 +214,11 @@ function MeasureChart({ list, measure, shown, onPick, onPan }) {
       </div>
       <p className="tg-readout">
         <span className="muted">{shown && prettyDay(shown)} · </span>
-        {x != null ? <><b>{Math.round(x * 100) / 100}</b> {unit}</> : <span className="muted">not measured</span>}
+        {x ? (
+          <>
+            <b>{fmt(x.value, 2)}</b> {unit} {x.v > 0 && <>{pmText(x, 2)} <span className="err-range">({rangeText(x, 1)})</span></>}
+          </>
+        ) : <span className="muted">not measured</span>}
         <br />
         <span className="muted">7-day average · </span>
         {avg ? (
@@ -220,6 +228,17 @@ function MeasureChart({ list, measure, shown, onPick, onPan }) {
         ) : <span className="muted">none</span>}
       </p>
     </section>
+  )
+}
+
+/** A day's measurement: a dot, and its interval as a thin bar through it. */
+function Dot({ val, pos }) {
+  const [lo, hi] = bounds(val)
+  return (
+    <>
+      {hi > lo && <div className="tg-whisker" style={{ bottom: `${pos(lo)}%`, height: `${pos(hi) - pos(lo)}%` }} />}
+      <div className="tg-dot" style={{ bottom: `${pos(val.value)}%` }} />
+    </>
   )
 }
 
