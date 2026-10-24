@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-24 | [Argentine food composition databases: what exists, terms, can they be bundled](2026-10-24-argentine-databases.md) | open question |
 | 2026-10-24 | [Body measurements: weight, body fat, waist (and lean mass from them)](2026-10-24-body-measurements.md) | accepted |
 | 2026-10-24 | [Weight: weigh-ins, a weight time graph, and maintenance calories from them](2026-10-24-weight.md) | accepted; name and menu place superseded by [body-measurements](2026-10-24-body-measurements.md) |
 | 2026-10-24 | [Dashboard bars: hovering shows the amount under the cursor](2026-10-24-bar-hover.md) | accepted |
