@@ -2,14 +2,15 @@ import { measure } from './nutrients'
 import { addScaled, zero } from './stats'
 import { addDays, daysBetween, logicalDay } from './time'
 
-// Body measurements: {userId, datetime, values: {field: {value, text, delta, auto}}}, per user like consumptions (table
-// `weights`, its name from when it held only weight). Each value keeps its ± Δ as an amount does (nutrients.js
-// `measure`: typed, or from the digits), read as a uniform error, σ = Δ/√3. An entry holds any of the fields.
+// Body measurements: {userId, datetime, values: {field: {value, text, delta, auto}}, extra: [{label, unit, value, text,
+// delta, auto}]}, per user like consumptions (table `weights`, its name from when it held only weight). `values` has
+// the built-in fields; `extra`, any other measurement, named per entry like a food's attributes. Each value keeps its
+// ± Δ as an amount does (nutrients.js `measure`: typed, or from the digits), read as a uniform error, σ = Δ/√3. An
+// entry holds any of them.
 // A day's value is the mean of that logical day's measurements. Day-to-day swings (water, and a home scale's body
 // fat) are larger than real change, so what's read is the 7-day average and the trend over weeks.
 
-// Built-in fields. Users add their own (config row `bodyFields`: [{key, label, unit}], shared like foods).
-// `minRange`: the least a chart's scale spans.
+// Built-in fields. `minRange`: the least a chart's scale spans.
 export const BUILTIN_FIELDS = [
   { key: 'kg', label: 'Weight', unit: 'kg', minRange: 2, short: 'kg' },
   { key: 'bodyFat', label: 'Body fat', unit: '%', minRange: 2, short: '% fat' },
@@ -36,19 +37,79 @@ function leanValue(entry) {
   return { value: kg.value * (1 - f.value / 100), v: (1 - f.value / 100) ** 2 * kg.v + (kg.value / 100) ** 2 * f.v }
 }
 
-/** Every measure, in order: weight, body fat, lean mass (from those two), muscle, waist, then the user's fields. */
-export function measures(custom = []) {
+// --- Extra measurements ---------------------------------------------------------
+// Named per entry. Names that differ only in case, accents or spacing are the same measurement.
+
+/** A name as compared: lower case, no accents, single spaces. */
+export const nameKey = (s) => String(s ?? '').normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim().replace(/\s+/g, ' ')
+
+/** Every extra measurement used in `rows`: [{key, label, unit}], each with its first spelling and latest unit, most
+ * used first. (The editor saves a known name with its known spelling, so they rarely differ.) */
+export function extraNames(rows) {
+  const out = new Map()
+  for (const r of [...rows].sort((a, b) => a.datetime.localeCompare(b.datetime))) {
+    for (const x of r.extra ?? []) {
+      const key = nameKey(x.label)
+      if (!key) continue
+      const had = out.get(key)
+      out.set(key, { key, label: had?.label ?? x.label.trim(), unit: x.unit || had?.unit || '', count: (had?.count ?? 0) + 1 })
+    }
+  }
+  return [...out.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+}
+
+/** Edit distance (insertions, deletions, substitutions, swaps of neighbours). */
+function distance(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)])
+  for (let j = 1; j <= b.length; j++) d[0][j] = j
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1)
+    }
+  }
+  return d[a.length][b.length]
+}
+
+/**
+ * A known name `label` looks like a typo of: not the same name, but within 1 edit (names up to 5 letters) or 2,
+ * or one is the other plus a letter-less ending ("waist2"). The closest, or null.
+ */
+export function lookalike(label, known) {
+  const k = nameKey(label)
+  if (!k || known.some((n) => n.key === k)) return null
+  const strip = (s) => s.replace(/[^\p{L}]/gu, '')
+  let best = null
+  for (const n of known) {
+    const dist = distance(k, n.key)
+    const near = dist <= (Math.min(k.length, n.key.length) <= 5 ? 1 : 2) || (strip(k) && strip(k) === strip(n.key))
+    if (near && (!best || dist < best.dist)) best = { ...n, dist }
+  }
+  return best
+}
+
+/** Known names for what's typed: those containing it first, then those it looks like a typo of. All when blank. */
+export function nameMatches(text, known) {
+  const q = nameKey(text)
+  if (!q) return known
+  const near = lookalike(text, known)
+  return [...known.filter((n) => n.key.includes(q)), ...(near && !near.key.includes(q) ? [near] : [])]
+}
+
+/** One extra measurement's value in an entry as {value, v}, or null. */
+function extraValue(entry, key) {
+  const x = (entry.extra ?? []).find((e) => nameKey(e.label) === key)
+  return x && Number.isFinite(x.value) ? { value: x.value, v: uniformVar(x.delta) } : null
+}
+
+/** Every measure, in order: weight, body fat, lean mass (from those two), muscle, waist, then the extra ones in `rows`. */
+export function measures(rows = []) {
   const field = (f) => ({ ...f, of: (e) => fieldValue(e, f.key) })
   const [kg, fat, muscle, waist] = BUILTIN_FIELDS.map(field)
   const lean = { key: 'lean', label: 'Lean mass', unit: 'kg', minRange: 2, derived: true, of: leanValue }
-  return [kg, fat, lean, muscle, waist, ...custom.map(field)]
+  const extra = extraNames(rows).map((n) => ({ key: `x:${n.key}`, label: n.label, unit: n.unit, of: (e) => extraValue(e, n.key) }))
+  return [kg, fat, lean, muscle, waist, ...extra]
 }
-
-/** The fields an entry is typed in: the built-ins and the user's own (not lean mass). */
-export const inputFields = (custom = []) => [...BUILTIN_FIELDS, ...custom]
-
-/** A new custom field's key. */
-export const newFieldKey = () => `c${Date.now().toString(36)}`
 
 /** An old entry's numbers (`kg`, `bodyFat`, `waist` on the row, before values had errors) -> `values`, Δ from the
  * digits. Idempotent. */
@@ -58,6 +119,18 @@ export function bodyValues(row) {
     row.values ??= {}
     row.values[k] = measure(String(row[k]), '')
     delete row[k]
+  }
+  return row
+}
+
+/** Values of the short-lived shared custom fields (config `bodyFields` [{key, label, unit}], values under their key)
+ * -> the entry's `extra`. Idempotent. */
+export function fieldsToExtra(row, fields = []) {
+  for (const f of fields) {
+    const m = row.values?.[f.key]
+    if (!m) continue
+    row.extra = [...(row.extra ?? []), { label: f.label, unit: f.unit ?? '', ...m }]
+    delete row.values[f.key]
   }
   return row
 }

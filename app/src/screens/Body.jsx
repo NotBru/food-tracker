@@ -1,23 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import Dexie from 'dexie'
-import { db, getBodyFields, getConfig, getCurrentUser, saveBodyFields } from '../db'
+import { db, getConfig, getCurrentUser } from '../db'
 import { consumptionNutrients, loadContext, sumNutrients } from '../calc'
 import { calories, deltaText, fmt, measure, pmText, rangeText } from '../nutrients'
 import { addDays, dayBounds, formatDateTime, logicalDay, toLocalInput } from '../time'
-import { DateTimeInput, DeltaInput, Screen, TrashIcon, replace, useToday } from '../components'
-import { KCAL_PER_KG, MAINT_DAYS, MIN_SPAN, MIN_WEIGH_INS, dailyValues, fieldValue, inputFields, maintenance, measures, newFieldKey, weekMean } from '../body'
+import { DateTimeInput, DeltaInput, Screen, pressable, replace, useListNav, useToday } from '../components'
+import { BUILTIN_FIELDS, KCAL_PER_KG, MAINT_DAYS, MIN_SPAN, MIN_WEIGH_INS, dailyValues, extraNames, fieldValue, lookalike, maintenance, measures, nameKey, nameMatches, weekMean } from '../body'
 
-// Body measurements (weight, body fat, muscle, waist, and the user's own fields), each with its ± Δ, newest first;
-// the 7-day averages, and what weight says about maintenance calories (body.js).
+// Body measurements (weight, body fat, muscle, waist, and any other named per entry), each with its ± Δ, newest
+// first; the 7-day averages, and what weight says about maintenance calories (body.js).
 
 /** "78.1 kg · 18.5% fat · 84 cm waist · Neck 38 cm": what one entry holds, each value as typed. */
-function entryText(entry, fields) {
-  return fields.filter((f) => entry.values?.[f.key]).map((f) => {
-    const m = entry.values[f.key]
-    const pm = m.auto ? '' : ` ±${m.delta}`
-    return f.short ? `${m.text}${pm} ${f.short}` : `${f.label} ${m.text}${pm} ${f.unit}`.trim()
-  }).join(' · ')
+function entryText(entry) {
+  const pm = (m) => (m.auto ? '' : ` ±${m.delta}`)
+  return [
+    ...BUILTIN_FIELDS.filter((f) => entry.values?.[f.key]).map((f) => `${entry.values[f.key].text}${pm(entry.values[f.key])} ${f.short}`),
+    ...(entry.extra ?? []).map((x) => `${x.label} ${x.text}${pm(x)} ${x.unit ?? ''}`.trim()),
+  ].join(' · ')
 }
 
 export default function Body({ add }) {
@@ -26,10 +26,9 @@ export default function Body({ add }) {
     if (!day) return null
     const config = await getConfig()
     const user = await getCurrentUser()
-    const custom = await getBodyFields()
     const rows = await db.weights.where('[userId+datetime]').between([user.id, Dexie.minKey], [user.id, Dexie.maxKey]).reverse().toArray()
     // Each measure's 7-day average today, for those ever measured.
-    const weeks = measures(custom).filter((m) => rows.some((r) => m.of(r)))
+    const weeks = measures(rows).filter((m) => rows.some((r) => m.of(r)))
       .map((m) => ({ ...m, week: weekMean(dailyValues(rows, m.of, config.dayStart), day) }))
     // Calories per day over the estimate's window.
     const from = dayBounds(addDays(day, -(MAINT_DAYS - 1)), config.dayStart)[0]
@@ -40,10 +39,9 @@ export default function Body({ add }) {
     for (const l of logs) (byDay[logicalDay(l.datetime, config.dayStart)] ??= []).push(consumptionNutrients(ctx, l).nutrients)
     const eaten = Object.fromEntries(Object.entries(byDay).map(([d, ns]) => [d, calories(sumNutrients(ns))]))
     const weight = dailyValues(rows, (e) => fieldValue(e, 'kg'), config.dayStart)
-    return { user, custom, rows, weeks, maint: maintenance(weight, eaten, day) }
+    return { user, rows, known: extraNames(rows), weeks, maint: maintenance(weight, eaten, day) }
   }, [day])
   const [editing, setEditing] = useState(null)
-  const [fieldsOpen, setFieldsOpen] = useState(false)
   const newEntry = () => setEditing({ datetime: new Date().toISOString(), userId: data.user.id, values: {} })
   // Opened with ?new (the homescreen's +): straight into a new entry, once; the flag leaves the URL.
   const added = useRef(false)
@@ -55,13 +53,11 @@ export default function Body({ add }) {
   }, [add, data])
 
   if (!data) return null
-  const { user, custom, rows, weeks, maint } = data
-  const fields = inputFields(custom)
+  const { user, rows, known, weeks, maint } = data
   // A new entry's fields show the last value of each as a hint.
-  const lastOf = Object.fromEntries(fields.map((f) => [f.key, rows.find((r) => r.values?.[f.key])?.values[f.key].text]))
+  const lastOf = Object.fromEntries(BUILTIN_FIELDS.map((f) => [f.key, rows.find((r) => r.values?.[f.key])?.values[f.key].text]))
   return (
-    <Screen title="Body measurements" subtitle={user.name}
-      right={<button className="icon" onClick={() => setFieldsOpen(true)} aria-label="Fields">⚙️</button>}>
+    <Screen title="Body measurements" subtitle={user.name}>
       <section className="weight-sum">
         <p className="muted small">7-day averages</p>
         {weeks.map((m) => (
@@ -77,14 +73,13 @@ export default function Body({ add }) {
         {rows.map((r) => (
           <li key={r.id} onClick={() => setEditing(r)}>
             <div className="list-main">
-              <b>{entryText(r, fields)}</b>
+              <b>{entryText(r)}</b>
               <span className="muted nowrap">{formatDateTime(r.datetime)}</span>
             </div>
           </li>
         ))}
       </ul>
-      {editing && <EntryEditor entry={editing} fields={fields} last={lastOf} onClose={() => setEditing(null)} />}
-      {fieldsOpen && <FieldsEditor custom={custom} onClose={() => setFieldsOpen(false)} />}
+      {editing && <EntryEditor entry={editing} known={known} last={lastOf} onClose={() => setEditing(null)} />}
     </Screen>
   )
 }
@@ -117,28 +112,50 @@ function Maintenance({ maint }) {
   )
 }
 
-/** An entry: a value and ± Δ per field (blank Δ: from the digits), any left blank but not all, and a time. */
-function EntryEditor({ entry, fields, last, onClose }) {
-  const [texts, setTexts] = useState(Object.fromEntries(fields.map((f) => {
+/**
+ * An entry: a value and ± Δ per built-in field (blank Δ: from the digits), any other measurement added like an
+ * attribute (name, value, ± Δ, unit), any left blank but not all, and a time. Names are looked up among those used
+ * before as they're typed; saving a name that looks like a typo of a known one asks first.
+ */
+function EntryEditor({ entry, known, last, onClose }) {
+  const [texts, setTexts] = useState(Object.fromEntries(BUILTIN_FIELDS.map((f) => {
     const m = entry.values?.[f.key]
     return [f.key, { value: m?.text ?? '', delta: m ? deltaText(m.delta, m.auto) : '' }]
   })))
   const set = (key, part) => (v) => setTexts({ ...texts, [key]: { ...texts[key], [part]: v } })
+  const [extra, setExtra] = useState((entry.extra ?? []).map((x) => ({ label: x.label, unit: x.unit ?? '', value: x.text, delta: deltaText(x.delta, x.auto) })))
+  const setX = (i, part) => (v) => setExtra(extra.map((x, j) => (j === i ? { ...x, [part]: v } : x)))
   const [datetime, setDatetime] = useState(toLocalInput(new Date(entry.datetime)))
   const refs = useRef([])
+  const num = (t) => t.trim().replace(',', '.')
   async function save() {
     const values = {}
-    for (const f of fields) {
+    for (const f of BUILTIN_FIELDS) {
       const t = texts[f.key]
       if (!t.value.trim()) continue
-      const m = measure(t.value.trim().replace(',', '.'), t.delta.trim().replace(',', '.'))
+      const m = measure(num(t.value), num(t.delta))
       if (!Number.isFinite(m.value)) return alert(`${f.label}: not a number.`)
       values[f.key] = m
     }
-    if (!Object.keys(values).length) return alert('Type at least one measurement.')
-    // A field this list doesn't show (a custom field since removed) is kept.
-    const kept = Object.fromEntries(Object.entries(entry.values ?? {}).filter(([k]) => !fields.some((f) => f.key === k)))
-    const rec = { userId: entry.userId, datetime: new Date(datetime).toISOString(), values: { ...kept, ...values } }
+    const out = []
+    for (const x of extra) {
+      if (!x.label.trim() && !x.value.trim()) continue
+      if (!x.label.trim()) return alert('A measurement needs a name.')
+      const m = measure(num(x.value), num(x.delta))
+      if (!Number.isFinite(m.value)) return alert(`${x.label}: not a number.`)
+      // A known name keeps its spelling; one that looks like a typo of a known one asks.
+      let match = known.find((n) => n.key === nameKey(x.label))
+      if (!match) {
+        const near = lookalike(x.label, known)
+        if (near && confirm(`“${x.label.trim()}” looks like “${near.label}”. Use “${near.label}”?\n(Cancel keeps “${x.label.trim()}” as a new measurement.)`)) match = near
+      }
+      const label = match?.label ?? x.label.trim()
+      if (out.some((o) => nameKey(o.label) === nameKey(label))) return alert(`${label} is in twice.`)
+      // A blank unit takes the known measurement's.
+      out.push({ label, unit: x.unit.trim() || match?.unit || '', ...m })
+    }
+    if (!Object.keys(values).length && !out.length) return alert('Type at least one measurement.')
+    const rec = { userId: entry.userId, datetime: new Date(datetime).toISOString(), values, ...(out.length && { extra: out }) }
     await db.weights.put(entry.id ? { ...rec, id: entry.id } : rec)
     onClose()
   }
@@ -161,7 +178,7 @@ function EntryEditor({ entry, fields, last, onClose }) {
         <h2>{entry.id ? 'Edit measurements' : 'New measurements'}</h2>
         <div className="nutrients">
           <div className="n-row n-head"><span /><span>value</span><span>± Δ</span></div>
-          {fields.map((f, i) => (
+          {BUILTIN_FIELDS.map((f, i) => (
             <div className="n-row" key={f.key}>
               <span>
                 {f.label} <small className="muted">{f.unit}</small>
@@ -169,10 +186,22 @@ function EntryEditor({ entry, fields, last, onClose }) {
               </span>
               <input ref={(el) => (refs.current[i] = el)} autoFocus={i === 0} inputMode="decimal" value={texts[f.key].value}
                 placeholder={!entry.id && last[f.key] ? last[f.key] : ''} aria-label={f.label}
-                enterKeyHint={i < fields.length - 1 ? 'next' : 'done'} onKeyDown={onKey(i)} onChange={(e) => set(f.key, 'value')(e.target.value)} />
+                enterKeyHint={i < BUILTIN_FIELDS.length - 1 ? 'next' : 'done'} onKeyDown={onKey(i)} onChange={(e) => set(f.key, 'value')(e.target.value)} />
               <DeltaInput value={texts[f.key].delta} amount={texts[f.key].value} onChange={set(f.key, 'delta')} />
             </div>
           ))}
+          {extra.length > 0 && <div className="n-row body-extra n-head"><span>name</span><span>unit</span><span>value</span><span>± Δ</span><span /></div>}
+          {extra.map((x, i) => (
+            <div className="n-row body-extra" key={i}>
+              <NameCombo value={x.label} known={known} onChange={setX(i, 'label')}
+                onPick={(n) => setExtra(extra.map((y, j) => (j === i ? { ...y, label: n.label, unit: y.unit || n.unit } : y)))} />
+              <input value={x.unit} placeholder="unit" aria-label="Unit" autoCapitalize="none" onChange={(e) => setX(i, 'unit')(e.target.value)} />
+              <input inputMode="decimal" value={x.value} aria-label="Value" onChange={(e) => setX(i, 'value')(e.target.value)} />
+              <DeltaInput value={x.delta} amount={x.value} onChange={setX(i, 'delta')} />
+              <button className="icon small" onClick={() => setExtra(extra.filter((_, j) => j !== i))} aria-label="Remove">×</button>
+            </div>
+          ))}
+          <button type="button" className="link" {...pressable(() => setExtra([...extra, { label: '', unit: '', value: '', delta: '' }]), { focusOnClick: true })}>+ measurement</button>
         </div>
         <label className="field">
           <span>Time</span>
@@ -188,51 +217,30 @@ function EntryEditor({ entry, fields, last, onClose }) {
   )
 }
 
-/** The user's own fields: a name and a unit each; added, renamed, removed (with their values, after asking). */
-function FieldsEditor({ custom, onClose }) {
-  const [rows, setRows] = useState(custom.map((f) => ({ ...f })))
-  const setRow = (i, part) => (e) => setRows(rows.map((r, j) => (j === i ? { ...r, [part]: e.target.value } : r)))
-  const [removed, setRemoved] = useState([])
-  async function save() {
-    const kept = rows.map((r) => ({ ...r, label: r.label.trim(), unit: r.unit.trim() }))
-    if (kept.some((r) => !r.label)) return alert('Every field needs a name.')
-    if (removed.length) {
-      const all = await db.weights.toArray()
-      const using = all.filter((e) => removed.some((k) => e.values?.[k]))
-      if (using.length && !confirm(`${using.length} entr${using.length === 1 ? 'y has' : 'ies have'} values in the removed fields. Delete those values?`)) return
-      await db.transaction('rw', db.weights, async () => {
-        for (const e of using) {
-          const values = Object.fromEntries(Object.entries(e.values).filter(([k]) => !removed.includes(k)))
-          if (Object.keys(values).length) await db.weights.update(e.id, { values })
-          else await db.weights.delete(e.id)
-        }
-      })
-    }
-    await saveBodyFields(kept)
-    onClose()
-  }
+/**
+ * A measurement's name: free text, with the names used before listed under it as it's typed (those containing it,
+ * then one it looks like a typo of, "did you mean"). Picking one takes its spelling, and its unit if none is set.
+ */
+function NameCombo({ value, known, onChange, onPick }) {
+  const [open, setOpen] = useState(false)
+  const matches = nameMatches(value, known).filter((n) => n.key !== nameKey(value) || n.label !== value.trim())
+  const near = nameKey(value) && !known.some((n) => n.key === nameKey(value)) ? lookalike(value, known) : null
+  const nav = useListNav(matches.length, (i) => { onPick(matches[i]); setOpen(false) }, () => setOpen(false))
   return (
-    <div className="modal" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()}>
-        <h2>Fields</h2>
-        <p className="muted small">Weight, body fat, muscle mass and waist are always there; lean mass follows from weight and body fat. Add any other measurement here, for every user.</p>
-        <div className="nutrients">
-          {rows.length > 0 && <div className="n-row with-x body-field n-head"><span /><span>name</span><span>unit</span><span /></div>}
-          {rows.map((r, i) => (
-            <div className="n-row with-x body-field" key={r.key}>
-              <span />
-              <input value={r.label} placeholder="e.g. Neck" aria-label="Name" autoFocus={!r.label} onChange={setRow(i, 'label')} />
-              <input value={r.unit} placeholder="cm" aria-label="Unit" onChange={setRow(i, 'unit')} />
-              <button className="icon small" aria-label={`Remove ${r.label}`} onClick={() => { setRows(rows.filter((_, j) => j !== i)); setRemoved([...removed, r.key]) }}><TrashIcon /></button>
-            </div>
+    <div className="picker">
+      <input value={value} placeholder="name" aria-label="Name" autoComplete="off"
+        onFocus={() => { setOpen(true); nav.reset() }} onBlur={() => setOpen(false)}
+        onChange={(e) => { onChange(e.target.value); setOpen(true); nav.reset() }} {...nav.inputProps} />
+      {open && matches.length > 0 && (
+        <ul className="picker-list" ref={nav.listRef}>
+          {matches.map((n, i) => (
+            <li key={n.key} {...nav.itemProps(i)}>
+              {near?.key === n.key && <small className="muted">did you mean </small>}{n.label}
+              {n.unit && <small className="muted"> · {n.unit}</small>}
+            </li>
           ))}
-          <button className="secondary" onClick={() => setRows([...rows, { key: newFieldKey(), label: '', unit: '' }])}>+ add field</button>
-        </div>
-        <div className="row actions">
-          <button className="secondary" onClick={onClose}>Cancel</button>
-          <button onClick={save}>Save</button>
-        </div>
-      </div>
+        </ul>
+      )}
     </div>
   )
 }

@@ -441,6 +441,9 @@ input.switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
 .tg-key path { fill: none; stroke: var(--accent); stroke-width: 1.5; }
 .tg-avg { color: var(--accent); }
 
-/* Body measurements: a field's how-to under its name; custom fields' rows are name | unit | remove. */
+/* Body measurements: a field's how-to under its name; another measurement's row is name | unit | value | ± | ×. */
 .body-hint { display: block; font-size: 11px; }
-.n-row.body-field { grid-template-columns: 0 1fr 84px 34px; }
+.n-row.body-extra { grid-template-columns: 1fr 52px 72px 60px 28px; gap: 4px; }
+.n-row.body-extra input { padding: 9px 8px; }
+.n-row.body-extra .delta > input { padding-left: 22px; }
+.n-row.body-extra .delta > span { left: 8px; }

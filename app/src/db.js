@@ -1,7 +1,7 @@
 import Dexie from 'dexie'
 import { deltaFromInput, isCountUnit } from './nutrients'
 import { formatDateTime } from './time'
-import { bodyValues } from './body'
+import { bodyValues, fieldsToExtra } from './body'
 
 export const db = new Dexie('food-tracker')
 
@@ -181,6 +181,15 @@ db.version(13).stores({ weights: '++id, [userId+datetime]' })
 // old ones (see docs/execution/2026-10-24-body-errors.md).
 db.version(14).stores({}).upgrade((tx) => tx.table('weights').toCollection().modify(bodyValues))
 
+// v15: extra body measurements are named per entry, like attributes, instead of shared fields in config (see
+// docs/execution/2026-10-24-body-extra.md).
+db.version(15).stores({}).upgrade(async (tx) => {
+  const fields = (await tx.table('config').get('bodyFields'))?.value
+  if (!fields) return
+  await tx.table('weights').toCollection().modify((r) => fieldsToExtra(r, fields))
+  await tx.table('config').delete('bodyFields')
+})
+
 export const TABLES = ['users', 'items', 'logs', 'targets', 'weights', 'config']
 
 /** v1 rows -> v2 rows. Refs `{type, id}` become plain item ids. */
@@ -224,15 +233,6 @@ export async function getConfig() {
 
 export function saveConfig(value) {
   return db.config.put({ key: 'main', value })
-}
-
-/** The user's own body measurement fields, [{key, label, unit}] (body.js); shared by all users, like foods. */
-export async function getBodyFields() {
-  return (await db.config.get('bodyFields'))?.value ?? []
-}
-
-export function saveBodyFields(fields) {
-  return db.config.put({ key: 'bodyFields', value: fields })
 }
 
 // --- Users -----------------------------------------------------------------
@@ -427,7 +427,9 @@ export async function importAll(text) {
   if (!tables.users?.length) tables.users = [{ ...DEFAULT_USER }]
   tables.items = (tables.items ?? []).map(refreshAutoDeltas).map(countUnitDeltas)
   tables.logs = (tables.logs ?? []).map(countUnitDeltas)
-  tables.weights = (tables.weights ?? []).map(bodyValues)
+  const bodyFields = (tables.config ?? []).find((r) => r.key === 'bodyFields')
+  tables.weights = (tables.weights ?? []).map(bodyValues).map((r) => fieldsToExtra(r, bodyFields?.value))
+  tables.config = (tables.config ?? []).filter((r) => r !== bodyFields)
   const merged = mergeEqualFoods(tables.items, tables.logs)
   tables.items = merged.items
   tables.logs = merged.logs

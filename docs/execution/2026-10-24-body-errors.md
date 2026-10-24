@@ -1,7 +1,7 @@
 # Body measurements: muscle mass, user-defined fields, and a ± Δ on every value
 
 - **Date:** 2026-10-24
-- **Status:** accepted
+- **Status:** accepted; user fields superseded by [body-extra](2026-10-24-body-extra.md)
 - **Instructions:** none (not in [`docs/instructions/design.md`](../instructions/design.md)); request in chat
 
 ## Context

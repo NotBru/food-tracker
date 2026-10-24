@@ -1,7 +1,7 @@
 import { Fragment, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import Dexie from 'dexie'
-import { db, getBodyFields, getConfig, getCurrentUser } from '../db'
+import { db, getConfig, getCurrentUser } from '../db'
 import { averageTargets, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from '../calc'
 import { NUTRIENTS, calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf, zero } from '../stats'
@@ -98,7 +98,7 @@ export default function Graphs({ days: daysParam, end: endParam }) {
     }))
     // Body measurements: the user's few rows, all of them (a measure never taken: no chart).
     const body = await db.weights.where('[userId+datetime]').between([user.id, Dexie.minKey], [user.id, Dexie.maxKey]).toArray()
-    const shownMeasures = measures(await getBodyFields()).filter((m) => body.some((r) => m.of(r))).map((m) => {
+    const shownMeasures = measures(body).filter((m) => body.some((r) => m.of(r))).map((m) => {
       const daily = dailyValues(body, m.of, config.dayStart)
       return { ...m, daily, week: Object.fromEntries([addDays(first, -1), ...list].map((d) => [d, weekMean(daily, d)])) }
     })
