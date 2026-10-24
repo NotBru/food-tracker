@@ -409,8 +409,8 @@ export default function Home({ query = {} }) {
             <button className="plus" onClick={() => go('/targets?new')} aria-label="Add target">+</button>
           </div>
           <div className="menu-item">
-            <button onClick={() => go('/weight')}>Weight</button>
-            <button className="plus" onClick={() => go('/weight?new')} aria-label="Add weigh-in">+</button>
+            <button onClick={() => go('/body')}>Body measurements</button>
+            <button className="plus" onClick={() => go('/body?new')} aria-label="Add body measurements">+</button>
           </div>
           <div className="row">
             <button className="secondary" onClick={() => fileRef.current.click()}>Import databases</button>

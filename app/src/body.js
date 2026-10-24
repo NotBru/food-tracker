@@ -1,9 +1,20 @@
 import { addScaled, zero } from './stats'
 import { addDays, daysBetween, logicalDay } from './time'
 
-// Weigh-ins: {userId, datetime, kg}, per user like consumptions. A day's weight is the mean of its weigh-ins (by
-// logical day). Day-to-day water swings are larger than real change, so what's read is the 7-day average and the
-// trend over weeks.
+// Body measurements: {userId, datetime, kg?, bodyFat?, waist?}, per user like consumptions (table `weights`, its name
+// from when it held only weight). Any of the three may be missing. A day's value is the mean of that logical day's
+// measurements. Day-to-day swings (water, and a home scale's body fat) are larger than real change, so what's read
+// is the 7-day average and the trend over weeks.
+
+// What's measured; lean mass (weight less fat) follows from weight and body fat taken together. `minRange`: the
+// least a chart's scale spans.
+export const MEASURES = [
+  { key: 'kg', label: 'Weight', unit: 'kg', minRange: 2, of: (m) => m.kg },
+  { key: 'bodyFat', label: 'Body fat', unit: '%', minRange: 2, of: (m) => m.bodyFat },
+  { key: 'lean', label: 'Lean mass', unit: 'kg', minRange: 2, of: (m) => (m.kg > 0 && m.bodyFat > 0 ? m.kg * (1 - m.bodyFat / 100) : undefined) },
+  { key: 'waist', label: 'Waist', unit: 'cm', minRange: 4, of: (m) => m.waist },
+]
+export const FIELDS = ['kg', 'bodyFat', 'waist']
 
 // kcal in a kg of body weight lost or gained (mostly fat, some lean tissue and water): the usual rule of thumb.
 export const KCAL_PER_KG = 7700
@@ -13,18 +24,21 @@ export const MAINT_DAYS = 28
 export const MIN_WEIGH_INS = 4
 export const MIN_SPAN = 7
 
-/** Logical day -> mean kg of that day's weigh-ins. */
-export function dailyWeights(weighIns, dayStart) {
+/** Logical day -> mean of that day's values of `of` (measurements without one are skipped). */
+export function dailyMeans(rows, of, dayStart) {
   const byDay = {}
-  for (const w of weighIns) (byDay[logicalDay(w.datetime, dayStart)] ??= []).push(w.kg)
-  return Object.fromEntries(Object.entries(byDay).map(([d, ks]) => [d, ks.reduce((a, k) => a + k, 0) / ks.length]))
+  for (const r of rows) {
+    const x = of(r)
+    if (x != null && Number.isFinite(x)) (byDay[logicalDay(r.datetime, dayStart)] ??= []).push(x)
+  }
+  return Object.fromEntries(Object.entries(byDay).map(([d, xs]) => [d, xs.reduce((a, x) => a + x, 0) / xs.length]))
 }
 
 /**
- * The 7-day average on day `d`: the mean of the days among d−6..d with a weigh-in, as {value, v, s} (stats.js), its
+ * The 7-day average on day `d`: the mean of the days among d−6..d with a value, as {value, v, s} (stats.js), its
  * variance the standard error² of that mean (the days' spread² / n). One day: no spread, a point. None: null.
  */
-export function weekWeight(daily, d) {
+export function weekMean(daily, d) {
   const ks = [0, 1, 2, 3, 4, 5, 6].map((i) => daily[addDays(d, -i)]).filter((k) => k != null)
   if (!ks.length) return null
   const mean = ks.reduce((a, k) => a + k, 0) / ks.length
@@ -38,7 +52,8 @@ export function weekWeight(daily, d) {
  * The trend is the least-squares line through the days' weights; its error, the line's standard error. The intake
  * is the per-day mean over the days with consumptions from the first weigh-in to the day before the last (a
  * weigh-in, in the morning, comes before that day's food), with its own error. Both errors add.
- * `eaten`: logical day -> calories ({value, v, s}). Returns null, with `need`, when there is too little to go on.
+ * `daily`: logical day -> kg (dailyMeans). `eaten`: logical day -> calories ({value, v, s}). Returns `{need}`
+ * instead when there is too little to go on.
  */
 export function maintenance(daily, eaten, last, days = MAINT_DAYS) {
   const from = addDays(last, -(days - 1))

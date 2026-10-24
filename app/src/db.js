@@ -172,7 +172,8 @@ db.version(12).stores({}).upgrade(async (tx) => {
   await tx.table('logs').bulkPut(merged.logs)
 })
 
-// v13: weigh-ins, per user like consumptions (see docs/execution/2026-10-24-weight.md).
+// v13: body measurements (weight, body fat, waist), per user like consumptions (see
+// docs/execution/2026-10-24-body-measurements.md). Named `weights` from when it held only weight.
 db.version(13).stores({ weights: '++id, [userId+datetime]' })
 
 export const TABLES = ['users', 'items', 'logs', 'targets', 'weights', 'config']

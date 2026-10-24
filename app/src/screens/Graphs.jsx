@@ -7,7 +7,7 @@ import { NUTRIENTS, calories, fmt, pmText, rangeLabel, rangeText } from '../nutr
 import { bounds, sdOf, zero } from '../stats'
 import { addDays, dayBounds, logicalDay, prettyDay } from '../time'
 import { Screen, go, replace, useToday } from '../components'
-import { dailyWeights, weekWeight } from '../weight'
+import { MEASURES, dailyMeans, weekMean } from '../body'
 import { ROWS, fillPieces, hasMean, statusMark } from './Home'
 
 // Time graphs: per nutrient on the dashboard, one column per day, back to back. Each column is a dashboard bar
@@ -17,8 +17,9 @@ import { ROWS, fillPieces, hasMean, statusMark } from './Home'
 // A day without consumptions is no data: its target shows, no fill.
 // Over the columns, the 7-day average: per day, the per-day average over it and the 6 days before (those with
 // consumptions, as the dashboard's windows): its interval as a dark grey band between two lines.
-// Weight, once there are weigh-ins, comes right after calories: a dot per day weighed and its 7-day average the same
-// way (the mean of the days weighed, ± its standard error), on a scale fitted to the weights rather than from 0.
+// Body measurements come right after calories, one chart each that has ever been measured (weight, body fat, lean
+// mass, waist): a dot per day measured and its 7-day average the same way (the mean of the days measured, ± its
+// standard error), on a scale fitted to the values rather than from 0.
 
 // Days shown: the slider covers up to MAX_SLIDER; the box takes up to MAX_DAYS.
 const DEFAULT_DAYS = 30
@@ -95,12 +96,13 @@ export default function Graphs({ days: daysParam, end: endParam }) {
       const had = [0, 1, 2, 3, 4, 5, 6].map((i) => totals[addDays(d, -i)]).filter(Boolean)
       return [d, had.length ? perDay(sumNutrients(had), had.length) : null]
     }))
-    // Weigh-ins over the same days; none ever: no weight chart.
-    const anyWeight = await db.weights.where('[userId+datetime]').between([user.id, Dexie.minKey], [user.id, Dexie.maxKey]).first()
-    const weighIns = await db.weights.where('[userId+datetime]').between([user.id, from.toISOString()], [user.id, end.toISOString()], true, false).toArray()
-    const daily = dailyWeights(weighIns, config.dayStart)
-    const weight = anyWeight && { daily, week: Object.fromEntries([addDays(first, -1), ...list].map((d) => [d, weekWeight(daily, d)])) }
-    return { list, totals, week, targets, weight, rows: [...ROWS, ...extra] }
+    // Body measurements: the user's few rows, all of them (a measure never taken: no chart).
+    const body = await db.weights.where('[userId+datetime]').between([user.id, Dexie.minKey], [user.id, Dexie.maxKey]).toArray()
+    const measures = MEASURES.filter((m) => body.some((r) => m.of(r) != null)).map((m) => {
+      const daily = dailyMeans(body, m.of, config.dayStart)
+      return { ...m, daily, week: Object.fromEntries([addDays(first, -1), ...list].map((d) => [d, weekMean(daily, d)])) }
+    })
+    return { list, totals, week, targets, measures, rows: [...ROWS, ...extra] }
   }, [last, span])
 
   const shown = sel && data?.list.includes(sel) ? sel : data?.list.at(-1)
@@ -117,7 +119,7 @@ export default function Graphs({ days: daysParam, end: endParam }) {
       {data?.rows.map((r) => (
         <Fragment key={r.key}>
           <TimeChart row={r} data={data} shown={shown} onPick={setSel} onPan={pan} />
-          {r.key === 'energy' && data.weight && <WeightChart list={data.list} weight={data.weight} shown={shown} onPick={setSel} onPan={pan} />}
+          {r.key === 'energy' && data.measures.map((m) => <MeasureChart key={m.key} list={data.list} measure={m} shown={shown} onPick={setSel} onPan={pan} />)}
         </Fragment>
       ))}
     </Screen>
@@ -157,12 +159,12 @@ function usePlotPointer(list, onPick, onPan) {
   }
 }
 
-/** Weight over the days: a dot per day weighed, the 7-day average band, on a scale fitted to them. */
-function WeightChart({ list, weight, shown, onPick, onPan }) {
-  const { daily, week } = weight
+/** A body measurement over the days: a dot per day measured, the 7-day average band, on a scale fitted to them. */
+function MeasureChart({ list, measure, shown, onPick, onPan }) {
+  const { label, unit, minRange, daily, week } = measure
   const avgOf = (d) => week[d]
-  // The scale: the weights and the average's interval in view (the day before the first too), with a margin, at
-  // least 2 kg tall.
+  // The scale: the values and the average's interval in view (the day before the first too), with a margin, at
+  // least `minRange` tall.
   const vals = []
   for (const d of [addDays(list[0], -1), ...list]) {
     if (daily[d] != null && d >= list[0]) vals.push(daily[d])
@@ -170,7 +172,7 @@ function WeightChart({ list, weight, shown, onPick, onPan }) {
   }
   let lo = vals.length ? Math.min(...vals) : 0
   let hi = vals.length ? Math.max(...vals) : 0
-  const pad = Math.max(0.1 * (hi - lo), (2 - (hi - lo)) / 2)
+  const pad = Math.max(0.1 * (hi - lo), (minRange - (hi - lo)) / 2)
   lo -= pad
   hi += pad
   const pos = (x) => Math.min(100, Math.max(0, ((x - lo) / (hi - lo)) * 100))
@@ -178,20 +180,20 @@ function WeightChart({ list, weight, shown, onPick, onPan }) {
   const digits = step < 1 ? Math.ceil(-Math.log10(step)) : 0
   const pointer = usePlotPointer(list, onPick, onPan)
   const labelled = [0, Math.floor((list.length - 1) / 2), list.length - 1]
-  const kg = daily[shown]
+  const x = daily[shown]
   const avg = avgOf(shown)
 
   return (
     <section className="tg">
       <h3>
-        Weight <small className="muted">kg</small>
+        {label} <small className="muted">{unit}</small>
         <span className="tg-key"><svg viewBox="0 0 16 10" aria-hidden="true"><rect x="0" y="1" width="16" height="8" /><path d="M0 1 H16 M0 9 H16" /></svg>7-day average</span>
       </h3>
       <div className="tg-chart">
         <div className="tg-y" aria-hidden="true">
           {grid.map((t) => <span key={t} style={{ bottom: `${pos(t)}%` }}>{fmt(t, digits)}</span>)}
         </div>
-        <div className="tg-plot" role="img" aria-label="Weight per day" {...pointer}>
+        <div className="tg-plot" role="img" aria-label={`${label} per day`} {...pointer}>
           {list.map((d) => (
             <div key={d} className={`tg-col ${d === shown ? 'picked' : ''}`}>
               {daily[d] != null && <div className="tg-dot" style={{ bottom: `${pos(daily[d])}%` }} />}
@@ -208,14 +210,14 @@ function WeightChart({ list, weight, shown, onPick, onPan }) {
       </div>
       <p className="tg-readout">
         <span className="muted">{shown && prettyDay(shown)} · </span>
-        {kg != null ? <><b>{Math.round(kg * 100) / 100}</b> kg</> : <span className="muted">no weigh-in</span>}
+        {x != null ? <><b>{Math.round(x * 100) / 100}</b> {unit}</> : <span className="muted">not measured</span>}
         <br />
         <span className="muted">7-day average · </span>
         {avg ? (
           <>
-            <b className="tg-avg">{fmt(avg.value, 2)}</b> kg {avg.v > 0 && <>{pmText(avg, 2)} <span className="err-range">({rangeText(avg, 1)})</span></>}
+            <b className="tg-avg">{fmt(avg.value, 2)}</b> {unit} {avg.v > 0 && <>{pmText(avg, 2)} <span className="err-range">({rangeText(avg, 1)})</span></>}
           </>
-        ) : <span className="muted">no weigh-ins</span>}
+        ) : <span className="muted">none</span>}
       </p>
     </section>
   )
