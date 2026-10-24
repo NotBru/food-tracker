@@ -344,13 +344,13 @@ export function perDay(total, n) {
 /**
  * x → % of the width of the bar for target {min?, max?} and value `n` (see targetBar), clipped to 0–100. 80% is the
  * higher of the max and the top of the value's interval; with only a min, the min sits at 50% unless that top
- * would then pass 80%.
+ * would then pass 80%. Its `at` goes back: % of the width → x.
  */
 export function barScale({ min, max }, n) {
   const top = n ? bounds(n)[1] : NaN
   const atTop = Number.isFinite(top) && top > 0 ? top / 0.8 : 0
   const full = Math.max(Number.isFinite(max) ? max / 0.8 : min > 0 ? min / 0.5 : 0, atTop) || 1
-  return (x) => Math.min(100, Math.max(0, (x / full) * 100))
+  return Object.assign((x) => Math.min(100, Math.max(0, (x / full) * 100)), { at: (p) => (p / 100) * full })
 }
 
 /**

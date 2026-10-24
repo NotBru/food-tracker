@@ -248,6 +248,13 @@ form.row.search > button { flex: 0 0 auto; }
 .g-mean { fill: none; stroke: #fff; stroke-width: 3; }
 .bar-mean { position: absolute; top: -2px; bottom: -2px; width: 3px; transform: translateX(-50%); background: #fff; transition: left .3s; }
 /* Ghost (config): the uncapped correction's range, a very faint grey band over the real bar/gauge. */
+.bar::after { content: ''; position: absolute; inset: -6px 0; } /* a taller hover target */
+.bar-hover { position: absolute; top: -3px; bottom: -3px; width: 1px; z-index: 1; pointer-events: none; background: var(--text); }
+.bar-tip {
+  position: absolute; bottom: calc(100% + 3px); left: 0; transform: translateX(-50%); padding: 1px 6px;
+  border-radius: 6px; background: var(--panel); color: var(--text); font-size: 12px; white-space: nowrap;
+  box-shadow: 0 1px 4px rgb(0 0 0 / .4);
+}
 .bar-ghost { position: absolute; top: 0; bottom: 0; pointer-events: none; background: rgb(200 200 200 / .25); }
 .g-ghost { fill: none; stroke: rgb(200 200 200 / .25); stroke-width: 10; stroke-linecap: butt; pointer-events: none; }
 .g-err-lines { fill: none; stroke: color-mix(in srgb, currentColor 60%, #fff); stroke-width: 1.1; }

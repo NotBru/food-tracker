@@ -1,4 +1,4 @@
-import { useId, useRef } from 'react'
+import { useId, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, exportAll, getConfig, getCurrentUser, importAll } from '../db'
 import { averageTargets, barScale, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from '../calc'
@@ -176,6 +176,13 @@ function Budget({ row, val, range }) {
 function BarRow({ row: r, val, range, adj, onOpen }) {
   const bar = barFor(r, val, range)
   const ghost = ghostFor(r, val, range, adj)
+  // Mouse hover over a bar with a target: the amount under the cursor, in % of the bar's width.
+  const [hover, setHover] = useState(null)
+  const onHover = (e) => {
+    if (e.pointerType !== 'mouse' || !bar || bar.dummy) return
+    const box = e.currentTarget.getBoundingClientRect()
+    setHover(Math.min(100, Math.max(0, ((e.clientX - box.left) / box.width) * 100)))
+  }
   return (
     <div className="dash-row" role="button" tabIndex={0} onClick={onOpen} onKeyDown={enterOpen(onOpen)}>
       <span className="dash-label">{r.label}</span>
@@ -186,7 +193,7 @@ function BarRow({ row: r, val, range, adj, onOpen }) {
       </span>
       {/* Without a target the bar keeps its space, so every row is equally spaced. */}
       <div className={`dash-target ${bar ? '' : 'placeholder'}`} aria-hidden={!bar}>
-        <div className={`bar ${bar?.status ?? ''}`}>
+        <div className={`bar ${bar?.status ?? ''}`} onPointerMove={onHover} onPointerLeave={() => setHover(null)}>
           {bar && (
             <>
               <div className="bar-track">
@@ -205,6 +212,11 @@ function BarRow({ row: r, val, range, adj, onOpen }) {
               </div>
               {hasMean(bar) && <div className="bar-mean" style={{ left: `${bar.fill}%` }} />}
               {ghost && <div className="bar-ghost" style={{ left: `${ghost.from}%`, width: `${ghost.to - ghost.from}%` }} />}
+              {hover != null && (
+                <div className="bar-hover" style={{ left: `${hover}%` }}>
+                  <span className="bar-tip">{fmt(barScale(range, val).at(hover), 0)} {r.unit}</span>
+                </div>
+              )}
             </>
           )}
         </div>
