@@ -6,7 +6,7 @@ import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measu
 import { CATEGORY_GROUPS, DEFAULT_ENTRY_ERROR } from '../errors'
 import { addDays, dayBounds, toLocalInput, today } from '../time'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
-import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, Select, pressable, UnitCombo, UnitInput, enterTo, go, replace } from '../components'
+import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, Select, pressable, UnitCombo, UnitInput, enterSaves, enterTo, go, replace } from '../components'
 import FoodInfo from './FoodInfo'
 
 const CATEGORY_OPTIONS = [
@@ -319,7 +319,7 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
 
   // Into a new component and back: the form slides in (from the right / left), so the switch is seen.
   return (
-      <div className={`form ${nested && !restored ? 'slide-in' : restored ? 'slide-back' : ''}`}>
+      <div className={`form ${nested && !restored ? 'slide-in' : restored ? 'slide-back' : ''}`} onKeyDown={enterSaves(save)}>
         {copy && <p className="muted small">A CIQUAL food, read-only: saving makes it a food of your own.</p>}
         {!initial && !copy && (
           // Save also sits up here, smaller, so a prefilled draft can be saved without scrolling.

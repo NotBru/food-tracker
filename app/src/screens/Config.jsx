@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { DEFAULT_CONFIG, getConfig, saveConfig } from '../db'
-import { Field, Screen } from '../components'
+import { Field, Screen, enterSaves } from '../components'
 
 // Coverage is stored as a share (0.9) and typed as a percentage (90).
 const pct = (p) => String(+(p * 100).toPrecision(4))
@@ -31,7 +31,7 @@ export default function Config() {
 
   return (
     <Screen title="Config">
-      <div className="form">
+      <div className="form" onKeyDown={enterSaves(save)}>
         <Field label="Day starts at (meals before this count for the previous day)">
           <input type="time" value={form.dayStart} onChange={(e) => setForm({ ...form, dayStart: e.target.value })} />
         </Field>

@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-24 | [Forms: Enter saves where it doesn't jump to a field](2026-10-24-enter-saves.md) | accepted |
 | 2026-10-24 | [Argentine food composition databases: what exists, terms, can they be bundled](2026-10-24-argentine-databases.md) | open question |
 | 2026-10-24 | [Body measurements: other measurements named per entry, like attributes, with a name lookup](2026-10-24-body-extra.md) | accepted |
 | 2026-10-24 | [Body measurements: muscle mass, user-defined fields, and a ± Δ on every value](2026-10-24-body-errors.md) | accepted; user fields superseded by [body-extra](2026-10-24-body-extra.md) |

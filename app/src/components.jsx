@@ -135,6 +135,16 @@ export const enterTo = (ref) => (e) => {
   ref.current.focus()
 }
 
+/**
+ * onKeyDown for a form's container: Enter in a box whose own handler didn't take it (no jump to another field, no
+ * pick from a list) saves.
+ */
+export const enterSaves = (save) => (e) => {
+  if (e.key !== 'Enter' || e.defaultPrevented || e.target.tagName !== 'INPUT' || e.nativeEvent.isComposing) return
+  e.preventDefault()
+  save()
+}
+
 /** Free-text unit, used where units are defined (database screens). */
 export function UnitInput({ value, onChange, placeholder = 'unit' }) {
   return <input value={value ?? ''} placeholder={placeholder} autoCapitalize="none" onChange={(e) => onChange(e.target.value)} />

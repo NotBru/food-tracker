@@ -5,7 +5,7 @@ import { componentsTotal, concoctionsLeft, consumptionNutrients, keepUnit, lastE
 import { addDays, dayBounds, prettyDay, toLocalInput, today } from '../time'
 import { NUTRIENTS, amountText, deltaText, emptyNutrients, fmt, measure, normalizeNumber, pmText } from '../nutrients'
 import { DEFAULT_ENTRY_ERROR } from '../errors'
-import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, EntryErrorButton, Field, ItemPicker, MacroLine, Screen, TrashIcon, UnitCombo, go, pressable, replace, useToday } from '../components'
+import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, EntryErrorButton, Field, enterSaves, ItemPicker, MacroLine, Screen, TrashIcon, UnitCombo, go, pressable, replace, useToday } from '../components'
 
 export default function Consumptions({ day: dayParam, add }) {
   const dateRef = useRef(null)
@@ -226,7 +226,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
 
   return (
     <div className="modal" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()}>
+      <div className="sheet" onClick={(e) => e.stopPropagation()} onKeyDown={enterSaves(save)}>
         <h2>{consumption.id ? 'Edit consumption' : 'New consumption'}</h2>
         <Field label="Date and time">
           <DateTimeInput value={form.datetime} onChange={set('datetime')} />

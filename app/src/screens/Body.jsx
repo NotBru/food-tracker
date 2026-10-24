@@ -5,7 +5,7 @@ import { db, getConfig, getCurrentUser } from '../db'
 import { consumptionNutrients, loadContext, sumNutrients } from '../calc'
 import { calories, deltaText, fmt, measure, pmText, rangeText } from '../nutrients'
 import { addDays, dayBounds, formatDateTime, logicalDay, toLocalInput } from '../time'
-import { DateTimeInput, DeltaInput, Screen, pressable, replace, useListNav, useToday } from '../components'
+import { DateTimeInput, DeltaInput, Screen, enterSaves, pressable, replace, useListNav, useToday } from '../components'
 import { BUILTIN_FIELDS, KCAL_PER_KG, MAINT_DAYS, MIN_SPAN, MIN_WEIGH_INS, dailyValues, extraNames, fieldValue, lookalike, maintenance, measures, nameKey, nameMatches, weekMean } from '../body'
 
 // Body measurements (weight, body fat, muscle, waist, and any other named per entry), each with its ± Δ, newest
@@ -174,7 +174,7 @@ function EntryEditor({ entry, known, last, onClose }) {
   }
   return (
     <div className="modal" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()}>
+      <div className="sheet" onClick={(e) => e.stopPropagation()} onKeyDown={enterSaves(save)}>
         <h2>{entry.id ? 'Edit measurements' : 'New measurements'}</h2>
         <div className="nutrients">
           <div className="n-row n-head"><span /><span>value</span><span>± Δ</span></div>

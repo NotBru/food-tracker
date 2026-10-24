@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db, getCurrentUser } from '../db'
 import { NUTRIENTS, rangeLabel } from '../nutrients'
 import { formatDateTime, toLocalInput } from '../time'
-import { DateTimeInput, Field, NutrientAdder, Screen, enterTo, replace } from '../components'
+import { DateTimeInput, Field, NutrientAdder, Screen, enterSaves, enterTo, replace } from '../components'
 
 // design.md: targets are listed latest first; each holds user-chosen nutrients (energy included) and is valid
 // from its timestamp until the next target's. Values are daily ranges {min?, max?}; either bound is optional.
@@ -103,7 +103,7 @@ function TargetEditor({ target, onClose }) {
 
   return (
     <div className="modal" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()}>
+      <div className="sheet" onClick={(e) => e.stopPropagation()} onKeyDown={enterSaves(save)}>
         <h2>{target.id ? 'Edit target' : 'New target'}</h2>
         <Field label="Valid from">
           <DateTimeInput value={validFrom} onChange={setValidFrom} />
