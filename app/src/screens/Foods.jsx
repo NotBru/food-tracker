@@ -15,10 +15,10 @@ const CATEGORY_OPTIONS = [
 ]
 
 // A food is anything you can eat: an ingredient, a recipe (has components) or a concoction (has a made-at time).
-// One list, one editor; what kind a food is follows from its fields. CIQUAL's foods are listed too (while searching,
+// One list, one editor; what kind a food is follows from its fields. CIQUAL's and USDA's foods are listed too (while searching,
 // after the user's own), read-only: editing one saves a copy.
 
-const CIQUAL_SHOWN = 50
+const GENERIC_SHOWN = 50
 
 export function FoodList() {
   const [query, setQuery] = useState('')
@@ -33,8 +33,8 @@ export function FoodList() {
     // Alphabetical, concoctions after everything else (newest first).
     .sort(([a, la], [b, lb]) => !!a.madeAt - !!b.madeAt || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || la.localeCompare(lb))
   if (words.length) {
-    rows.push(...ctx.ciqual.filter(match).map((r) => [r, itemLabel(r)])
-      .sort(([, la], [, lb]) => la.length - lb.length || la.localeCompare(lb)).slice(0, CIQUAL_SHOWN))
+    rows.push(...ctx.generic.filter(match).map((r) => [r, itemLabel(r)])
+      .sort(([, la], [, lb]) => la.length - lb.length || la.localeCompare(lb)).slice(0, GENERIC_SHOWN))
   }
   return (
     <Screen title="Foods">
@@ -112,7 +112,7 @@ export function FoodEditor({ id, tab, nutrient, nested, name }) {
   const isNew = id === 'new'
   const data = useLiveQuery(async () => {
     const ctx = await loadContext()
-    const rec = isNew ? null : id.startsWith('ciqual:') ? ctx.items.get(id) ?? null : await db.items.get(Number(id))
+    const rec = isNew ? null : /^(ciqual|fdc):/.test(id) ? ctx.items.get(id) ?? null : await db.items.get(Number(id))
     return { id, ctx, rec, dayStart: (await getConfig()).dayStart }
   }, [id])
   // useLiveQuery keeps the previous result while a new id loads; don't build the form from another food's data.
@@ -134,7 +134,7 @@ export function FoodEditor({ id, tab, nutrient, nested, name }) {
       {/* The form stays mounted while Info is shown, so unsaved edits survive a look at the info. */}
       <div hidden={info}>
         {/* A new food may come prefilled from "Search external" (draft handed over by external.js). */}
-        {/* A read-only (CIQUAL) food prefills a new one: saving makes the copy. */}
+        {/* A read-only (CIQUAL, USDA) food prefills a new one: saving makes the copy. */}
         <FoodForm key={`${id}:${nested ?? ''}`} ctx={data.ctx} dayStart={data.dayStart} initial={data.rec?.readOnly ? null : data.rec}
           prefill={isNew ? peekPendingDraft() : data.rec?.readOnly ? data.rec : null} copy={!!data.rec?.readOnly}
           nested={!!parent} name={name} />
@@ -320,7 +320,7 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
   // Into a new component and back: the form slides in (from the right / left), so the switch is seen.
   return (
       <div className={`form ${nested && !restored ? 'slide-in' : restored ? 'slide-back' : ''}`} onKeyDown={enterSaves(save)}>
-        {copy && <p className="muted small">A CIQUAL food, read-only: saving makes it a food of your own.</p>}
+        {copy && <p className="muted small">A {prefill.source?.db === 'fdc' ? 'USDA' : 'CIQUAL'} food, read-only: saving makes it a food of your own.</p>}
         {!initial && !copy && (
           // Save also sits up here, smaller, so a prefilled draft can be saved without scrolling.
           <div className="row ext-row">

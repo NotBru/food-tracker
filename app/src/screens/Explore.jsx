@@ -69,7 +69,7 @@ export default function Explore({ nutrient }) {
   const foods = useMemo(() => {
     if (!ctx || !meta) return []
     const rows = []
-    for (const item of [...ctx.list, ...ctx.ciqual]) {
+    for (const item of [...ctx.list, ...ctx.generic]) {
       if (item.madeAt) continue
       let per = [100, 'g']
       let r = amountOf(ctx, item, nutrient, ...per)

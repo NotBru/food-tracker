@@ -222,6 +222,7 @@ export const DEFAULT_CONFIG = {
   dashboard: 'gauges', // 'gauges' (2-column tiles) or 'bars' (one row per nutrient)
   coverage: 0.9, // share of the probability the error intervals hold
   ciqual: true, // CIQUAL's generic foods listed in the food database
+  usda: true, // USDA's (FoodData Central) likewise
   adjCap: { min: 500, max: 500 }, // kcal: how far the 7-day correction may move each bound of the daily calorie target
   adjGhost: false, // dashboard: the calorie bar/gauge the uncapped correction would give, a faint grey ghost over the real one
 }
@@ -382,8 +383,15 @@ export function parseExpiryDays(text) {
 export const fold = (s) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
 
 /** What food searches match (folded): the label, plus the made-at time so a batch can be found by its date, plus a
- * CIQUAL food's French name. */
-export const searchText = (item) => fold(`${itemLabel(item)} ${madeText(item)} ${item.nameFr ?? ''}`)
+ * CIQUAL food's French name. Kept for read-only foods, which don't change: there are ~11k of them to go through. */
+const searchCache = new WeakMap()
+export function searchText(item) {
+  let s = item.readOnly && searchCache.get(item)
+  if (s) return s
+  s = fold(`${itemLabel(item)} ${madeText(item)} ${item.nameFr ?? ''}`)
+  if (item.readOnly) searchCache.set(item, s)
+  return s
+}
 
 // --- Import / export -----------------------------------------------------
 // JSON has no NaN, so it is encoded as null and decoded back on import.

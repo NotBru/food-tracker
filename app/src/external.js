@@ -2,6 +2,8 @@
 //   CIQUAL (ANSES, France): ~3.5k generic foods, bundled as public/ciqual.json (built by scripts/ciqual.py),
 //     loaded on first use. Licence Ouverte, credit "ANSES-CIQUAL". Its foods are part of the food database,
 //     read-only (ciqualItems); editing one saves a copy.
+//   USDA FoodData Central: Foundation Foods and SR Legacy, ~8.1k generic foods, bundled as public/fdc.json (built by
+//     scripts/fdc.py), loaded on first use, in the food database like CIQUAL's (fdcItems). Public domain (CC0).
 //   Open Food Facts: packaged products, fetched live from the browser. ODbL. Rate limits: 15 product
 //     reads/min and 10 searches/min per IP, so searches only run on Enter, never per keystroke.
 //     Text search uses search-a-licious (search.openfoodfacts.org) through the /off-search proxy in vite.config.js,
@@ -9,7 +11,7 @@
 //     where there is no proxy. Search hits lack serving/package sizes and most micronutrients, so picking one
 //     reads the full product (offProductDraft).
 // Both give values per 100 g (or 100 ml). OFF results become a *draft* food that prefills the "New food" form.
-// Drafts carry a `database` attribute (CIQUAL / OFF) plus `source` ({db, id}) for the link back.
+// Drafts carry a `database` attribute (CIQUAL / USDA / OFF) plus `source` ({db, id}) for the link back.
 
 import { deltaFromInput } from './nutrients'
 
@@ -115,6 +117,59 @@ export function ciqualDraft(table, food) {
     category: food.group,
     source: { db: 'ciqual', id: food.code, version: table.source },
     subtitle: table.groups[food.group] ?? '',
+  }
+}
+
+// --- USDA FoodData Central ------------------------------------------------------------
+// The table's texts already carry FDC's precision (zeros too: "0.00"), so a value's Δ follows from its digits. Its
+// household measures ("1 cup = 244 g") are units; "cup", "tbsp", "tsp" and "fl oz" are named like the built-in volumes,
+// so a liquid's ml follow from them.
+
+let fdc = null
+export function loadFdc() {
+  fdc ??= fetch(`${import.meta.env.BASE_URL}fdc.json`)
+    .then((r) => {
+      if (!r.ok) throw new Error(`USDA table: HTTP ${r.status}`)
+      return r.json()
+    })
+    .then((t) => ({
+      ...t,
+      foods: t.foods.map(([id, name, dataset, category, group, values, units]) => ({ id, name, dataset, category, group, values, units })),
+    }))
+    .catch((e) => {
+      fdc = null // allow a retry
+      throw e
+    })
+  return fdc
+}
+
+// USDA foods as read-only foods, like CIQUAL's: id "fdc:<fdcId>", category the CIQUAL subgroup scripts/fdc.py gave them.
+let fdcFoods = null
+export function fdcItems() {
+  fdcFoods ??= loadFdc()
+    .then((t) => t.foods.map((f) => ({ ...fdcDraft(t, f), id: `fdc:${f.id}`, readOnly: true })))
+    .catch((e) => {
+      fdcFoods = null
+      throw e
+    })
+  return fdcFoods
+}
+
+export function fdcDraft(table, food) {
+  const nutrients = {}
+  table.keys.forEach((key, i) => {
+    if (food.values[i] !== '') nutrients[key] = nutrient(food.values[i])
+  })
+  const units = food.units.map(([amount, unit, grams]) => ({
+    fromAmount: Number(amount), fromText: amount, fromDelta: 0, fromDeltaAuto: false, fromUnit: unit,
+    toAmount: Number(grams), toText: grams, toDelta: deltaFromInput(grams), toDeltaAuto: true, toUnit: 'g',
+  }))
+  const dataset = table.datasets[food.dataset]
+  return {
+    name: food.name, brand: '', attributes: [['database', 'USDA']], ...PER_100, unit: 'g', units, components: [], nutrients,
+    category: food.category,
+    source: { db: 'fdc', id: food.id, version: dataset },
+    subtitle: [table.groups[food.group], dataset].filter(Boolean).join(' · '),
   }
 }
 
@@ -225,6 +280,7 @@ export async function offProductDraft(draft) {
 export function sourceLabel(source) {
   if (!source) return null
   if (source.db === 'ciqual') return { text: `${source.version ?? 'ANSES-CIQUAL'} · food #${source.id}`, href: `https://ciqual.anses.fr/#/aliments/${source.id}` }
+  if (source.db === 'fdc') return { text: `USDA ${source.version ?? 'FoodData Central'} · FDC #${source.id}`, href: `https://fdc.nal.usda.gov/food-details/${source.id}/nutrients` }
   if (source.db === 'off') return { text: `Open Food Facts · ${source.id}`, href: `${OFF}/product/${source.id}` }
   return null
 }

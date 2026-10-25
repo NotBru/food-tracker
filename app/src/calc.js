@@ -2,7 +2,7 @@ import { db, getConfig } from './db'
 import { addDays, dayBounds } from './time'
 import { NUTRIENTS, calories, deltaFromInput } from './nutrients'
 import { DEFAULT_ENTRY_ERROR, sampling } from './errors'
-import { ciqualItems } from './external'
+import { ciqualItems, fdcItems } from './external'
 import { addProduct, addScaled, bounds, zero } from './stats'
 
 // Built-in conversions to a base unit per dimension.
@@ -131,21 +131,17 @@ function addInto(total, nutrients, f, phi = 0, rel = 0) {
 }
 
 /**
- * Load everything nutrient computation needs, once. `list` is the user's own foods; CIQUAL's are read-only foods
- * (external.js ciqualItems) that always resolve, so consumptions of them keep working, and are listed (`ciqual`)
- * only while the config includes them.
+ * Load everything nutrient computation needs, once. `list` is the user's own foods; CIQUAL's and USDA's are read-only
+ * foods (external.js ciqualItems, fdcItems) that always resolve, so consumptions of them keep working, and are listed
+ * (`generic`) only while the config includes them.
  */
 export async function loadContext() {
   const [list, config] = await Promise.all([db.items.toArray(), getConfig()])
   const items = new Map(list.map((r) => [r.id, r]))
-  let ciqual = []
-  try {
-    ciqual = await ciqualItems()
-  } catch {
-    // Not loaded (offline on first use): own foods only.
-  }
-  for (const it of ciqual) items.set(it.id, it)
-  return { items, list, ciqual: config.ciqual ? ciqual : [] }
+  // Not loaded (offline on first use): without that table.
+  const [ciqual, usda] = await Promise.all([ciqualItems().catch(() => []), fdcItems().catch(() => [])])
+  for (const it of [...ciqual, ...usda]) items.set(it.id, it)
+  return { items, list, generic: [...(config.ciqual ? ciqual : []), ...(config.usda ? usda : [])] }
 }
 
 /** Keep `unit` if it still works for the newly picked food, otherwise switch to the food's own unit. */

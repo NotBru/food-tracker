@@ -9,7 +9,7 @@ export default function Config() {
   const [form, setForm] = useState(null)
   useEffect(() => {
     getConfig().then((c) => setForm({
-      dayStart: c.dayStart, dashboard: c.dashboard, coverage: pct(c.coverage), ciqual: c.ciqual,
+      dayStart: c.dayStart, dashboard: c.dashboard, coverage: pct(c.coverage), ciqual: c.ciqual, usda: c.usda,
       capMin: String(c.adjCap.min), capMax: String(c.adjCap.max), adjGhost: c.adjGhost,
     }))
   }, [])
@@ -23,7 +23,7 @@ export default function Config() {
     const adjCap = { min: kcal(form.capMin, DEFAULT_CONFIG.adjCap.min), max: kcal(form.capMax, DEFAULT_CONFIG.adjCap.max) }
     if (!(adjCap.min >= 0 && adjCap.max >= 0)) return alert('The 7-day correction caps must be 0 kcal or more.')
     await saveConfig({
-      dayStart: form.dayStart || DEFAULT_CONFIG.dayStart, dashboard: form.dashboard, coverage: p, ciqual: form.ciqual,
+      dayStart: form.dayStart || DEFAULT_CONFIG.dayStart, dashboard: form.dashboard, coverage: p, ciqual: form.ciqual, usda: form.usda,
       adjCap, adjGhost: form.adjGhost,
     })
     history.back()
@@ -68,6 +68,10 @@ export default function Config() {
         <label className="check">
           <input type="checkbox" checked={form.ciqual} onChange={(e) => setForm({ ...form, ciqual: e.target.checked })} />
           <span>CIQUAL's generic foods in the food database</span>
+        </label>
+        <label className="check">
+          <input type="checkbox" checked={form.usda} onChange={(e) => setForm({ ...form, usda: e.target.checked })} />
+          <span>USDA's generic foods (FoodData Central) in the food database</span>
         </label>
         <div className="row actions"><button onClick={save}>Save</button></div>
       </div>
