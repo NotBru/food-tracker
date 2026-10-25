@@ -379,6 +379,13 @@ button.icon.trash:hover { color: var(--prot); }
 .ex-switches li { padding: 5px 0; }
 .ex-switches label { display: flex; align-items: center; gap: 10px; cursor: pointer; overflow-wrap: anywhere; }
 
+/* Config: one row per reference database, its switch on the right. */
+.db-switches { list-style: none; margin: 0; padding: 4px 14px; background: var(--panel); border-radius: 16px; }
+.db-switches li + li { border-top: 1px solid var(--line); }
+.db-switches label { display: flex; align-items: center; gap: 12px; padding: 10px 0; cursor: pointer; }
+.db-switches label > span { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.db-switches strong { color: var(--text); font-weight: 600; font-size: 15px; }
+
 /* On/off switch: a checkbox with role="switch". */
 input.switch {
   appearance: none; flex: none; width: 36px; height: 20px; padding: 0; border-radius: 999px; border: 0; position: relative;

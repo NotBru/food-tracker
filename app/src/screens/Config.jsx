@@ -2,6 +2,12 @@ import { useEffect, useState } from 'react'
 import { DEFAULT_CONFIG, getConfig, saveConfig } from '../db'
 import { Field, Screen, enterSaves } from '../components'
 
+// Generic-food tables bundled with the app (external.js): [config key, name, what it is].
+const REFERENCE_DBS = [
+  ['ciqual', 'CIQUAL', 'ANSES, France: ~3.5k generic foods, English and French names.'],
+  ['usda', 'USDA', 'FoodData Central (Foundation Foods, SR Legacy): ~8.1k generic foods, with household measures.'],
+]
+
 // Coverage is stored as a share (0.9) and typed as a percentage (90).
 const pct = (p) => String(+(p * 100).toPrecision(4))
 
@@ -65,14 +71,20 @@ export default function Config() {
           <input type="checkbox" checked={form.adjGhost} onChange={(e) => setForm({ ...form, adjGhost: e.target.checked })} />
           <span>Ghost of the uncapped calorie bar (no correction caps) over the capped one</span>
         </label>
-        <label className="check">
-          <input type="checkbox" checked={form.ciqual} onChange={(e) => setForm({ ...form, ciqual: e.target.checked })} />
-          <span>CIQUAL's generic foods in the food database</span>
-        </label>
-        <label className="check">
-          <input type="checkbox" checked={form.usda} onChange={(e) => setForm({ ...form, usda: e.target.checked })} />
-          <span>USDA's generic foods (FoodData Central) in the food database</span>
-        </label>
+        <div className="field">
+          <span>Reference databases (their generic foods are listed with yours)</span>
+          <ul className="db-switches">
+            {REFERENCE_DBS.map(([key, name, about]) => (
+              <li key={key}>
+                <label>
+                  <span><strong>{name}</strong><small className="muted">{about}</small></span>
+                  <input type="checkbox" role="switch" className="switch" checked={form[key]}
+                    onChange={(e) => setForm({ ...form, [key]: e.target.checked })} />
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
         <div className="row actions"><button onClick={save}>Save</button></div>
       </div>
     </Screen>
