@@ -67,13 +67,18 @@ export default function Config() {
             </Field>
           </div>
         </div>
-        <label className="check">
-          <input type="checkbox" checked={form.adjGhost} onChange={(e) => setForm({ ...form, adjGhost: e.target.checked })} />
-          <span>Ghost of the uncapped calorie bar (no correction caps) over the capped one</span>
-        </label>
+        <ul className="switch-list">
+          <li>
+            <label>
+              <span><strong>Ghost of the uncapped calorie bar</strong><small className="muted">Where the bar would be with no correction caps, drawn faintly over the capped one.</small></span>
+              <input type="checkbox" role="switch" className="switch" checked={form.adjGhost}
+                onChange={(e) => setForm({ ...form, adjGhost: e.target.checked })} />
+            </label>
+          </li>
+        </ul>
         <div className="field">
           <span>Reference databases (their generic foods are listed with yours)</span>
-          <ul className="db-switches">
+          <ul className="switch-list">
             {REFERENCE_DBS.map(([key, name, about]) => (
               <li key={key}>
                 <label>

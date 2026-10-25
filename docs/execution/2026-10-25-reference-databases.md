@@ -26,3 +26,11 @@ good adjective"), each database with a short explanation and a toggle on the rig
 
 Headless Chromium (412×915): the panel shows CIQUAL and USDA with their descriptions and switches. Turning USDA off
 and saving keeps it off after reloading Config. No console errors.
+
+## Update: the ghost setting as a switch too
+
+The user: "Use a toggle for ghost config". The ghost of the uncapped calorie bar is now a switch row like the
+databases': "Ghost of the uncapped calorie bar", with "Where the bar would be with no correction caps, drawn faintly
+over the capped one." below it. It stays right under the correction caps it belongs to. The row style is now
+`.switch-list` (was `.db-switches`), shared by both. Its descriptions are fixed at 13 px, since the one inside a
+`.field` came out smaller than the one outside. Checked: switching it on and saving keeps it on after reopening Config.
