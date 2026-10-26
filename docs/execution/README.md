@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-26 | [Instructions brought up to date; no longer read-only](2026-10-26-instructions-sync.md) | accepted |
 | 2026-10-25 | [Config: "Reference databases", one switch per database](2026-10-25-reference-databases.md) | accepted |
 | 2026-10-25 | [USDA FoodData Central foods in the food database](2026-10-25-usda-foods.md) | accepted |
 | 2026-10-24 | [Forms: Enter saves where it doesn't jump to a field](2026-10-24-enter-saves.md) | accepted |
