@@ -2,7 +2,7 @@
 
 ## Stack
 
-Use Vite + React. Store data in an IndexedDB. Native Android port alongside (`android/`).
+Use Vite + React. Store data in an IndexedDB.
 
 ## UI
 

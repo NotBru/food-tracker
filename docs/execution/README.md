@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-26 | [Android port removed: web app only](2026-10-26-android-removed.md) | accepted |
 | 2026-10-26 | [Instructions brought up to date; no longer read-only](2026-10-26-instructions-sync.md) | accepted |
 | 2026-10-25 | [Config: "Reference databases", one switch per database](2026-10-25-reference-databases.md) | accepted |
 | 2026-10-25 | [USDA FoodData Central foods in the food database](2026-10-25-usda-foods.md) | accepted |
@@ -100,7 +101,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | 2026-10-16 | [Dates shown as YYYY-MM-DD everywhere](2026-10-16-iso-dates.md) | accepted |
 | 2026-10-16 | [New food: a second Save at the top](2026-10-16-food-save-top.md) | accepted |
 | 2026-10-16 | ["Today" rolls over without a reload](2026-10-16-day-rollover.md) | accepted |
-| 2026-10-15 | [Native Android port](2026-10-15-android-port.md) | accepted |
+| 2026-10-15 | [Native Android port](2026-10-15-android-port.md) | superseded by [android-removed](2026-10-26-android-removed.md) |
 | 2026-10-15 | [Consumption editor: nutrient details drop-down](2026-10-15-consumption-details.md) | accepted |
 | 2026-10-15 | [Calorie budget](2026-10-15-calorie-budget.md) | accepted |
 | 2026-10-15 | [Users](2026-10-15-users.md) | accepted |

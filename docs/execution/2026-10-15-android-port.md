@@ -1,7 +1,7 @@
 # Native Android port
 
 - **Date:** 2026-10-15
-- **Status:** accepted
+- **Status:** superseded by [android-removed](2026-10-26-android-removed.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (all screens)
 
 ## Context
