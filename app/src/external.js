@@ -6,7 +6,8 @@
 //     scripts/fdc.py), loaded on first use, in the food database like CIQUAL's (fdcItems). Public domain (CC0).
 //   Open Food Facts: packaged products, fetched live from the browser. ODbL. Rate limits: 15 product
 //     reads/min and 10 searches/min per IP, so searches only run on Enter, never per keystroke.
-//     Text search uses search-a-licious (search.openfoodfacts.org) through the /off-search proxy in vite.config.js,
+//     Text search uses search-a-licious (search.openfoodfacts.org) through the /off-search proxy in vite.config.js
+//     (and deploy/web/Caddyfile, which caps all users together at 10 searches/min),
 //     since it sends no CORS headers; the legacy cgi/search.pl, mostly answering 503 since 2026-10, is the fallback
 //     where there is no proxy. Search hits lack serving/package sizes and most micronutrients, so picking one
 //     reads the full product (offProductDraft).
@@ -233,7 +234,11 @@ async function offGet(url) {
   } catch {
     throw new Error("Open Food Facts didn't answer (offline, or busy / rate-limited). Try again in a minute.")
   }
-  if (r.status === 429) throw new Error('Open Food Facts rate limit reached (10 searches per minute). Try again shortly.')
+  if (r.status === 429) {
+    // The deployed /off-search relay says how long until its shared 10-per-minute budget frees up.
+    const wait = Number(r.headers.get('retry-after'))
+    throw new Error(`Open Food Facts rate limit reached (10 searches per minute). Try again ${wait > 0 ? `in ${Math.ceil(wait)} s` : 'shortly'}.`)
+  }
   if (r.status === 503) throw new Error('Open Food Facts search is temporarily unavailable. Try again in a minute.')
   if (r.status === 404) return null
   if (!r.ok) throw new Error(`Open Food Facts: HTTP ${r.status}`)

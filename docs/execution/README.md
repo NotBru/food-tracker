@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-26 | [Server rate-limits its Open Food Facts searches](2026-10-26-off-rate-limit.md) | accepted |
 | 2026-10-26 | [Backup server: encrypted only; account mode discarded](2026-10-26-backup-direction.md) | accepted (direction) |
 | 2026-10-26 | [Production image of the web app](2026-10-26-web-image.md) | accepted |
 | 2026-10-26 | [Android port removed: web app only](2026-10-26-android-removed.md) | accepted |

@@ -55,7 +55,8 @@ docker build -f deploy/web/Dockerfile -t track-shit-web .
 ```
 
 - **web app**: the built `app/dist/` served by Caddy, plus `/off-search/*` relayed to
-  `https://search.openfoodfacts.org` (prefix stripped). `/assets/*` is cached `immutable`; everything else is
+  `https://search.openfoodfacts.org` (prefix stripped), at most 10 a minute for all users together (OFF's per-IP
+  search limit; past it, 429 with `Retry-After`). `/assets/*` is cached `immutable`; everything else is
   `no-cache`. No volume, no environment variables, no state. Routing is in the hash, so no `index.html` fallback.
 - **backup server**: not built yet.
 - **Beyond `git pull` and a rebuild**: nothing so far.

@@ -1,6 +1,7 @@
 {
 	# Nothing in the container reconfigures Caddy at runtime.
 	admin off
+	order rate_limit before basic_auth
 }
 
 :80 {
@@ -8,6 +9,15 @@
 
 	# Open Food Facts' text search sends no CORS headers, so the app reaches it through here (as vite.config.js does).
 	handle_path /off-search/* {
+		# Every user's searches leave from this server's IP, and Open Food Facts allows 10 searches a minute per IP.
+		# Past that, the app gets a 429 with Retry-After instead of OFF.
+		rate_limit {
+			zone off-search {
+				key static
+				events 10
+				window 1m
+			}
+		}
 		reverse_proxy https://search.openfoodfacts.org {
 			header_up Host {upstream_hostport}
 			header_up User-Agent "food-tracker-pwa/0.1"
