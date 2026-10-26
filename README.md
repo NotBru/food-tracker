@@ -84,7 +84,7 @@ serve.sh              runs the dev server in its own Docker container
 
 ## How this project is worked on
 
-Requirements live in [`docs/instructions/`](docs/instructions/): written by people, never edited by AI agents.
+Requirements live in [`docs/instructions/`](docs/instructions/): kept terse and in sync with the app, for easy human review.
 Agents (Claude) log every non-trivial decision in [`docs/execution/`](docs/execution/README.md): the context,
 what was decided, the alternatives, and how it was checked. See [`CLAUDE.md`](CLAUDE.md).
 
