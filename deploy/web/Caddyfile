@@ -1,0 +1,26 @@
+{
+	# Nothing in the container reconfigures Caddy at runtime.
+	admin off
+}
+
+:80 {
+	encode zstd gzip
+
+	# Open Food Facts' text search sends no CORS headers, so the app reaches it through here (as vite.config.js does).
+	handle_path /off-search/* {
+		reverse_proxy https://search.openfoodfacts.org {
+			header_up Host {upstream_hostport}
+			header_up User-Agent "food-tracker-pwa/0.1"
+		}
+	}
+
+	handle {
+		root * /srv
+		file_server
+		# Hashed build files never change; everything else is checked on every load.
+		@assets path /assets/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+		@other not path /assets/*
+		header @other Cache-Control "no-cache"
+	}
+}

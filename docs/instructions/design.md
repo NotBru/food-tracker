@@ -4,6 +4,8 @@
 
 Use Vite + React. Store data in an IndexedDB.
 
+Production: a Docker image serving the build, at https://track-shit.notbru.xyz (final: data is tied to the origin).
+
 ## UI
 
 Everything dated is listed newest first. Dates are YYYY-MM-DD.

@@ -24,6 +24,8 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-26 | [Backup server: encrypted only; account mode discarded](2026-10-26-backup-direction.md) | accepted (direction) |
+| 2026-10-26 | [Production image of the web app](2026-10-26-web-image.md) | accepted |
 | 2026-10-26 | [Android port removed: web app only](2026-10-26-android-removed.md) | accepted |
 | 2026-10-26 | [Instructions brought up to date; no longer read-only](2026-10-26-instructions-sync.md) | accepted |
 | 2026-10-25 | [Config: "Reference databases", one switch per database](2026-10-25-reference-databases.md) | accepted |
