@@ -22,7 +22,7 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
 - Button: foods (+) -> foods screen
 - Button: targets (+) -> targets screen
 - Button: body measurements (+) -> body measurements screen
-- Button: import databases
+- Button: import databases (merge into the current data, or replace it)
 - Button: export databases (filename with date and time, to the second)
 
 ### Consumptions screen

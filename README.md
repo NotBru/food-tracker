@@ -97,8 +97,8 @@ docker network connect track-shit <web container>
 - Everything stays on the device, in the browser's IndexedDB. The app asks the browser not to
   evict it, but **clearing the browser's site data deletes it**, and so does changing the address the app is
   served from.
-- **Export databases** on the homescreen saves everything to a JSON file. **Import databases** replaces the
-  current data with one. That's how you move your data to a new device or address.
+- **Export databases** on the homescreen saves everything to a JSON file. **Import databases** merges one into
+  the current data (same-named users are one; entries already here are skipped) or replaces it. That's how you move your data to a new device or address.
 - **Backup** (Config → Backup) keeps an encrypted copy on the server, with a invite code. The secret stays on your
   devices; show it as a QR to restore on another one. Lose every copy of it and the backup is lost.
 

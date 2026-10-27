@@ -410,7 +410,8 @@ function revive(v, key) {
   return v
 }
 
-export async function importAll(text) {
+/** An export file's tables, brought up to the current format. */
+function readImport(text) {
   const data = JSON.parse(text)
   if (data.app !== 'food-tracker') throw new Error('Not a food-tracker export file')
   let tables = revive(data.tables ?? {})
@@ -441,10 +442,78 @@ export async function importAll(text) {
   const merged = mergeEqualFoods(tables.items, tables.logs)
   tables.items = merged.items
   tables.logs = merged.logs
+  return tables
+}
+
+/** Replaces all data with an export file's, or (merge) adds the file's data to what's here (mergeTables). */
+export async function importAll(text, { merge = false } = {}) {
+  let tables = readImport(text)
   await db.transaction('rw', TABLES.map((t) => db[t]), async () => {
+    if (merge) {
+      const current = Object.fromEntries(await Promise.all(TABLES.map(async (t) => [t, await db[t].toArray()])))
+      tables = mergeTables(current, tables)
+    }
     for (const t of TABLES) {
       await db[t].clear()
       await db[t].bulkAdd(tables[t] ?? [])
     }
   })
+}
+
+// Object keys sorted, NaN kept apart from null: two rows written in different orders still compare equal.
+const rowKey = ({ id, ...row }) => JSON.stringify(row, (_, v) =>
+  Number.isNaN(v) ? 'NaN' : v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).sort()) : v)
+
+/** `added` without the rows that repeat one in `kept` (each row of `kept` cancels one repeat: twice stays twice). */
+function withoutRepeats(kept, added) {
+  const left = new Map()
+  for (const r of kept) left.set(rowKey(r), (left.get(rowKey(r)) ?? 0) + 1)
+  return added.filter((r) => {
+    const n = left.get(rowKey(r))
+    if (n) left.set(rowKey(r), n - 1)
+    return !n
+  })
+}
+
+/**
+ * This device's tables plus an import's. The import's rows get new ids (and its references follow them); a user
+ * with the same name as one here is that user; foods that repeat one here exactly are dropped (mergeEqualFoods),
+ * and so are consumptions, targets and body measurements that repeat one here. Config stays this device's.
+ */
+export function mergeTables(cur, inc) {
+  const nextId = (rows) => Math.max(0, ...rows.map((r) => r.id)) + 1
+  const users = [...cur.users]
+  const userIds = new Map()
+  let nu = nextId(users)
+  for (const u of inc.users ?? []) {
+    const same = users.find((x) => fold(x.name.trim()) === fold(u.name.trim()))
+    if (same) userIds.set(u.id, same.id)
+    else {
+      userIds.set(u.id, nu)
+      users.push({ ...u, id: nu++ })
+    }
+  }
+  let ni = nextId(cur.items)
+  const itemIds = new Map((inc.items ?? []).map((it) => [it.id, ni++]))
+  // Reference foods ("ciqual:…", "fdc:…") aren't in the tables and keep their ids.
+  const itemRef = (id) => itemIds.get(id) ?? id
+  const items = [...cur.items, ...(inc.items ?? []).map((it) => ({
+    ...it, id: itemIds.get(it.id), ...(it.components && { components: it.components.map((c) => ({ ...c, itemId: itemRef(c.itemId) })) }),
+  }))]
+  const added = (t, more = () => ({})) => {
+    let n = nextId(cur[t])
+    return (inc[t] ?? []).map((r) => ({ ...r, id: n++, userId: userIds.get(r.userId) ?? r.userId, ...more(r) }))
+  }
+  // Foods first, so a consumption of a repeated food points where this device's consumption of it does.
+  const merged = mergeEqualFoods(items, [...cur.logs, ...added('logs', (r) => ({ itemId: itemRef(r.itemId) }))])
+  const logs = merged.logs.slice(0, cur.logs.length)
+  const mine = (t) => [...cur[t], ...withoutRepeats(cur[t], added(t))]
+  return {
+    users,
+    items: merged.items,
+    logs: [...logs, ...withoutRepeats(logs, merged.logs.slice(cur.logs.length))],
+    targets: mine('targets'),
+    weights: mine('weights'),
+    config: cur.config,
+  }
 }

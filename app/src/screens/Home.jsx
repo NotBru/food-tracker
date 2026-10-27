@@ -250,11 +250,45 @@ function GaugeTile({ row: r, val, range, adj, onOpen }) {
  * The window and the picked day live in the URL (`#/?win=weekly&day=2026-10-15`), so going back from a screen
  * opened here (breakdown, consumptions) returns to the same view. No `day` = today, following midnight.
  */
+/** Import: merge the file into what's here, or replace everything with it. */
+function ImportSheet({ file, onClose }) {
+  const [busy, setBusy] = useState(false)
+  async function run(merge) {
+    if (!merge && !confirm('Replace ALL data on this device with the file? This cannot be undone.')) return
+    setBusy(true)
+    try {
+      await importAll(await file.text(), { merge })
+      onClose()
+    } catch (err) {
+      alert(`Import failed: ${err.message}`)
+      setBusy(false)
+    }
+  }
+  return (
+    <div className="modal" onClick={onClose}>
+      <div className="sheet" onClick={(e) => e.stopPropagation()}>
+        <h2>Import {file.name}</h2>
+        <p className="small"><strong>Merge</strong> <span className="muted">adds the file's foods, consumptions, targets
+          and body measurements to what's here. A user with the same name is the same user; entries already here are
+          skipped; config stays as it is.</span></p>
+        <p className="small"><strong>Replace</strong> <span className="muted">deletes everything here and puts the
+          file's data in its place.</span></p>
+        <div className="row actions">
+          <button className="secondary" onClick={onClose}>Cancel</button>
+          <button className="danger" disabled={busy} onClick={() => run(false)}>Replace</button>
+          <button disabled={busy} onClick={() => run(true)}>Merge</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Home({ query = {} }) {
   const win = WINDOWS.includes(query.win) ? query.win : WINDOWS[0]
   const winIdx = WINDOWS.indexOf(win)
   const touchX = useRef(null)
   const fileRef = useRef(null)
+  const [importing, setImporting] = useState(null) // the file picked, until merge or replace is chosen
   const day = useToday()
   // Daily window only: the day shown (the day arrows); at most tomorrow, to preview its (weekly-corrected) bounds.
   const inRange = (d) => d && day && d !== day && d <= addDays(day, 1)
@@ -331,16 +365,10 @@ export default function Home({ query = {} }) {
     URL.revokeObjectURL(a.href)
   }
 
-  async function doImport(e) {
+  function pickImport(e) {
     const f = e.target.files?.[0]
     e.target.value = ''
-    if (!f) return
-    if (!confirm('Importing REPLACES all current data with the file contents. Continue?')) return
-    try {
-      await importAll(await f.text())
-    } catch (err) {
-      alert(`Import failed: ${err.message}`)
-    }
+    if (f) setImporting(f)
   }
 
   return (
@@ -416,9 +444,10 @@ export default function Home({ query = {} }) {
             <button className="secondary" onClick={() => fileRef.current.click()}>Import databases</button>
             <button className="secondary" onClick={doExport}>Export databases</button>
           </div>
-          <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={doImport} />
+          <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={pickImport} />
         </nav>
       </main>
+      {importing && <ImportSheet file={importing} onClose={() => setImporting(null)} />}
     </div>
   )
 }
