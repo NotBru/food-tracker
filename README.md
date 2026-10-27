@@ -65,7 +65,32 @@ docker build -f deploy/backup/Dockerfile -t track-shit-backup .
 - **backup server** (`backup/server.mjs`): encrypted blobs, one per public key, at most 4 MB (`MAX_BYTES`). Keep
   `/data` on a volume. Friend codes are made by hand: `docker exec <container> node server.mjs invite <name>`
   prints a single-use code; `list` and `remove <key>` too.
-- **Beyond `git pull` and a rebuild**: nothing so far.
+
+### First time (the backup server)
+
+The web app's Caddy reaches the backup server as `backup:8080`, so both containers share a network and the backup
+one is named `backup` (or set `BACKUP_UPSTREAM` on the web container to wherever it is). Only the web container is
+published; the backup one needs no port of its own.
+
+```sh
+docker network create track-shit
+docker volume create track-shit-backup
+docker run -d --name backup --network track-shit --restart unless-stopped -v track-shit-backup:/data track-shit-backup
+docker network connect track-shit <web container>
+```
+
+### Updating
+
+`git pull`, rebuild both images, recreate both containers (same names, network and volume).
+
+- **web app**: no state. Each browser gets the new version on its next load (the service worker fetches network
+  first). Data on the devices is untouched.
+- **backup server**: everything is on the `/data` volume (codes, keys, backups), so it survives. While it's down,
+  uploads fail and the app retries by itself within 15 minutes; restores say the server can't be reached.
+- Changing the address loses every device's data and backup secret (both are tied to the origin).
+- The backup protocol (`food-tracker-backup/1`) and file format (`FTB1`) are versioned: a change to either must
+  keep accepting the old ones, as open tabs and stored backups still use them. Backups hold a normal export, so an
+  old one restores into a newer app through the import migrations.
 
 ## Your data
 

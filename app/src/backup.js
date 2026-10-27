@@ -79,16 +79,16 @@ async function deriveKeys(secret) {
 
 // --- Requests -----------------------------------------------------------------
 
-async function request(method, path, { keys, body = new Uint8Array(), prev = '' }) {
+async function request(method, path, { keys, newKeys, body = new Uint8Array(), prev = '' }) {
   const time = String(Date.now())
-  const text = [PREFIX, method, path, time, prev, hex(await sha256(body))].join('\n')
-  const sig = await crypto.subtle.sign('Ed25519', keys.signKey, new TextEncoder().encode(text))
+  const text = new TextEncoder().encode([PREFIX, method, path, time, prev, hex(await sha256(body))].join('\n'))
+  const sign = async (k) => b64u(await crypto.subtle.sign('Ed25519', k.signKey, text))
+  const headers = { 'X-Time': time, 'X-Prev': prev, 'X-Signature': await sign(keys) }
+  // A key change is signed by the new key as well.
+  if (newKeys) headers['X-New-Signature'] = await sign(newKeys)
   let res
   try {
-    res = await fetch(path, {
-      method, body: method === 'GET' ? undefined : body, cache: 'no-store',
-      headers: { 'X-Time': time, 'X-Prev': prev, 'X-Signature': b64u(sig) },
-    })
+    res = await fetch(path, { method, body: method === 'GET' ? undefined : body, cache: 'no-store', headers })
   } catch {
     throw new Error("Couldn't reach the backup server. Are you online?")
   }
@@ -154,6 +154,26 @@ export function backUp({ force = false, overwrite = false } = {}) {
     }
   })().finally(() => (running = null))
   return running
+}
+
+/**
+ * Moves the backup to a new secret: this device's data, encrypted under it. The old secret stops working everywhere
+ * (devices still on it are told so). Refused while another device's backup is pending (conflict).
+ */
+export async function changeSecret() {
+  const s = getState()
+  const keys = await keysOf(s.secret)
+  const secret = newSecret()
+  const newKeys = await keysOf(secret)
+  const text = await exportAll()
+  const res = await request('POST', `/backup/${keys.id}/${newKeys.id}`, {
+    keys, newKeys, body: await encrypt(newKeys.aesKey, text), prev: s.version,
+  }).catch((e) => {
+    if (e.status === 409) patchState({ conflict: true })
+    throw e.status === 409 ? new Error('Another device backed up since this one did: back up now or restore first.') : e
+  })
+  const { version } = await res.json()
+  setState({ secret, version, hash: hex(await sha256(text.slice(text.indexOf('"tables"')))), at: new Date().toISOString() })
 }
 
 async function currentVersion(keys) {

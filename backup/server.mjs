@@ -9,6 +9,10 @@
 //   node server.mjs list            unused codes, and keys with their name, size and last upload
 //   node server.mjs remove <key>    delete a key and its blob (a prefix of the key is enough)
 //
+// A key can be swapped for a new one (a new secret, if the old one leaked): POST /backup/<old>/<new> with the backup
+// encrypted under the new secret, signed by both keys. The old key is left as a tombstone, so devices still on it are
+// told why it stopped working.
+//
 // Data: invites/<code> (unused, holds the name), used/<code>, keys/<key>.json, blobs/<key>. One file per thing, written
 // by rename, so the CLI and the server never race on a shared file.
 import http from 'node:http'
@@ -50,10 +54,10 @@ class HttpError extends Error {
 const signedText = (method, url, time, prev, body) =>
   [PREFIX, method, url, time, prev, sha256(body).toString('hex')].join('\n')
 
-function verify(req, key, body) {
+function verify(req, key, body, header = 'x-signature') {
   const time = req.headers['x-time'] ?? ''
   const prev = req.headers['x-prev'] ?? ''
-  const sig = Buffer.from(req.headers['x-signature'] ?? '', 'base64url')
+  const sig = Buffer.from(req.headers[header] ?? '', 'base64url')
   if (!(Math.abs(Date.now() - Number(time)) < SKEW_MS)) throw new HttpError(401, "This device's clock is too far off.")
   const publicKey = crypto.createPublicKey({ key: { kty: 'OKP', crv: 'Ed25519', x: key }, format: 'jwk' })
   if (!crypto.verify(null, Buffer.from(signedText(req.method, req.url, time, prev, body)), publicKey, sig)) {
@@ -103,7 +107,9 @@ function register(req, body) {
 
 function meta(key) {
   if (!KEY_RE.test(key) || !fs.existsSync(metaFile(key))) throw new HttpError(404, 'Unknown backup key.')
-  return readJson(metaFile(key))
+  const m = readJson(metaFile(key))
+  if (m.rotated) throw new HttpError(410, 'This secret was replaced by a new one on another device. Restore with the new one.')
+  return m
 }
 
 // Read, check and write happen in one synchronous run, so two uploads to one key can't interleave.
@@ -114,6 +120,24 @@ function upload(req, key, body) {
   const version = sha256(body).subarray(0, 16).toString('base64url')
   writeAtomic(blobFile(key), body)
   writeAtomic(metaFile(key), JSON.stringify({ ...m, version, size: body.length, updated: new Date().toISOString() }))
+  return [200, { version }]
+}
+
+// The old key signs the move (it owns the backup), the new one signs too (it's really the new secret's), and the
+// compare-and-swap is on the old key's version, as an upload.
+function rotate(req, key, next, body) {
+  const m = meta(key)
+  const prev = verify(req, key, body)
+  if (!KEY_RE.test(next)) throw new HttpError(400, 'Bad key.')
+  verify(req, next, body, 'x-new-signature')
+  if (prev !== m.version) throw new HttpError(409, 'The backup was changed from another device.', { version: m.version })
+  if (fs.existsSync(metaFile(next))) throw new HttpError(409, 'That key is taken.')
+  const version = sha256(body).subarray(0, 16).toString('base64url')
+  const now = new Date().toISOString()
+  writeAtomic(blobFile(next), body)
+  writeAtomic(metaFile(next), JSON.stringify({ name: m.name, created: m.created, version, size: body.length, updated: now }))
+  writeAtomic(metaFile(key), JSON.stringify({ name: m.name, rotated: now }))
+  fs.rmSync(blobFile(key), { force: true })
   return [200, { version }]
 }
 
@@ -132,11 +156,13 @@ function download(req, res, key, body) {
 
 async function handle(req, res) {
   const parts = req.url.split('?')[0].split('/')
-  if (parts[1] !== 'backup' || parts.length !== 3) throw new HttpError(404, 'Not found.')
-  const [, , key] = parts
+  if (parts[1] !== 'backup' || parts.length < 3 || parts.length > 4) throw new HttpError(404, 'Not found.')
+  const [, , key, next] = parts
   // Unknown keys are turned away before their body is read.
-  if (req.method === 'PUT') meta(key)
+  if (req.method === 'PUT' || next) meta(key)
   const body = await readBody(req)
+  if (req.method === 'POST' && next) return rotate(req, key, next, body)
+  if (next) throw new HttpError(405, 'Method not allowed.')
   if (req.method === 'POST' && key === 'keys') return register(req, body)
   if (req.method === 'PUT') return upload(req, key, body)
   if (req.method === 'GET') return download(req, res, key, body)
@@ -173,6 +199,10 @@ else if (cmd === 'invite' && arg) {
   }
   for (const f of fs.readdirSync(dir('keys')).filter((f) => f.endsWith('.json'))) {
     const m = readJson(path.join(dir('keys'), f))
+    if (m.rotated) {
+      console.log(`old  ${f.slice(0, -5)}  ${m.name}  replaced ${m.rotated}`)
+      continue
+    }
     const size = m.size == null ? 'empty' : `${Math.ceil(m.size / 1024)} KB`
     console.log(`key  ${f.slice(0, -5)}  ${m.name}  ${size}  last upload ${m.updated ?? 'never'}`)
   }

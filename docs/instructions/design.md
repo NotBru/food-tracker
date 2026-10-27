@@ -136,4 +136,4 @@ shared.
 - Ghost of the uncapped calorie bar (switch)
 - Reference databases (a switch each)
 - Backup: encrypted on the device, one blob per public key on the server; a friend code to start. The secret moves
-  to other devices as a QR link or text.
+  to other devices as a QR link or text, and can be changed (signed by the old key).

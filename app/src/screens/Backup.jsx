@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import qrcode from 'qrcode-generator'
-import { backUp, backupLink, fetchBackup, forget, getState, onState, parseSecret, restore, start } from '../backup'
+import { backUp, backupLink, changeSecret, fetchBackup, forget, getState, onState, parseSecret, restore, start } from '../backup'
 import { formatDateTime } from '../time'
 import { Field, Screen, replace } from '../components'
 
@@ -148,6 +148,22 @@ export default function Backup({ secret: linked }) {
           ) : (
             <div className="row"><button className="secondary" onClick={() => setShown(true)}>Show secret</button></div>
           )}
+        </div>
+
+        <div className="field">
+          <span>Change the secret (if it got out)</span>
+          <small className="muted">
+            Moves the backup to a new secret, with this device's data. The old one stops working on every device; show
+            the new one to your other devices.
+          </small>
+          <div className="row">
+            <button className="secondary" disabled={busy} onClick={() => {
+              if (confirm('Change the secret? The old one stops working on every device that has it.')) act(async () => {
+                await changeSecret()
+                setShown(true)
+              })
+            }}>Change the secret</button>
+          </div>
         </div>
 
         {restoreSection}
