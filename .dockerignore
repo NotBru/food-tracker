@@ -5,3 +5,4 @@ docs
 app/node_modules
 app/dist
 app/serve.log
+.secrets

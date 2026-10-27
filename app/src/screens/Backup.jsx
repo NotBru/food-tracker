@@ -118,6 +118,9 @@ export default function Backup({ secret: linked }) {
           {state.at ? `Last backed up or restored ${formatDateTime(state.at)}.` : 'Not backed up yet.'}{' '}
           <span className="muted">It backs up by itself while the app is open, when something changed.</span>
         </p>
+        {state.inbox && (
+          <p className="small muted">Took in {state.inbox.entries} consumption{state.inbox.entries === 1 ? '' : 's'} from the inbox {formatDateTime(state.inbox.at)}.</p>
+        )}
         {state.error && <p className="small warn">Last try failed: {state.error}</p>}
         {state.conflict && (
           <p className="small warn">

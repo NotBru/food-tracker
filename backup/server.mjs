@@ -1,7 +1,7 @@
 // Backup server: stores one encrypted blob per public key, for invited people only.
 //
 // The app encrypts its export with a secret that never leaves the user's devices, and signs every request with an
-// Ed25519 key derived from the same secret (app/src/backup.js). The public key is the account: registering one takes a
+// Ed25519 key derived from the same secret (app/src/backup.js). The public key is the account: registering one takes an
 // invite code, made here by hand. Each key gets one blob, replaced on every upload (compare-and-swap on its version).
 //
 //   node server.mjs                 serve on $PORT (8080), data in $DATA_DIR (/data)
@@ -13,8 +13,12 @@
 // encrypted under the new secret, signed by both keys. The old key is left as a tombstone, so devices still on it are
 // told why it stopped working.
 //
-// Data: invites/<code> (unused, holds the name), used/<code>, keys/<key>.json, blobs/<key>. One file per thing, written
-// by rename, so the CLI and the server never race on a shared file.
+// Each key also has an inbox, at most one blob too: batches of entries pushed from elsewhere (Claude's log-food skill),
+// which the app merges in and then clears. GET, PUT and DELETE /backup/<key>/inbox, compare-and-swap on its version.
+// A key change drops it (it's encrypted under the old secret; the app takes it in first).
+//
+// Data: invites/<code> (unused, holds the name), used/<code>, keys/<key>.json, blobs/<key>, blobs/<key>.inbox. One file
+// per thing, written by rename, so the CLI and the server never race on a shared file.
 import http from 'node:http'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
@@ -42,6 +46,7 @@ function writeAtomic(file, data) {
 }
 const metaFile = (key) => path.join(dir('keys'), `${key}.json`)
 const blobFile = (key) => path.join(dir('blobs'), key)
+const inboxFile = (key) => path.join(dir('blobs'), `${key}.inbox`)
 
 class HttpError extends Error {
   constructor(status, message, extra = {}) {
@@ -138,6 +143,7 @@ function rotate(req, key, next, body) {
   writeAtomic(metaFile(next), JSON.stringify({ name: m.name, created: m.created, version, size: body.length, updated: now }))
   writeAtomic(metaFile(key), JSON.stringify({ name: m.name, rotated: now }))
   fs.rmSync(blobFile(key), { force: true })
+  fs.rmSync(inboxFile(key), { force: true })
   return [200, { version }]
 }
 
@@ -154,13 +160,41 @@ function download(req, res, key, body) {
   res.end(fs.readFileSync(blobFile(key)))
 }
 
+// The inbox: like the backup (one blob, compare-and-swap on `inboxVersion`), plus DELETE once it's been taken in.
+function inbox(req, res, key, body) {
+  const m = meta(key)
+  const prev = verify(req, key, body)
+  const current = m.inboxVersion ?? ''
+  if (req.method === 'GET') {
+    if (!current) throw new HttpError(404, 'The inbox is empty.')
+    res.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Cache-Control': 'no-store', 'X-Version': current })
+    res.end(fs.readFileSync(inboxFile(key)))
+    return
+  }
+  if (prev !== current) throw new HttpError(409, 'The inbox changed meanwhile.', { version: current })
+  if (req.method === 'PUT') {
+    const version = sha256(body).subarray(0, 16).toString('base64url')
+    writeAtomic(inboxFile(key), body)
+    writeAtomic(metaFile(key), JSON.stringify({ ...m, inboxVersion: version, inboxSize: body.length }))
+    return [200, { version }]
+  }
+  if (req.method === 'DELETE') {
+    fs.rmSync(inboxFile(key), { force: true })
+    const { inboxVersion, inboxSize, ...rest } = m
+    writeAtomic(metaFile(key), JSON.stringify(rest))
+    return [200, { ok: true }]
+  }
+  throw new HttpError(405, 'Method not allowed.')
+}
+
 async function handle(req, res) {
   const parts = req.url.split('?')[0].split('/')
   if (parts[1] !== 'backup' || parts.length < 3 || parts.length > 4) throw new HttpError(404, 'Not found.')
   const [, , key, next] = parts
   // Unknown keys are turned away before their body is read.
-  if (req.method === 'PUT' || next) meta(key)
+  if (req.method === 'PUT' || req.method === 'DELETE' || next) meta(key)
   const body = await readBody(req)
+  if (next === 'inbox') return inbox(req, res, key, body)
   if (req.method === 'POST' && next) return rotate(req, key, next, body)
   if (next) throw new HttpError(405, 'Method not allowed.')
   if (req.method === 'POST' && key === 'keys') return register(req, body)
@@ -204,7 +238,8 @@ else if (cmd === 'invite' && arg) {
       continue
     }
     const size = m.size == null ? 'empty' : `${Math.ceil(m.size / 1024)} KB`
-    console.log(`key  ${f.slice(0, -5)}  ${m.name}  ${size}  last upload ${m.updated ?? 'never'}`)
+    const inbox = m.inboxVersion ? '  inbox waiting' : ''
+    console.log(`key  ${f.slice(0, -5)}  ${m.name}  ${size}  last upload ${m.updated ?? 'never'}${inbox}`)
   }
 } else if (cmd === 'remove' && arg) {
   const keys = fs.readdirSync(dir('keys')).filter((f) => f.endsWith('.json') && f.startsWith(arg))
@@ -215,6 +250,7 @@ else if (cmd === 'invite' && arg) {
   const key = keys[0].slice(0, -5)
   fs.rmSync(metaFile(key))
   fs.rmSync(blobFile(key), { force: true })
+  fs.rmSync(inboxFile(key), { force: true })
   console.log(`Removed ${key}`)
 } else {
   console.error('Usage: node server.mjs [invite <name> | list | remove <key>]')

@@ -137,3 +137,4 @@ shared.
 - Reference databases (a switch each)
 - Backup: encrypted on the device, one blob per public key on the server; a invite code to start. The secret moves
   to other devices as a QR link or text, and can be changed (signed by the old key).
+  An inbox beside it takes entries pushed from elsewhere (Claude's log-food skill); the app merges them in.
