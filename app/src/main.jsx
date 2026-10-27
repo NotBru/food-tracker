@@ -16,6 +16,8 @@ import Breakdown from './screens/Breakdown'
 import Explore from './screens/Explore'
 import Graphs from './screens/Graphs'
 import Body from './screens/Body'
+import Backup from './screens/Backup'
+import { startAutoBackup } from './backup'
 import './styles.css'
 
 function App() {
@@ -29,6 +31,7 @@ function App() {
   if (a === 'consumptions') return <Consumptions day={query.day} add={query.new != null} />
   if (a === 'targets') return <Targets add={query.new != null} />
   if (a === 'config') return <Config />
+  if (a === 'backup') return <Backup secret={query.secret} />
   if (a === 'users') return <Users />
   if (a === 'body') return <Body add={query.new != null} />
   if (a === 'graphs') return <Graphs days={query.days} end={query.end} />
@@ -52,3 +55,5 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator && window.isSecureConte
 
 // Ask the browser not to evict our IndexedDB data under storage pressure.
 navigator.storage?.persist?.()
+
+startAutoBackup()

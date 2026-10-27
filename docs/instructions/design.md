@@ -5,6 +5,7 @@
 Use Vite + React. Store data in an IndexedDB.
 
 Production: a Docker image serving the build, at https://track-shit.notbru.xyz (final: data is tied to the origin).
+A backup server beside it, holding only ciphertext.
 
 ## UI
 
@@ -134,3 +135,5 @@ shared.
 - 7-day calorie correction caps: min, max
 - Ghost of the uncapped calorie bar (switch)
 - Reference databases (a switch each)
+- Backup: encrypted on the device, one blob per public key on the server; a friend code to start. The secret moves
+  to other devices as a QR link or text.

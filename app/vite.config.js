@@ -10,6 +10,8 @@ const proxy = {
     rewrite: (path) => path.replace(/^\/off-search/, ''),
     headers: { 'User-Agent': 'food-tracker-pwa/0.1' },
   },
+  // The backup server (backup/server.mjs), run beside the dev server: `PORT=8787 DATA_DIR=… node backup/server.mjs`.
+  '/backup': { target: 'http://localhost:8787' },
 }
 
 export default defineConfig({

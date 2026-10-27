@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { DEFAULT_CONFIG, getConfig, saveConfig } from '../db'
-import { Field, Screen, enterSaves } from '../components'
+import { Field, Screen, enterSaves, go } from '../components'
 
 // Generic-food tables bundled with the app (external.js): [config key, name, what it is].
 const REFERENCE_DBS = [
@@ -38,6 +38,10 @@ export default function Config() {
   return (
     <Screen title="Config">
       <div className="form" onKeyDown={enterSaves(save)}>
+        <div className="field">
+          <span>Encrypted backup to the server</span>
+          <div className="row"><button className="secondary" onClick={() => go('/backup')}>Backup</button></div>
+        </div>
         <Field label="Day starts at (meals before this count for the previous day)">
           <input type="time" value={form.dayStart} onChange={(e) => setForm({ ...form, dayStart: e.target.value })} />
         </Field>

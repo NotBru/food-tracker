@@ -24,6 +24,11 @@
 		}
 	}
 
+	# The backup server's container (deploy/backup/), reached on the containers' shared network.
+	handle /backup/* {
+		reverse_proxy {$BACKUP_UPSTREAM:backup:8080}
+	}
+
 	handle {
 		root * /srv
 		file_server

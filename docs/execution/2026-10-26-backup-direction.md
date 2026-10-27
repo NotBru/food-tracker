@@ -1,7 +1,7 @@
 # Backup server: encrypted only; account mode discarded
 
 - **Date:** 2026-10-26
-- **Status:** accepted (direction); design not started
+- **Status:** accepted (direction); built in [backup](2026-10-27-backup.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md)
 
 ## Decision
