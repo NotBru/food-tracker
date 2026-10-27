@@ -14,7 +14,7 @@ that tell you how to deploy? what happens when I update?"
 
 - `POST /backup/<old>/<new>`, body: this device's data encrypted under the new secret. Signed by the old key (it
   owns the backup) and by the new one (`X-New-Signature`, so the key really is the new secret's). Compare-and-swap
-  on the old key's version, as an upload. The friend's name and creation date carry over; no new code needed.
+  on the old key's version, as an upload. The invited person's name and creation date carry over; no new code needed.
 - The old key stays as a tombstone (`rotated` in its `keys/<key>.json`, blob deleted): devices still on it get 410
   "This secret was replaced by a new one on another device", on auto-backups (shown on the Backup screen) and on
   restore. The tombstone doesn't point to the new key. `list` shows tombstones as `old`.

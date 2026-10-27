@@ -97,9 +97,9 @@ export default function Backup({ secret: linked }) {
             it stays on your devices only: lose them all without a copy of the secret and the backup is lost too.
           </p>
           <div className="field">
-            <span>Back up this device (a friend code lets you start)</span>
+            <span>Back up this device (a invite code lets you start)</span>
             <div className="row">
-              <input value={invite} onChange={(e) => setInvite(e.target.value)} placeholder="Friend code" style={{ flex: 1 }}
+              <input value={invite} onChange={(e) => setInvite(e.target.value)} placeholder="Invite code" style={{ flex: 1 }}
                 autoComplete="off" spellCheck={false} />
               <button disabled={busy || !invite.trim()} onClick={doStart}>Start</button>
             </div>

@@ -121,7 +121,7 @@ async function decrypt(aesKey, bytes) {
   return gzip(plain, false)
 }
 
-/** Starts backing up this device under a new secret; the friend code lets the server take the new key. */
+/** Starts backing up this device under a new secret; the invite code lets the server take the new key. */
 export async function start(invite) {
   const secret = newSecret()
   const keys = await keysOf(secret)

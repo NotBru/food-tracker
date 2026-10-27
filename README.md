@@ -63,7 +63,7 @@ docker build -f deploy/backup/Dockerfile -t track-shit-backup .
   `no-cache`. `/backup/*` is relayed to `$BACKUP_UPSTREAM` (default `backup:8080`, the backup container on a shared
   network). No volume, no state. Routing is in the hash, so no `index.html` fallback.
 - **backup server** (`backup/server.mjs`): encrypted blobs, one per public key, at most 4 MB (`MAX_BYTES`). Keep
-  `/data` on a volume. Friend codes are made by hand: `docker exec <container> node server.mjs invite <name>`
+  `/data` on a volume. Invite codes are made by hand: `docker exec <container> node server.mjs invite <name>`
   prints a single-use code; `list` and `remove <key>` too.
 
 ### First time (the backup server)
@@ -99,7 +99,7 @@ docker network connect track-shit <web container>
   served from.
 - **Export databases** on the homescreen saves everything to a JSON file. **Import databases** replaces the
   current data with one. That's how you move your data to a new device or address.
-- **Backup** (Config → Backup) keeps an encrypted copy on the server, with a friend code. The secret stays on your
+- **Backup** (Config → Backup) keeps an encrypted copy on the server, with a invite code. The secret stays on your
   devices; show it as a QR to restore on another one. Lose every copy of it and the backup is lost.
 
 ## Repository layout

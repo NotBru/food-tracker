@@ -1,11 +1,11 @@
-// Backup server: stores one encrypted blob per public key, for friends only.
+// Backup server: stores one encrypted blob per public key, for invited people only.
 //
 // The app encrypts its export with a secret that never leaves the user's devices, and signs every request with an
 // Ed25519 key derived from the same secret (app/src/backup.js). The public key is the account: registering one takes a
-// friend code, made here by hand. Each key gets one blob, replaced on every upload (compare-and-swap on its version).
+// invite code, made here by hand. Each key gets one blob, replaced on every upload (compare-and-swap on its version).
 //
 //   node server.mjs                 serve on $PORT (8080), data in $DATA_DIR (/data)
-//   node server.mjs invite <name>   make a single-use friend code for <name>
+//   node server.mjs invite <name>   make a single-use invite code for <name>
 //   node server.mjs list            unused codes, and keys with their name, size and last upload
 //   node server.mjs remove <key>    delete a key and its blob (a prefix of the key is enough)
 //
@@ -92,12 +92,12 @@ function register(req, body) {
   verify(req, key, body)
   if (fs.existsSync(metaFile(key))) return [200, { ok: true }]
   const code = String(invite ?? '').trim()
-  if (!CODE_RE.test(code)) throw new HttpError(403, 'Unknown or already used friend code.')
+  if (!CODE_RE.test(code)) throw new HttpError(403, 'Unknown or already used invite code.')
   // The rename is what uses the code up: two registrations with one code can't both win it.
   try {
     fs.renameSync(path.join(dir('invites'), code), path.join(dir('used'), code))
   } catch (e) {
-    if (e.code === 'ENOENT') throw new HttpError(403, 'Unknown or already used friend code.')
+    if (e.code === 'ENOENT') throw new HttpError(403, 'Unknown or already used invite code.')
     throw e
   }
   const name = fs.readFileSync(path.join(dir('used'), code), 'utf8').trim()

@@ -25,7 +25,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | Date | Entry | Status |
 |------|-------|--------|
 | 2026-10-27 | [Backup: change the secret, signed by the old key; deploy and update steps](2026-10-27-backup-rotate.md) | accepted |
-| 2026-10-27 | [Encrypted backup: friend codes, one blob per public key, secret by QR link](2026-10-27-backup.md) | accepted |
+| 2026-10-27 | [Encrypted backup: invite codes, one blob per public key, secret by QR link](2026-10-27-backup.md) | accepted |
 | 2026-10-26 | [Server rate-limits its Open Food Facts searches](2026-10-26-off-rate-limit.md) | accepted |
 | 2026-10-26 | [Backup server: encrypted only; account mode discarded](2026-10-26-backup-direction.md) | accepted (direction); built in [backup](2026-10-27-backup.md) |
 | 2026-10-26 | [Production image of the web app](2026-10-26-web-image.md) | accepted |
