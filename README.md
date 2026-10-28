@@ -127,6 +127,7 @@ docs/execution/       how it was built: one entry per decision, indexed in its R
 backup/server.mjs     backup server (Node, no dependencies)
 deploy/web/           production image of the web app (Dockerfile, Caddyfile)
 deploy/backup/        production image of the backup server
+deploy/server/        the VPS's compose.yaml and deploy.sh (copied to /srv/track-shit)
 serve.sh              runs the dev server in its own Docker container
 ```
 
