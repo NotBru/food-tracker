@@ -12,10 +12,12 @@ User: "I'd like a version update date (YYYYMMDDHHmm) (default off) in the UI".
 
 - The date is the build's: Vite stamps `__BUILT_AT__` (ISO, UTC) at build time; shown in local time as
   YYYYMMDDHHmm (`time.js versionStamp`).
-- Config switch "App version" (`showVersion`, default off). On: "202610281433", small and muted, right of the cloud
-  in the sync status button (user's ask; it was first under Import / Export), and in its hover text. Short of room
-  (a narrow phone with "Merge conflict"), the version shrinks first, then the label, with "…"; Config and the user
-  button don't shrink.
+- Config switch "App version" (`showVersion`, default off). On: "202610281433", small and muted, in its own pill
+  right of the sync status icon (user's ask: first it was under Import / Export, then inside the sync button). Config
+  moved right with `margin-left: auto` instead of the icon's `margin-right: auto`.
+- Short of room, the version stays whole (the user turned it on to read it): the "Merge conflict" label gives way
+  first, then the user's name, with "…"; the cloud and Config never. The top bar's gaps and the icon's padding went
+  down 2 px and 1 px to leave more room.
 - Being in config, the switch syncs between devices like the rest of the settings.
 
 ## Alternatives considered
@@ -27,6 +29,6 @@ User: "I'd like a version update date (YYYYMMDDHHmm) (default off) in the UI".
 ## How it was checked
 
 `npm run build`; the bundle holds the build time. `vite preview`, headless Chromium at 390 px: no version by
-default; after switching it on and saving, "202610281433" inside the sync button and in its hover text, none under
-Import / Export. Whole from 360 px; at 320 px cut to "20261…" (and with "Merge conflict", hidden, the label cut),
-Config and the user button whole either way.
+default; after switching it on and saving, "202610281433" in its pill right of the icon, none under Import /
+Export. At 390 and 375 px everything whole; 360 px: the user's name "Defa…"; 320 px with a conflict: the label
+gone and the name "…", the cloud, version and Config whole.

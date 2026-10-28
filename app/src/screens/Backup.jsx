@@ -60,13 +60,12 @@ const GLYPHS = {
 }
 
 /** The homescreen's sync icon: tap -> the Backup screen; hover says what it means. */
-/** The homescreen's backup icon; `version` (the app's build stamp) shows beside it, in the same button. */
-export function SyncStatus({ version }) {
+export function SyncStatus() {
   const s = useBackupState()
   const [label, setLabel] = useState(conflictLabelShown)
   useEffect(() => onState(() => setLabel(conflictLabelShown())), [])
   const st = status(s)
-  const text = `${statusText(s)} Tap to ${{ off: 'set it up', conflict: 'pick which to keep' }[st] ?? 'open Backup'}.${version ? ` App version ${version}.` : ''}`
+  const text = `${statusText(s)} Tap to ${{ off: 'set it up', conflict: 'pick which to keep' }[st] ?? 'open Backup'}.`
   return (
     <button className={`user-btn sync-btn sync-${st}`} onClick={() => go('/backup')} title={text} aria-label={text}>
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
@@ -74,7 +73,6 @@ export function SyncStatus({ version }) {
         <path d={GLYPHS[st]} />
       </svg>
       {st === 'conflict' && label && <span>Merge conflict</span>}
-      {version && <span className="version">{version}</span>}
     </button>
   )
 }

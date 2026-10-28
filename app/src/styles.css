@@ -56,18 +56,23 @@ main { padding: 0 16px 32px; }
 .topbar h1 .subtitle { display: block; font-size: 13px; font-weight: 400; color: var(--muted); }
 
 /* Homescreen: the current user, on top. */
-.home-top { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 12px 0; flex: none; }
+.home-top { display: flex; justify-content: flex-end; gap: 6px; padding: 10px 12px 0; flex: none; }
 .user-btn { background: var(--panel); color: var(--text); font-weight: 500; padding: 6px 14px; font-size: 14px; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .user-row .list-main { align-items: center; }
 .user-row .list-main > span:first-child { flex: 1; }
 .user-row button.icon { background: var(--bg); }
 .screen.home > .window-header { padding-top: 4px; }
-.sync-btn { margin-right: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; }
+.sync-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px; }
 .sync-btn svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
-.sync-btn { min-width: 0; } /* on a narrow phone the version gives way first, then the label */
-.home-top > .user-btn:not(.sync-btn) { flex-shrink: 0; }
+.config-btn { margin-left: auto; }
+/* On a narrow phone the "Merge conflict" label gives way first, then the user's name; the version and Config don't. */
+.sync-btn { min-width: 38px; flex-shrink: 100; } /* the cloud stays */
 .sync-btn > span { overflow: hidden; text-overflow: ellipsis; }
-.sync-btn .version { color: var(--muted); font-size: 12px; min-width: 0; flex-shrink: 100; }
+.config-btn { flex-shrink: 0; }
+.app-version {
+  background: var(--panel); color: var(--muted); border-radius: 999px; padding: 0 9px; font-size: 12px;
+  display: inline-flex; align-items: center; flex: none;
+}
 .sync-off { color: var(--muted); }
 .sync-synced { color: var(--kcal); }
 .sync-waiting { color: var(--warn); }
