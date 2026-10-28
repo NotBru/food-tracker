@@ -296,6 +296,7 @@ export function migrateV1({ ingredients = [], recipes = [], concoctions = [], co
 export const DEFAULT_CONFIG = {
   dayStart: '05:00',
   dashboard: 'gauges', // 'gauges' (2-column tiles) or 'bars' (one row per nutrient)
+  showVersion: false, // homescreen: the app version's build date, YYYYMMDDHHmm
   coverage: 0.9, // share of the probability the error intervals hold
   ciqual: true, // CIQUAL's generic foods listed in the food database
   usda: true, // USDA's (FoodData Central) likewise

@@ -16,6 +16,8 @@ const proxy = {
 
 export default defineConfig({
   plugins: [react()],
+  // When this version was built (shown as its date, Config → "App version").
+  define: { __BUILT_AT__: JSON.stringify(new Date().toISOString()) },
   // Listen on all interfaces so the app is reachable from outside the container.
   server: { host: true, port: 5173, strictPort: true, allowedHosts: true, proxy },
   preview: { host: true, port: 4173, strictPort: true, allowedHosts: true, proxy },

@@ -75,6 +75,9 @@ export function prettyDay(dayStr) {
   return `${parseDay(dayStr).toLocaleDateString(undefined, { weekday: 'short' })} ${dayStr}`
 }
 
+/** "202610161430" (local time): the app version's build date (Config → "App version"). */
+export const versionStamp = (datetime) => toLocalInput(new Date(datetime)).replace(/\D/g, '')
+
 /** "2026-10-16 14:30" (local time). */
 export function formatDateTime(datetime) {
   return toLocalInput(new Date(datetime)).replace('T', ' ')

@@ -16,7 +16,7 @@ export default function Config() {
   useEffect(() => {
     getConfig().then((c) => setForm({
       dayStart: c.dayStart, dashboard: c.dashboard, coverage: pct(c.coverage), ciqual: c.ciqual, usda: c.usda,
-      capMin: String(c.adjCap.min), capMax: String(c.adjCap.max), adjGhost: c.adjGhost,
+      capMin: String(c.adjCap.min), capMax: String(c.adjCap.max), adjGhost: c.adjGhost, showVersion: c.showVersion,
     }))
   }, [])
   if (!form) return null
@@ -30,7 +30,7 @@ export default function Config() {
     if (!(adjCap.min >= 0 && adjCap.max >= 0)) return alert('The 7-day correction caps must be 0 kcal or more.')
     await saveConfig({
       dayStart: form.dayStart || DEFAULT_CONFIG.dayStart, dashboard: form.dashboard, coverage: p, ciqual: form.ciqual, usda: form.usda,
-      adjCap, adjGhost: form.adjGhost,
+      adjCap, adjGhost: form.adjGhost, showVersion: form.showVersion,
     })
     history.back()
   }
@@ -77,6 +77,13 @@ export default function Config() {
               <span><strong>Ghost of the uncapped calorie bar</strong><small className="muted">Where the bar would be with no correction caps, drawn faintly over the capped one.</small></span>
               <input type="checkbox" role="switch" className="switch" checked={form.adjGhost}
                 onChange={(e) => setForm({ ...form, adjGhost: e.target.checked })} />
+            </label>
+          </li>
+          <li>
+            <label>
+              <span><strong>App version</strong><small className="muted">When this version of the app was built (YYYYMMDDHHmm, local time), at the bottom of the homescreen.</small></span>
+              <input type="checkbox" role="switch" className="switch" checked={form.showVersion}
+                onChange={(e) => setForm({ ...form, showVersion: e.target.checked })} />
             </label>
           </li>
         </ul>

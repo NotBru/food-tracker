@@ -4,7 +4,7 @@ import { db, exportAll, getConfig, getCurrentUser, importAll } from '../db'
 import { averageTargets, barScale, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from '../calc'
 import { NUTRIENTS, calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf, zero } from '../stats'
-import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, logicalDay, prettyDay, toDateStr, toLocalInput, today, windowDays } from '../time'
+import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, logicalDay, prettyDay, toDateStr, toLocalInput, today, versionStamp, windowDays } from '../time'
 import { Chevron, go, replace, useToday } from '../components'
 import { getState } from '../backup'
 import { SyncStatus } from './Backup'
@@ -340,7 +340,7 @@ export default function Home({ query = {} }) {
     const extra = NUTRIENTS.filter((n) => targeted.has(n.key) && !ROWS.some((r) => r.key === n.key))
       .map((n) => ({ key: n.key, label: n.label, unit: n.unit, cls: '' }))
     return {
-      user, first, last, count: logs.length, days: logged.length, targets, adj, rows: [...ROWS, ...extra], style: config.dashboard,
+      user, first, last, count: logs.length, days: logged.length, targets, adj, rows: [...ROWS, ...extra], style: config.dashboard, showVersion: config.showVersion,
       failed: results.filter((r) => !r.ok).length,
       total: perDay(sumNutrients(results.map((r) => r.nutrients)), daily ? 1 : Math.max(1, logged.length)),
     }
@@ -449,6 +449,7 @@ export default function Home({ query = {} }) {
             <button className="secondary" onClick={doExport}>Export databases</button>
           </div>
           <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={pickImport} />
+          {data?.showVersion && <p className="version small muted">Version {versionStamp(__BUILT_AT__)}</p>}
         </nav>
       </main>
       {importing && <ImportSheet file={importing} onClose={() => setImporting(null)} />}

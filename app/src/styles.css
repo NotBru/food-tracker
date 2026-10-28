@@ -134,6 +134,7 @@ h3 { margin: 8px 0 0; font-size: 16px; }
 /* A phone: Consumptions and Foods side by side, Targets and Body measurements a row each; one per row when tall
    enough (leaving the dashboard ≥ ~400 px); wide: three in a row, Body measurements below Targets. */
 .menu { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.menu > .version { grid-column: 1 / -1; text-align: center; }
 .menu > .menu-item:nth-of-type(n+3) { grid-column: 1 / -1; }
 @media (min-width: 700px) {
   .menu { grid-template-columns: repeat(3, 1fr); }
