@@ -60,29 +60,56 @@ docker build -f deploy/backup/Dockerfile -t track-shit-backup .
 - **web app**: the built `app/dist/` served by Caddy, plus `/off-search/*` relayed to
   `https://search.openfoodfacts.org` (prefix stripped), at most 10 a minute for all users together (OFF's per-IP
   search limit; past it, 429 with `Retry-After`). `/assets/*` is cached `immutable`; everything else is
-  `no-cache`. `/backup/*` is relayed to `$BACKUP_UPSTREAM` (default `backup:8080`, the backup container on a shared
-  network). No volume, no state. Routing is in the hash, so no `index.html` fallback.
+  `no-cache`. `/backup/*` is relayed to `$BACKUP_UPSTREAM` (default `backup:8080`, the backup service on the
+  compose project's network). No volume, no state. Routing is in the hash, so no `index.html` fallback.
 - **backup server** (`backup/server.mjs`): encrypted blobs, one per public key plus an inbox, at most 4 MB each
   (`MAX_BYTES`). Keep
-  `/data` on a volume. Invite codes are made by hand: `docker exec <container> node server.mjs invite <name>`
-  prints a single-use code; `list` and `remove <key>` too.
+  `/data` on a volume. Invite codes are made by hand: `node server.mjs invite <name>` in the container prints a
+  single-use code; `list` and `remove <key>` too.
 
-### First time (the backup server)
+### On the server
 
-The web app's Caddy reaches the backup server as `backup:8080`, so both containers share a network and the backup
-one is named `backup` (or set `BACKUP_UPSTREAM` on the web container to wherever it is). Only the web container is
-published; the backup one needs no port of its own.
+`/srv/track-shit` holds a clone of this repo in `src/`, a `deploy.sh` (`git -C src pull --ff-only`, then
+`docker compose up -d --build`, under a lock) that the push hook runs over SSH, and this `compose.yaml`. Both
+containers come from it, so each deploy rebuilds both. The web one is on the host's reverse-proxy network; the
+backup one only on the project's default network, where the web app reaches it as `backup:8080`.
 
-```sh
-docker network create track-shit
-docker volume create track-shit-backup
-docker run -d --name backup --network track-shit --restart unless-stopped -v track-shit-backup:/data track-shit-backup
-docker network connect track-shit <web container>
+```yaml
+services:
+  track-shit-web:
+    build:
+      context: ./src
+      dockerfile: deploy/web/Dockerfile
+    image: track-shit-web
+    restart: unless-stopped
+    networks:
+      - proxy
+      - default   # reaches the backup server as backup:8080
+
+  backup:
+    build:
+      context: ./src
+      dockerfile: deploy/backup/Dockerfile
+    image: track-shit-backup
+    restart: unless-stopped
+    volumes:
+      - track-shit-backup:/data
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  track-shit-backup:
+    external: true   # created by hand; compose never deletes it
 ```
+
+First time: `docker volume create track-shit-backup`, then `./deploy.sh`. Invite codes:
+`docker compose exec backup node server.mjs invite <name>` (from `/srv/track-shit`).
 
 ### Updating
 
-`git pull`, rebuild both images, recreate both containers (same names, network and volume).
+`./deploy.sh` (the push hook runs it): pulls, rebuilds both images, recreates both containers.
 
 - **web app**: no state. Each browser gets the new version on its next load (the service worker fetches network
   first). Data on the devices is untouched.
