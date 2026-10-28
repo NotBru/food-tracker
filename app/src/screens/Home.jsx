@@ -377,7 +377,7 @@ export default function Home({ query = {} }) {
   return (
     <div className="screen home">
       <div className="home-top">
-        <SyncStatus />
+        <SyncStatus version={data?.showVersion ? versionStamp(__BUILT_AT__) : null} />
         <button className="user-btn" onClick={() => go('/config')}>
           <span aria-hidden="true">⚙️</span> Config
         </button>
@@ -449,7 +449,6 @@ export default function Home({ query = {} }) {
             <button className="secondary" onClick={doExport}>Export databases</button>
           </div>
           <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={pickImport} />
-          {data?.showVersion && <p className="version small muted">Version {versionStamp(__BUILT_AT__)}</p>}
         </nav>
       </main>
       {importing && <ImportSheet file={importing} onClose={() => setImporting(null)} />}

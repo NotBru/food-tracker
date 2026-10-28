@@ -136,7 +136,7 @@ shared.
 - Error intervals hold (% of the probability). Default, 90
 - 7-day calorie correction caps: min, max
 - Ghost of the uncapped calorie bar (switch)
-- App version: its build date, YYYYMMDDHHmm, at the bottom of the homescreen (switch, off by default)
+- App version: its build date, YYYYMMDDHHmm, beside the sync status icon on the homescreen, in its button (switch, off by default)
 - Reference databases (a switch each)
 - Backup: encrypted on the device, one blob per public key on the server; a invite code to start. The secret moves
   to other devices as a QR link or text, and can be changed (signed by the old key).

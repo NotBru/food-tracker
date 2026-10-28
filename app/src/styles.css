@@ -64,6 +64,10 @@ main { padding: 0 16px 32px; }
 .screen.home > .window-header { padding-top: 4px; }
 .sync-btn { margin-right: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; }
 .sync-btn svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sync-btn { min-width: 0; } /* on a narrow phone the version gives way first, then the label */
+.home-top > .user-btn:not(.sync-btn) { flex-shrink: 0; }
+.sync-btn > span { overflow: hidden; text-overflow: ellipsis; }
+.sync-btn .version { color: var(--muted); font-size: 12px; min-width: 0; flex-shrink: 100; }
 .sync-off { color: var(--muted); }
 .sync-synced { color: var(--kcal); }
 .sync-waiting { color: var(--warn); }
@@ -134,7 +138,6 @@ h3 { margin: 8px 0 0; font-size: 16px; }
 /* A phone: Consumptions and Foods side by side, Targets and Body measurements a row each; one per row when tall
    enough (leaving the dashboard ≥ ~400 px); wide: three in a row, Body measurements below Targets. */
 .menu { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.menu > .version { grid-column: 1 / -1; text-align: center; }
 .menu > .menu-item:nth-of-type(n+3) { grid-column: 1 / -1; }
 @media (min-width: 700px) {
   .menu { grid-template-columns: repeat(3, 1fr); }

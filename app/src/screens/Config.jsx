@@ -81,7 +81,7 @@ export default function Config() {
           </li>
           <li>
             <label>
-              <span><strong>App version</strong><small className="muted">When this version of the app was built (YYYYMMDDHHmm, local time), at the bottom of the homescreen.</small></span>
+              <span><strong>App version</strong><small className="muted">When this version of the app was built (YYYYMMDDHHmm, local time), beside the backup icon on the homescreen.</small></span>
               <input type="checkbox" role="switch" className="switch" checked={form.showVersion}
                 onChange={(e) => setForm({ ...form, showVersion: e.target.checked })} />
             </label>
