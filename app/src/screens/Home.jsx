@@ -6,6 +6,8 @@ import { NUTRIENTS, calories, fmt, pmText, rangeLabel, rangeText } from '../nutr
 import { bounds, sdOf, zero } from '../stats'
 import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, logicalDay, prettyDay, toDateStr, toLocalInput, today, windowDays } from '../time'
 import { Chevron, go, replace, useToday } from '../components'
+import { getState } from '../backup'
+import { SyncStatus } from './Backup'
 
 // Always shown; any other nutrient gets a row when a target covers it.
 export const ROWS = [
@@ -254,7 +256,8 @@ function GaugeTile({ row: r, val, range, adj, onOpen }) {
 function ImportSheet({ file, onClose }) {
   const [busy, setBusy] = useState(false)
   async function run(merge) {
-    if (!merge && !confirm('Replace ALL data on this device with the file? This cannot be undone.')) return
+    const synced = getState() ? ' It also replaces the data on every device synced with this backup.' : ''
+    if (!merge && !confirm(`Replace ALL data on this device with the file?${synced} This cannot be undone.`)) return
     setBusy(true)
     try {
       await importAll(await file.text(), { merge })
@@ -374,6 +377,7 @@ export default function Home({ query = {} }) {
   return (
     <div className="screen home">
       <div className="home-top">
+        <SyncStatus />
         <button className="user-btn" onClick={() => go('/config')}>
           <span aria-hidden="true">⚙️</span> Config
         </button>

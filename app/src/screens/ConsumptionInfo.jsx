@@ -18,7 +18,7 @@ import EnergyChart from './EnergyChart'
 export default function ConsumptionInfo({ id, nutrient }) {
   const [editing, setEditing] = useState(false)
   const data = useLiveQuery(async () => {
-    const [log, ctx, config] = await Promise.all([db.logs.get(Number(id)), loadContext(), getConfig()])
+    const [log, ctx, config] = await Promise.all([db.logs.get(id), loadContext(), getConfig()])
     return { id, log, ctx, dayStart: config.dayStart }
   }, [id])
   if (!data || data.id !== id) return null

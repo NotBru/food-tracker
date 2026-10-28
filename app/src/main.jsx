@@ -17,7 +17,7 @@ import Explore from './screens/Explore'
 import Graphs from './screens/Graphs'
 import Body from './screens/Body'
 import Backup from './screens/Backup'
-import { startAutoBackup } from './backup'
+import { startAutoSync } from './backup'
 import './styles.css'
 
 function App() {
@@ -56,4 +56,4 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator && window.isSecureConte
 // Ask the browser not to evict our IndexedDB data under storage pressure.
 navigator.storage?.persist?.()
 
-startAutoBackup()
+startAutoSync()

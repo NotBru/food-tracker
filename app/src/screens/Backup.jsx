@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import qrcode from 'qrcode-generator'
-import { backUp, backupLink, changeSecret, fetchBackup, forget, getState, onState, parseSecret, restore, start } from '../backup'
+import { useLiveQuery } from 'dexie-react-hooks'
+import {
+  backupLink, changeSecret, conflictLabelShown, fetchBackup, forget, getConflicts, getState, onState, parseSecret,
+  resolveConflict, restore, showConflictLabel, start, status, sync,
+} from '../backup'
+import { differingFields } from '../sync'
+import { loadContext } from '../calc'
+import { itemLabel } from '../db'
 import { formatDateTime } from '../time'
-import { Field, Screen, replace } from '../components'
+import { Field, Screen, go, replace } from '../components'
 
 /** Black on white whatever the theme, with a quiet zone: what camera apps read best. */
 function Qr({ text }) {
@@ -27,6 +34,121 @@ function useBackupState() {
   const [s, set] = useState(getState)
   useEffect(() => onState(set), [])
   return s
+}
+
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`
+
+/** What the sync icon's colour means, in words (its hover text, and the Backup screen's status line). */
+function statusText(s) {
+  const last = s?.at ? ` Last synced ${formatDateTime(s.at)}.` : ''
+  switch (status(s)) {
+    case 'off': return 'Backup is off.'
+    case 'conflict': return `Merge conflict: ${plural(s.conflicts, 'entry')} changed differently on two devices.`
+    case 'error': return `Sync failed: ${s.error}${last}`
+    case 'waiting': return s.at ? `Changes here are waiting to sync.${last}` : 'Not synced yet.'
+    default: return `Synced.${last}`
+  }
+}
+
+// A cloud, and inside it what the colour says: ✓ synced, … waiting, ! failed, ⇄ conflict; struck through when off.
+const GLYPHS = {
+  synced: 'M9 14.5l2 2 4-4',
+  waiting: 'M8.5 15h.01M12 15h.01M15.5 15h.01',
+  error: 'M12 11v3M12 17h.01',
+  conflict: 'M9 12.5h6l-1.8-1.8M15 16H9l1.8 1.8',
+  off: 'M4 4l16 16',
+}
+
+/** The homescreen's sync icon: tap -> the Backup screen; hover says what it means. */
+export function SyncStatus() {
+  const s = useBackupState()
+  const [label, setLabel] = useState(conflictLabelShown)
+  useEffect(() => onState(() => setLabel(conflictLabelShown())), [])
+  const st = status(s)
+  const text = `${statusText(s)} Tap to ${{ off: 'set it up', conflict: 'pick which to keep' }[st] ?? 'open Backup'}.`
+  return (
+    <button className={`user-btn sync-btn sync-${st}`} onClick={() => go('/backup')} title={text} aria-label={text}>
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M6.5 19a4.5 4.5 0 0 1-.6-8.96 6.5 6.5 0 0 1 12.4-1A5 5 0 0 1 17.5 19Z" />
+        <path d={GLYPHS[st]} />
+      </svg>
+      {st === 'conflict' && label && <span>Merge conflict</span>}
+    </button>
+  )
+}
+
+const TABLE_NAMES = { users: 'User', items: 'Food', logs: 'Consumption', targets: 'Target', weights: 'Body measurements', config: 'Settings' }
+
+function rowLabel(t, row, ctx) {
+  if (t === 'users') return row.name
+  if (t === 'items') return itemLabel(row)
+  if (t === 'logs') return `${itemLabel(ctx?.items.get(row.itemId))}, ${row.amountText ?? row.amount} ${row.unit} · ${formatDateTime(row.datetime)}`
+  if (t === 'targets') return `from ${formatDateTime(row.validFrom)}`
+  if (t === 'weights') return formatDateTime(row.datetime)
+  return ''
+}
+
+const shown = (v) => {
+  const text = typeof v === 'string' ? v : JSON.stringify(v)
+  return text.length > 80 ? `${text.slice(0, 79)}…` : text
+}
+
+/** The rows changed differently here and on another device, each with both versions and a button for each. */
+function Conflicts({ count }) {
+  const list = useLiveQuery(getConflicts, [count])
+  const ctx = useLiveQuery(loadContext)
+  const [busy, setBusy] = useState(false)
+  const [label, setLabel] = useState(conflictLabelShown)
+  if (!list?.length) return null
+  async function pick(i, side) {
+    setBusy(true)
+    try {
+      await resolveConflict(i, side)
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+    <div className="field">
+      <span className="conflict-title">Merge conflicts</span>
+      <small className="muted">
+        Changed differently on this device and another one since they last synced. Pick which to keep; syncing waits
+        until all are picked.
+      </small>
+      <ul className="conflicts">
+        {list.map((c, i) => (
+          <li key={`${c.t}:${c.key}`}>
+            <strong>{TABLE_NAMES[c.t]}</strong> {rowLabel(c.t, c.local ?? c.cloud, ctx)}
+            {c.local && c.cloud ? (
+              <ul className="small">
+                {differingFields(c.local, c.cloud).map((f) => (
+                  <li key={f}><span className="muted">{f}:</span> here {shown(c.local[f])} · other device {shown(c.cloud[f])}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="small muted">{c.local ? 'Deleted on the other device, changed here.' : 'Deleted here, changed on the other device.'}</p>
+            )}
+            <div className="row">
+              <button className="secondary" disabled={busy} onClick={() => pick(i, 'local')}>Keep this device's</button>
+              <button className="secondary" disabled={busy} onClick={() => pick(i, 'cloud')}>Keep the other device's</button>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <ul className="switch-list">
+        <li>
+          <label>
+            <span>
+              <strong>"Merge conflict" beside the sync icon</strong>
+              <small className="muted">Off, a merge conflict shows only as the sync icon turning violet (on the homescreen); tap it to come here.</small>
+            </span>
+            <input type="checkbox" role="switch" className="switch" checked={label}
+              onChange={(e) => { showConflictLabel(e.target.checked); setLabel(e.target.checked) }} />
+          </label>
+        </li>
+      </ul>
+    </div>
+  )
 }
 
 export default function Backup({ secret: linked }) {
@@ -59,7 +181,8 @@ export default function Backup({ secret: linked }) {
 
   async function doRestore(secret) {
     const fetched = await fetchBackup(secret)
-    if (!confirm(`Restoring REPLACES all data on this device with the backup from ${formatDateTime(fetched.updated)}. Continue?`)) return
+    if (!confirm(`Restoring REPLACES all data on this device with the backup from ${formatDateTime(fetched.updated)}; `
+      + "changes here that haven't synced are lost. Continue?")) return
     await restore(secret, fetched)
     setPasted('')
     alert('Restored.')
@@ -115,21 +238,18 @@ export default function Backup({ secret: linked }) {
     <Screen title="Backup">
       <div className="form">
         <p className="small">
-          {state.at ? `Last backed up or restored ${formatDateTime(state.at)}.` : 'Not backed up yet.'}{' '}
-          <span className="muted">It backs up by itself while the app is open, when something changed.</span>
+          <span className={status(state) === 'synced' ? '' : 'warn'}>{statusText(state)}</span>{' '}
+          <span className="muted">
+            It syncs by itself with the other devices on this secret while the app is open: a few seconds after a
+            change, every 15 minutes, and when you come back to the app.
+          </span>
         </p>
         {state.inbox && (
-          <p className="small muted">Took in {state.inbox.entries} consumption{state.inbox.entries === 1 ? '' : 's'} from the inbox {formatDateTime(state.inbox.at)}.</p>
+          <p className="small muted">Took in {plural(state.inbox.entries, 'consumption')} from the inbox {formatDateTime(state.inbox.at)}.</p>
         )}
-        {state.error && <p className="small warn">Last try failed: {state.error}</p>}
-        {state.conflict && (
-          <p className="small warn">
-            Another device backed up under this secret since this one last did. Back up now to overwrite its backup with
-            this device's data, or restore to take its data here.
-          </p>
-        )}
+        <Conflicts count={state.conflicts} />
         <div className="row">
-          <button disabled={busy} onClick={() => act(() => backUp({ force: true, overwrite: state.conflict }))}>Back up now</button>
+          <button disabled={busy || !!state.conflicts} onClick={() => act(sync)}>Sync now</button>
           <button className="secondary" disabled={busy} onClick={() => act(() => doRestore(state.secret))}>Restore</button>
         </div>
 
@@ -176,7 +296,7 @@ export default function Backup({ secret: linked }) {
           <small className="muted">Forgets the secret here; the backup stays on the server.</small>
           <div className="row">
             <button className="secondary" disabled={busy} onClick={() => {
-              if (confirm("Forget the secret on this device? Without a copy of it, the backup can't be restored.")) forget()
+              if (confirm("Forget the secret on this device? Without a copy of it, the backup can't be restored.")) act(forget)
             }}>Forget the secret</button>
           </div>
         </div>

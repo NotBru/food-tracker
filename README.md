@@ -101,7 +101,8 @@ docker network connect track-shit <web container>
 - **Export databases** on the homescreen saves everything to a JSON file. **Import databases** merges one into
   the current data (same-named users are one; entries already here are skipped) or replaces it. That's how you move your data to a new device or address.
 - **Backup** (Config → Backup) keeps an encrypted copy on the server, with a invite code. The secret stays on your
-  devices; show it as a QR to restore on another one. Lose every copy of it and the backup is lost.
+  devices; show it as a QR to restore on another one, and from then on they sync (the cloud icon on the homescreen
+  says how that's going). Lose every copy of it and the backup is lost.
 - **Logging with Claude**: paste what you ate to Claude Code in this repo; the `log-food` skill
   (`.claude/skills/log-food/`) asks what it needs, estimates with wide error margins, and pushes the entries to the
   backup's inbox, which the app merges in when it's next open. It needs your backup secret once.

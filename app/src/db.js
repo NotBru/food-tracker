@@ -143,7 +143,7 @@ db.version(10)
     await tx.table('targets').toCollection().modify((t) => { t.userId = DEFAULT_USER.id })
   })
 // A new database starts with the default user too.
-db.on('populate', (tx) => tx.table('users').add({ ...DEFAULT_USER }))
+db.on('populate', (tx) => tx.table('users').add({ ...DEFAULT_USER, id: makeId(DEFAULT_USER.id) }))
 
 // v11: amounts in counted units ("u") default to an exact count: their automatic Δ becomes 0. Explicit Δs stay.
 db.version(11).stores({}).upgrade(async (tx) => {
@@ -191,6 +191,82 @@ db.version(15).stores({}).upgrade(async (tx) => {
 })
 
 export const TABLES = ['users', 'items', 'logs', 'targets', 'weights', 'config']
+// Tables whose rows have an `id` (config's are keyed by name).
+const ID_TABLES = TABLES.filter((t) => t !== 'config')
+
+// v16: random ids, so the devices of one backup can add rows without clashing (see docs/execution/2026-10-28-sync.md),
+// and `sync`, the backup's last synced copy (backup.js).
+db.version(16).stores({ sync: 'key' }).upgrade(async (tx) => {
+  const tables = Object.fromEntries(await Promise.all(TABLES.map(async (t) => [t, await tx.table(t).toArray()])))
+  const next = randomIds(tables)
+  for (const t of TABLES) {
+    await tx.table(t).clear()
+    await tx.table(t).bulkAdd(next[t])
+  }
+})
+
+/**
+ * A random row id that sorts by creation: base-36 time, then randomness. `order` stands in for the time (an old
+ * numeric id, so migrated rows keep their order, before any new one).
+ */
+export function makeId(order = Date.now()) {
+  const rand = [...crypto.getRandomValues(new Uint8Array(8))].map((b) => (b % 36).toString(36)).join('')
+  return order.toString(36).padStart(9, '0') + rand
+}
+
+/** Ids in creation order (numbers, from before v16, too). */
+export const byId = (a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
+
+/** Numeric ids become random ones (makeId), and the references to them follow. String ids stay. */
+export function randomIds(tables) {
+  const ids = Object.fromEntries(ID_TABLES.map((t) => [t, new Map((tables[t] ?? [])
+    .filter((r) => typeof r.id === 'number').map((r) => [r.id, makeId(r.id)]))]))
+  const ref = (t, id) => ids[t].get(id) ?? id
+  const rows = (t, more = () => ({})) => (tables[t] ?? []).map((r) => ({ ...r, id: ref(t, r.id), ...more(r) }))
+  const user = (r) => ({ userId: ref('users', r.userId) })
+  return {
+    ...tables,
+    users: rows('users'),
+    items: rows('items', (it) => it.components && { components: it.components.map((c) => ({ ...c, itemId: ref('items', c.itemId) })) }),
+    logs: rows('logs', (l) => ({ ...user(l), itemId: ref('items', l.itemId) })),
+    targets: rows('targets', user),
+    weights: rows('weights', user),
+    config: (tables.config ?? []).map((r) => (r.key === 'currentUser' ? { ...r, value: ref('users', r.value) } : r)),
+  }
+}
+
+// New rows get a random id.
+for (const t of ID_TABLES) {
+  db[t].hook('creating', (_, obj) => {
+    if (obj.id != null) return undefined
+    obj.id = makeId()
+    return obj.id
+  })
+}
+
+// Changes to the data, for the backup to sync them (backup.js); not while `quietly` runs.
+const changeListeners = new Set()
+let quiet = 0
+export function onDataChange(f) {
+  changeListeners.add(f)
+  return () => changeListeners.delete(f)
+}
+export async function quietly(f) {
+  quiet++
+  try {
+    return await f()
+  } finally {
+    quiet--
+  }
+}
+const changed = () => {
+  if (!quiet) for (const f of changeListeners) f()
+}
+for (const t of TABLES) {
+  db[t].hook('creating', changed)
+  db[t].hook('updating', changed)
+  db[t].hook('deleting', changed)
+}
 
 /** v1 rows -> v2 rows. Refs `{type, id}` become plain item ids. */
 export function migrateV1({ ingredients = [], recipes = [], concoctions = [], conversions = [], logs = [] }) {
@@ -294,7 +370,7 @@ export const sameFood = (a, b) => foodId(a) === foodId(b) && foodValues(a) === f
 
 /** The oldest food that `rec` repeats exactly, if any (`rec` itself excluded). */
 export function findEqualFood(items, rec) {
-  return items.filter((it) => it.id !== rec.id && sameFood(it, rec)).sort((a, b) => a.id - b.id)[0]
+  return items.filter((it) => it.id !== rec.id && sameFood(it, rec)).sort(byId)[0]
 }
 
 /** ids of foods sharing an ID with a food whose values differ -> the ids of those other foods. */
@@ -323,7 +399,7 @@ export function mergeEqualFoods(items, logs) {
   for (;;) {
     const keep = new Map() // foodId + values -> oldest record
     const into = new Map() // removed id -> kept id
-    for (const it of [...rows].sort((a, b) => a.id - b.id)) {
+    for (const it of [...rows].sort(byId)) {
       const k = `${foodId(it)}\n${foodValues(it)}`
       if (keep.has(k)) into.set(it.id, keep.get(k).id)
       else keep.set(k, it)
@@ -396,14 +472,17 @@ export function searchText(item) {
 // --- Import / export -----------------------------------------------------
 // JSON has no NaN, so it is encoded as null and decoded back on import.
 
+// v8: random ids (randomIds).
+export const FORMAT = 8
+
 export async function exportAll() {
-  const data = { app: 'food-tracker', version: 7, exportedAt: new Date().toISOString(), tables: {} }
+  const data = { app: 'food-tracker', version: FORMAT, exportedAt: new Date().toISOString(), tables: {} }
   for (const t of TABLES) data.tables[t] = await db[t].toArray()
   return JSON.stringify(data, (_, v) => (typeof v === 'number' && Number.isNaN(v) ? null : v), 2)
 }
 
 // Only nutrient values/deltas use NaN; ids and refs keep null.
-function revive(v, key) {
+export function revive(v, key) {
   if (v === null) return key === 'value' || key === 'delta' || key === 'amount' ? NaN : null
   if (Array.isArray(v)) return v.map((x) => revive(x))
   if (typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, revive(x, k)]))
@@ -411,7 +490,7 @@ function revive(v, key) {
 }
 
 /** An export file's tables, brought up to the current format. */
-function readImport(text) {
+export function readImport(text) {
   const data = JSON.parse(text)
   if (data.app !== 'food-tracker') throw new Error('Not a food-tracker export file')
   let tables = revive(data.tables ?? {})
@@ -442,7 +521,7 @@ function readImport(text) {
   const merged = mergeEqualFoods(tables.items, tables.logs)
   tables.items = merged.items
   tables.logs = merged.logs
-  return tables
+  return randomIds(tables)
 }
 
 /** Replaces all data with an export file's, or (merge) adds the file's data to what's here (mergeTables). */
@@ -476,34 +555,32 @@ function withoutRepeats(kept, added) {
 }
 
 /**
- * This device's tables plus an import's. The import's rows get new ids (and its references follow them); a user
- * with the same name as one here is that user; foods that repeat one here exactly are dropped (mergeEqualFoods),
- * and so are consumptions, targets and body measurements that repeat one here. Config stays this device's.
+ * This device's tables plus an import's. The import's rows keep their ids unless one is taken here (then they get a
+ * new one, and the references follow); a user with the same name as one here is that user; foods that repeat one here
+ * exactly are dropped (mergeEqualFoods), and so are consumptions, targets and body measurements that repeat one here.
+ * Config stays this device's.
  */
 export function mergeTables(cur, inc) {
-  const nextId = (rows) => Math.max(0, ...rows.map((r) => r.id)) + 1
+  const taken = Object.fromEntries(ID_TABLES.map((t) => [t, new Set(cur[t].map((r) => r.id))]))
+  const freeId = (t, id) => (taken[t].has(id) ? makeId() : id)
   const users = [...cur.users]
   const userIds = new Map()
-  let nu = nextId(users)
   for (const u of inc.users ?? []) {
     const same = users.find((x) => fold(x.name.trim()) === fold(u.name.trim()))
     if (same) userIds.set(u.id, same.id)
     else {
-      userIds.set(u.id, nu)
-      users.push({ ...u, id: nu++ })
+      userIds.set(u.id, freeId('users', u.id))
+      users.push({ ...u, id: userIds.get(u.id) })
     }
   }
-  let ni = nextId(cur.items)
-  const itemIds = new Map((inc.items ?? []).map((it) => [it.id, ni++]))
+  const itemIds = new Map((inc.items ?? []).map((it) => [it.id, freeId('items', it.id)]))
   // Reference foods ("ciqual:…", "fdc:…") aren't in the tables and keep their ids.
   const itemRef = (id) => itemIds.get(id) ?? id
   const items = [...cur.items, ...(inc.items ?? []).map((it) => ({
     ...it, id: itemIds.get(it.id), ...(it.components && { components: it.components.map((c) => ({ ...c, itemId: itemRef(c.itemId) })) }),
   }))]
-  const added = (t, more = () => ({})) => {
-    let n = nextId(cur[t])
-    return (inc[t] ?? []).map((r) => ({ ...r, id: n++, userId: userIds.get(r.userId) ?? r.userId, ...more(r) }))
-  }
+  const added = (t, more = () => ({})) =>
+    (inc[t] ?? []).map((r) => ({ ...r, id: freeId(t, r.id), userId: userIds.get(r.userId) ?? r.userId, ...more(r) }))
   // Foods first, so a consumption of a repeated food points where this device's consumption of it does.
   const merged = mergeEqualFoods(items, [...cur.logs, ...added('logs', (r) => ({ itemId: itemRef(r.itemId) }))])
   const logs = merged.logs.slice(0, cur.logs.length)

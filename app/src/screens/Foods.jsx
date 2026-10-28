@@ -112,7 +112,7 @@ export function FoodEditor({ id, tab, nutrient, nested, name }) {
   const isNew = id === 'new'
   const data = useLiveQuery(async () => {
     const ctx = await loadContext()
-    const rec = isNew ? null : /^(ciqual|fdc):/.test(id) ? ctx.items.get(id) ?? null : await db.items.get(Number(id))
+    const rec = isNew ? null : /^(ciqual|fdc):/.test(id) ? ctx.items.get(id) ?? null : await db.items.get(id)
     return { id, ctx, rec, dayStart: (await getConfig()).dayStart }
   }, [id])
   // useLiveQuery keeps the previous result while a new id loads; don't build the form from another food's data.

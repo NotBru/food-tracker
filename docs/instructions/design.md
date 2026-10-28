@@ -13,7 +13,9 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
 
 ### Homescreen
 
-- Buttons on top: config -> config screen; current user -> users screen
+- Buttons on top: sync status -> backup screen; config -> config screen; current user -> users screen. Sync status is an
+  icon with hover text: grey off, green synced, yellow waiting, red failing, violet merge conflict (labelled, unless
+  turned off).
 - Dashboard first, showing in colorful plain text how much has been eaten in the selected time window. Time windows are changed by swiping left/right on a header for the dashboard, which shows the selected time window. Options: daily, last 7 days, weekly, monthly. Daily has day arrows and a "Today" button, up to tomorrow. Longer windows show per-day averages. If set up, show whether the target is being reached: a gauge or progress bar per nutrient, tinted below min, within range and above max. The error range is a hatched band, and a target only counts as reached if the whole range is within it. Hovering a bar shows the amount under the cursor.
 - Daily calories: the target moves by what the 6 days before missed, so the 7 days average to it, within caps (config). Optionally a grey ghost of the uncapped correction. Δ Budget: what's left to eat.
 - Tapping a nutrient -> breakdown screen
@@ -138,3 +140,7 @@ shared.
 - Backup: encrypted on the device, one blob per public key on the server; a invite code to start. The secret moves
   to other devices as a QR link or text, and can be changed (signed by the old key).
   An inbox beside it takes entries pushed from elsewhere (Claude's log-food skill); the app merges them in.
+  Devices on one secret sync (same users, same config but the selected user): each keeps the last synced backup and
+  merges in what changed there since, then uploads (compare-and-swap; first sync: like an import's Merge). Soon
+  after a change, every 15 minutes, on reopening. A row changed differently on two devices is a merge conflict: the
+  user picks a side. Restore and import's Replace warn they replace data.

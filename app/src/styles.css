@@ -13,6 +13,7 @@
   --warn: #f2cc60;
   --range: #56d4dd; /* dashboard: the range implied by the error (value ± Δ) */
   --mustard: #d9a42b; /* homescreen: the Consumptions, Foods and Targets buttons */
+  --conflict: #a371f7; /* sync icon: a merge conflict */
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -61,6 +62,16 @@ main { padding: 0 16px 32px; }
 .user-row .list-main > span:first-child { flex: 1; }
 .user-row button.icon { background: var(--bg); }
 .screen.home > .window-header { padding-top: 4px; }
+.sync-btn { margin-right: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; }
+.sync-btn svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sync-off { color: var(--muted); }
+.sync-synced { color: var(--kcal); }
+.sync-waiting { color: var(--warn); }
+.sync-error { color: var(--prot); }
+.sync-conflict, .conflict-title { color: var(--conflict); }
+.conflicts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.conflicts > li { background: var(--panel); border-radius: 16px; padding: 10px 14px; color: var(--text); display: flex; flex-direction: column; gap: 6px; }
+.conflicts ul { margin: 0; padding-left: 18px; overflow-wrap: anywhere; }
 
 .row { display: flex; gap: 8px; align-items: center; }
 .row > * { flex: 1; }
