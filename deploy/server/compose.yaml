@@ -1,0 +1,28 @@
+# /srv/track-shit/compose.yaml on the VPS (the repo is cloned beside it, in src/). deploy.sh runs it.
+services:
+  track-shit-web:
+    build:
+      context: ./src
+      dockerfile: deploy/web/Dockerfile
+    image: track-shit-web
+    restart: unless-stopped
+    networks:
+      - proxy
+      - default   # reaches the backup server as backup:8080
+
+  backup:
+    build:
+      context: ./src
+      dockerfile: deploy/backup/Dockerfile
+    image: track-shit-backup
+    restart: unless-stopped
+    volumes:
+      - track-shit-backup:/data
+
+networks:
+  proxy:
+    external: true   # the host's reverse proxy
+
+volumes:
+  track-shit-backup:
+    external: true   # created by hand; compose never deletes it

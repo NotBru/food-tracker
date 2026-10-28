@@ -22,14 +22,15 @@ been started by hand (README's old "First time"), so:
 - `deploy.sh` unchanged: `docker compose up -d --build` now rebuilds and recreates both.
 - One-off on the server: `docker rm -f backup` before the first such deploy (else two containers answer to
   `backup`), then `docker network rm track-shit`.
-- README's deploy section rewritten around this; invite codes via `docker compose exec backup …`.
+- `deploy/server/`: `compose.yaml`, `deploy.sh` (the server's, as it was) and `switch-to-compose.sh` (the one-off
+  steps above). README's deploy section points at them; invite codes via `docker compose exec backup …`.
 
 ## Alternatives considered
 
 - **Keep the external `track-shit` network, add it to the web service**: works, but the backup server would stay
   outside deploys and go stale again.
-- **`compose.yaml` tracked in the repo**: it lives beside `src/` on the server, with host-specific networks; kept
-  in README instead.
+- **Compose file only in README**: copied by hand from Markdown, it drifts; the files are in `deploy/server/`
+  (copied to `/srv/track-shit` from the clone, not symlinked: a pull shouldn't change the running setup unseen).
 
 ## Open questions
 

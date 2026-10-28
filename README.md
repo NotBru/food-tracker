@@ -69,43 +69,23 @@ docker build -f deploy/backup/Dockerfile -t track-shit-backup .
 
 ### On the server
 
-`/srv/track-shit` holds a clone of this repo in `src/`, a `deploy.sh` (`git -C src pull --ff-only`, then
-`docker compose up -d --build`, under a lock) that the push hook runs over SSH, and this `compose.yaml`. Both
-containers come from it, so each deploy rebuilds both. The web one is on the host's reverse-proxy network; the
-backup one only on the project's default network, where the web app reaches it as `backup:8080`.
+`/srv/track-shit` holds a clone of this repo in `src/`, plus copies of `deploy/server/compose.yaml` and
+`deploy/server/deploy.sh` (`git -C src pull --ff-only`, then `docker compose up -d --build`, under a lock), which the
+push hook runs over SSH. Both containers come from the compose file, so each deploy rebuilds both. The web one is on
+the host's reverse-proxy network (`proxy`); the backup one only on the project's default network, where the web app
+reaches it as `backup:8080`. Its data is on the `track-shit-backup` volume.
 
-```yaml
-services:
-  track-shit-web:
-    build:
-      context: ./src
-      dockerfile: deploy/web/Dockerfile
-    image: track-shit-web
-    restart: unless-stopped
-    networks:
-      - proxy
-      - default   # reaches the backup server as backup:8080
+First time:
 
-  backup:
-    build:
-      context: ./src
-      dockerfile: deploy/backup/Dockerfile
-    image: track-shit-backup
-    restart: unless-stopped
-    volumes:
-      - track-shit-backup:/data
-
-networks:
-  proxy:
-    external: true
-
-volumes:
-  track-shit-backup:
-    external: true   # created by hand; compose never deletes it
+```sh
+cd /srv/track-shit && git clone <this repo> src
+cp src/deploy/server/compose.yaml src/deploy/server/deploy.sh .
+docker volume create track-shit-backup
+./deploy.sh
 ```
 
-First time: `docker volume create track-shit-backup`, then `./deploy.sh`. Invite codes:
-`docker compose exec backup node server.mjs invite <name>` (from `/srv/track-shit`).
+After a change to `deploy/server/`, copy the files again (`cp src/deploy/server/{compose.yaml,deploy.sh} .`).
+Invite codes: `docker compose exec backup node server.mjs invite <name>` (from `/srv/track-shit`).
 
 ### Updating
 
