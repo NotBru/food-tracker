@@ -50,6 +50,7 @@ export async function forget() {
 export function status(s) {
   if (!s) return 'off'
   if (s.conflicts) return 'conflict'
+  if (s.syncing) return 'syncing'
   if (s.error) return 'error'
   if (s.pending || !s.at) return 'waiting'
   return 'synced'
@@ -305,7 +306,7 @@ export async function pullInbox() {
   return entries
 }
 
-/** Syncs now and then: soon after the app opens, a few seconds after a change, every 15 minutes, and when it's hidden. */
+/** Syncs now and then: as the app opens, a few seconds after a change, every 15 minutes, and when it's hidden. */
 export function startAutoSync() {
   // A sync cut short (the app closed mid-way) isn't syncing any more.
   patchState({ syncing: false })
@@ -313,7 +314,7 @@ export function startAutoSync() {
     if (!marked) patchState({ pending: (marked = true) })
     syncSoon()
   })
-  syncSoon(2000)
+  syncSoon(0)
   setInterval(() => syncSoon(0), 15 * 60 * 1000)
   document.addEventListener('visibilitychange', () => (document.visibilityState === 'hidden' ? sync().catch(() => {}) : syncSoon(1000)))
 }

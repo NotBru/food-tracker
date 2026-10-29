@@ -44,16 +44,19 @@ function statusText(s) {
   switch (status(s)) {
     case 'off': return 'Backup is off.'
     case 'conflict': return `Merge conflict: ${plural(s.conflicts, 'entry')} changed differently on two devices.`
+    case 'syncing': return `Syncing…${last}`
     case 'error': return `Sync failed: ${s.error}${last}`
     case 'waiting': return s.at ? `Changes here are waiting to sync.${last}` : 'Not synced yet.'
     default: return `Synced.${last}`
   }
 }
 
-// A cloud, and inside it what the colour says: ✓ synced, … waiting, ! failed, ⇄ conflict; struck through when off.
+// A cloud, and inside it what the colour says: ✓ synced, … syncing or waiting, ! failed, ⇄ conflict; struck through
+// when off.
 const GLYPHS = {
   synced: 'M9 14.5l2 2 4-4',
   waiting: 'M8.5 15h.01M12 15h.01M15.5 15h.01',
+  syncing: 'M8.5 15h.01M12 15h.01M15.5 15h.01',
   error: 'M12 11v3M12 17h.01',
   conflict: 'M9 12.5h6l-1.8-1.8M15 16H9l1.8 1.8',
   off: 'M4 4l16 16',

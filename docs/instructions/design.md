@@ -14,7 +14,7 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
 ### Homescreen
 
 - Buttons on top: sync status -> backup screen; config -> config screen; current user -> users screen. Sync status is an
-  icon with hover text: grey off, green synced, yellow waiting, red failing, violet merge conflict (labelled, unless
+  icon with hover text: grey off, green synced, yellow syncing or waiting (a sync runs as the app opens), red failing, violet merge conflict (labelled, unless
   turned off).
 - Dashboard first, showing in colorful plain text how much has been eaten in the selected time window. Time windows are changed by swiping left/right on a header for the dashboard, which shows the selected time window. Options: daily, last 7 days, weekly, monthly. Daily has day arrows and a "Today" button, up to tomorrow. Longer windows show per-day averages. If set up, show whether the target is being reached: a gauge or progress bar per nutrient, tinted below min, within range and above max. The error range is a hatched band, and a target only counts as reached if the whole range is within it. Hovering a bar shows the amount under the cursor.
 - Daily calories: the target moves by what the 6 days before missed, so the 7 days average to it, within caps (config). Optionally a grey ghost of the uncapped correction. Δ Budget: what's left to eat.
