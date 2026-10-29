@@ -33,6 +33,10 @@ No more than 10 questions per answer, and iterate until you've asked all." Askin
 batches of at most 10 per message, in time order, each with a best guess, the next batch after the answers;
 AskUserQuestion only for up to 4 short ones with options.
 
+Then, on "vacío" (beef, while the user's own foods had a pork vacío): "Can we correct the skill in such a way that
+you'd asked to be sure?" Asking (SKILL.md, what exactly) now asks the animal and cut whenever a meat name fits more
+than one, even when an own food or past entry suggests one: a past match is a guess to confirm.
+
 ## Alternatives considered
 
 - **Leave it to judgment**: the general "ask until you'd defend it" rule let a confident wrong grouping (two photos
