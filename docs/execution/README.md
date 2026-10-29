@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-29 | [Sync icon: yellow until the first check answers; yellow when out of reach](2026-10-29-sync-reach.md) | accepted |
 | 2026-10-29 | [Sync: a check by the backup's hash every 5 s while the app is shown](2026-10-29-sync-check.md) | accepted |
 | 2026-10-29 | [Sync icon: yellow while syncing; a sync as the app opens](2026-10-29-sync-yellow.md) | accepted |
 | 2026-10-29 | [Body measurements: muscle as a %, beside muscle mass](2026-10-29-muscle-percent.md) | accepted |

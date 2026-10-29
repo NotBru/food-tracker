@@ -54,7 +54,7 @@ export async function request(base, method, path, { keys, newKeys, body = new Ui
   try {
     res = await fetch(base + path, { method, body: method === 'GET' || method === 'DELETE' ? undefined : body, cache: 'no-store', headers })
   } catch {
-    throw new Error("Couldn't reach the backup server. Are you online?")
+    throw Object.assign(new Error("Couldn't reach the backup server. Are you online?"), { offline: true })
   }
   if (res.ok) return res // 204 included: a GET of an unchanged backup (server.mjs)
   const json = await res.json().catch(() => ({}))

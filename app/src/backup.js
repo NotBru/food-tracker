@@ -20,7 +20,8 @@ const STORE = 'backup'
 const request = (method, path, opts) => signedRequest('', method, path, opts)
 
 // --- State on this device ---------------------------------------------------
-// { secret, at (last sync that reached the backup), syncing, pending (changes here not in the backup yet),
+// { secret, at (last sync or check that reached the backup), syncing, pending (changes here not in the backup yet),
+//   unreachable (the server didn't answer twice in a row),
 //   conflicts (how many rows wait for the user), error, inbox: {at, entries} (last merged) }
 
 const listeners = new Set()
@@ -46,12 +47,13 @@ export async function forget() {
   setState(null)
 }
 
-/** off | conflict | error | waiting | synced: what the homescreen's sync icon shows. */
+/** off | conflict | syncing | error | unreachable | waiting | synced: what the homescreen's sync icon shows. */
 export function status(s) {
   if (!s) return 'off'
   if (s.conflicts) return 'conflict'
   if (s.syncing) return 'syncing'
   if (s.error) return 'error'
+  if (s.unreachable) return 'unreachable'
   if (s.pending || !s.at) return 'waiting'
   return 'synced'
 }
@@ -181,18 +183,21 @@ export function sync() {
       for (let round = 1; !(await syncRound(keys)); round++) {
         if (round === 5) throw new Error('Other devices keep changing the backup. Try again in a moment.')
       }
-      patchState({ at: new Date().toISOString(), error: null })
+      misses = 0
+      patchState({ at: new Date().toISOString(), error: null, unreachable: false })
     } catch (e) {
-      // (Not if the secret changed meanwhile: the old one's errors are over.)
-      if (getState()?.secret === s.secret) patchState({ error: e.message })
+      // Out of reach: not an error, the checks every 5 s retry (and say so after two misses). (Neither if the secret
+      // changed meanwhile: the old one's errors are over.)
+      if (e.offline) missed()
+      else if (getState()?.secret === s.secret) patchState({ error: e.message })
       throw e
     } finally {
       marked = false
       const conflicts = (await db.sync.get('conflicts'))?.list.length ?? 0
       const pending = (await pendingChanges()) > 0
       patchState({ syncing: false, pending, conflicts })
-      // Changed while it ran: once more.
-      if (pending && !conflicts && !getState()?.error) again = true
+      // Changed while it ran: once more (out of reach, the checks retry).
+      if (pending && !conflicts && !getState()?.error && !getState()?.unreachable && misses === 0) again = true
     }
   })().finally(() => {
     running = null
@@ -215,6 +220,36 @@ async function changedThere() {
   const keys = await keysOf(s.secret)
   const res = await request('GET', `/backup/${keys.id}`, { keys, prev: base.version })
   return res.headers.get('X-Version') !== base.version
+}
+
+// Checks in a row that didn't reach the server: from the second, the icon says so (yellow).
+let misses = 0
+function missed() {
+  if (++misses >= 2) patchState({ unreachable: true, syncing: false })
+}
+
+/**
+ * The backup checked by its hash: a sync if it changed, or if changes here wait (unless a sync just failed: the
+ * 15-minute one retries). `shown`: yellow until it's answered, and while out of reach until the next check (as the
+ * app opens or comes back).
+ */
+async function check(shown) {
+  const s = getState()
+  if (!s || s.conflicts || running) return
+  if (shown) patchState({ syncing: true })
+  let changed
+  try {
+    changed = await changedThere()
+  } catch (e) {
+    if (e.offline) missed()
+    else if (getState()?.syncing && !running) patchState({ syncing: false })
+    return
+  }
+  misses = 0
+  const now = getState()
+  if (now?.unreachable) patchState({ unreachable: false })
+  if (changed || (now?.pending && !now.error)) return sync().catch(() => {})
+  if (now?.syncing && !running) patchState({ syncing: false, at: new Date().toISOString() })
 }
 
 let timer = null
@@ -320,8 +355,8 @@ export async function pullInbox() {
 }
 
 /**
- * Syncs now and then: as the app opens, a few seconds after a change, when it's hidden, every 15 minutes, and when a
- * check every 5 s while it's shown finds the backup changed.
+ * Syncs now and then: a few seconds after a change, when it's hidden, every 15 minutes, and when a check of the
+ * backup's hash (as the app opens or comes back, then every 5 s while it's shown) finds it changed.
  */
 export function startAutoSync() {
   // A sync cut short (the app closed mid-way) isn't syncing any more.
@@ -330,12 +365,8 @@ export function startAutoSync() {
     if (!marked) patchState({ pending: (marked = true) })
     syncSoon()
   })
-  syncSoon(0)
+  check(true)
   setInterval(() => syncSoon(0), 15 * 60 * 1000)
-  setInterval(async () => {
-    const s = getState()
-    if (document.visibilityState !== 'visible' || running || !s || s.conflicts || s.pending) return
-    if (await changedThere().catch(() => false)) syncSoon(0)
-  }, 5000)
-  document.addEventListener('visibilitychange', () => (document.visibilityState === 'hidden' ? sync().catch(() => {}) : syncSoon(1000)))
+  setInterval(() => document.visibilityState === 'visible' && check(false), 5000)
+  document.addEventListener('visibilitychange', () => (document.visibilityState === 'hidden' ? sync().catch(() => {}) : check(true)))
 }

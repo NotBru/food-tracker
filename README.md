@@ -94,7 +94,7 @@ Invite codes: `docker compose exec backup node server.mjs invite <name>` (from `
 - **web app**: no state. Each browser gets the new version on its next load (the service worker fetches network
   first). Data on the devices is untouched.
 - **backup server**: everything is on the `/data` volume (codes, keys, backups), so it survives. While it's down,
-  uploads fail and the app retries by itself within 15 minutes; restores say the server can't be reached.
+  the app's icon turns yellow ("Can't reach the backup server") and it retries every 5 s while shown; restores say the server can't be reached.
 - Changing the address loses every device's data and backup secret (both are tied to the origin).
 - The backup protocol (`food-tracker-backup/1`) and file format (`FTB1`) are versioned: a change to either must
   keep accepting the old ones, as open tabs and stored backups still use them. Backups hold a normal export, so an
