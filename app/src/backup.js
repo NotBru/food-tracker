@@ -204,6 +204,19 @@ export function sync() {
   return running
 }
 
+/**
+ * Whether the backup changed since this device's last sync: the server answers 204, without the backup, while its
+ * version (a hash of it) is still the base's. (A server without that answers 200: the version still tells.)
+ */
+async function changedThere() {
+  const s = getState()
+  const base = await getBase()
+  if (!s || !base?.version) return true
+  const keys = await keysOf(s.secret)
+  const res = await request('GET', `/backup/${keys.id}`, { keys, prev: base.version })
+  return res.headers.get('X-Version') !== base.version
+}
+
 let timer = null
 /** Syncs once nothing has changed for `ms`. */
 export function syncSoon(ms = 3000) {
@@ -306,7 +319,10 @@ export async function pullInbox() {
   return entries
 }
 
-/** Syncs now and then: as the app opens, a few seconds after a change, every 15 minutes, and when it's hidden. */
+/**
+ * Syncs now and then: as the app opens, a few seconds after a change, when it's hidden, every 15 minutes, and when a
+ * check every 5 s while it's shown finds the backup changed.
+ */
 export function startAutoSync() {
   // A sync cut short (the app closed mid-way) isn't syncing any more.
   patchState({ syncing: false })
@@ -316,5 +332,10 @@ export function startAutoSync() {
   })
   syncSoon(0)
   setInterval(() => syncSoon(0), 15 * 60 * 1000)
+  setInterval(async () => {
+    const s = getState()
+    if (document.visibilityState !== 'visible' || running || !s || s.conflicts || s.pending) return
+    if (await changedThere().catch(() => false)) syncSoon(0)
+  }, 5000)
   document.addEventListener('visibilitychange', () => (document.visibilityState === 'hidden' ? sync().catch(() => {}) : syncSoon(1000)))
 }

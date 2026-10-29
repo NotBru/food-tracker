@@ -143,6 +143,7 @@ shared.
   An inbox beside it takes entries pushed from elsewhere; the app merges them in. Claude's log-food skill syncs as
   one more device: it adds, changes and deletes consumptions, foods, recipes and body measurements.
   Devices on one secret sync (same users, same config but the selected user): each keeps the last synced backup and
-  merges in what changed there since, then uploads (compare-and-swap; first sync: like an import's Merge). Soon
-  after a change, every 15 minutes, on reopening. A row changed differently on two devices is a merge conflict: the
+  merges in what changed there since, then uploads (compare-and-swap; first sync: like an import's Merge). On opening and
+  reopening, soon after a change, every 15 minutes, and within 5 s of another device's upload while shown (a check
+  by the backup's hash). A row changed differently on two devices is a merge conflict: the
   user picks a side. Restore and import's Replace warn they replace data.

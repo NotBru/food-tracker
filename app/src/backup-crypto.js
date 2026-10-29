@@ -56,7 +56,7 @@ export async function request(base, method, path, { keys, newKeys, body = new Ui
   } catch {
     throw new Error("Couldn't reach the backup server. Are you online?")
   }
-  if (res.ok) return res
+  if (res.ok) return res // 204 included: a GET of an unchanged backup (server.mjs)
   const json = await res.json().catch(() => ({}))
   throw Object.assign(new Error(json.error ?? `The backup server answered ${res.status}.`), { status: res.status, json })
 }

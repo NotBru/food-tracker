@@ -2,7 +2,8 @@
 //
 // The app encrypts its export with a secret that never leaves the user's devices, and signs every request with an
 // Ed25519 key derived from the same secret (app/src/backup.js). The public key is the account: registering one takes an
-// invite code, made here by hand. Each key gets one blob, replaced on every upload (compare-and-swap on its version).
+// invite code, made here by hand. Each key gets one blob, replaced on every upload (compare-and-swap on its version,
+// a hash of the blob). A GET naming the version it has gets 204 when that's still it.
 //
 //   node server.mjs                 serve on $PORT (8080), data in $DATA_DIR (/data)
 //   node server.mjs invite <name>   make a single-use invite code for <name>
@@ -147,17 +148,19 @@ function rotate(req, key, next, body) {
   return [200, { version }]
 }
 
+// A GET whose X-Prev is the current version (a hash of the blob) gets 204 without the blob: devices check often.
 function download(req, res, key, body) {
   const m = meta(key)
-  verify(req, key, body)
+  const prev = verify(req, key, body)
   if (!m.version) throw new HttpError(404, 'Nothing has been backed up with this secret yet.')
-  res.writeHead(200, {
+  const unchanged = prev && prev === m.version
+  res.writeHead(unchanged ? 204 : 200, {
     'Content-Type': 'application/octet-stream',
     'Cache-Control': 'no-store',
     'X-Version': m.version,
     'X-Updated': m.updated,
   })
-  res.end(fs.readFileSync(blobFile(key)))
+  res.end(unchanged ? undefined : fs.readFileSync(blobFile(key)))
 }
 
 // The inbox: like the backup (one blob, compare-and-swap on `inboxVersion`), plus DELETE once it's been taken in.
