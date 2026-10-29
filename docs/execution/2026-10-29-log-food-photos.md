@@ -28,6 +28,11 @@ A **Photos** section in SKILL.md (under Asking):
 Also under Asking: ask what you're only fairly sure of when it matters, and ask about notation you can't read for
 certain rather than guess.
 
+Then, after a first round of 29 questions in one message, user: "Change the script to ask the questions in batches.
+No more than 10 questions per answer, and iterate until you've asked all." Asking (SKILL.md) now goes in numbered
+batches of at most 10 per message, in time order, each with a best guess, the next batch after the answers;
+AskUserQuestion only for up to 4 short ones with options.
+
 ## Alternatives considered
 
 - **Leave it to judgment**: the general "ask until you'd defend it" rule let a confident wrong grouping (two photos
