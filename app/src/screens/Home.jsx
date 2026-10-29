@@ -378,7 +378,7 @@ export default function Home({ query = {} }) {
     <div className="screen home">
       <div className="home-top">
         <SyncStatus />
-        {data?.showVersion && <span className="app-version" title="App version (when it was built)">{versionStamp(__BUILT_AT__)}</span>}
+        {data?.showVersion && <span className="app-version" title="App version (when it was built)">v{versionStamp(__BUILT_AT__)}</span>}
         <button className="user-btn config-btn" onClick={() => go('/config')}>
           <span aria-hidden="true">⚙️</span> Config
         </button>

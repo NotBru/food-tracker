@@ -12,7 +12,7 @@ User: "I'd like a version update date (YYYYMMDDHHmm) (default off) in the UI".
 
 - The date is the build's: Vite stamps `__BUILT_AT__` (ISO, UTC) at build time; shown in local time as
   YYYYMMDDHHmm (`time.js versionStamp`).
-- Config switch "App version" (`showVersion`, default off). On: "202610281433", small and muted, in its own pill
+- Config switch "App version" (`showVersion`, default off). On: "v202610281433", small and muted, in its own pill
   right of the sync status icon (user's ask: first it was under Import / Export, then inside the sync button). Config
   moved right with `margin-left: auto` instead of the icon's `margin-right: auto`.
 - Short of room, the version stays whole (the user turned it on to read it): the "Merge conflict" label gives way
@@ -29,6 +29,6 @@ User: "I'd like a version update date (YYYYMMDDHHmm) (default off) in the UI".
 ## How it was checked
 
 `npm run build`; the bundle holds the build time. `vite preview`, headless Chromium at 390 px: no version by
-default; after switching it on and saving, "202610281433" in its pill right of the icon, none under Import /
+default; after switching it on and saving, "v202610281433" in its pill right of the icon, none under Import /
 Export. At 390 and 375 px everything whole; 360 px: the user's name "Defa…"; 320 px with a conflict: the label
 gone and the name "…", the cloud, version and Config whole.
