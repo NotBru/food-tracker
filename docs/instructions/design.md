@@ -140,7 +140,8 @@ shared.
 - Reference databases (a switch each)
 - Backup: encrypted on the device, one blob per public key on the server; a invite code to start. The secret moves
   to other devices as a QR link or text, and can be changed (signed by the old key).
-  An inbox beside it takes entries pushed from elsewhere (Claude's log-food skill); the app merges them in.
+  An inbox beside it takes entries pushed from elsewhere; the app merges them in. Claude's log-food skill syncs as
+  one more device: it adds, changes and deletes consumptions, foods and recipes.
   Devices on one secret sync (same users, same config but the selected user): each keeps the last synced backup and
   merges in what changed there since, then uploads (compare-and-swap; first sync: like an import's Merge). Soon
   after a change, every 15 minutes, on reopening. A row changed differently on two devices is a merge conflict: the

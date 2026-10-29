@@ -24,11 +24,12 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-29 | [log-food skill syncs like a device: changes, deletions, recipes; search by words](2026-10-29-log-food-sync.md) | accepted |
 | 2026-10-29 | [log-food skill: photos grouped into meals, ingredients confirmed, a closing reconstruction](2026-10-29-log-food-photos.md) | accepted |
 | 2026-10-28 | [Deploy: the backup server in compose, beside the web app](2026-10-28-deploy-compose.md) | accepted |
 | 2026-10-28 | [App version: build date on the homescreen, behind a Config switch](2026-10-28-app-version.md) | accepted |
 | 2026-10-28 | [Backup sync: three-way merge against the last synced copy; random ids; sync icon](2026-10-28-sync.md) | accepted |
-| 2026-10-27 | [log-food skill: Claude logs meals into the app through the backup's inbox](2026-10-27-log-food.md) | accepted |
+| 2026-10-27 | [log-food skill: Claude logs meals into the app through the backup's inbox](2026-10-27-log-food.md) | accepted; inbox push superseded by [log-food-sync](2026-10-29-log-food-sync.md) |
 | 2026-10-27 | [Import: merge into the current data, or replace it](2026-10-27-import-merge.md) | accepted |
 | 2026-10-27 | [Backup: change the secret, signed by the old key; deploy and update steps](2026-10-27-backup-rotate.md) | accepted |
 | 2026-10-27 | [Encrypted backup: invite codes, one blob per public key, secret by QR link](2026-10-27-backup.md) | accepted |

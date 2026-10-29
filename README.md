@@ -111,8 +111,9 @@ Invite codes: `docker compose exec backup node server.mjs invite <name>` (from `
   devices; show it as a QR to restore on another one, and from then on they sync (the cloud icon on the homescreen
   says how that's going). Lose every copy of it and the backup is lost.
 - **Logging with Claude**: paste what you ate to Claude Code in this repo; the `log-food` skill
-  (`.claude/skills/log-food/`) asks what it needs, estimates with wide error margins, and pushes the entries to the
-  backup's inbox, which the app merges in when it's next open. It needs your backup secret once.
+  (`.claude/skills/log-food/`) asks what it needs, estimates with wide error margins, and syncs the entries (and
+  recipes, and corrections) with the backup like another device; the app gets them at its next sync. It needs your
+  backup secret once.
 
 ## Repository layout
 

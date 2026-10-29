@@ -4,7 +4,8 @@
 // Per row: changed on one side only -> that side's; changed the same on both -> that; changed differently on both
 // (deleted on one side counts) -> a conflict, for the user to pick; this device's stays meanwhile. A row deleted on one
 // side but still used on the other (a consumption of a deleted food, say) stays.
-import { TABLES } from './db'
+//
+// No imports, so Node can use it too (the log-food skill's tool syncs like a device): the tables are those given.
 
 // Which user is selected is this device's own.
 const LOCAL = new Set(['config:currentUser'])
@@ -18,8 +19,8 @@ const keyOf = (t, r) => (t === 'config' ? r.key : r.id)
 /** "table:key" -> {t, key, row, text}. */
 function index(tables) {
   const m = new Map()
-  for (const t of TABLES) {
-    for (const row of tables?.[t] ?? []) {
+  for (const [t, rows] of Object.entries(tables ?? {})) {
+    for (const row of rows ?? []) {
       const k = `${t}:${keyOf(t, row)}`
       if (!LOCAL.has(k)) m.set(k, { t, key: keyOf(t, row), row, text: canon(row) })
     }
