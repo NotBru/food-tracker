@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-29 | [log-food skill: photos grouped into meals, ingredients confirmed, a closing reconstruction](2026-10-29-log-food-photos.md) | accepted |
 | 2026-10-28 | [Deploy: the backup server in compose, beside the web app](2026-10-28-deploy-compose.md) | accepted |
 | 2026-10-28 | [App version: build date on the homescreen, behind a Config switch](2026-10-28-app-version.md) | accepted |
 | 2026-10-28 | [Backup sync: three-way merge against the last synced copy; random ids; sync icon](2026-10-28-sync.md) | accepted |
