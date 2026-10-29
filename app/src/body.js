@@ -14,6 +14,7 @@ import { addDays, daysBetween, logicalDay } from './time'
 export const BUILTIN_FIELDS = [
   { key: 'kg', label: 'Weight', unit: 'kg', minRange: 2, short: 'kg' },
   { key: 'bodyFat', label: 'Body fat', unit: '%', minRange: 2, short: '% fat' },
+  { key: 'musclePct', label: 'Muscle', unit: '%', minRange: 2, short: '% muscle' },
   { key: 'muscle', label: 'Muscle mass', unit: 'kg', minRange: 2, short: 'kg muscle' },
   { key: 'waist', label: 'Waist', unit: 'cm', minRange: 4, short: 'cm waist', hint: 'at the navel, relaxed, breathing out' },
 ]
@@ -102,13 +103,13 @@ function extraValue(entry, key) {
   return x && Number.isFinite(x.value) ? { value: x.value, v: uniformVar(x.delta) } : null
 }
 
-/** Every measure, in order: weight, body fat, lean mass (from those two), muscle, waist, then the extra ones in `rows`. */
+/** Every measure, in order: weight, body fat, lean mass (from those two), muscle (% and kg), waist, then the extra ones
+ * in `rows`. */
 export function measures(rows = []) {
-  const field = (f) => ({ ...f, of: (e) => fieldValue(e, f.key) })
-  const [kg, fat, muscle, waist] = BUILTIN_FIELDS.map(field)
+  const { kg, bodyFat: fat, musclePct, muscle, waist } = Object.fromEntries(BUILTIN_FIELDS.map((f) => [f.key, { ...f, of: (e) => fieldValue(e, f.key) }]))
   const lean = { key: 'lean', label: 'Lean mass', unit: 'kg', minRange: 2, derived: true, of: leanValue }
   const extra = extraNames(rows).map((n) => ({ key: `x:${n.key}`, label: n.label, unit: n.unit, of: (e) => extraValue(e, n.key) }))
-  return [kg, fat, lean, muscle, waist, ...extra]
+  return [kg, fat, lean, musclePct, muscle, waist, ...extra]
 }
 
 /** An old entry's numbers (`kg`, `bodyFat`, `waist` on the row, before values had errors) -> `values`, Δ from the

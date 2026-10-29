@@ -120,7 +120,7 @@ List targets, latest first. A target consists of a min and/or max per field that
 
 ### Body measurements screen
 
-Entries, latest first: weight, body fat, waist, muscle mass (lean mass from them), and other measurements named per
+Entries, latest first: weight, body fat, waist, muscle (% and mass) (lean mass from them), and other measurements named per
 entry, each with Δ. On top: 7-day averages and maintenance calories from the weight trend and what was eaten.
 
 ### Users screen

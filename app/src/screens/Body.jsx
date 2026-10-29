@@ -8,7 +8,7 @@ import { addDays, dayBounds, formatDateTime, logicalDay, toLocalInput } from '..
 import { DateTimeInput, DeltaInput, Screen, enterSaves, pressable, replace, useListNav, useToday } from '../components'
 import { BUILTIN_FIELDS, KCAL_PER_KG, MAINT_DAYS, MIN_SPAN, MIN_WEIGH_INS, dailyValues, extraNames, fieldValue, lookalike, maintenance, measures, nameKey, nameMatches, weekMean } from '../body'
 
-// Body measurements (weight, body fat, muscle, waist, and any other named per entry), each with its ± Δ, newest
+// Body measurements (weight, body fat, muscle % and mass, waist, and any other named per entry), each with its ± Δ, newest
 // first; the 7-day averages, and what weight says about maintenance calories (body.js).
 
 /** "78.1 kg · 18.5% fat · 84 cm waist · Neck 38 cm": what one entry holds, each value as typed. */
