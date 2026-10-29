@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-10-29 | [log-food skill: body measurements in batches](2026-10-29-log-food-body.md) | accepted |
 | 2026-10-29 | [log-food skill syncs like a device: changes, deletions, recipes; search by words](2026-10-29-log-food-sync.md) | accepted |
 | 2026-10-29 | [log-food skill: photos grouped into meals, ingredients confirmed, a closing reconstruction](2026-10-29-log-food-photos.md) | accepted |
 | 2026-10-28 | [Deploy: the backup server in compose, beside the web app](2026-10-28-deploy-compose.md) | accepted |
