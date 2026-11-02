@@ -12,7 +12,7 @@
   --kcal: #7ee787;
   --warn: #f2cc60;
   --range: #56d4dd; /* dashboard: the range implied by the error (value ± Δ) */
-  --mustard: #d9a42b; /* homescreen: the Consumptions, Foods and Targets buttons */
+  --mustard: #d9a42b; /* homescreen: the Logs and Database buttons and what they open */
   --conflict: #a371f7; /* sync icon: a merge conflict */
   color-scheme: dark;
 }
@@ -140,23 +140,24 @@ h3 { margin: 8px 0 0; font-size: 16px; }
 .c-fat { color: var(--fat); }
 .c-kcal { color: var(--kcal); }
 
-/* A phone: Consumptions and Foods side by side, Targets and Body measurements a row each; one per row when tall
-   enough (leaving the dashboard ≥ ~400 px); wide: three in a row, Body measurements below Targets. */
-.menu { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.menu > .menu-item:nth-of-type(n+3) { grid-column: 1 / -1; }
-@media (min-width: 700px) {
-  .menu { grid-template-columns: repeat(3, 1fr); }
-  .menu > .menu-item:nth-of-type(3) { grid-column: auto; }
-  .menu > .menu-item:nth-of-type(4) { grid-column: 3; }
+/* Two buttons, Logs and Database, side by side; the open one's group above them, one per row (wide: in a row). */
+.menu { display: flex; flex-direction: column; gap: 8px; }
+.menu-group { display: grid; grid-template-columns: 1fr; gap: 8px; }
+@media (min-width: 700px) { #menu-logs { grid-template-columns: repeat(3, 1fr); } }
+.menu-toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.menu-toggles > button, .menu-item > button { padding: 14px; font-size: 17px; }
+.menu-toggles > button {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  background: var(--panel); color: var(--mustard); box-shadow: inset 0 0 0 1px var(--mustard);
 }
-@media (min-height: 800px) { .menu { grid-template-columns: 1fr; } .menu > .menu-item:nth-of-type(n) { grid-column: auto; } }
-.menu > button, .menu-item > button { padding: 14px; font-size: 17px; }
+.menu-toggles > button.open { background: var(--mustard); color: #0b0f14; }
+.menu-toggles .chevron { transform: rotate(-90deg); transition: transform .15s; }
+.menu-toggles > button.open .chevron { transform: rotate(90deg); }
 /* A screen's button with a smaller + beside it that opens that screen's "add" straight away. */
 .menu-item { display: flex; gap: 6px; min-width: 0; }
 .menu-item > button:first-child { flex: 1; min-width: 0; background: var(--mustard); }
 .menu-item > button.plus { flex: none; width: 48px; padding: 0; font-size: 24px; line-height: 1; background: var(--panel); color: var(--mustard); }
-.menu > .row { grid-column: 1 / -1; }
-.menu > .row > button { padding: 10px; font-size: 15px; }
+.menu-group > .row > button { padding: 10px; font-size: 15px; }
 
 /* Lists */
 .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }

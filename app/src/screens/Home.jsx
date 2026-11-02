@@ -286,12 +286,18 @@ function ImportSheet({ file, onClose }) {
   )
 }
 
+// The homescreen's open button group (Logs or Database), kept while the app is open so coming back finds it as it was.
+let openGroup = null
+
 export default function Home({ query = {} }) {
   const win = WINDOWS.includes(query.win) ? query.win : WINDOWS[0]
   const winIdx = WINDOWS.indexOf(win)
   const touchX = useRef(null)
   const fileRef = useRef(null)
   const [importing, setImporting] = useState(null) // the file picked, until merge or replace is chosen
+  const [group, setGroupState] = useState(openGroup)
+  const setGroup = (g) => setGroupState((openGroup = g))
+  const toggle = (g) => setGroup(group === g ? null : g)
   const day = useToday()
   // Daily window only: the day shown (the day arrows); at most tomorrow, to preview its (weekly-corrected) bounds.
   const inRange = (d) => d && day && d !== day && d <= addDays(day, 1)
@@ -427,27 +433,43 @@ export default function Home({ query = {} }) {
         )}
         <button className="secondary time-graphs" onClick={() => go('/graphs')}>Time graphs</button>
 
+        {/* Two buttons; each opens its group above them, so they stay under the thumb. One group open at a time. */}
         <nav className="menu">
-          {/* Looking at another day (past, or tomorrow): open that day's consumptions (+: add one on that day). */}
-          <div className="menu-item">
-            <button onClick={() => go(`/consumptions${otherDay ? `?day=${otherDay}` : ''}`)}>Consumptions</button>
-            <button className="plus" onClick={() => go(`/consumptions?${otherDay ? `day=${otherDay}&` : ''}new`)} aria-label="Add consumption">+</button>
-          </div>
-          <div className="menu-item">
-            <button onClick={() => go('/foods')}>Foods</button>
-            <button className="plus" onClick={() => go('/foods/new')} aria-label="Add food">+</button>
-          </div>
-          <div className="menu-item">
-            <button onClick={() => go('/targets')}>Targets</button>
-            <button className="plus" onClick={() => go('/targets?new')} aria-label="Add target">+</button>
-          </div>
-          <div className="menu-item">
-            <button onClick={() => go('/body')}>Body measurements</button>
-            <button className="plus" onClick={() => go('/body?new')} aria-label="Add body measurements">+</button>
-          </div>
-          <div className="row">
-            <button className="secondary" onClick={() => fileRef.current.click()}>Import databases</button>
-            <button className="secondary" onClick={doExport}>Export databases</button>
+          {group === 'logs' && (
+            <div className="menu-group" id="menu-logs">
+              {/* Looking at another day (past, or tomorrow): open that day's consumptions (+: add one on that day). */}
+              <div className="menu-item">
+                <button onClick={() => go(`/consumptions${otherDay ? `?day=${otherDay}` : ''}`)}>Consumptions</button>
+                <button className="plus" onClick={() => go(`/consumptions?${otherDay ? `day=${otherDay}&` : ''}new`)} aria-label="Add consumption">+</button>
+              </div>
+              <div className="menu-item">
+                <button onClick={() => go('/targets')}>Targets</button>
+                <button className="plus" onClick={() => go('/targets?new')} aria-label="Add target">+</button>
+              </div>
+              <div className="menu-item">
+                <button onClick={() => go('/body')}>Body measurements</button>
+                <button className="plus" onClick={() => go('/body?new')} aria-label="Add body measurements">+</button>
+              </div>
+            </div>
+          )}
+          {group === 'database' && (
+            <div className="menu-group" id="menu-database">
+              <div className="menu-item">
+                <button onClick={() => go('/foods')}>Foods</button>
+                <button className="plus" onClick={() => go('/foods/new')} aria-label="Add food">+</button>
+              </div>
+              <div className="row">
+                <button className="secondary" onClick={() => fileRef.current.click()}>Import databases</button>
+                <button className="secondary" onClick={doExport}>Export databases</button>
+              </div>
+            </div>
+          )}
+          <div className="menu-toggles">
+            {[['logs', 'Logs'], ['database', 'Database']].map(([g, label]) => (
+              <button key={g} className={group === g ? 'open' : ''} onClick={() => toggle(g)} aria-expanded={group === g} aria-controls={`menu-${g}`}>
+                {label} <Chevron dir="right" />
+              </button>
+            ))}
           </div>
           <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={pickImport} />
         </nav>

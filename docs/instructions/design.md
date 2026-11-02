@@ -21,12 +21,14 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
 - Daily calories: the target moves by what the 6 days before missed, so the 7 days average to it, within caps (config). Optionally a grey ghost of the uncapped correction. Δ Budget: what's left to eat.
 - Tapping a nutrient -> breakdown screen
 - Button: time graphs -> time graphs screen
-- Button: consumptions (+) -> consumptions screen
-- Button: foods (+) -> foods screen
-- Button: targets (+) -> targets screen
-- Button: body measurements (+) -> body measurements screen
-- Button: import databases (merge into the current data, or replace it)
-- Button: export databases (filename with date and time, to the second)
+- Button: logs, expands to:
+  - Button: consumptions (+) -> consumptions screen
+  - Button: targets (+) -> targets screen
+  - Button: body measurements (+) -> body measurements screen
+- Button: database, expands to:
+  - Button: foods (+) -> foods screen
+  - Button: import databases (merge into the current data, or replace it)
+  - Button: export databases (filename with date and time, to the second)
 
 ### Consumptions screen
 
