@@ -49,6 +49,48 @@ function Picture({ id, blob, name, onClick }) {
   return <img className="note-pic" src={url} alt={name ?? ''} title={name} onClick={onClick} />
 }
 
+/**
+ * A note's pictures full screen, from `at`: ← and → (or a swipe) go through them, a tap closes. `pics`: [{id} or
+ * {blob}, with name].
+ */
+function Viewer({ pics, at, onClose }) {
+  const [i, setI] = useState(at)
+  const go = (d) => setI((j) => Math.min(pics.length - 1, Math.max(0, j + d)))
+  useEffect(() => {
+    // Capture, and no default: with the editor below, the arrows mustn't also move its text cursor.
+    const onKey = (e) => {
+      const d = { ArrowLeft: -1, ArrowRight: 1 }[e.key]
+      if (!d) return
+      e.preventDefault()
+      e.stopPropagation()
+      go(d)
+    }
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
+  }, [pics.length])
+  // A mostly sideways swipe of 40 px or more; the tap a swipe may end in doesn't close.
+  const touch = useRef(null)
+  const swiped = useRef(false)
+  const onTouchStart = (e) => (touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY })
+  const onTouchEnd = (e) => {
+    if (!touch.current) return
+    const dx = e.changedTouches[0].clientX - touch.current.x
+    const dy = e.changedTouches[0].clientY - touch.current.y
+    touch.current = null
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return
+    swiped.current = true
+    setTimeout(() => (swiped.current = false), 400)
+    go(dx < 0 ? 1 : -1)
+  }
+  const onClick = () => !swiped.current && onClose()
+  return (
+    <div className="modal viewer" onClick={onClick} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <Picture {...pics[i]} />
+      {pics.length > 1 && <span className="viewer-count">{i + 1} / {pics.length}</span>}
+    </div>
+  )
+}
+
 const daysLeft = (note) => Math.max(0, Math.ceil((noteExpiry(note) - Date.now()) / 864e5))
 
 export default function Notes({ add }) {
@@ -84,21 +126,19 @@ export default function Notes({ add }) {
             {n.text && <p className="note-text">{n.text}</p>}
             {n.pictures?.length > 0 && (
               <div className="note-pics">
-                {n.pictures.map((id) => {
-                  const name = n.pictureNames?.[id]
-                  return <Picture key={id} id={id} name={name} onClick={(e) => { e.stopPropagation(); setViewing({ id, name }) }} />
-                })}
+                {n.pictures.map((id, i) => (
+                  <Picture key={id} id={id} name={n.pictureNames?.[id]} onClick={(e) => {
+                    e.stopPropagation()
+                    setViewing({ pics: n.pictures.map((id) => ({ id, name: n.pictureNames?.[id] })), at: i })
+                  }} />
+                ))}
               </div>
             )}
           </li>
         ))}
       </ul>
       {editing && <NoteEditor note={editing} onView={setViewing} onClose={() => setEditing(null)} />}
-      {viewing && (
-        <div className="modal viewer" onClick={() => setViewing(null)}>
-          <Picture {...viewing} />
-        </div>
-      )}
+      {viewing && <Viewer {...viewing} onClose={() => setViewing(null)} />}
     </Screen>
   )
 }
@@ -164,9 +204,9 @@ function NoteEditor({ note, onView, onClose }) {
         <textarea className="note-input" autoFocus={!note.id} rows={4} value={text} placeholder="What it's about…" onChange={(e) => setText(e.target.value)} />
         {pics.length > 0 && (
           <div className="note-pics">
-            {pics.map((p) => (
+            {pics.map((p, i) => (
               <span key={p.key} className="note-pic-wrap">
-                <Picture id={p.id} blob={p.blob} name={p.name} onClick={() => onView(p.blob ? { blob: p.blob, name: p.name } : { id: p.id, name: p.name })} />
+                <Picture id={p.id} blob={p.blob} name={p.name} onClick={() => onView({ pics: pics.map((q) => (q.blob ? { blob: q.blob, name: q.name } : { id: q.id, name: q.name })), at: i })} />
                 <button className="icon small" onClick={() => setPics(pics.filter((x) => x !== p))} aria-label="Remove picture">×</button>
               </span>
             ))}

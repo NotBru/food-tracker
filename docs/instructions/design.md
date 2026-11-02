@@ -131,6 +131,7 @@ entry, each with Δ. On top: 7-day averages and maintenance calories from the we
 
 Notes, latest first: text and pictures (one or many, from the camera or the gallery, with their filenames), stamped
 with when the note was made. Deleted a week after that, automatically. Synced; Claude's log-food skill reads them (the main use).
+A tapped picture fills the screen; left/right keys or a swipe go through the note's other pictures.
 
 ### Users screen
 
