@@ -2,7 +2,7 @@ import { db, getConfig } from './db'
 import { addDays, dayBounds } from './time'
 import { NUTRIENTS, calories, deltaFromInput } from './nutrients'
 import { DEFAULT_ENTRY_ERROR, sampling } from './errors'
-import { ciqualItems, fdcItems } from './external'
+import { ciqualFoods, fdcFoods } from './external'
 import { addProduct, addScaled, bounds, zero } from './stats'
 
 // Built-in conversions to a base unit per dimension.
@@ -131,17 +131,39 @@ function addInto(total, nutrients, f, phi = 0, rel = 0) {
 }
 
 /**
+ * Foods by id: the user's own (`own`, a Map), then the reference databases' (external.js lazyFoods), made as they're
+ * asked for. `with(id, item)`: a copy with one more (an unsaved draft, for a preview).
+ */
+class Foods {
+  constructor(own, refs) {
+    this.own = own
+    this.refs = refs
+  }
+  get(id) {
+    if (this.own.has(id)) return this.own.get(id)
+    for (const r of this.refs) {
+      const it = r.get(id)
+      if (it) return it
+    }
+    return undefined
+  }
+  with(id, item) {
+    return new Foods(new Map(this.own).set(id, item), this.refs)
+  }
+}
+
+/**
  * Load everything nutrient computation needs, once. `list` is the user's own foods; CIQUAL's and USDA's are read-only
- * foods (external.js ciqualItems, fdcItems) that always resolve, so consumptions of them keep working, and are listed
- * (`generic`) only while the config includes them.
+ * foods (external.js ciqualFoods, fdcFoods) that always resolve, so consumptions of them keep working, and are listed
+ * (`generic()`, all of them made on the first call: only searches need it) only while the config includes them.
  */
 export async function loadContext() {
   const [list, config] = await Promise.all([db.items.toArray(), getConfig()])
-  const items = new Map(list.map((r) => [r.id, r]))
   // Not loaded (offline on first use): without that table.
-  const [ciqual, usda] = await Promise.all([ciqualItems().catch(() => []), fdcItems().catch(() => [])])
-  for (const it of [...ciqual, ...usda]) items.set(it.id, it)
-  return { items, list, generic: [...(config.ciqual ? ciqual : []), ...(config.usda ? usda : [])] }
+  const [ciqual, usda] = await Promise.all([ciqualFoods().catch(() => null), fdcFoods().catch(() => null)])
+  const items = new Foods(new Map(list.map((r) => [r.id, r])), [ciqual, usda].filter(Boolean))
+  const generic = () => [...(config.ciqual && ciqual ? ciqual.all() : []), ...(config.usda && usda ? usda.all() : [])]
+  return { items, list, generic }
 }
 
 /** Keep `unit` if it still works for the newly picked food, otherwise switch to the food's own unit. */

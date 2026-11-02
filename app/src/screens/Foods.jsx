@@ -33,7 +33,7 @@ export function FoodList() {
     // Alphabetical, concoctions after everything else (newest first).
     .sort(([a, la], [b, lb]) => !!a.madeAt - !!b.madeAt || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || la.localeCompare(lb))
   if (words.length) {
-    rows.push(...ctx.generic.filter(match).map((r) => [r, itemLabel(r)])
+    rows.push(...ctx.generic().filter(match).map((r) => [r, itemLabel(r)])
       .sort(([, la], [, lb]) => la.length - lb.length || la.localeCompare(lb)).slice(0, GENERIC_SHOWN))
   }
   return (
@@ -277,7 +277,7 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
   const draft = { ...toRecord(), id: initial?.id ?? -1 }
   const hasComponents = draft.components.length > 0
   // Live preview: compute with the unsaved form swapped into the context.
-  const previewCtx = { ...ctx, items: new Map(ctx.items).set(draft.id, draft) }
+  const previewCtx = { ...ctx, items: ctx.items.with(draft.id, draft) }
   const [amt, unit] = baseAmount(draft)
   const preview = nutrientsFor(previewCtx, draft.id, amt, unit)
   // "Auto" per amount: the components added up, in the food's unit (g if it has none yet).

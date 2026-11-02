@@ -1,9 +1,9 @@
 // External food databases (design.md V2: "automatically fetch products from cool databases").
 //   CIQUAL (ANSES, France): ~3.5k generic foods, bundled as public/ciqual.json (built by scripts/ciqual.py),
 //     loaded on first use. Licence Ouverte, credit "ANSES-CIQUAL". Its foods are part of the food database,
-//     read-only (ciqualItems); editing one saves a copy.
+//     read-only (ciqualFoods); editing one saves a copy.
 //   USDA FoodData Central: Foundation Foods and SR Legacy, ~8.1k generic foods, bundled as public/fdc.json (built by
-//     scripts/fdc.py), loaded on first use, in the food database like CIQUAL's (fdcItems). Public domain (CC0).
+//     scripts/fdc.py), loaded on first use, in the food database like CIQUAL's (fdcFoods). Public domain (CC0).
 //   Open Food Facts: packaged products, fetched live from the browser. ODbL. Rate limits: 15 product
 //     reads/min and 10 searches/min per IP, so searches only run on Enter, never per keystroke.
 //     Text search uses search-a-licious (search.openfoodfacts.org) through the /off-search proxy in vite.config.js
@@ -64,17 +64,35 @@ export function loadCiqual() {
   return ciqual
 }
 
-// CIQUAL foods as read-only foods (calc.js loadContext): id "ciqual:<code>", the subgroup as their category.
-let ciqualFoods = null
-export function ciqualItems() {
-  ciqualFoods ??= loadCiqual()
-    .then((t) => t.foods.map((f) => ({ ...ciqualDraft(t, f), id: `ciqual:${f.code}`, nameFr: f.fr, readOnly: true })))
-    .catch((e) => {
-      ciqualFoods = null
-      throw e
-    })
-  return ciqualFoods
+/**
+ * A reference database's foods as read-only foods of the app (calc.js loadContext), made only when asked for: `get(id)`
+ * one (a consumption of it), `all()` every one (searches). Making all ~11.6k of CIQUAL's and USDA's took most of the
+ * app's start, for the few the homescreen needs (docs/execution/2026-11-02-fast-start.md).
+ */
+function lazyFoods(load, idOf, make) {
+  let foods = null
+  return () => {
+    foods ??= load()
+      .then((t) => {
+        const rows = new Map(t.foods.map((f) => [idOf(f), f]))
+        const made = new Map()
+        const get = (id) => {
+          if (!made.has(id)) made.set(id, rows.has(id) ? { ...make(t, rows.get(id)), id, readOnly: true } : undefined)
+          return made.get(id)
+        }
+        let all = null
+        return { get, all: () => (all ??= [...rows.keys()].map(get)) }
+      })
+      .catch((e) => {
+        foods = null // allow a retry
+        throw e
+      })
+    return foods
+  }
 }
+
+// CIQUAL's: id "ciqual:<code>", the subgroup as their category.
+export const ciqualFoods = lazyFoods(loadCiqual, (f) => `ciqual:${f.code}`, (t, f) => ({ ...ciqualDraft(t, f), nameFr: f.fr }))
 
 // CIQUAL is per 100 g, but liquids are measured in ml: they get "100 ml = X g", the density from their composition,
 // 1/ρ = Σ wᵢ/ρᵢ (g/ml: water 1, fat 0.925, protein 1.33, carbohydrates 1.6, fibre 1.31, alcohol 0.789, Choi & Okos;
@@ -144,17 +162,8 @@ export function loadFdc() {
   return fdc
 }
 
-// USDA foods as read-only foods, like CIQUAL's: id "fdc:<fdcId>", category the CIQUAL subgroup scripts/fdc.py gave them.
-let fdcFoods = null
-export function fdcItems() {
-  fdcFoods ??= loadFdc()
-    .then((t) => t.foods.map((f) => ({ ...fdcDraft(t, f), id: `fdc:${f.id}`, readOnly: true })))
-    .catch((e) => {
-      fdcFoods = null
-      throw e
-    })
-  return fdcFoods
-}
+// USDA's, like CIQUAL's: id "fdc:<fdcId>", category the CIQUAL subgroup scripts/fdc.py gave them.
+export const fdcFoods = lazyFoods(loadFdc, (f) => `fdc:${f.id}`, fdcDraft)
 
 export function fdcDraft(table, food) {
   const nutrients = {}

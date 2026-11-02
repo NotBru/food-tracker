@@ -155,7 +155,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
   // The concoction is computed like a saved food: the draft is swapped into the context, under a placeholder id
   // while new.
   const draft = form.concoction ? concoctionDraft(savedCtx, form) : null
-  const ctx = draft && !draft.problem ? { ...savedCtx, items: new Map(savedCtx.items).set(DRAFT_ID, { ...draft, id: DRAFT_ID }) } : savedCtx
+  const ctx = draft && !draft.problem ? { ...savedCtx, items: savedCtx.items.with(DRAFT_ID, { ...draft, id: DRAFT_ID }) } : savedCtx
   const itemId = form.concoction ? (draft.problem ? null : DRAFT_ID) : form.itemId
   // Error of the amount; blank = from the digits typed, like nutrient values ("250" -> ±1, "1.5" -> ±0.1).
   // Of a concoction being made, a blank amount is all of it: its own amount, with no error of its own.

@@ -375,13 +375,13 @@ const isOld = (it, before) => !!(before && it.madeAt && it.madeAt < before)
  * `onCreate(text)`: if given, a + beside the box, to make a new food from what's typed.
  * `oldBefore` (ISO time): if given, concoctions made before it go last, after every other food.
  * `show(item)`: if given, only foods it accepts are listed.
- * CIQUAL's and USDA's foods (`ctx.generic`) come after the user's own, once something is typed. */
+ * CIQUAL's and USDA's foods (`ctx.generic()`) come after the user's own, once something is typed. */
 export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore, show, enterNext }) {
   const [query, setQuery] = useState(null) // null = closed
   const inputRef = useRef(null)
   const selected = value != null ? ctx.items.get(value) : null
   const words = fold(query ?? '').split(/\s+/).filter(Boolean)
-  const matches = (words.length ? [...ctx.list, ...ctx.generic] : ctx.list)
+  const matches = (words.length ? [...ctx.list, ...ctx.generic()] : ctx.list)
     .filter((it) => it.id !== exclude && (!show || show(it)))
     .filter((it) => words.every((w) => searchText(it).includes(w)))
     .map((it) => [it, itemLabel(it)])
