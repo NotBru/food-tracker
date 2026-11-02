@@ -129,8 +129,8 @@ entry, each with Δ. On top: 7-day averages and maintenance calories from the we
 
 ### Temp notes screen
 
-Notes, latest first: text and pictures (one or many, from the camera or the gallery), stamped with when the note was
-made. Deleted a week after that, automatically. Synced; Claude's log-food skill reads them (the main use).
+Notes, latest first: text and pictures (one or many, from the camera or the gallery, with their filenames), stamped
+with when the note was made. Deleted a week after that, automatically. Synced; Claude's log-food skill reads them (the main use).
 
 ### Users screen
 

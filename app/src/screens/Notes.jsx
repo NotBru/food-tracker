@@ -42,11 +42,11 @@ function useObjectUrl(blob) {
 }
 
 /** A picture: its Blob if given (not saved yet), else the stored file `id` (a placeholder until it's synced here). */
-function Picture({ id, blob, onClick }) {
+function Picture({ id, blob, name, onClick }) {
   const stored = useLiveQuery(() => (blob ? null : db.files.get(id)), [id, blob])
   const url = useObjectUrl(blob ?? stored?.blob)
-  if (!url) return <span className="note-pic missing" title="Not on this device yet: it comes with the next sync">…</span>
-  return <img className="note-pic" src={url} alt="" onClick={onClick} />
+  if (!url) return <span className="note-pic missing" title={`${name ? `${name}: n` : 'N'}ot on this device yet: it comes with the next sync`}>…</span>
+  return <img className="note-pic" src={url} alt={name ?? ''} title={name} onClick={onClick} />
 }
 
 const daysLeft = (note) => Math.max(0, Math.ceil((noteExpiry(note) - Date.now()) / 864e5))
@@ -59,7 +59,7 @@ export default function Notes({ add }) {
   })
   const [editing, setEditing] = useState(null)
   const [viewing, setViewing] = useState(null)
-  const newNote = () => setEditing({ userId: data.user.id, text: '', pictures: [] })
+  const newNote = () => setEditing({ userId: data.user.id, text: '', pictures: [], pictureNames: {} })
   // Opened with ?new (the homescreen's +): straight into a new note, once; the flag leaves the URL.
   const added = useRef(false)
   useEffect(() => {
@@ -84,7 +84,10 @@ export default function Notes({ add }) {
             {n.text && <p className="note-text">{n.text}</p>}
             {n.pictures?.length > 0 && (
               <div className="note-pics">
-                {n.pictures.map((id) => <Picture key={id} id={id} onClick={(e) => { e.stopPropagation(); setViewing({ id }) }} />)}
+                {n.pictures.map((id) => {
+                  const name = n.pictureNames?.[id]
+                  return <Picture key={id} id={id} name={name} onClick={(e) => { e.stopPropagation(); setViewing({ id, name }) }} />
+                })}
               </div>
             )}
           </li>
@@ -103,8 +106,8 @@ export default function Notes({ add }) {
 /** A note's text and pictures. A new one is stamped with the time it's saved; an edited one keeps its time. */
 function NoteEditor({ note, onView, onClose }) {
   const [text, setText] = useState(note.text ?? '')
-  // [{id}] stored, or [{key, blob}] picked here and not saved yet.
-  const [pics, setPics] = useState((note.pictures ?? []).map((id) => ({ id, key: id })))
+  // [{id, name}] stored, or [{key, blob, name}] picked here and not saved yet. `name`: the picked file's name.
+  const [pics, setPics] = useState((note.pictures ?? []).map((id) => ({ id, key: id, name: note.pictureNames?.[id] })))
   const [busy, setBusy] = useState(false)
   const camera = useRef(null)
   const gallery = useRef(null)
@@ -115,9 +118,9 @@ function NoteEditor({ note, onView, onClose }) {
     if (!files.length) return
     setBusy(true)
     try {
-      const blobs = []
-      for (const f of files) blobs.push(await shrink(f))
-      setPics((p) => [...p, ...blobs.map((blob) => ({ key: makeId(), blob }))])
+      const picked = []
+      for (const f of files) picked.push({ key: makeId(), blob: await shrink(f), name: f.name || undefined })
+      setPics((p) => [...p, ...picked])
     } catch (err) {
       alert(err.message)
     } finally {
@@ -134,6 +137,7 @@ function NoteEditor({ note, onView, onClose }) {
       datetime: note.datetime ?? new Date().toISOString(),
       text: text.trim(),
       pictures: pics.map((p) => p.id ?? p.key),
+      pictureNames: Object.fromEntries(pics.filter((p) => p.name).map((p) => [p.id ?? p.key, p.name])),
     }
     // Pictures first, in the same transaction: no note ever names a picture that isn't here.
     await db.transaction('rw', db.notes, db.files, async () => {
@@ -162,7 +166,7 @@ function NoteEditor({ note, onView, onClose }) {
           <div className="note-pics">
             {pics.map((p) => (
               <span key={p.key} className="note-pic-wrap">
-                <Picture id={p.id} blob={p.blob} onClick={() => onView(p.blob ? { blob: p.blob } : { id: p.id })} />
+                <Picture id={p.id} blob={p.blob} name={p.name} onClick={() => onView(p.blob ? { blob: p.blob, name: p.name } : { id: p.id, name: p.name })} />
                 <button className="icon small" onClick={() => setPics(pics.filter((x) => x !== p))} aria-label="Remove picture">×</button>
               </span>
             ))}

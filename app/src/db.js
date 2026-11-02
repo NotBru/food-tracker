@@ -204,8 +204,9 @@ db.version(16).stores({ sync: 'key' }).upgrade(async (tx) => {
   }
 })
 
-// v17: temp notes, per user like consumptions: { userId, datetime (when the note was made), text, pictures: [file id] }
-// (see docs/execution/2026-11-02-temp-notes.md). Their pictures are in `files` ({ id, blob, uploaded }), which stays on
+// v17: temp notes, per user like consumptions: { userId, datetime (when the note was made), text, pictures: [file id],
+// pictureNames: { [file id]: the picked file's name } } (see docs/execution/2026-11-02-temp-notes.md and
+// 2026-11-02-note-picture-names.md). Their pictures are in `files` ({ id, blob, uploaded }), which stays on
 // this device: the backup syncs them as files of their own (backup.js), not in its data.
 db.version(17).stores({ notes: 'id, [userId+datetime], datetime', files: 'id' })
 
