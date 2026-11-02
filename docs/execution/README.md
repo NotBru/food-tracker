@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-02 | [Temp notes: text and pictures, a week long, synced; read by the log-food skill](2026-11-02-temp-notes.md) | accepted |
 | 2026-11-02 | [Homescreen: Logs and Database buttons that expand](2026-11-02-home-groups.md) | accepted |
 | 2026-10-31 | [log-food skill: one question per item, each with a default](2026-10-31-log-food-one-question.md) | accepted |
 | 2026-10-29 | [Sync icon: yellow until the first check answers; yellow when out of reach](2026-10-29-sync-reach.md) | accepted |

@@ -21,10 +21,11 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
 - Daily calories: the target moves by what the 6 days before missed, so the 7 days average to it, within caps (config). Optionally a grey ghost of the uncapped correction. Δ Budget: what's left to eat.
 - Tapping a nutrient -> breakdown screen
 - Button: time graphs -> time graphs screen
-- Button: logs, expands to:
+- Button: logs, expands (upwards, one per row) to:
   - Button: consumptions (+) -> consumptions screen
   - Button: targets (+) -> targets screen
   - Button: body measurements (+) -> body measurements screen
+  - Button: temp notes (+) -> temp notes screen
 - Button: database, expands to:
   - Button: foods (+) -> foods screen
   - Button: import databases (merge into the current data, or replace it)
@@ -126,10 +127,15 @@ List targets, latest first. A target consists of a min and/or max per field that
 Entries, latest first: weight, body fat, waist, muscle (% and mass) (lean mass from them), and other measurements named per
 entry, each with Δ. On top: 7-day averages and maintenance calories from the weight trend and what was eaten.
 
+### Temp notes screen
+
+Notes, latest first: text and pictures (one or many, from the camera or the gallery), stamped with when the note was
+made. Deleted a week after that, automatically. Synced; Claude's log-food skill reads them (the main use).
+
 ### Users screen
 
 Starts with a default user. List of users; tapping one switches to it, and each can be renamed or
-deleted (not the last one). Consumptions, targets and body measurements belong to the current user; foods and config are
+deleted (not the last one). Consumptions, targets, body measurements and temp notes belong to the current user; foods and config are
 shared.
 
 ### Config screen
@@ -144,7 +150,8 @@ shared.
 - Backup: encrypted on the device, one blob per public key on the server; a invite code to start. The secret moves
   to other devices as a QR link or text, and can be changed (signed by the old key).
   An inbox beside it takes entries pushed from elsewhere; the app merges them in. Claude's log-food skill syncs as
-  one more device: it adds, changes and deletes consumptions, foods, recipes and body measurements.
+  one more device: it adds, changes and deletes consumptions, foods, recipes and body measurements, and reads temp
+  notes. Temp notes' pictures are encrypted files of their own beside the backup, deleted by the server after 10 days.
   Devices on one secret sync (same users, same config but the selected user): each keeps the last synced backup and
   merges in what changed there since, then uploads (compare-and-swap; first sync: like an import's Merge). On opening and
   reopening, soon after a change, every 15 minutes, and within 5 s of another device's upload while shown (a check

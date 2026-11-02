@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useRoute } from './components'
-import { getConfig } from './db'
+import { expireNotes, getConfig } from './db'
 import { setCoverage } from './stats'
 import Home from './screens/Home'
 import Consumptions from './screens/Consumptions'
@@ -17,6 +17,7 @@ import Explore from './screens/Explore'
 import Graphs from './screens/Graphs'
 import Body from './screens/Body'
 import Backup from './screens/Backup'
+import Notes from './screens/Notes'
 import { startAutoSync } from './backup'
 import './styles.css'
 
@@ -34,6 +35,7 @@ function App() {
   if (a === 'backup') return <Backup secret={query.secret} />
   if (a === 'users') return <Users />
   if (a === 'body') return <Body add={query.new != null} />
+  if (a === 'notes') return <Notes add={query.new != null} />
   if (a === 'graphs') return <Graphs days={query.days} end={query.end} />
   if (a === 'explore') return <Explore nutrient={b} />
   if (a === 'breakdown') return <Breakdown key={`${b} ${query.from} ${query.to}`} nutrient={b} from={query.from} to={query.to} win={query.win} per={query.per} />
@@ -57,3 +59,7 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator && window.isSecureConte
 navigator.storage?.persist?.()
 
 startAutoSync()
+
+// Temp notes go a week after they're made: checked as the app opens and every hour while it's open.
+expireNotes()
+setInterval(expireNotes, 60 * 60 * 1000)

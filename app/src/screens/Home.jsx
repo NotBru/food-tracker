@@ -450,6 +450,10 @@ export default function Home({ query = {} }) {
                 <button onClick={() => go('/body')}>Body measurements</button>
                 <button className="plus" onClick={() => go('/body?new')} aria-label="Add body measurements">+</button>
               </div>
+              <div className="menu-item">
+                <button onClick={() => go('/notes')}>Temp notes</button>
+                <button className="plus" onClick={() => go('/notes?new')} aria-label="Add temp note">+</button>
+              </div>
             </div>
           )}
           {group === 'database' && (

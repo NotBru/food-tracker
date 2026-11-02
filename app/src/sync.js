@@ -47,7 +47,7 @@ export function changes(a, b) {
 // The rows a row uses ("table:id"); reference foods ("ciqual:…", "fdc:…") aren't rows.
 function uses(t, r) {
   const refs = t === 'logs' ? [`users:${r.userId}`, `items:${r.itemId}`]
-    : t === 'targets' || t === 'weights' ? [`users:${r.userId}`]
+    : t === 'targets' || t === 'weights' || t === 'notes' ? [`users:${r.userId}`]
       : t === 'items' ? (r.components ?? []).map((c) => `items:${c.itemId}`) : []
   return refs.filter((k) => k.split(':').length === 2)
 }

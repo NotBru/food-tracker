@@ -190,20 +190,29 @@ db.version(15).stores({}).upgrade(async (tx) => {
   await tx.table('config').delete('bodyFields')
 })
 
-export const TABLES = ['users', 'items', 'logs', 'targets', 'weights', 'config']
-// Tables whose rows have an `id` (config's are keyed by name).
-const ID_TABLES = TABLES.filter((t) => t !== 'config')
+// The tables v16 gave random ids to (its upgrade can only reach those).
+const V16_TABLES = ['users', 'items', 'logs', 'targets', 'weights', 'config']
 
 // v16: random ids, so the devices of one backup can add rows without clashing (see docs/execution/2026-10-28-sync.md),
 // and `sync`, the backup's last synced copy (backup.js).
 db.version(16).stores({ sync: 'key' }).upgrade(async (tx) => {
-  const tables = Object.fromEntries(await Promise.all(TABLES.map(async (t) => [t, await tx.table(t).toArray()])))
+  const tables = Object.fromEntries(await Promise.all(V16_TABLES.map(async (t) => [t, await tx.table(t).toArray()])))
   const next = randomIds(tables)
-  for (const t of TABLES) {
+  for (const t of V16_TABLES) {
     await tx.table(t).clear()
     await tx.table(t).bulkAdd(next[t])
   }
 })
+
+// v17: temp notes, per user like consumptions: { userId, datetime (when the note was made), text, pictures: [file id] }
+// (see docs/execution/2026-11-02-temp-notes.md). Their pictures are in `files` ({ id, blob, uploaded }), which stays on
+// this device: the backup syncs them as files of their own (backup.js), not in its data.
+db.version(17).stores({ notes: 'id, [userId+datetime], datetime', files: 'id' })
+
+// The synced tables: exported, backed up, merged.
+export const TABLES = [...V16_TABLES, 'notes']
+// Tables whose rows have an `id` (config's are keyed by name).
+const ID_TABLES = TABLES.filter((t) => t !== 'config')
 
 /**
  * A random row id that sorts by creation: base-36 time, then randomness. `order` stands in for the time (an old
@@ -231,6 +240,7 @@ export function randomIds(tables) {
     logs: rows('logs', (l) => ({ ...user(l), itemId: ref('items', l.itemId) })),
     targets: rows('targets', user),
     weights: rows('weights', user),
+    notes: rows('notes', user),
     config: (tables.config ?? []).map((r) => (r.key === 'currentUser' ? { ...r, value: ref('users', r.value) } : r)),
   }
 }
@@ -328,11 +338,12 @@ export function setCurrentUser(id) {
 
 /** Deletes a user with their consumptions, targets and weigh-ins. The last user can't be deleted. */
 export async function deleteUser(id) {
-  await db.transaction('rw', db.users, db.logs, db.targets, db.weights, db.config, async () => {
+  await db.transaction('rw', db.users, db.logs, db.targets, db.weights, db.notes, db.config, async () => {
     if ((await db.users.count()) <= 1) throw new Error('The last user can\'t be deleted.')
     await db.logs.where('userId').equals(id).delete()
     await db.targets.where('userId').equals(id).delete()
     await db.weights.where('[userId+datetime]').between([id, Dexie.minKey], [id, Dexie.maxKey]).delete()
+    await db.notes.where('[userId+datetime]').between([id, Dexie.minKey], [id, Dexie.maxKey]).delete()
     await db.users.delete(id)
     if ((await db.config.get('currentUser'))?.value === id) await db.config.delete('currentUser')
   })
@@ -473,8 +484,8 @@ export function searchText(item) {
 // --- Import / export -----------------------------------------------------
 // JSON has no NaN, so it is encoded as null and decoded back on import.
 
-// v8: random ids (randomIds).
-export const FORMAT = 8
+// v8: random ids (randomIds). v9: temp notes (older apps can't hold them, so they're told to update).
+export const FORMAT = 9
 
 export async function exportAll() {
   const data = { app: 'food-tracker', version: FORMAT, exportedAt: new Date().toISOString(), tables: {} }
@@ -592,6 +603,28 @@ export function mergeTables(cur, inc) {
     logs: [...logs, ...withoutRepeats(logs, merged.logs.slice(cur.logs.length))],
     targets: mine('targets'),
     weights: mine('weights'),
+    notes: mine('notes'),
     config: cur.config,
   }
+}
+
+// --- Temp notes ------------------------------------------------------------
+// Notes last a week from when they were made; then any device deletes them (the deletion syncs like any other).
+
+export const NOTE_DAYS = 7
+export const noteExpiry = (note) => new Date(Date.parse(note.datetime) + NOTE_DAYS * 864e5)
+
+/** Deletes the notes older than a week, and the pictures no note uses any more. */
+export async function expireNotes() {
+  const before = new Date(Date.now() - NOTE_DAYS * 864e5).toISOString()
+  const old = await db.notes.where('datetime').below(before).primaryKeys()
+  if (old.length) await db.notes.bulkDelete(old)
+  await dropUnusedFiles()
+}
+
+/** Pictures on this device that no note uses (deleted, expired, or taken out of one). */
+export async function dropUnusedFiles() {
+  const used = new Set((await db.notes.toArray()).flatMap((n) => n.pictures ?? []))
+  const unused = (await db.files.toCollection().primaryKeys()).filter((id) => !used.has(id))
+  if (unused.length) await db.files.bulkDelete(unused)
 }

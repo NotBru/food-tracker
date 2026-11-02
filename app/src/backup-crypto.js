@@ -83,3 +83,23 @@ export async function decrypt(aesKey, bytes) {
   }
   return gzip(plain, false)
 }
+
+// Files (temp notes' pictures): `FTF1` + IV + AES-GCM(bytes), not gzipped (pictures are compressed already). The file's
+// id is authenticated with it, so the server can't hand one file out as another.
+const FILE_MAGIC = 'FTF1'
+const fileAd = (id) => new TextEncoder().encode(`${FILE_MAGIC} ${id}`)
+
+export async function encryptFile(aesKey, id, bytes) {
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: fileAd(id) }, aesKey, bytes)
+  return new Uint8Array([...new TextEncoder().encode(FILE_MAGIC), ...iv, ...new Uint8Array(ct)])
+}
+
+export async function decryptFile(aesKey, id, bytes) {
+  if (new TextDecoder().decode(bytes.slice(0, 4)) !== FILE_MAGIC) throw new Error("That isn't a file this app made.")
+  try {
+    return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes.slice(4, 16), additionalData: fileAd(id) }, aesKey, bytes.slice(16)))
+  } catch {
+    throw new Error("The file couldn't be decrypted with this secret.")
+  }
+}

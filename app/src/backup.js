@@ -12,8 +12,11 @@
 //
 // Beside the backup, each key has an inbox: batches of entries pushed from elsewhere (Claude's log-food skill), merged
 // into this device's data (db.js mergeTables) and then cleared. Merging the same batch twice changes nothing.
-import { db, exportAll, FORMAT, importAll, onDataChange, quietly, readImport, revive, TABLES } from './db'
-import { decrypt, encrypt, keysOf, newSecret, request as signedRequest, SECRET_RE } from './backup-crypto'
+//
+// Temp notes' pictures aren't in the backup's data (they'd outgrow it): each is a file of its own on the server,
+// encrypted under the same secret, uploaded before the notes that name them and fetched after (Files, below).
+import { db, dropUnusedFiles, exportAll, FORMAT, importAll, onDataChange, quietly, readImport, revive, TABLES } from './db'
+import { decrypt, decryptFile, encrypt, encryptFile, keysOf, newSecret, request as signedRequest, SECRET_RE } from './backup-crypto'
 import { changes, merge } from './sync'
 
 const STORE = 'backup'
@@ -180,9 +183,11 @@ export function sync() {
     try {
       await quietly(pullInbox)
       const keys = await keysOf(s.secret)
+      await pushFiles(keys)
       for (let round = 1; !(await syncRound(keys)); round++) {
         if (round === 5) throw new Error('Other devices keep changing the backup. Try again in a moment.')
       }
+      await pullFiles(keys)
       misses = 0
       patchState({ at: new Date().toISOString(), error: null, unreachable: false })
     } catch (e) {
@@ -250,6 +255,8 @@ async function check(shown) {
   if (now?.unreachable) patchState({ unreachable: false })
   if (changed || (now?.pending && !now.error)) return sync().catch(() => {})
   if (now?.syncing && !running) patchState({ syncing: false, at: new Date().toISOString() })
+  // Pictures still to fetch (after a restore, or one that failed): no sync needed for those.
+  if ((await missingPictures()).length) pullFiles(await keysOf(now.secret)).catch(() => {})
 }
 
 let timer = null
@@ -280,6 +287,9 @@ export async function changeSecret() {
   })
   await setBase((await res.json()).version, text)
   setState({ ...s, secret, at: new Date().toISOString(), error: null })
+  // The server dropped the pictures with the old key: up again under the new one.
+  await db.files.toCollection().modify({ uploaded: false })
+  syncSoon(0)
 }
 
 /** Fetches the backup under a secret: { text, version, updated }. */
@@ -352,6 +362,54 @@ export async function pullInbox() {
   })
   patchState({ inbox: { at: new Date().toISOString(), entries } })
   return entries
+}
+
+// --- Files (temp notes' pictures) --------------------------------------------------
+
+// Pictures the server didn't have, this session: not asked for again until the app is reopened.
+const unavailable = new Set()
+
+/** Pictures that notes here name but this device doesn't have yet. */
+async function missingPictures() {
+  const have = new Set(await db.files.toCollection().primaryKeys())
+  return [...new Set((await db.notes.toArray()).flatMap((n) => n.pictures ?? []))].filter((id) => !have.has(id) && !unavailable.has(id))
+}
+
+/** Uploads the pictures added here (before the notes naming them, so other devices find them). */
+async function pushFiles(keys) {
+  await dropUnusedFiles()
+  for (const f of await db.files.filter((f) => !f.uploaded).toArray()) {
+    const body = await encryptFile(keys.aesKey, f.id, new Uint8Array(await f.blob.arrayBuffer()))
+    await request('PUT', `/backup/${keys.id}/files/${f.id}`, { keys, body })
+    await db.files.update(f.id, { uploaded: true })
+  }
+}
+
+let pulling = null
+/** Fetches the pictures notes name that aren't here yet, and drops those no note uses. */
+function pullFiles(keys) {
+  pulling ??= (async () => {
+    await dropUnusedFiles()
+    for (const id of await missingPictures()) {
+      try {
+        const res = await request('GET', `/backup/${keys.id}/files/${id}`, { keys })
+        const bytes = await decryptFile(keys.aesKey, id, new Uint8Array(await res.arrayBuffer()))
+        await db.files.put({ id, blob: new Blob([bytes], { type: 'image/jpeg' }), uploaded: true })
+      } catch (e) {
+        if (e.status !== 404) throw e
+        unavailable.add(id)
+      }
+    }
+  })().finally(() => (pulling = null))
+  return pulling
+}
+
+/** Deletes pictures from the server right away (a note deleted here); the server deletes them after 10 days anyway. */
+export async function deleteFiles(ids) {
+  const s = getState()
+  if (!s || !ids.length) return
+  const keys = await keysOf(s.secret)
+  await Promise.all(ids.map((id) => request('DELETE', `/backup/${keys.id}/files/${id}`, { keys }).catch(() => {})))
 }
 
 /**

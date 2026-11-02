@@ -18,8 +18,13 @@
 // which the app merges in and then clears. GET, PUT and DELETE /backup/<key>/inbox, compare-and-swap on its version.
 // A key change drops it (it's encrypted under the old secret; the app takes it in first).
 //
-// Data: invites/<code> (unused, holds the name), used/<code>, keys/<key>.json, blobs/<key>, blobs/<key>.inbox. One file
-// per thing, written by rename, so the CLI and the server never race on a shared file.
+// And files: pictures of the app's temp notes, kept out of the backup so it stays small. Each is encrypted on its own
+// and put once under an id the app picks: PUT, GET and DELETE /backup/<key>/files/<id>. They're deleted 10 days after
+// their upload (the notes they belong to last a week), and a key holds at most 200 MB of them. A key change drops them
+// too (the app uploads them again under the new secret).
+//
+// Data: invites/<code> (unused, holds the name), used/<code>, keys/<key>.json, blobs/<key>, blobs/<key>.inbox,
+// blobs/<key>.files/<id>. One file per thing, written by rename, so the CLI and the server never race on a shared file.
 import http from 'node:http'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
@@ -31,10 +36,13 @@ const PORT = Number(process.env.PORT ?? 8080)
 const MAX_BYTES = Number(process.env.MAX_BYTES ?? 4 * 1024 * 1024)
 // Signed requests are only accepted this close to the server's clock (uploads are also protected by their version).
 const SKEW_MS = 60 * 60 * 1000
+const FILE_DAYS = Number(process.env.FILE_DAYS ?? 10)
+const MAX_FILES_BYTES = Number(process.env.MAX_FILES_BYTES ?? 200 * 1024 * 1024)
 const PREFIX = 'food-tracker-backup/1'
 
 const KEY_RE = /^[A-Za-z0-9_-]{43}$/ // raw Ed25519 public key, base64url
 const CODE_RE = /^[A-Za-z0-9_-]{22}$/ // 16 random bytes, base64url
+const FILE_RE = /^[A-Za-z0-9_-]{8,64}$/
 
 const dir = (d) => path.join(DATA, d)
 for (const d of ['invites', 'used', 'keys', 'blobs']) fs.mkdirSync(dir(d), { recursive: true })
@@ -48,6 +56,7 @@ function writeAtomic(file, data) {
 const metaFile = (key) => path.join(dir('keys'), `${key}.json`)
 const blobFile = (key) => path.join(dir('blobs'), key)
 const inboxFile = (key) => path.join(dir('blobs'), `${key}.inbox`)
+const filesDir = (key) => path.join(dir('blobs'), `${key}.files`)
 
 class HttpError extends Error {
   constructor(status, message, extra = {}) {
@@ -145,6 +154,7 @@ function rotate(req, key, next, body) {
   writeAtomic(metaFile(key), JSON.stringify({ name: m.name, rotated: now }))
   fs.rmSync(blobFile(key), { force: true })
   fs.rmSync(inboxFile(key), { force: true })
+  fs.rmSync(filesDir(key), { recursive: true, force: true })
   return [200, { version }]
 }
 
@@ -190,13 +200,54 @@ function inbox(req, res, key, body) {
   throw new HttpError(405, 'Method not allowed.')
 }
 
+// Files: put once, read, deleted. No versions: an id names one file for good.
+function file(req, res, key, id, body) {
+  meta(key)
+  verify(req, key, body)
+  if (!FILE_RE.test(id ?? '')) throw new HttpError(400, 'Bad file id.')
+  const f = path.join(filesDir(key), id)
+  if (req.method === 'GET') {
+    if (!fs.existsSync(f)) throw new HttpError(404, 'No such file (deleted, or not uploaded yet).')
+    res.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Cache-Control': 'no-store' })
+    res.end(fs.readFileSync(f))
+    return
+  }
+  if (req.method === 'PUT') {
+    fs.mkdirSync(filesDir(key), { recursive: true })
+    const used = fs.readdirSync(filesDir(key)).filter((n) => n !== id && !n.endsWith('.tmp'))
+      .reduce((a, n) => a + fs.statSync(path.join(filesDir(key), n)).size, 0)
+    if (used + body.length > MAX_FILES_BYTES) {
+      throw new HttpError(413, `The pictures are over the ${Math.round(MAX_FILES_BYTES / 1024 / 1024)} MB limit: delete some notes.`)
+    }
+    writeAtomic(f, body)
+    return [200, { ok: true }]
+  }
+  if (req.method === 'DELETE') {
+    fs.rmSync(f, { force: true })
+    return [200, { ok: true }]
+  }
+  throw new HttpError(405, 'Method not allowed.')
+}
+
+/** Deletes the files uploaded more than FILE_DAYS ago, and empty folders of them. */
+function expireFiles() {
+  const before = Date.now() - FILE_DAYS * 864e5
+  for (const d of fs.readdirSync(dir('blobs')).filter((n) => n.endsWith('.files'))) {
+    const p = path.join(dir('blobs'), d)
+    for (const n of fs.readdirSync(p)) if (fs.statSync(path.join(p, n)).mtimeMs < before) fs.rmSync(path.join(p, n), { force: true })
+    if (!fs.readdirSync(p).length) fs.rmdirSync(p)
+  }
+}
+
 async function handle(req, res) {
   const parts = req.url.split('?')[0].split('/')
-  if (parts[1] !== 'backup' || parts.length < 3 || parts.length > 4) throw new HttpError(404, 'Not found.')
+  const isFile = parts.length === 5 && parts[3] === 'files'
+  if (parts[1] !== 'backup' || parts.length < 3 || (parts.length > 4 && !isFile)) throw new HttpError(404, 'Not found.')
   const [, , key, next] = parts
   // Unknown keys are turned away before their body is read.
   if (req.method === 'PUT' || req.method === 'DELETE' || next) meta(key)
   const body = await readBody(req)
+  if (isFile) return file(req, res, key, parts[4], body)
   if (next === 'inbox') return inbox(req, res, key, body)
   if (req.method === 'POST' && next) return rotate(req, key, next, body)
   if (next) throw new HttpError(405, 'Method not allowed.')
@@ -222,6 +273,15 @@ function serve() {
     res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' })
     res.end(JSON.stringify(json))
   }).listen(PORT, () => console.log(`Backup server on :${PORT}, data in ${DATA}`))
+  const sweep = () => {
+    try {
+      expireFiles()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  sweep()
+  setInterval(sweep, 60 * 60 * 1000)
 }
 
 const [cmd, arg] = process.argv.slice(2)
@@ -242,7 +302,10 @@ else if (cmd === 'invite' && arg) {
     }
     const size = m.size == null ? 'empty' : `${Math.ceil(m.size / 1024)} KB`
     const inbox = m.inboxVersion ? '  inbox waiting' : ''
-    console.log(`key  ${f.slice(0, -5)}  ${m.name}  ${size}  last upload ${m.updated ?? 'never'}${inbox}`)
+    const fd = filesDir(f.slice(0, -5))
+    const names = fs.existsSync(fd) ? fs.readdirSync(fd) : []
+    const files = names.length ? `  ${names.length} files, ${Math.ceil(names.reduce((a, n) => a + fs.statSync(path.join(fd, n)).size, 0) / 1024)} KB` : ''
+    console.log(`key  ${f.slice(0, -5)}  ${m.name}  ${size}  last upload ${m.updated ?? 'never'}${inbox}${files}`)
   }
 } else if (cmd === 'remove' && arg) {
   const keys = fs.readdirSync(dir('keys')).filter((f) => f.endsWith('.json') && f.startsWith(arg))
@@ -254,6 +317,7 @@ else if (cmd === 'invite' && arg) {
   fs.rmSync(metaFile(key))
   fs.rmSync(blobFile(key), { force: true })
   fs.rmSync(inboxFile(key), { force: true })
+  fs.rmSync(filesDir(key), { recursive: true, force: true })
   console.log(`Removed ${key}`)
 } else {
   console.error('Usage: node server.mjs [invite <name> | list | remove <key>]')
