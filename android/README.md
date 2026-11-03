@@ -44,6 +44,7 @@ listed are the web app's screens.
 ## Next port
 
 - Scan the backup secret's QR code in the app.
+- Config: the "only nutrients with a target" switch (`onlyTargets`; the homescreen already follows it).
 - Dashboard bars: every number a note on the bar, the budget a segment (web `Home.jsx` `BarRow`, `dashboard.js`
   `barNotes`; `../docs/execution/2026-11-03-bar-notes.md`).
 

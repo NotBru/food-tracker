@@ -6,7 +6,7 @@ import { NUTRIENTS, calories, fmt } from './nutrients'
 import { bounds } from './stats'
 import { addDays, dayBounds, logicalDay, prettyDay, toDateStr, toLocalInput, today, windowDays } from './time'
 
-// Always shown; any other nutrient gets a row when a target covers it.
+// Always shown (unless Config's "only nutrients with a target" is on); any other nutrient gets a row when a target covers it.
 export const ROWS = [
   { key: 'energy', label: 'Calories', unit: 'kcal', cls: 'c-kcal' },
   { key: 'proteins', label: 'Protein', unit: 'g', cls: 'c-prot' },
@@ -124,12 +124,13 @@ export async function loadDashboard({ win, day, picked }) {
       adj.ghost = config.adjGhost
     }
   }
-  // Every nutrient that any target mentions gets a row, even if no target covers this window.
+  // Every nutrient that any target mentions gets a row, even if no target covers this window. With onlyTargets, the
+  // always-shown rows follow the same rule.
   const targeted = new Set(allTargets.flatMap((t) => Object.keys(t.values)))
   const extra = NUTRIENTS.filter((n) => targeted.has(n.key) && !ROWS.some((r) => r.key === n.key))
     .map((n) => ({ key: n.key, label: n.label, unit: n.unit, cls: '' }))
   return {
-    user, first, last, count: logs.length, days: logged.length, targets, adj, rows: [...ROWS, ...extra], style: config.dashboard, showVersion: config.showVersion,
+    user, first, last, count: logs.length, days: logged.length, targets, adj, rows: [...ROWS.filter((r) => !config.onlyTargets || targeted.has(r.key)), ...extra], style: config.dashboard, showVersion: config.showVersion,
     failed: results.filter((r) => !r.ok).length,
     total: perDay(sumNutrients(results.map((r) => r.nutrients)), daily ? 1 : Math.max(1, logged.length)),
   }

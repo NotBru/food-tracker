@@ -55,6 +55,13 @@ export default function Config() {
         <ul className="switch-list">
           <li>
             <label>
+              <span><strong>Dashboard: only nutrients with a target</strong><small className="muted">Off: calories, protein, fat and carbs are always shown, with or without a target.</small></span>
+              <input type="checkbox" role="switch" className="switch" checked={form.onlyTargets}
+                onChange={(e) => setForm({ ...form, onlyTargets: e.target.checked })} />
+            </label>
+          </li>
+          <li>
+            <label>
               <span><strong>Ghost of the uncapped calorie bar</strong><small className="muted">Where the bar would be with no correction caps, drawn faintly over the capped one.</small></span>
               <input type="checkbox" role="switch" className="switch" checked={form.adjGhost}
                 onChange={(e) => setForm({ ...form, adjGhost: e.target.checked })} />

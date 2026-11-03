@@ -151,6 +151,7 @@ shared.
 
 - Offset for day start. Default, 0500
 - Dashboard style: gauges or bars
+- Dashboard: only nutrients with a target (switch; off: calories, protein, fat, carbs always too)
 - Error intervals hold (% of the probability). Default, 90
 - 7-day calorie correction caps: min, max
 - Ghost of the uncapped calorie bar (switch)
