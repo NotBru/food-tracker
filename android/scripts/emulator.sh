@@ -13,7 +13,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(dirname "$HERE")"
 source "$HERE/env.sh"
 AVD=food-tracker
-IMAGE="system-images;android-37.0;google_apis;x86_64"
+IMAGE="system-images;android-36.1;google_apis;x86_64"
 
 install_and_launch() {
   echo "== Building and installing"
@@ -36,7 +36,7 @@ fi
 if ! avdmanager list avd -c | grep -qx "$AVD"; then
   echo "== Creating AVD $AVD"
   echo no | avdmanager create avd -n "$AVD" -k "$IMAGE" -d pixel_7
-  # avdmanager's defaults (1.5 GB RAM, 800 MB of storage) are too small for Android 17: it fills them on first boot.
+  # avdmanager's defaults (1.5 GB RAM, 800 MB of storage) are too small for recent images (Android 17 filled them on first boot).
   CONFIG="$HOME/.android/avd/$AVD.avd/config.ini"
   sed -i '/^hw.ramSize=/d; /^disk.dataPartition.size=/d' "$CONFIG"
   printf 'hw.ramSize=4096\ndisk.dataPartition.size=6G\n' >> "$CONFIG"

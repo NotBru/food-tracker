@@ -108,8 +108,11 @@ app; Kotlin draws them. The secret reaches Kotlin only when shown.
 
 Open: the emulator's WebView (124, as its Chrome) can't make Ed25519 signatures (Chrome has them from 137), so the
 backup can't start or restore there; phones update WebView through the Play Store. Sync was not tested on the
-emulator for that reason. The scripts now install the Android 17 image (`android-37.0;google_apis`), whose WebView
-has them (the user's choice, over a Play Store sign-in on the emulator or a JS fallback).
+emulator for that reason. The scripts now install a newer image, whose WebView has them (the user's choice, over a
+Play Store sign-in on the emulator or a JS fallback): Android 16 (`android-36.1;google_apis`). Android 17's
+(`android-37.0`, WebView 145) was tried first: with emulator 37.2.13 on the user's AMD laptop, every read of the screen
+back from graphics memory aborts (`hasReadColorBufferDma`), so SurfaceFlinger, screenshots and system_server's task
+snapshots crash in a loop, also with `-gpu swiftshader_indirect`.
 
 ## Alternatives considered
 
