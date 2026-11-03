@@ -59,6 +59,14 @@ with "+" stashes the form in Kotlin (`FoodStash`, as Foods.jsx's `parents`, in m
 saved, is set as that component back on the form. "Search external" stays the web screen; its pick reaches the
 native editor through external.js's pending draft, which the web app's module holds for both.
 
+### Targets, body measurements, users, config
+
+`app/src/forms.js` (each screen's loading and saving, from Targets.jsx, Body.jsx, Users.jsx, Config.jsx; the web
+screens use it too). Forms are sent back as typed; Kotlin's JSON keeps blank fields (`encodeDefaults`), as the web
+code reads them. Body's "looks like a typo of a known name" question loops as on the web: each answer is sent back
+with the next save (`answers`), Cancel meaning keep the new name. Config's day start uses the phone's time picker.
+Checked on the emulator and in a browser: same averages, alerts and questions.
+
 ## Alternatives considered
 
 - **The form's state in the web app** (Kotlin sending keystrokes): a round trip per key, and the text field's value

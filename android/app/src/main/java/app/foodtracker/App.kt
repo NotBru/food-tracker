@@ -14,7 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import app.foodtracker.ui.BodyScreen
 import app.foodtracker.ui.C
+import app.foodtracker.ui.ConfigScreen
 import app.foodtracker.ui.ConsumptionInfoScreen
 import app.foodtracker.ui.ConsumptionsScreen
 import app.foodtracker.ui.HomeActions
@@ -23,6 +25,9 @@ import app.foodtracker.ui.FoodsScreen
 import app.foodtracker.ui.HomeScreen
 import app.foodtracker.ui.NotesScreen
 import app.foodtracker.ui.PicturePicker
+import app.foodtracker.ui.TargetsScreen
+import app.foodtracker.ui.UsersScreen
+import app.foodtracker.ui.newBodyEntry
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -50,6 +55,10 @@ fun App(activity: MainActivity) {
             parts == listOf("consumptions") -> ConsumptionsRoute(activity, r)
             parts == listOf("notes") -> NotesRoute(activity, r)
             parts == listOf("foods") -> FoodsRoute(activity)
+            parts == listOf("targets") -> TargetsRoute(activity, r)
+            parts == listOf("body") -> BodyRoute(activity, r)
+            parts == listOf("users") -> UsersScreen(watchView(activity, "users", emptyList(), UsersView.serializer()), engine)
+            parts == listOf("config") -> ConfigScreen(engine)
             parts.size == 2 && parts[0] == "foods" && parts[1] != "external" -> FoodScreen(
                 engine, parts[1], route, r.query["tab"] == "info", r.query["nutrient"], r.query["in"]?.toIntOrNull(), r.query["name"],
             )
@@ -141,6 +150,34 @@ private fun NotesRoute(activity: MainActivity, r: Route) {
         engine.replace("/notes")
     }
     NotesScreen(view, engine, PicturePicker(activity::pickPictures), editing) { editing = it }
+}
+
+@Composable
+private fun TargetsRoute(activity: MainActivity, r: Route) {
+    val view = watchView(activity, "targets", emptyList(), TargetsView.serializer())
+    var editing by remember { mutableStateOf<JsonObject?>(null) }
+    // ?new (the homescreen's +): straight into a new target (from now, with the latest one's values), once.
+    val adding = "new" in r.query
+    LaunchedEffect(adding, view != null) {
+        if (!adding || view == null) return@LaunchedEffect
+        editing = view.new
+        activity.engine.replace("/targets")
+    }
+    TargetsScreen(view, activity.engine, editing) { editing = it }
+}
+
+@Composable
+private fun BodyRoute(activity: MainActivity, r: Route) {
+    val view = watchView(activity, "body", emptyList(), BodyView.serializer())
+    var editing by remember { mutableStateOf<JsonObject?>(null) }
+    // ?new (the homescreen's +): straight into new measurements, once.
+    val adding = "new" in r.query
+    LaunchedEffect(adding, view != null) {
+        if (!adding || view == null) return@LaunchedEffect
+        editing = newBodyEntry(view)
+        activity.engine.replace("/body")
+    }
+    BodyScreen(view, activity.engine, editing) { editing = it }
 }
 
 /** The last view of each native screen, kept between runs so the app shows something at once. */

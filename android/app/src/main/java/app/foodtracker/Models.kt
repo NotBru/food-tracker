@@ -299,3 +299,74 @@ data class FoodInfoView(
     val table: NutrientTableView? = null,
     val list: List<InfoItem> = emptyList(),
 )
+
+// --- Targets ---
+
+@Serializable
+data class TargetsView(val user: String, val new: JsonObject, val rows: List<TargetRow>)
+
+@Serializable
+data class TargetRow(val target: JsonObject, val from: String, val tag: String? = null, val until: String? = null, val values: String)
+
+@Serializable
+data class TargetEditorView(val title: String, val validFrom: String, val rows: List<List<String>>, val nutrients: List<NutrientOption>)
+
+// --- Body measurements ---
+
+@Serializable
+data class BodyView(
+    val user: String,
+    val userId: JsonElement,
+    val weeks: List<BodyWeek>,
+    val maint: Maintenance,
+    val rows: List<BodyRow>,
+    val known: JsonElement,
+    val fields: List<BodyField>,
+)
+
+@Serializable
+data class BodyWeek(val label: String, val value: String? = null, val unit: String, val pm: String? = null)
+
+@Serializable
+data class Maintenance(val need: String? = null, val value: String? = null, val range: String? = null, val detail: String? = null)
+
+@Serializable
+data class BodyRow(val entry: JsonObject, val text: String, val `when`: String)
+
+@Serializable
+data class BodyField(val key: String, val label: String, val unit: String, val hint: String? = null, val last: String? = null)
+
+@Serializable
+data class BodyEditorView(val title: String, val datetime: String, val texts: Map<String, ValueDelta>, val extra: List<BodyExtra>)
+
+@Serializable
+data class ValueDelta(val value: String = "", val delta: String = "")
+
+@Serializable
+data class BodyExtra(val label: String = "", val unit: String = "", val value: String = "", val delta: String = "")
+
+@Serializable
+data class NameHint(val label: String, val unit: String = "", val near: Boolean = false)
+
+/** saveBody: like [SaveReply], or a name to ask about ([ask]). */
+@Serializable
+data class BodySaveReply(val alert: String? = null, val ask: BodyAsk? = null, val done: Boolean = false)
+
+@Serializable
+data class BodyAsk(val label: String, val near: String, val text: String)
+
+// --- Users ---
+
+@Serializable
+data class UsersView(val rows: List<UserRow>, val canDelete: Boolean)
+
+@Serializable
+data class UserRow(val user: JsonObject, val name: String, val current: Boolean, val count: String, val deleteText: String)
+
+// --- Config ---
+
+@Serializable
+data class ConfigView(val form: JsonObject, val placeholders: Map<String, String>, val references: List<ReferenceDb>)
+
+@Serializable
+data class ReferenceDb(val key: String, val name: String, val about: String)

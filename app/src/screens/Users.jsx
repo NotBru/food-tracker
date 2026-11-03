@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, deleteUser, getCurrentUser, setCurrentUser } from '../db'
+import { db, getCurrentUser, setCurrentUser } from '../db'
+import { deleteUserText, removeUser, saveUser } from '../forms'
 import { Field, Screen } from '../components'
 
 // Users, opened from the button on top of the homescreen. Tapping a user switches to them; ✎ edits the name.
@@ -42,21 +43,15 @@ function UserEditor({ user, users, count, onClose }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   async function save() {
-    const n = name.trim()
-    if (!n) return alert('Name is required.')
-    if (users.some((u) => u.id !== user.id && u.name.toLowerCase() === n.toLowerCase())) return alert(`There is already a user “${n}”.`)
-    if (user.id) await db.users.update(user.id, { name: n })
-    else await setCurrentUser(await db.users.add({ name: n })) // a new user is usually added to be used
+    const problem = await saveUser(user, name, users)
+    if (problem) return alert(problem.alert)
     onClose()
   }
 
   async function remove() {
-    try {
-      await deleteUser(user.id)
-      onClose()
-    } catch (e) {
-      alert(e.message)
-    }
+    const problem = await removeUser(user.id)
+    if (problem) return alert(problem.alert)
+    onClose()
   }
 
   return (
@@ -70,7 +65,7 @@ function UserEditor({ user, users, count, onClose }) {
         </form>
         {confirmDelete && (
           <p className="warn">
-            Deleting {user.name} also deletes their {count} consumption{count === 1 ? '' : 's'} and their targets. Foods stay.
+            {deleteUserText(user, count)}
           </p>
         )}
         <div className="row actions">

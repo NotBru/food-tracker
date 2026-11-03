@@ -115,12 +115,12 @@ fun Sheet(onDismiss: () -> Unit, content: @Composable () -> Unit) {
 
 /** An alert or a confirmation (the web's alert/confirm), in the same style. */
 @Composable
-fun Ask(text: String, onDismiss: () -> Unit, confirm: String? = null, danger: Boolean = false, onConfirm: () -> Unit = {}) {
-    Sheet(onDismiss) {
+fun Ask(text: String, onDismiss: () -> Unit, confirm: String? = null, danger: Boolean = false, onConfirm: () -> Unit = {}, onCancel: () -> Unit = {}) {
+    Sheet({ onDismiss(); onCancel() }) {
         Text(text, color = C.text, fontSize = 16.sp)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
             if (confirm != null) {
-                PillButton("Cancel", onDismiss, bg = C.panel, fg = C.text)
+                PillButton("Cancel", { onDismiss(); onCancel() }, bg = C.panel, fg = C.text)
                 PillButton(confirm, { onDismiss(); onConfirm() }, bg = if (danger) C.danger else C.accent, fg = if (danger) Color.White else C.onAccent)
             } else PillButton("OK", onDismiss)
         }

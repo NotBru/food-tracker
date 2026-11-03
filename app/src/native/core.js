@@ -15,6 +15,9 @@ import * as cf from '../consumptionForm'
 import { deleteNote as dropNote, leftText, saveNote as putNote, shrink } from '../notes'
 import Dexie from 'dexie'
 import * as ff from '../foodForm'
+import * as forms from '../forms'
+import { BUILTIN_FIELDS, lookalike, nameKey, nameMatches } from '../body'
+import { DEFAULT_CONFIG, setCurrentUser } from '../db'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
 import { ROWS } from '../dashboard'
 import { barFor, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
@@ -583,3 +586,100 @@ export async function foodInfo(id, per = null, perUnit = null, nutrient = null) 
     list,
   }
 }
+
+// --- Targets ------------------------------------------------------------------------------------------------
+
+/** screens/Targets.jsx: the user's targets, latest first. */
+export async function targets() {
+  const user = await getCurrentUser()
+  const list = await db.targets.where('userId').equals(user.id).reverse().sortBy('validFrom')
+  const now = new Date().toISOString()
+  const activeId = list.find((t) => t.validFrom <= now)?.id
+  return {
+    user: user.name,
+    new: forms.newTarget(user.id, list[0]),
+    rows: list.map((t, i) => ({
+      target: t,
+      from: `From ${formatDateTime(t.validFrom)}`,
+      tag: t.id === activeId ? 'active' : t.validFrom > now ? 'upcoming' : null,
+      until: i > 0 ? `until ${formatDateTime(list[i - 1].validFrom)}` : null,
+      values: forms.targetText(t),
+    })),
+  }
+}
+
+/** The target editor's start: its time as typed, its rows, and every nutrient (in order) for "+ add nutrient". */
+export const targetEditor = (target) => ({
+  title: target.id ? 'Edit target' : 'New target',
+  validFrom: toLocalInput(new Date(target.validFrom)),
+  rows: forms.targetRows(target),
+  nutrients: NUTRIENTS.map((n) => ({ key: n.key, label: n.label, unit: n.unit })),
+})
+
+export const saveTarget = async (target, validFrom, rows) => (await forms.saveTarget(target, validFrom, rows)) ?? { done: true }
+export const deleteTarget = (id) => db.targets.delete(id)
+
+// --- Body measurements --------------------------------------------------------------------------------------
+
+/** screens/Body.jsx on today: the 7-day averages, maintenance, the entries. */
+export async function body() {
+  const config = await getConfig()
+  const { user, rows, known, weeks, maint } = await forms.loadBody(today(config.dayStart))
+  return {
+    user: user.name, userId: user.id,
+    weeks: weeks.map((m) => ({ label: m.label, value: m.week ? fmt(m.week.value, 1) : null, unit: m.unit, pm: m.week?.v > 0 ? pmText(m.week) : null })),
+    maint: forms.maintenanceText(maint),
+    rows: rows.map((r) => ({ entry: r, text: forms.entryText(r), when: formatDateTime(r.datetime) })),
+    known,
+    // A new entry's fields show the last value of each as a hint.
+    fields: BUILTIN_FIELDS.map((f) => ({ key: f.key, label: f.label, unit: f.unit, hint: f.hint ?? null, last: rows.find((r) => r.values?.[f.key])?.values[f.key].text ?? null })),
+  }
+}
+
+export const bodyEditor = (entry) => ({
+  title: entry.id ? 'Edit measurements' : 'New measurements', datetime: toLocalInput(new Date(entry.datetime)), ...forms.entryForm(entry),
+})
+
+/** Names used before for what's typed (Body.jsx NameCombo): [{label, unit, near}], `near` for a "did you mean". */
+export function bodyNames(text, known) {
+  const matches = nameMatches(text, known).filter((n) => n.key !== nameKey(text) || n.label !== text.trim())
+  const near = nameKey(text) && !known.some((n) => n.key === nameKey(text)) ? lookalike(text, known) : null
+  return matches.map((n) => ({ label: n.label, unit: n.unit ?? '', near: near?.key === n.key }))
+}
+
+/** "± Δ" placeholders of a measurement form's values (no unit: from the digits). */
+export const deltaPlaceholders = (amounts) => amounts.map((a) => deltaPlaceholder(a))
+
+export const saveBody = async (entry, form, known, answers) => (await forms.saveEntry(entry, form, known, answers)) ?? { done: true }
+export const deleteBody = (id) => db.weights.delete(id)
+
+// --- Users --------------------------------------------------------------------------------------------------
+
+export async function users() {
+  const list = await db.users.orderBy('name').toArray()
+  const current = await getCurrentUser()
+  const counts = Object.fromEntries(await Promise.all(list.map(async (u) => [u.id, await db.logs.where('userId').equals(u.id).count()])))
+  return {
+    rows: list.map((u) => ({
+      user: u, name: u.name, current: u.id === current?.id, count: `${counts[u.id]} consumption${counts[u.id] === 1 ? '' : 's'}`,
+      deleteText: forms.deleteUserText(u, counts[u.id]),
+    })),
+    canDelete: list.length > 1,
+  }
+}
+
+export const useUser = (id) => setCurrentUser(id)
+export const saveUser = async (user, name) => (await forms.saveUser(user, name, await db.users.toArray())) ?? { done: true }
+export const deleteUser = async (id) => (await forms.removeUser(id)) ?? { done: true }
+
+// --- Config -------------------------------------------------------------------------------------------------
+
+export async function config() {
+  return {
+    form: forms.configForm(await getConfig()),
+    placeholders: { coverage: forms.pct(DEFAULT_CONFIG.coverage), capMin: String(DEFAULT_CONFIG.adjCap.min), capMax: String(DEFAULT_CONFIG.adjCap.max) },
+    references: forms.REFERENCE_DBS.map(([key, name, about]) => ({ key, name, about })),
+  }
+}
+
+export const saveConfig = async (form) => (await forms.saveConfigForm(form)) ?? { done: true }

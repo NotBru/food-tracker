@@ -17,6 +17,10 @@ Design: `../docs/instructions/design.md` · Decisions: `../docs/execution/2026-1
 | `/foods` | `ui/FoodsScreen.kt` `FoodsScreen` | `app/src/screens/Foods.jsx` FoodList | `search.js foodListMatches`, core.js `foods` |
 | `/foods/:id` | `ui/FoodsScreen.kt` `FoodScreen` | `Foods.jsx` FoodEditor, FoodForm; `FoodInfo.jsx` (Info tab) | `app/src/foodForm.js`, core.js `foodEditor`, `foodInfo` |
 | `/notes` | `ui/NotesScreen.kt` | `app/src/screens/Notes.jsx` | `app/src/notes.js`, core.js `notes`, `notePick`, `notePicture`, `saveNote` |
+| `/targets` | `ui/TargetsScreen.kt` | `app/src/screens/Targets.jsx` | `app/src/forms.js`, core.js `targets`, `targetEditor`, `saveTarget` |
+| `/body` | `ui/BodyScreen.kt` | `app/src/screens/Body.jsx` | `app/src/forms.js`, core.js `body`, `bodyEditor`, `bodyNames`, `saveBody` |
+| `/users` | `ui/UsersScreen.kt` | `app/src/screens/Users.jsx` | `app/src/forms.js`, core.js `users`, `saveUser`, `deleteUser` |
+| `/config` | `ui/ConfigScreen.kt` | `app/src/screens/Config.jsx` | `app/src/forms.js`, core.js `config`, `saveConfig` |
 | `/consumptions/:id` | `ui/ConsumptionInfoScreen.kt` | `app/src/screens/ConsumptionInfo.jsx` (+ `EnergyChart.jsx`, `FoodInfo.jsx` NutrientTable) | `app/src/energy.js`, core.js `consumptionInfo` |
 
 Shared controls (top bar, sheets, food picker, …): `ui/Kit.kt`; info parts (donut, tables): `ui/Info.kt`. Routes not

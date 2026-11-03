@@ -263,9 +263,9 @@ fun SheetTitle(text: String) = Text(text, color = C.text, fontSize = 18.sp, font
 
 /** `.row.actions`: Delete on the left (if any), then Cancel and the main button. */
 @Composable
-fun SheetActions(save: String, onSave: () -> Unit, onCancel: () -> Unit, onDelete: (() -> Unit)? = null, enabled: Boolean = true) {
+fun SheetActions(save: String, onSave: () -> Unit, onCancel: () -> Unit, onDelete: (() -> Unit)? = null, enabled: Boolean = true, deleteLabel: String = "Delete") {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (onDelete != null) PillButton("Delete", onDelete, Modifier.weight(1f), bg = C.danger, fg = Color.White, padding = PaddingValues(vertical = 12.dp))
+        if (onDelete != null) PillButton(deleteLabel, onDelete, Modifier.weight(if (deleteLabel.length > 8) 1.5f else 1f), bg = C.danger, fg = Color.White, padding = PaddingValues(vertical = 12.dp))
         PillButton("Cancel", onCancel, Modifier.weight(1f), bg = C.panel, fg = C.text, padding = PaddingValues(vertical = 12.dp))
         PillButton(save, onSave, Modifier.weight(1f), enabled = enabled, padding = PaddingValues(vertical = 12.dp))
     }
@@ -344,9 +344,10 @@ fun TextBox(
 
 /** components.jsx DeltaInput: "± Δ", blank meaning the error from the digits (the placeholder). */
 @Composable
-fun DeltaBox(value: String, placeholder: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, bg: Color = C.panel) =
+fun DeltaBox(value: String, placeholder: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, bg: Color = C.panel, small: Boolean = false) =
     TextBox(value, onChange, modifier, placeholder = placeholder, decimal = true, leading = "±", bg = bg,
-        contentPadding = PaddingValues(start = 12.dp, end = 10.dp, top = 12.dp, bottom = 12.dp))
+        contentPadding = if (small) PaddingValues(start = 10.dp, end = 8.dp, top = 9.dp, bottom = 9.dp) else PaddingValues(start = 12.dp, end = 10.dp, top = 12.dp, bottom = 12.dp),
+        textStyle = TextStyle(color = C.text, fontSize = if (small) 14.sp else 16.sp))
 
 /** `.check`: a tick box and its muted label. */
 @Composable

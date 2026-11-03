@@ -80,10 +80,10 @@ fun ConsumptionsScreen(view: ConsumptionsView?, core: Core, editing: JsonObject?
     ask?.Show { ask = null }
 }
 
-/** An alert (no [confirm]) or a question, as the web app's alert() and confirm(). */
-class Asking(val text: String, val confirm: String? = null, val danger: Boolean = confirm == "Delete", val onConfirm: () -> Unit = {}) {
+/** An alert (no [confirm]) or a question, as the web app's alert() and confirm(); [onCancel] when answered no. */
+class Asking(val text: String, val confirm: String? = null, val danger: Boolean = confirm == "Delete", val onCancel: () -> Unit = {}, val onConfirm: () -> Unit = {}) {
     @Composable
-    fun Show(onDismiss: () -> Unit) = Ask(text, onDismiss, confirm, danger, onConfirm)
+    fun Show(onDismiss: () -> Unit) = Ask(text, onDismiss, confirm, danger, onConfirm, onCancel)
 }
 
 /**

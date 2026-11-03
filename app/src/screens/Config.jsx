@@ -1,37 +1,18 @@
 import { useEffect, useState } from 'react'
-import { DEFAULT_CONFIG, getConfig, saveConfig } from '../db'
+import { DEFAULT_CONFIG, getConfig } from '../db'
+import { REFERENCE_DBS, configForm, pct, saveConfigForm } from '../forms'
 import { Field, Screen, enterSaves, go } from '../components'
-
-// Generic-food tables bundled with the app (external.js): [config key, name, what it is].
-const REFERENCE_DBS = [
-  ['ciqual', 'CIQUAL', 'ANSES, France: ~3.5k generic foods, English and French names.'],
-  ['usda', 'USDA', 'FoodData Central (Foundation Foods, SR Legacy): ~8.1k generic foods, with household measures.'],
-]
-
-// Coverage is stored as a share (0.9) and typed as a percentage (90).
-const pct = (p) => String(+(p * 100).toPrecision(4))
 
 export default function Config() {
   const [form, setForm] = useState(null)
   useEffect(() => {
-    getConfig().then((c) => setForm({
-      dayStart: c.dayStart, dashboard: c.dashboard, coverage: pct(c.coverage), ciqual: c.ciqual, usda: c.usda,
-      capMin: String(c.adjCap.min), capMax: String(c.adjCap.max), adjGhost: c.adjGhost, showVersion: c.showVersion,
-    }))
+    getConfig().then((c) => setForm(configForm(c)))
   }, [])
   if (!form) return null
 
   async function save() {
-    const p = Number(form.coverage.trim().replace(',', '.')) / 100
-    if (!(p > 0 && p < 1)) return alert('The interval must hold more than 0% and less than 100%.')
-    // A blank cap is the default; 0 turns the correction off for that bound.
-    const kcal = (text, def) => (text.trim() === '' ? def : Number(text.trim().replace(',', '.')))
-    const adjCap = { min: kcal(form.capMin, DEFAULT_CONFIG.adjCap.min), max: kcal(form.capMax, DEFAULT_CONFIG.adjCap.max) }
-    if (!(adjCap.min >= 0 && adjCap.max >= 0)) return alert('The 7-day correction caps must be 0 kcal or more.')
-    await saveConfig({
-      dayStart: form.dayStart || DEFAULT_CONFIG.dayStart, dashboard: form.dashboard, coverage: p, ciqual: form.ciqual, usda: form.usda,
-      adjCap, adjGhost: form.adjGhost, showVersion: form.showVersion,
-    })
+    const problem = await saveConfigForm(form)
+    if (problem) return alert(problem.alert)
     history.back()
   }
 

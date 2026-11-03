@@ -22,8 +22,11 @@ interface Core {
     suspend fun call(name: String, vararg args: JsonElement): JsonElement
 }
 
-/** The JSON of the bridge: unknown fields ignored (core.js may send more than a screen lays out). */
-val bridgeJson = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true }
+/**
+ * The JSON of the bridge: unknown fields ignored (core.js may send more than a screen lays out); blank fields kept in
+ * forms sent back (its code expects them).
+ */
+val bridgeJson = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true; encodeDefaults = true }
 
 suspend fun <T> Core.get(ser: KSerializer<T>, name: String, vararg args: JsonElement): T =
     bridgeJson.decodeFromJsonElement(ser, call(name, *args))

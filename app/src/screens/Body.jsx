@@ -1,46 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import Dexie from 'dexie'
-import { db, getConfig, getCurrentUser } from '../db'
-import { consumptionNutrients, loadContext, sumNutrients } from '../calc'
-import { calories, deltaText, fmt, measure, pmText, rangeText } from '../nutrients'
-import { addDays, dayBounds, formatDateTime, logicalDay, toLocalInput } from '../time'
+import { db } from '../db'
+import { fmt, pmText } from '../nutrients'
+import { entryForm, entryText, loadBody, maintenanceText, saveEntry } from '../forms'
+import { formatDateTime, toLocalInput } from '../time'
 import { DateTimeInput, DeltaInput, Screen, enterSaves, pressable, replace, useListNav, useToday } from '../components'
-import { BUILTIN_FIELDS, KCAL_PER_KG, MAINT_DAYS, MIN_SPAN, MIN_WEIGH_INS, dailyValues, extraNames, fieldValue, lookalike, maintenance, measures, nameKey, nameMatches, weekMean } from '../body'
+import { BUILTIN_FIELDS, lookalike, nameKey, nameMatches } from '../body'
 
 // Body measurements (weight, body fat, muscle % and mass, waist, and any other named per entry), each with its ± Δ, newest
 // first; the 7-day averages, and what weight says about maintenance calories (body.js).
 
-/** "78.1 kg · 18.5% fat · 84 cm waist · Neck 38 cm": what one entry holds, each value as typed. */
-function entryText(entry) {
-  const pm = (m) => (m.auto ? '' : ` ±${m.delta}`)
-  return [
-    ...BUILTIN_FIELDS.filter((f) => entry.values?.[f.key]).map((f) => `${entry.values[f.key].text}${pm(entry.values[f.key])} ${f.short}`),
-    ...(entry.extra ?? []).map((x) => `${x.label} ${x.text}${pm(x)} ${x.unit ?? ''}`.trim()),
-  ].join(' · ')
-}
-
 export default function Body({ add }) {
   const day = useToday()
-  const data = useLiveQuery(async () => {
-    if (!day) return null
-    const config = await getConfig()
-    const user = await getCurrentUser()
-    const rows = await db.weights.where('[userId+datetime]').between([user.id, Dexie.minKey], [user.id, Dexie.maxKey]).reverse().toArray()
-    // Each measure's 7-day average today, for those ever measured.
-    const weeks = measures(rows).filter((m) => rows.some((r) => m.of(r)))
-      .map((m) => ({ ...m, week: weekMean(dailyValues(rows, m.of, config.dayStart), day) }))
-    // Calories per day over the estimate's window.
-    const from = dayBounds(addDays(day, -(MAINT_DAYS - 1)), config.dayStart)[0]
-    const end = dayBounds(day, config.dayStart)[1]
-    const logs = await db.logs.where('[userId+datetime]').between([user.id, from.toISOString()], [user.id, end.toISOString()], true, false).toArray()
-    const ctx = await loadContext()
-    const byDay = {}
-    for (const l of logs) (byDay[logicalDay(l.datetime, config.dayStart)] ??= []).push(consumptionNutrients(ctx, l).nutrients)
-    const eaten = Object.fromEntries(Object.entries(byDay).map(([d, ns]) => [d, calories(sumNutrients(ns))]))
-    const weight = dailyValues(rows, (e) => fieldValue(e, 'kg'), config.dayStart)
-    return { user, rows, known: extraNames(rows), weeks, maint: maintenance(weight, eaten, day) }
-  }, [day])
+  const data = useLiveQuery(() => (day ? loadBody(day) : null), [day])
   const [editing, setEditing] = useState(null)
   const newEntry = () => setEditing({ datetime: new Date().toISOString(), userId: data.user.id, values: {} })
   // Opened with ?new (the homescreen's +): straight into a new entry, once; the flag leaves the URL.
@@ -86,28 +58,15 @@ export default function Body({ add }) {
 
 /** Maintenance kcal: the estimate with its interval and where it comes from, or what's still missing. */
 function Maintenance({ maint }) {
-  if (maint.need) {
-    const { weighIns = 0, span = 0, logged } = maint.need
-    return (
-      <p className="muted">
-        Maintenance: needs {logged === 0 ? 'consumptions logged between the weigh-ins' : `weigh-ins on ${MIN_WEIGH_INS}+ days, at least ${MIN_SPAN} days apart, in the last ${MAINT_DAYS} (so far ${weighIns} over ${span} day${span === 1 ? '' : 's'})`}.
-        {' '}Weigh in every morning; it gets sharper with weeks.
-      </p>
-    )
-  }
-  const { value, intake, trend, weighIns, from, to, loggedDays, days } = maint
-  const perWeek = { ...trend, value: trend.value * 7, v: trend.v * 49 }
+  const t = maintenanceText(maint)
+  if (t.need) return <p className="muted">{t.need}</p>
   return (
     <>
       <p>
-        <span className="muted">Maintenance ≈ </span><b className="c-kcal">{fmt(value.value, 0)}</b> kcal/day
-        <span className="muted"> ({rangeText(value)})</span>
+        <span className="muted">Maintenance ≈ </span><b className="c-kcal">{t.value}</b> kcal/day
+        <span className="muted"> ({t.range})</span>
       </p>
-      <p className="muted small">
-        Logged {fmt(intake.value, 0)} kcal/day ({loggedDays} of {days} days logged) and the weight went
-        {' '}{perWeek.value >= 0 ? '+' : '−'}{fmt(Math.abs(perWeek.value), 2)} kg/week ±{fmt(Math.sqrt(perWeek.v), 2)} ({weighIns} weigh-ins, {from} → {to}):
-        {' '}{fmt(intake.value, 0)} {trend.value >= 0 ? '−' : '+'} {fmt(Math.abs(trend.value) * KCAL_PER_KG, 0)} kcal/day at {KCAL_PER_KG} kcal per kg.
-      </p>
+      <p className="muted small">{t.detail}</p>
     </>
   )
 }
@@ -118,45 +77,16 @@ function Maintenance({ maint }) {
  * before as they're typed; saving a name that looks like a typo of a known one asks first.
  */
 function EntryEditor({ entry, known, last, onClose }) {
-  const [texts, setTexts] = useState(Object.fromEntries(BUILTIN_FIELDS.map((f) => {
-    const m = entry.values?.[f.key]
-    return [f.key, { value: m?.text ?? '', delta: m ? deltaText(m.delta, m.auto) : '' }]
-  })))
+  const [texts, setTexts] = useState(() => entryForm(entry).texts)
   const set = (key, part) => (v) => setTexts({ ...texts, [key]: { ...texts[key], [part]: v } })
-  const [extra, setExtra] = useState((entry.extra ?? []).map((x) => ({ label: x.label, unit: x.unit ?? '', value: x.text, delta: deltaText(x.delta, x.auto) })))
+  const [extra, setExtra] = useState(() => entryForm(entry).extra)
   const setX = (i, part) => (v) => setExtra(extra.map((x, j) => (j === i ? { ...x, [part]: v } : x)))
   const [datetime, setDatetime] = useState(toLocalInput(new Date(entry.datetime)))
   const refs = useRef([])
-  const num = (t) => t.trim().replace(',', '.')
-  async function save() {
-    const values = {}
-    for (const f of BUILTIN_FIELDS) {
-      const t = texts[f.key]
-      if (!t.value.trim()) continue
-      const m = measure(num(t.value), num(t.delta))
-      if (!Number.isFinite(m.value)) return alert(`${f.label}: not a number.`)
-      values[f.key] = m
-    }
-    const out = []
-    for (const x of extra) {
-      if (!x.label.trim() && !x.value.trim()) continue
-      if (!x.label.trim()) return alert('A measurement needs a name.')
-      const m = measure(num(x.value), num(x.delta))
-      if (!Number.isFinite(m.value)) return alert(`${x.label}: not a number.`)
-      // A known name keeps its spelling; one that looks like a typo of a known one asks.
-      let match = known.find((n) => n.key === nameKey(x.label))
-      if (!match) {
-        const near = lookalike(x.label, known)
-        if (near && confirm(`“${x.label.trim()}” looks like “${near.label}”. Use “${near.label}”?\n(Cancel keeps “${x.label.trim()}” as a new measurement.)`)) match = near
-      }
-      const label = match?.label ?? x.label.trim()
-      if (out.some((o) => nameKey(o.label) === nameKey(label))) return alert(`${label} is in twice.`)
-      // A blank unit takes the known measurement's.
-      out.push({ label, unit: x.unit.trim() || match?.unit || '', ...m })
-    }
-    if (!Object.keys(values).length && !out.length) return alert('Type at least one measurement.')
-    const rec = { userId: entry.userId, datetime: new Date(datetime).toISOString(), values, ...(out.length && { extra: out }) }
-    await db.weights.put(entry.id ? { ...rec, id: entry.id } : rec)
+  async function save(answers = {}) {
+    const problem = await saveEntry(entry, { texts, extra, datetime }, known, answers)
+    if (problem?.alert) return alert(problem.alert)
+    if (problem?.ask) return save({ ...answers, [problem.ask.label]: confirm(problem.ask.text) })
     onClose()
   }
   async function remove() {
@@ -174,7 +104,7 @@ function EntryEditor({ entry, known, last, onClose }) {
   }
   return (
     <div className="modal" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()} onKeyDown={enterSaves(save)}>
+      <div className="sheet" onClick={(e) => e.stopPropagation()} onKeyDown={enterSaves(() => save())}>
         <h2>{entry.id ? 'Edit measurements' : 'New measurements'}</h2>
         <div className="nutrients">
           <div className="n-row n-head"><span /><span>value</span><span>± Δ</span></div>
@@ -210,7 +140,7 @@ function EntryEditor({ entry, known, last, onClose }) {
         <div className="row actions">
           {entry.id && <button className="danger" onClick={remove}>Delete</button>}
           <button className="secondary" onClick={onClose}>Cancel</button>
-          <button onClick={save}>Save</button>
+          <button onClick={() => save()}>Save</button>
         </div>
       </div>
     </div>
