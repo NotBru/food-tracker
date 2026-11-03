@@ -5,13 +5,12 @@ import { fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf } from '../stats'
 import { addDays, prettyDay } from '../time'
 import { Screen, go, replace, useToday } from '../components'
-import { fillPieces, hasMean, statusMark } from '../dashboard'
-import { DEFAULT_DAYS, MAX_DAYS, MAX_SLIDER, columnBars, loadGraphs, measureScale, nutrientScale, spanOf, weekPoints } from '../graphs'
+import { statusMark } from '../dashboard'
+import { DEFAULT_DAYS, MAX_DAYS, MAX_SLIDER, columnShapes, loadGraphs, measureScale, nutrientScale, spanOf, weekPoints } from '../graphs'
 
-// Time graphs: per nutrient on the dashboard, one column per day, back to back. Each column is a dashboard bar
-// standing up: the day's target as tinted regions (below min, within, above max), the fill solid up to the low end
-// of the day's interval and hatched from there to its high end, each piece in its region's colour, and a white tick
-// at the estimate. Calories use the day's weekly-corrected target, as the daily dashboard did that day.
+// Time graphs: per nutrient on the dashboard, one column per day, back to back. Each column: the day's target range
+// in light green; the day's interval hatched, green within the range and red outside it (nothing below it); a white
+// tick at the estimate (graphs.js columnShapes). Calories use the day's weekly-corrected target, as the daily dashboard did that day.
 // A day without consumptions is no data: its target shows, no fill.
 // Over the columns, the 7-day average: per day, the per-day average over it and the 6 days before (those with
 // consumptions, as the dashboard's windows): its interval as a dark grey band between two lines.
@@ -249,20 +248,16 @@ function WeekOverlay({ list, avgOf, pos }) {
   )
 }
 
-/** A day: the target's regions, and the fill when it has consumptions. Heights in % of the plot. */
+/** A day (graphs.js columnShapes): the target's range, light; the estimate's interval, hatched; its tick. */
 function Column({ val, range, pos, picked }) {
-  const { target, bar } = columnBars(val, range, pos)
-  const minAt = target?.minAt
-  const maxAt = target?.maxAt
+  const { zones, pieces, mean } = columnShapes(val, range, pos)
   return (
     <div className={`tg-col ${picked ? 'picked' : ''}`}>
-      {minAt != null && <div className="zone under" style={{ bottom: 0, height: `${minAt}%` }} />}
-      {target && <div className="zone ok" style={{ bottom: `${minAt ?? 0}%`, height: `${(maxAt ?? 100) - (minAt ?? 0)}%` }} />}
-      {maxAt != null && <div className="zone over" style={{ bottom: `${maxAt}%`, height: `${100 - maxAt}%` }} />}
-      {bar && fillPieces(bar).map((pc, i) => (
-        <div key={i} className={`${pc.hatched ? 'bar-err' : 'bar-fill'} r-${pc.region}`} style={{ bottom: `${pc.from}%`, height: `${pc.to - pc.from}%` }} />
+      {zones.map((z, i) => <div key={i} className={`zone ${z.region}`} style={{ bottom: `${z.from}%`, height: `${z.to - z.from}%` }} />)}
+      {pieces.map((pc, i) => (
+        <div key={i} className={`bar-err r-${pc.region}`} style={{ bottom: `${pc.from}%`, height: `${pc.to - pc.from}%` }} />
       ))}
-      {bar && hasMean(bar) && <div className="tg-mean" style={{ bottom: `${bar.fill}%` }} />}
+      {mean != null && <div className="tg-mean" style={{ bottom: `${mean}%` }} />}
     </div>
   )
 }

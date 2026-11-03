@@ -59,8 +59,8 @@ starts with a days view. Consumptions can be ticked and grouped to count as one 
 
 ### Time graphs screen
 
-One chart per dashboard row, plus weight: a column per day, drawn like the dashboard bar, with the 7-day average as
-a band. The last N days (slider and box); drag sideways to move, tap a day to pick it in every chart.
+One chart per dashboard row, plus weight: a column per day: the target range light green; only the estimate's
+interval coloured, hatched, green within the range and red outside it, nothing below it. The 7-day average as a band. The last N days (slider and box); drag sideways to move, tap a day to pick it in every chart.
 
 ### Foods screen
 

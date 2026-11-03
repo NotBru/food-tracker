@@ -893,21 +893,8 @@ export async function graphs(query = {}) {
   })
   const nutrient = (row) => {
     const sc = gr.nutrientScale(row, data)
-    return chart('nutrient', row.key, row.label, row.unit, row.cls, sc, (d) => {
-      const { target, bar } = gr.columnBars(sc.valueOf(d), data.targets[d][row.key], sc.pos)
-      const minAt = target?.minAt
-      const maxAt = target?.maxAt
-      return {
-        zones: target ? [
-          ...(minAt != null ? [{ from: 0, to: minAt, region: 'under' }] : []),
-          { from: minAt ?? 0, to: maxAt ?? 100, region: 'ok' },
-          ...(maxAt != null ? [{ from: maxAt, to: 100, region: 'over' }] : []),
-        ] : [],
-        pieces: bar ? fillPieces(bar).map((pc) => ({ from: pc.from, to: pc.to, region: pc.region, hatched: !!pc.hatched })) : [],
-        mean: bar && hasMean(bar) ? bar.fill : null,
-        dot: null,
-      }
-    })
+    return chart('nutrient', row.key, row.label, row.unit, row.cls, sc, (d) => (
+      { ...gr.columnShapes(sc.valueOf(d), data.targets[d][row.key], sc.pos), dot: null }))
   }
   const measure = (m) => {
     const sc = gr.measureScale(m, list)

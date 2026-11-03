@@ -55,8 +55,8 @@ import java.time.LocalDate
 import kotlin.math.roundToInt
 
 // Time graphs, native: a port of app/src/screens/Graphs.jsx (data and scales: app/src/graphs.js; core.js graphs,
-// graphsReadout). Per dashboard row a chart of one column per day (target regions, the fill hatched over its interval,
-// the estimate), body measurements as dots; the 7-day average as a band. A tap picks a day; sliding sideways moves
+// graphsReadout). Per dashboard row a chart of one column per day (the target range, light; the interval hatched, green/red; nothing below it;
+// the estimate: graphs.js columnShapes), body measurements as dots; the 7-day average as a band. A tap picks a day; sliding sideways moves
 // every chart through the days.
 
 private val BAND = Color(30, 34, 40, 178)

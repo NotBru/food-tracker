@@ -5,7 +5,7 @@ import { NUTRIENTS, calories } from './nutrients'
 import { bounds, zero } from './stats'
 import { addDays, dayBounds, logicalDay } from './time'
 import { dailyValues, measures, weekMean } from './body'
-import { ROWS } from './dashboard'
+import { ROWS, fillPieces } from './dashboard'
 
 // Time graphs' data and scales (screens/Graphs.jsx; the Android app's native screen too).
 
@@ -125,6 +125,21 @@ export function columnBars(val, range, pos) {
     bar = { fill: pos(val.value), minAt: null, maxAt: null, status: 'none', dummy: true, errLo: hi > lo ? pos(lo) : null, errHi: hi > lo ? pos(hi) : null }
   }
   return { target, bar }
+}
+
+/**
+ * What a day's column draws, in % of the plot from the bottom: `zones`, the target's range, a light green (the parts
+ * the day's estimate covers get a full green piece over it); `pieces`, the estimate's interval, hatched, in green where
+ * it's within the target and red where it's outside it (grey without a target), and nothing below it; `mean`, the
+ * estimate's tick (null without consumptions). Outside both the range and the interval: nothing.
+ */
+export function columnShapes(val, range, pos) {
+  const { target, bar } = columnBars(val, range, pos)
+  return {
+    zones: target ? [{ from: target.minAt ?? 0, to: target.maxAt ?? 100, region: 'ok' }] : [],
+    pieces: bar ? fillPieces(bar).filter((pc) => pc.hatched).map(({ from, to, region }) => ({ from, to, region, hatched: true })) : [],
+    mean: bar ? bar.fill : null,
+  }
 }
 
 /** The 7-day average's points: per day from the day before the first, {x (columns), lo, hi (% from the top)}, or null. */
