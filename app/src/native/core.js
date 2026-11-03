@@ -2,18 +2,21 @@
 // screen shows, as plain JSON: texts already formatted and links as routes, so the Kotlin side only lays it out and
 // no logic is copied there. One function per native screen; the web screen it replaces uses the same modules.
 import { liveQuery } from 'dexie'
-import { DEFAULT_EXPIRY_DAYS, NOTE_DAYS, db, exportAll, makeId, getConfig, getCurrentUser, importAll, itemLabel, kindOf, madeText } from '../db'
-import { amountText, autoAmountDelta, calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
-import { bounds, sdOf, setCoverage, zero } from '../stats'
+import { DEFAULT_EXPIRY_DAYS, NOTE_DAYS, conflictingFoods, db, expiresAt, exportAll, makeId, getConfig, getCurrentUser, importAll, itemLabel, kindOf, madeText } from '../db'
+import { NUTRIENTS, amountText, autoAmountDelta, calories, fmt, normalizeNumber, pmText, rangeLabel, rangeText } from '../nutrients'
+import { bounds, getCoverage, sdOf, setCoverage, zero } from '../stats'
 import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, formatDateTime, prettyDay, toLocalInput, today, versionStamp } from '../time'
 import { energySplit } from '../energy'
 import { nutrientRows } from '../screens/FoodInfo'
-import { consumptionNutrients, loadContext, resolve, span } from '../calc'
-import { DEFAULT_ENTRY_ERROR } from '../errors'
-import { foodMatches } from '../search'
+import { baseAmount, concoctionsLeft, consumptionNutrients, loadContext, nutrientsFor, resolve, span, unitFactorSpan, unitsFor, usedUp } from '../calc'
+import { DEFAULT_ENTRY_ERROR, categoryName } from '../errors'
+import { foodListMatches, foodMatches } from '../search'
 import * as cf from '../consumptionForm'
 import { deleteNote as dropNote, leftText, saveNote as putNote, shrink } from '../notes'
 import Dexie from 'dexie'
+import * as ff from '../foodForm'
+import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
+import { ROWS } from '../dashboard'
 import { barFor, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
 import { conflictLabelShown, getState, status } from '../backup'
 import { statusText } from '../screens/Backup'
@@ -157,10 +160,14 @@ export async function foodSearch(query, opts = {}) {
   const [ctx, logs] = await Promise.all([ctxNow(), logsNow()])
   let show
   if (opts.at !== undefined) {
-    const st = cf.editorState(ctx, logs, { id: opts.skipLog ?? undefined }, { datetime: opts.at, itemId: null, concoction: false, amount: '', amountDelta: '', unit: '', entryError: '' }, (await getConfig()).dayStart)
-    show = st.show
+    // As the editors' `show`: concoctions eaten up, or expired at `at`, left out; what the one being edited (a
+    // consumption, `skipLog`, or a food, `skipItem`) took counted back in.
+    const left = concoctionsLeft(ctx, logs, opts.skipLog ?? undefined, opts.skipItem ?? undefined)
+    const at = new Date(opts.at ?? Date.now())
+    const atIso = Number.isNaN(at.getTime()) ? new Date().toISOString() : at.toISOString()
+    show = (it) => !it.madeAt || (expiresAt(it) > atIso && !usedUp(left.get(it.id)))
   }
-  return foodMatches(ctx, query, { exclude: opts.exclude, oldBefore: opts.oldBefore, show }).map(([it]) => foodLabel(it))
+  return foodMatches(ctx, query, { exclude: opts.exclude ?? undefined, oldBefore: opts.oldBefore, show }).map(([it]) => foodLabel(it))
 }
 
 // --- Consumptions -------------------------------------------------------------------------------------------
@@ -408,3 +415,171 @@ export async function saveNote(note, text, done, pics) {
 }
 
 export const deleteNote = async (note) => dropNote(note)
+
+// --- Foods --------------------------------------------------------------------------------------------------
+
+/** screens/Foods.jsx FoodList, for what's typed in its search box. */
+export async function foods(query = '') {
+  const ctx = await loadContext()
+  const conflicts = conflictingFoods(ctx.list)
+  return {
+    rows: foodListMatches(ctx, query).map(([r, label]) => {
+      const [amt, unit] = baseAmount(r)
+      const n = nutrientsFor(ctx, r.id, amt, unit)
+      return {
+        id: r.id, label, recipe: kindOf(r) === 'recipe', made: madeText(r) || null, conflict: conflicts.has(r.id),
+        per: `per ${r.amount > 0 ? amountText(amt, r.amountText) : amt}${r.amountDeltaAuto === false && r.amountDelta > 0 ? ` ±${r.amountDelta}` : ''} ${unit}`,
+        macros: macroLine(n.nutrients, n.ok),
+      }
+    }),
+  }
+}
+
+const foodEvents = {
+  component: (st, [i, id]) => ff.pickComponent(st, i, id),
+  auto: (st) => ff.autoAmount(st),
+  addUnit: (st) => ({ ...st.form, units: [...st.form.units, ff.newUnit(st.form)] }),
+  removeUnit: (st, i) => ({ ...st.form, units: st.form.units.filter((_, j) => j !== i) }),
+  addComponent: (st) => ({ ...st.form, components: [...st.form.components, ff.newComponent()] }),
+  removeComponent: (st, i) => ({ ...st.form, components: st.form.components.filter((_, j) => j !== i) }),
+  // Optional nutrients only: the value cleared, so it's stored as NaN again (the app hides the row).
+  removeNutrient: (st, key) => ({ ...st.form, nutrients: { ...st.form.nutrients, [key]: { text: '' } } }),
+  // Back from a new component made with "+": it's set as that component.
+  created: (st, [i, id]) => ff.withCreated(st.ctx, st.form, i, id),
+  unlink: (st) => ({ ...st.form, source: null }),
+}
+
+async function foodFor(args) {
+  const config = await getConfig()
+  const [ctx, logs] = await Promise.all([ctxNow(), logsNow()])
+  const id = args.id
+  const isNew = id === 'new'
+  const rec = isNew ? null : /^(ciqual|fdc):/.test(id) ? ctx.items.get(id) ?? null : await db.items.get(id)
+  if (!isNew && !rec) return { missing: true }
+  const initial = rec?.readOnly ? null : rec
+  let form = args.form
+  if (!form) {
+    // A new food may come prefilled from "Search external" (external.js's draft); a read-only (CIQUAL, USDA) food
+    // prefills a new one: saving makes the copy.
+    const prefill = isNew ? peekPendingDraft() : rec?.readOnly ? rec : null
+    if (isNew && prefill) clearPendingDraft()
+    form = ff.initialForm(initial ?? prefill, initial, args.name ?? undefined)
+  }
+  let st = ff.editorState(ctx, logs, form, initial, config.dayStart)
+  if (args.event) st = ff.editorState(ctx, logs, foodEvents[args.event[0]](st, args.event[1]), initial, config.dayStart)
+  return { st, rec, initial, copy: !!rec?.readOnly }
+}
+
+/**
+ * The food editor (Foods.jsx FoodEditor and FoodForm). `args`: `id` (a food's, or "new"), `name` (a new one's),
+ * then `form` as this returned it and typed since, `extraShown` (nutrients added and still empty), maybe an `event`
+ * ([name, arg] of foodEvents). Returns the form and what to show.
+ */
+export async function foodEditor(args) {
+  const { st, rec, initial, copy, missing } = await foodFor(args)
+  if (missing) return { form: null, view: { missing: true } }
+  const { form, ctx } = st
+  const extraShown = args.extraShown ?? []
+  const { shown, hidden } = ff.nutrientRowsShown(form, extraShown)
+  const src = sourceLabel(form.source)
+  const label = (id) => {
+    const it = id != null ? resolve(ctx, id) : null
+    return it ? foodLabel(it) : null
+  }
+  return {
+    form,
+    view: {
+      missing: false,
+      isNew: !initial && !copy,
+      title: args.id === 'new' ? 'New food' : rec.name || 'Food',
+      copyNote: copy ? `A ${rec.source?.db === 'fdc' ? 'USDA' : 'CIQUAL'} food, read-only: saving makes it a food of your own.` : null,
+      external: !initial && !copy ? `/foods/external${form.name.trim() ? `?q=${encodeURIComponent(form.name.trim())}` : ''}` : null,
+      source: src ? { text: src.text, href: src.href } : null,
+      units: form.units.map((u) => ({ fromPlaceholder: deltaPlaceholder(u.fromAmount, u.fromUnit), toPlaceholder: deltaPlaceholder(u.toAmount, u.toUnit) })),
+      expiryPlaceholder: String(DEFAULT_EXPIRY_DAYS),
+      components: form.components.map((c, i) => ({
+        item: label(c.itemId),
+        units: ff.componentUnits(ctx, c),
+        deltaPlaceholder: deltaPlaceholder(c.amount, c.unit),
+        entryError: fmt((c.entryError ?? DEFAULT_ENTRY_ERROR) * 100, 2),
+        macros: st.componentNutrients[i] ? macroLine(st.componentNutrients[i].nutrients, st.componentNutrients[i].ok, true) : null,
+      })),
+      deltaPlaceholder: deltaPlaceholder(form.amount, form.unit),
+      hasComponents: st.hasComponents,
+      auto: !st.hasComponents ? null : st.total.problem ? { problem: `Can't add up the components: ${st.total.problem}` }
+        : { text: `sum of components: ${ff.round(st.total.value, 6)} ± ${ff.round(st.total.delta, 3)} ${st.totalUnit}` },
+      previewLabel: `Per ${st.amt} ${st.unit}: `,
+      preview: macroLine(st.preview.nutrients, st.preview.ok, true),
+      nutrients: shown.map((n) => ({ key: n.key, label: n.label, unit: n.unit, placeholder: n.default === 0 ? '0' : 'NaN', core: ff.CORE.includes(n.key) })),
+      adder: hidden.map((n) => ({ key: n.key, label: n.label, unit: n.unit })),
+      category: ff.CATEGORY_OPTIONS.find((o) => o.value === form.category)?.label ?? 'Unknown',
+      sameId: initial ? ff.sameIdAs(ctx, initial) : null,
+      canDelete: !!initial,
+      search: { oldBefore: st.oldBefore, at: form.isMade ? form.madeAt : null, skipItem: initial?.id ?? null, exclude: initial?.id ?? null },
+    },
+  }
+}
+
+/** The category dropdown's options: [{value, label, group}]. */
+export const categoryOptions = () => ff.CATEGORY_OPTIONS
+
+/** Saves the food editor's form: {alert}, or {done, id}. */
+export async function saveFood(args) {
+  const { st, initial } = await foodFor(args)
+  const problem = ff.saveProblem(st.form)
+  if (problem) return { alert: problem }
+  return { done: true, id: await ff.save(st.ctx, st.form, initial) }
+}
+
+export const deleteFood = (id) => db.items.delete(id)
+
+/** screens/FoodInfo.jsx, the Info tab: the nutrients for `per` `perUnit` (null: the food's own amount). */
+export async function foodInfo(id, per = null, perUnit = null, nutrient = null) {
+  const ctx = await loadContext()
+  const item = /^(ciqual|fdc):/.test(id) ? ctx.items.get(id) : await db.items.get(id)
+  if (!item) return { missing: true }
+  const [baseAmt, baseUnit, baseDelta] = baseAmount(item)
+  const units = unitsFor(ctx, item.id)
+  const perText = per ?? String(baseAmt)
+  const unit = perUnit ?? units[0] ?? baseUnit
+  const amount = Number(normalizeNumber(perText))
+  const res = amount > 0 ? nutrientsFor(ctx, item.id, amount, unit, 0) : null
+  const lead = ROWS.find((r) => r.key === nutrient) ?? NUTRIENTS.find((n) => n.key === nutrient)
+  const components = (item.components ?? []).map((c, i) => {
+    const sub = nutrientsFor(ctx, c.itemId, c.amount, c.unit, c.amountDelta)
+    const v = lead && (lead.key === 'energy' ? calories(sub.nutrients) : sub.nutrients[lead.key])
+    return { c, i, sub, v: sub.ok && v && Number.isFinite(v.value) ? v : null }
+  })
+  if (lead) components.sort((a, b) => (b.v?.value ?? -Infinity) - (a.v?.value ?? -Infinity))
+  const list = []
+  if (!item.components?.length) list.push({ label: 'Category', text: [{ t: categoryName(item.category) }] })
+  const [, blo, bhi] = span(baseAmt, baseDelta)
+  list.push({ label: 'Nutrients are per', text: amountSpans(baseAmt, blo, bhi, baseUnit, baseDelta) })
+  for (const u of item.units ?? []) {
+    const [f, lo, hi] = unitFactorSpan(u.fromUnit, u.toUnit, [u])
+    list.push({
+      label: !(u.fromAmount === 1 && !(u.fromDelta > 0))
+        ? `${fmt(u.fromAmount, 2)}${u.fromDelta > 0 ? ` ±${fmt(u.fromDelta, 2)}` : ''} ${u.fromUnit} = ${fmt(u.toAmount, 2)}${u.toDelta > 0 ? ` ±${fmt(u.toDelta, 2)}` : ''} ${u.toUnit}` : null,
+      text: [{ t: `1 ${u.fromUnit} = ` }, ...amountSpans(f, lo, hi, u.toUnit)],
+    })
+  }
+  if (lead && components.length) list.push({ note: true, text: [{ t: `Components by ${lead.label.toLowerCase()}, largest first` }] })
+  for (const { c, sub, v } of components) {
+    const kcal = calories(sub.nutrients)
+    const [, lo, hi] = span(c.amount, c.amountDelta)
+    const child = resolve(ctx, c.itemId)
+    list.push({
+      label: child ? itemLabel(child) : '(missing item)', tag: madeText(child) || null,
+      text: [...amountSpans(c.amount, lo, hi, c.unit, c.amountDelta || 0), { t: ` → ${sub.ok ? `${fmt(kcal.value, 0)} ${pmText(kcal, 0)} kcal` : "can't compute"}`, m: true }],
+      lead: !lead ? null : v ? [{ t: `${v.estimated ? '~' : ''}${fmt(v.value)}`, b: true }, { t: ` ${pmText(v)} ${lead.unit}`, m: true, small: true }] : [{ t: '–', b: true }, { t: ` ${lead.unit}`, m: true, small: true }],
+    })
+  }
+  return {
+    missing: false, per: perText, unit, units,
+    energy: res?.ok ? energyChart(res.nutrients) : null,
+    about: `Taken as exact; each range holds ${fmt(getCoverage() * 100)}% of the probability. It includes how much a sample of${item.components?.length ? ' each component' : ' this food'} varies (by category), how far the entry may be from what's eaten (${fmt(DEFAULT_ENTRY_ERROR * 100)}%, set per consumption), the digits of its values and the error of every amount (under Amounts).`,
+    failed: !!res && !res.ok,
+    table: res ? nutrientTable(res.nutrients) : null,
+    list,
+  }
+}

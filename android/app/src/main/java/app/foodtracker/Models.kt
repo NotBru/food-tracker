@@ -95,7 +95,7 @@ data class DetailRow(val label: String, val value: String, val pm: String, val u
 
 /** What a save says (core.js): can't ([alert]), asks first ([confirm], then saved again confirmed), or [done]. */
 @Serializable
-data class SaveReply(val alert: String? = null, val confirm: String? = null, val done: Boolean = false)
+data class SaveReply(val alert: String? = null, val confirm: String? = null, val done: Boolean = false, val id: JsonElement? = null)
 
 // --- Consumptions ---
 
@@ -225,3 +225,77 @@ data class NoteRow(
 data class NotePic(val id: String? = null, val key: String? = null, val name: String? = null, val have: Boolean = true) {
     val ref get() = id ?: key!!
 }
+
+// --- Foods ---
+
+@Serializable
+data class FoodsView(val rows: List<FoodRow>)
+
+@Serializable
+data class FoodRow(
+    val id: String,
+    val label: String,
+    val recipe: Boolean = false,
+    val made: String? = null,
+    val conflict: Boolean = false,
+    val per: String,
+    val macros: MacroLine,
+)
+
+@Serializable
+data class FoodEditorReply(val form: JsonObject? = null, val view: FoodEditorView)
+
+@Serializable
+data class FoodEditorView(
+    val missing: Boolean,
+    val isNew: Boolean = false,
+    val title: String = "",
+    val copyNote: String? = null,
+    val external: String? = null,
+    val source: Link? = null,
+    val units: List<UnitPlaceholders> = emptyList(),
+    val expiryPlaceholder: String = "",
+    val components: List<EditorComponent> = emptyList(),
+    val deltaPlaceholder: String = "",
+    val hasComponents: Boolean = false,
+    val auto: AutoSum? = null,
+    val previewLabel: String = "",
+    val preview: MacroLine? = null,
+    val nutrients: List<NutrientField> = emptyList(),
+    val adder: List<NutrientOption> = emptyList(),
+    val category: String = "",
+    val sameId: List<String>? = null,
+    val canDelete: Boolean = false,
+    val search: JsonObject = JsonObject(emptyMap()),
+)
+
+@Serializable
+data class Link(val text: String, val href: String)
+
+@Serializable
+data class UnitPlaceholders(val fromPlaceholder: String, val toPlaceholder: String)
+
+@Serializable
+data class AutoSum(val problem: String? = null, val text: String? = null)
+
+@Serializable
+data class NutrientField(val key: String, val label: String, val unit: String, val placeholder: String, val core: Boolean)
+
+@Serializable
+data class NutrientOption(val key: String, val label: String, val unit: String = "")
+
+@Serializable
+data class SelectOption(val value: String, val label: String, val group: String? = null)
+
+@Serializable
+data class FoodInfoView(
+    val missing: Boolean,
+    val per: String = "",
+    val unit: String = "",
+    val units: List<String> = emptyList(),
+    val energy: EnergyChartView? = null,
+    val about: String = "",
+    val failed: Boolean = false,
+    val table: NutrientTableView? = null,
+    val list: List<InfoItem> = emptyList(),
+)

@@ -18,6 +18,8 @@ import app.foodtracker.ui.C
 import app.foodtracker.ui.ConsumptionInfoScreen
 import app.foodtracker.ui.ConsumptionsScreen
 import app.foodtracker.ui.HomeActions
+import app.foodtracker.ui.FoodScreen
+import app.foodtracker.ui.FoodsScreen
 import app.foodtracker.ui.HomeScreen
 import app.foodtracker.ui.NotesScreen
 import app.foodtracker.ui.PicturePicker
@@ -47,6 +49,10 @@ fun App(activity: MainActivity) {
             r.path == "/" -> HomeRoute(activity, r)
             parts == listOf("consumptions") -> ConsumptionsRoute(activity, r)
             parts == listOf("notes") -> NotesRoute(activity, r)
+            parts == listOf("foods") -> FoodsRoute(activity)
+            parts.size == 2 && parts[0] == "foods" && parts[1] != "external" -> FoodScreen(
+                engine, parts[1], route, r.query["tab"] == "info", r.query["nutrient"], r.query["in"]?.toIntOrNull(), r.query["name"],
+            )
             parts.size == 2 && parts[0] == "consumptions" -> {
                 val view = watchView(activity, "consumptionInfo", listOf(JsonPrimitive(parts[1]), jsOf(r.query["nutrient"])), ConsumptionInfoView.serializer())
                 ConsumptionInfoScreen(parts[1], view, engine)
@@ -112,6 +118,14 @@ private fun ConsumptionsRoute(activity: MainActivity, r: Route) {
         engine.replace("/consumptions${if (day != null) "?day=$day" else ""}")
     }
     ConsumptionsScreen(view, engine, editing) { editing = it }
+}
+
+@Composable
+private fun FoodsRoute(activity: MainActivity) {
+    var query by remember { mutableStateOf("") }
+    // The last list is drawn at once only for no search (what opening the screen shows).
+    val view = watchView(activity, "foods", listOf(JsonPrimitive(query)), FoodsView.serializer(), snapshot = query.isEmpty())
+    FoodsScreen(view, query, { query = it }, activity.engine)
 }
 
 @Composable

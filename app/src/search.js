@@ -103,3 +103,21 @@ export function foodMatches(ctx, query, { exclude, oldBefore, show } = {}) {
       || ra.first - rb.first || ra.extra - rb.extra || la.localeCompare(lb))
     .slice(0, 50)
 }
+
+/**
+ * The Foods list for `query` (screens/Foods.jsx FoodList): [food, label]. No search: the user's foods. The better
+ * matches first; among those, the user's foods before CIQUAL's and USDA's (the first `genericShown` of them),
+ * concoctions after the rest (newest first); then the closer names, then alphabetical.
+ */
+export function foodListMatches(ctx, query, genericShown = 50) {
+  const words = queryWords(query)
+  let generic = 0
+  return (words.length ? [...ctx.list, ...ctx.generic()] : ctx.list)
+    .map((r) => [r, matchRank(r, words)])
+    .filter(([, rank]) => rank)
+    .map(([r, rank]) => [r, itemLabel(r), rank])
+    .sort(([a, la, ra], [b, lb, rb]) => ra.inside - rb.inside || ra.partial - rb.partial || !!a.readOnly - !!b.readOnly
+      || !!a.madeAt - !!b.madeAt || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || ra.first - rb.first
+      || ra.extra - rb.extra || la.localeCompare(lb))
+    .filter(([r]) => !r.readOnly || ++generic <= genericShown)
+}

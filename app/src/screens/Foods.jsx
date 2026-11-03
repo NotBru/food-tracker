@@ -1,43 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { DEFAULT_EXPIRY_DAYS, conflictingFoods, db, expiresAt, findEqualFood, getConfig, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays } from '../db'
-import { matchRank, queryWords } from '../search'
-import { baseAmount, componentsTotal, concoctionsLeft, keepUnit, lastEntryError, loadContext, nutrientsFor, unitsFor, usedUp } from '../calc'
-import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measure, normalizeNumber } from '../nutrients'
-import { CATEGORY_GROUPS, DEFAULT_ENTRY_ERROR } from '../errors'
-import { addDays, dayBounds, toLocalInput, today } from '../time'
+import { DEFAULT_EXPIRY_DAYS, conflictingFoods, db, getConfig, itemLabel, kindOf } from '../db'
+import { foodListMatches } from '../search'
+import { baseAmount, loadContext, nutrientsFor } from '../calc'
+import { amountText } from '../nutrients'
+import { DEFAULT_ENTRY_ERROR } from '../errors'
+import { CATEGORY_OPTIONS, CORE, DELETE_QUESTION, autoAmount as fillAuto, componentUnits, editorState, initialForm, newComponent, newUnit, nutrientRowsShown, pickComponent, round, sameIdAs, save as saveFood, saveProblem, withCreated } from '../foodForm'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
 import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, Select, pressable, UnitCombo, UnitInput, enterSaves, enterTo, go, replace } from '../components'
 import FoodInfo from './FoodInfo'
 
-const CATEGORY_OPTIONS = [
-  { value: '', label: 'Unknown' },
-  ...CATEGORY_GROUPS.flatMap(([, group, subs]) => subs.map(([code, label]) => ({ value: code, label, group }))),
-]
-
 // A food is anything you can eat: an ingredient, a recipe (has components) or a concoction (has a made-at time).
 // One list, one editor; what kind a food is follows from its fields. CIQUAL's and USDA's foods are listed too (while searching,
 // after the user's own), read-only: editing one saves a copy.
-
-const GENERIC_SHOWN = 50
 
 export function FoodList() {
   const [query, setQuery] = useState('')
   const ctx = useLiveQuery(loadContext)
   if (!ctx) return null
   const conflicts = conflictingFoods(ctx.list)
-  const words = queryWords(query)
-  let generic = 0
-  const rows = (words.length ? [...ctx.list, ...ctx.generic()] : ctx.list)
-    .map((r) => [r, matchRank(r, words)])
-    .filter(([, rank]) => rank)
-    .map(([r, rank]) => [r, itemLabel(r), rank])
-    // The better matches first (search.js); among those, the user's foods before CIQUAL's and USDA's, concoctions
-    // after the rest (newest first); then the closer names, then alphabetical. No search: just the user's foods.
-    .sort(([a, la, ra], [b, lb, rb]) => ra.inside - rb.inside || ra.partial - rb.partial || !!a.readOnly - !!b.readOnly
-      || !!a.madeAt - !!b.madeAt || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || ra.first - rb.first
-      || ra.extra - rb.extra || la.localeCompare(lb))
-    .filter(([r]) => !r.readOnly || ++generic <= GENERIC_SHOWN)
+  const rows = foodListMatches(ctx, query)
   return (
     <Screen title="Foods">
       <input className="search" type="search" placeholder="Search foods…" value={query} onChange={(e) => setQuery(e.target.value)} />
@@ -62,43 +44,6 @@ export function FoodList() {
       </ul>
     </Screen>
   )
-}
-
-// --- Nutrient form helpers ---------------------------------------------------
-
-// Always shown, on top. Everything else appears once it has a value (or is added from the picker).
-const CORE = ['energy', 'proteins', 'fat', 'carbohydrates']
-const isFilled = (f) => f.text.trim() !== ''
-
-function nutrientsToForm(nutrients) {
-  const base = { ...emptyNutrients(), ...(nutrients ?? {}) }
-  return Object.fromEntries(
-    NUTRIENTS.map(({ key }) => {
-      const n = base[key]
-      const text = n.text ?? (Number.isFinite(n.value) ? String(n.value) : '')
-      return [key, { text }]
-    }),
-  )
-}
-
-// A value's error is the model's (calc.js): its category's spread and its digits. The digits' Δ is still stored.
-function formToNutrients(form) {
-  return Object.fromEntries(
-    NUTRIENTS.map(({ key, default: def }) => {
-      const text = normalizeNumber(form[key].text)
-      const value = text.trim() === '' ? (def ?? NaN) : Number(text)
-      return [key, { value, delta: text.trim() === '' && def === 0 ? 0 : deltaFromInput(text), text: text.trim(), deltaAuto: true }]
-    }),
-  )
-}
-
-// --- Food editor ---------------------------------------------------------------
-
-// Every amount has an error (± Δ). Blank = from the digits typed (nutrients.js `measure`).
-// Amounts that are divided by (per amount, both sides of a unit) must keep their low end above 0.
-function divisorProblem(label, m) {
-  if (!(m.value > 0) || m.delta < m.value) return null
-  return `${label}: ±${m.delta}${m.auto ? ' (from the digits)' : ''} would reach 0. Type more digits (e.g. ${m.value}.0) or set a smaller ±.`
 }
 
 // --- New food from a component ("+" beside its search box) -----------------------
@@ -149,7 +94,7 @@ export function FoodEditor({ id, tab, nutrient, nested, name }) {
 
 /** Flags other foods with this one's ID (name, brand, attributes, made-at) but different values. */
 function SameIdWarning({ ctx, item }) {
-  const others = conflictingFoods(ctx.list).get(item.id)
+  const others = sameIdAs(ctx, item)
   if (!others) return null
   return (
     <p className="small warn">
@@ -161,52 +106,19 @@ function SameIdWarning({ ctx, item }) {
   )
 }
 
-/** A stashed form, with the food made from it (if saved) set as the component it was made for. */
-function withCreated(ctx, { form, index, created }) {
-  if (created == null || !form.components[index]) return form
-  const unit = form.components[index].unit || ctx.items.get(created)?.unit || 'portion'
-  return { ...form, components: form.components.map((c, j) => (j === index ? { ...c, itemId: created, unit } : c)) }
-}
-
 function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
   const src = initial ?? prefill
   // Back from a new component: this form's stashed state. Taken off the stack in an effect, since StrictMode runs
   // state initializers twice.
   const [restored] = useState(() => (parents.at(-1)?.hash === location.hash ? parents.at(-1) : null))
   useEffect(() => { if (restored && parents.at(-1) === restored) parents.pop() }, [restored])
-  const [form, setForm] = useState(() => (restored ? withCreated(ctx, restored) : {
-    name: src?.name ?? name ?? '',
-    brand: src?.brand ?? '',
-    attributes: src?.attributes ?? [],
-    amount: src ? amountText(src.amount, src.amountText) : '100',
-    amountDelta: src ? deltaText(src.amountDelta, src.amountDeltaAuto) : '',
-    unit: src?.unit ?? (initial ? '' : 'g'),
-    isMade: !!src?.madeAt,
-    madeAt: toLocalInput(src?.madeAt ? new Date(src.madeAt) : new Date()),
-    expiresAfterDays: src?.expiresAfterDays > 0 ? String(src.expiresAfterDays) : '',
-    category: src?.category ?? '',
-    components: (src?.components ?? []).map((c) => ({
-      ...c, amount: amountText(c.amount, c.amountText), amountDelta: deltaText(c.amountDelta, c.amountDeltaAuto),
-    })),
-    units: (src?.units ?? []).map((u) => ({
-      ...u,
-      fromAmount: amountText(u.fromAmount, u.fromText), fromDelta: deltaText(u.fromDelta, u.fromDeltaAuto),
-      toAmount: amountText(u.toAmount, u.toText), toDelta: deltaText(u.toDelta, u.toDeltaAuto),
-    })),
-    nutrients: nutrientsToForm(src?.nutrients),
-    source: src?.source ?? null,
-  }))
+  const [form, setForm] = useState(() => (restored ? withCreated(ctx, restored.form, restored.index, restored.created) : initialForm(src, initial, name)))
   useEffect(() => { if (prefill) clearPendingDraft() }, [prefill])
   // A component picked starts with the entry error its food last had in a concoction, else was last logged with
   // (calc.js lastEntryError).
   const logs = useLiveQuery(() => db.logs.toArray(), [])
-  // Components are offered as in the consumption form: concoctions eaten up, or expired when this one is made (now,
-  // for a plain food), left out; ones made before yesterday (logical days) last. What this food took is counted back.
-  const oldBefore = dayBounds(addDays(today(dayStart), -1), dayStart)[0].toISOString()
-  const left = concoctionsLeft(ctx, logs ?? [], null, initial?.id)
-  const at = new Date(form.isMade ? form.madeAt : Date.now())
-  const atIso = Number.isNaN(at.getTime()) ? new Date().toISOString() : at.toISOString()
-  const show = (it) => !it.madeAt || (expiresAt(it) > atIso && !usedUp(left.get(it.id)))
+  const st = editorState(ctx, logs ?? [], form, initial, dayStart)
+  const { oldBefore, show, hasComponents, amt, unit, preview, totalUnit, total } = st
   // Extra (non-core) nutrients shown even while empty, because the user just added them.
   const [extraShown, setExtraShown] = useState(restored?.extraShown ?? [])
   // Back with a new component: the cursor goes to its amount, the one thing left to fill.
@@ -242,78 +154,20 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
   const setC = (i, patch) => setForm((f) => ({ ...f, components: f.components.map((c, j) => (j === i ? { ...c, ...patch } : c)) }))
   const setN = (key, field, v) => setForm((f) => ({ ...f, nutrients: { ...f.nutrients, [key]: { ...f.nutrients[key], [field]: v } } }))
 
-  function toRecord() {
-    const base = measure(form.amount, form.amountDelta, form.unit)
-    const composed = form.components.some((c) => c.itemId != null)
-    return {
-      name: form.name.trim(), brand: form.brand.trim(), attributes: form.attributes,
-      amount: base.value > 0 ? base.value : NaN, amountText: base.text, amountDelta: base.delta, amountDeltaAuto: base.auto,
-      unit: form.unit.trim(),
-      madeAt: form.isMade ? new Date(form.madeAt).toISOString() : null,
-      expiresAfterDays: form.isMade ? parseExpiryDays(form.expiresAfterDays) : undefined,
-      // Only a food of its own has a category; a recipe's error comes from its components.
-      category: !composed && form.category ? form.category : undefined,
-      units: form.units
-        .filter((u) => Number(u.fromAmount) > 0 && u.fromUnit.trim() && Number(u.toAmount) > 0 && u.toUnit.trim())
-        .map((u) => {
-          const a = measure(u.fromAmount, u.fromDelta, u.fromUnit)
-          const b = measure(u.toAmount, u.toDelta, u.toUnit)
-          return {
-            fromAmount: a.value, fromText: a.text, fromDelta: a.delta, fromDeltaAuto: a.auto, fromUnit: u.fromUnit.trim(),
-            toAmount: b.value, toText: b.text, toDelta: b.delta, toDeltaAuto: b.auto, toUnit: u.toUnit.trim(),
-          }
-        }),
-      components: form.components.filter((c) => c.itemId != null)
-        .map((c) => {
-          const m = measure(c.amount, c.amountDelta, c.unit)
-          return {
-            itemId: c.itemId, amount: m.value, amountText: m.text, amountDelta: m.delta, amountDeltaAuto: m.auto, unit: c.unit.trim(),
-            entryError: Number.isFinite(c.entryError) ? c.entryError : undefined,
-          }
-        }),
-      nutrients: formToNutrients(form.nutrients),
-      source: form.source,
-    }
-  }
-
-  const draft = { ...toRecord(), id: initial?.id ?? -1 }
-  const hasComponents = draft.components.length > 0
-  // Live preview: compute with the unsaved form swapped into the context.
-  const previewCtx = { ...ctx, items: ctx.items.with(draft.id, draft) }
-  const [amt, unit] = baseAmount(draft)
-  const preview = nutrientsFor(previewCtx, draft.id, amt, unit)
-  // "Auto" per amount: the components added up, in the food's unit (g if it has none yet).
-  const totalUnit = form.unit.trim() || 'g'
-  const total = hasComponents && componentsTotal(ctx, draft.components, totalUnit)
-  const round = (x, digits) => String(Number(x.toPrecision(digits)))
   function autoAmount() {
-    setForm((f) => ({ ...f, amount: round(total.value, 6), amountDelta: round(total.delta, 3), unit: totalUnit }))
+    setForm(fillAuto(st))
   }
 
   async function save() {
-    const rec = toRecord()
-    if (!rec.name) return alert('Name is required.')
-    const problem = [
-      divisorProblem('Per amount', measure(form.amount, form.amountDelta, form.unit)),
-      ...rec.units.flatMap((u) => [
-        divisorProblem(`Units: ${u.fromText} ${u.fromUnit}`, { value: u.fromAmount, delta: u.fromDelta, auto: u.fromDeltaAuto }),
-        divisorProblem(`Units: ${u.toText} ${u.toUnit}`, { value: u.toAmount, delta: u.toDelta, auto: u.toDeltaAuto }),
-      ]),
-    ].find(Boolean)
+    const problem = saveProblem(form)
     if (problem) return alert(problem)
-    // Saving a copy of an existing food (same ID, same values) is ignored: the existing one is used.
-    if (initial) {
-      await db.items.update(initial.id, rec)
-      await mergeEqualFoodsInDb()
-    } else {
-      const newId = findEqualFood(ctx.list, rec)?.id ?? await db.items.add(rec)
-      // Made as a component: the parent (next back) picks it up.
-      if (nested && parents.length) parents.at(-1).created = newId
-    }
+    const id = await saveFood(ctx, form, initial)
+    // Made as a component: the parent (next back) picks it up.
+    if (!initial && nested && parents.length) parents.at(-1).created = id
     history.back()
   }
   async function remove() {
-    if (confirm('Delete this food? Consumptions and recipes using it will show it as missing.')) {
+    if (confirm(DELETE_QUESTION)) {
       await db.items.delete(initial.id)
       history.back()
     }
@@ -365,7 +219,7 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
               </div>
             </li>
           ))}
-          <li className="add" {...pressable(() => setForm((f) => ({ ...f, units: [...f.units, { fromAmount: '1', fromDelta: '0', fromUnit: '', toAmount: '', toDelta: '', toUnit: f.unit.trim() || 'g' }] })))}>+ add unit</li>
+          <li className="add" {...pressable(() => setForm((f) => ({ ...f, units: [...f.units, newUnit(f)] })))}>+ add unit</li>
         </ul>
         <p className="muted small">g/kg/mg/oz/lb and ml/l/cl/dl/tsp/tbsp/cup convert automatically.</p>
 
@@ -387,25 +241,20 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
           {form.components.map((c, i) => (
             <li key={i} className="component">
               <ItemPicker ctx={ctx} value={c.itemId} exclude={initial?.id} oldBefore={oldBefore} show={show} onCreate={(text) => createComponent(i, text)} enterNext
-                onChange={(itemId) => setC(i, { itemId, unit: keepUnit(ctx, itemId, c.unit) ?? '', entryError: lastEntryError(ctx, logs, itemId, true) })} />
+                onChange={(itemId) => setForm(pickComponent(st, i, itemId))} />
               {/* Enter in any of its boxes (a unit picked, ε set) goes on to "+ add component": amount, Enter, next. */}
               <div className="row" onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); addComponentRef.current?.focus() } }}>
                 <input ref={(el) => (componentAmountRefs.current[i] = el)} inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
                 <DeltaInput value={c.amountDelta} amount={c.amount} unit={c.unit} onChange={(v) => setC(i, { amountDelta: v })} />
-                <UnitCombo units={c.itemId != null ? unitsFor(ctx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} />
+                <UnitCombo units={componentUnits(ctx, c)} value={c.unit} onChange={(u) => setC(i, { unit: u })} />
                 <EntryErrorButton value={c.entryError ?? DEFAULT_ENTRY_ERROR} onChange={(x) => setC(i, { entryError: x })} />
                 <button className="icon" onClick={() => setForm((f) => ({ ...f, components: f.components.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
               </div>
               {/* What this component brings in, live, once it has a food and an amount. */}
-              {(() => {
-                const m = measure(c.amount, c.amountDelta, c.unit)
-                if (c.itemId == null || !(m.value >= 0)) return null
-                const sub = nutrientsFor(ctx, c.itemId, m.value, c.unit.trim(), m.delta, undefined, c.entryError)
-                return <MacroLine nutrients={sub.nutrients} ok={sub.ok} deltas />
-              })()}
+              {st.componentNutrients[i] && <MacroLine nutrients={st.componentNutrients[i].nutrients} ok={st.componentNutrients[i].ok} deltas />}
             </li>
           ))}
-          <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, { itemId: null, amount: '', amountDelta: '', unit: '' }] })), { focusOnClick: true, scrollUp: true })}>+ add component</li>
+          <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, newComponent()] })), { focusOnClick: true, scrollUp: true })}>+ add component</li>
         </ul>
 
         <div className="row amount-row">
@@ -434,7 +283,7 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
             <h3>Nutrients</h3>
             <div className="nutrients">
               <div className="n-row one-value n-head"><span /><span>value</span><span /></div>
-              {[...CORE.map((k) => NUTRIENTS.find((n) => n.key === k)), ...NUTRIENTS.filter((n) => !CORE.includes(n.key) && (isFilled(form.nutrients[n.key]) || extraShown.includes(n.key)))].map((n) => {
+              {nutrientRowsShown(form, extraShown).shown.map((n) => {
                 const f = form.nutrients[n.key]
                 return (
                   <div className="n-row one-value" key={n.key}>
@@ -447,7 +296,7 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
                 )
               })}
               {(() => {
-                const hidden = NUTRIENTS.filter((n) => !CORE.includes(n.key) && !isFilled(form.nutrients[n.key]) && !extraShown.includes(n.key))
+                const { hidden } = nutrientRowsShown(form, extraShown)
                 return hidden.length > 0 && <NutrientAdder inputRef={adderRef} options={hidden} onAdd={(key) => { setExtraShown((s) => [...s, key]); setFocusKey(key) }} />
               })()}
             </div>

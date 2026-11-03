@@ -51,6 +51,14 @@ and shrinks them as on the web and keeps them waiting until the note is saved; t
 back once, as base64 JPEG, and keeps it decoded (downsampled for thumbnails). A picture not synced yet shows "…"
 until the list says it's here.
 
+### Foods
+
+`app/src/foodForm.js` (the editor's logic, from Foods.jsx FoodForm), `search.js foodListMatches` (the list's
+ranking). The list is a lazy list (hundreds of foods) whose view is watched per search text. A new component made
+with "+" stashes the form in Kotlin (`FoodStash`, as Foods.jsx's `parents`, in memory only) and the new food, once
+saved, is set as that component back on the form. "Search external" stays the web screen; its pick reaches the
+native editor through external.js's pending draft, which the web app's module holds for both.
+
 ## Alternatives considered
 
 - **The form's state in the web app** (Kotlin sending keystrokes): a round trip per key, and the text field's value

@@ -306,6 +306,7 @@ fun TextBox(
     onDone: (() -> Unit)? = null,
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
     textStyle: TextStyle = TextStyle(color = C.text, fontSize = 16.sp),
+    placeholderColor: Color = C.muted,
 ) {
     var focused by remember { mutableStateOf(false) }
     val focus = LocalFocusManager.current
@@ -333,7 +334,7 @@ fun TextBox(
             ) {
                 if (leading != null) Text(leading, color = C.muted, fontSize = textStyle.fontSize, modifier = Modifier.padding(end = 6.dp))
                 Box(Modifier.weight(1f)) {
-                    if (value.isEmpty() && placeholder != null) Text(placeholder, color = C.muted, fontSize = textStyle.fontSize, maxLines = 1)
+                    if (value.isEmpty() && placeholder != null) Text(placeholder, color = placeholderColor, fontSize = textStyle.fontSize, maxLines = 1)
                     inner()
                 }
             }
@@ -540,3 +541,84 @@ fun H3(text: String) = Text(text, Modifier.padding(top = 8.dp), color = C.text, 
 
 @Composable
 fun Gap(h: Dp) = Spacer(Modifier.height(h))
+
+/** `.segmented`: pill tabs, the one on in accent. */
+@Composable
+fun Segmented(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth().clip(Pill).background(C.panel).padding(4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        options.forEachIndexed { i, o ->
+            val on = i == selected
+            Box(Modifier.weight(1f).clip(Pill).background(if (on) C.accent else Color.Transparent).clickable(role = Role.Tab) { onSelect(i) }
+                .padding(10.dp), contentAlignment = Alignment.Center) {
+                Text(o, color = if (on) C.onAccent else C.muted, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, maxLines = 1)
+            }
+        }
+    }
+}
+
+/**
+ * components.jsx Select, as on a phone (a dropdown of every option): a box showing the choice; tapped, a sheet lists
+ * the options under their groups, with a search box (every word, as on a computer).
+ */
+@Composable
+fun SelectBox(label: String, options: List<app.foodtracker.SelectOption>, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, searchable: Boolean = true) {
+    var open by remember { mutableStateOf(false) }
+    Row(
+        modifier.fillMaxWidth().clip(Pill).background(C.panel).clickable { open = true }.padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, Modifier.weight(1f), color = C.text, fontSize = 16.sp, maxLines = 1)
+        Chevron(C.muted, 16.dp, rotation = 270f)
+    }
+    if (open) {
+        var q by remember { mutableStateOf("") }
+        val fold = { s: String -> java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "").lowercase() }
+        val words = fold(q).split(Regex("\\s+")).filter { it.isNotEmpty() }
+        val shown = options.filter { o -> words.all { w -> w in fold("${o.label} ${o.group ?: ""}") } }
+        androidx.compose.ui.window.Dialog({ open = false }) {
+            Column(Modifier.fillMaxWidth().heightIn(max = 560.dp).clip(RoundedCornerShape(24.dp)).background(C.bg).padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (searchable) TextBox(q, { q = it }, placeholder = "Search…")
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    var group: String? = null
+                    for (o in shown) {
+                        if (o.group != group && o.group != null) Text(o.group, Modifier.padding(start = 14.dp, top = 10.dp, bottom = 2.dp), color = C.muted, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        group = o.group
+                        PickerRow(o.value == value, { onChange(o.value); open = false }) { Text(o.label, color = C.text) }
+                    }
+                    if (shown.isEmpty()) Text("No match", Modifier.padding(14.dp), color = C.muted)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * components.jsx NutrientAdder: "+ add nutrient…", dashed; typing filters the options (every word; labels starting
+ * with the text first). Tap one, or Done for the first.
+ */
+@Composable
+fun NutrientAdder(options: List<app.foodtracker.NutrientOption>, onAdd: (String) -> Unit) {
+    var text by remember { mutableStateOf("") }
+    var open by remember { mutableStateOf(false) }
+    val q = text.trim().lowercase()
+    val words = q.split(Regex("\\s+")).filter { it.isNotEmpty() }
+    val matches = options.filter { n -> words.all { it in n.label.lowercase() } }.sortedByDescending { it.label.lowercase().startsWith(q) }
+    val view = remember { BringIntoViewRequester() }
+    LaunchedEffect(open) { if (open) { delay(300); view.bringIntoView() } }
+    fun add(key: String) { onAdd(key); text = "" }
+    Column(Modifier.bringIntoViewRequester(view)) {
+        Box(Modifier.dashedBorder(C.line, 999.dp).clip(Pill)) {
+            TextBox(text, { text = it; open = true }, bg = Color.Transparent, onFocus = { open = it }, onDone = { matches.firstOrNull()?.let { add(it.key) } },
+                placeholder = "+ add nutrient…", placeholderColor = C.accent)
+        }
+        if (open) PickerList(matches.size, "No match") { i ->
+            PickerRow(i == 0, { add(matches[i].key) }) {
+                Text(buildAnnotatedString {
+                    append(matches[i].label)
+                    withStyle(SpanStyle(color = C.muted, fontSize = 13.sp)) { append(" ${matches[i].unit}") }
+                }, color = C.text)
+            }
+        }
+    }
+}
