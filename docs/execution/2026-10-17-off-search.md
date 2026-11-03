@@ -1,7 +1,7 @@
 # Open Food Facts: text search via search-a-licious
 
 - **Date:** 2026-10-17
-- **Status:** accepted
+- **Status:** superseded by [off-copy](2026-11-03-off-copy.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (V2 external databases; user in chat: "Fix Open Food Facts. It's not working")
 - **Amends:** [External food databases](2026-10-15-external-databases.md)
 

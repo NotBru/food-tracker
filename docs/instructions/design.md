@@ -7,7 +7,7 @@ Opens fast, offline too: from its cache, without waiting for the network; a new 
 it was fetched.
 
 Production: a Docker image serving the build, at https://track-shit.notbru.xyz (final: data is tied to the origin).
-A backup server beside it, holding only ciphertext.
+A backup server beside it, holding only ciphertext. A copy of Open Food Facts beside it too, updated daily.
 
 ## UI
 
@@ -101,7 +101,7 @@ Fields not written have their values stored as `NaN` for later inference or what
 
 - [x] V2: Some way of automatically fetch products from cool databases: reference databases (CIQUAL, USDA
   FoodData Central) listed with your own foods, read-only, editing makes a copy; "search external" on a new food
-  over Open Food Facts (products, by name or barcode). Imports get a `database` attribute.
+  over Open Food Facts (products, by name or barcode; from our copy on the server, OFF itself as fallback). Imports get a `database` attribute.
 
 #### Units
 

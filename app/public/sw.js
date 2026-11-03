@@ -4,8 +4,8 @@
 // (docs/execution/2026-11-02-fast-start.md).
 const CACHE = 'food-tracker-v1'
 
-// Always from the network, never cached: other sites (Open Food Facts), backups, and searches relayed to OFF.
-const live = (url) => url.origin !== location.origin || url.pathname.startsWith('/backup/') || url.pathname.startsWith('/off-search/')
+// Always from the network, never cached: other sites (Open Food Facts), backups, and our copy of Open Food Facts.
+const live = (url) => url.origin !== location.origin || url.pathname.startsWith('/backup/') || url.pathname.startsWith('/off/')
 
 self.addEventListener('install', () => self.skipWaiting())
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()))

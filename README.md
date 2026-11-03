@@ -38,9 +38,9 @@ To have it served all the time from Docker on the host, run `./serve.sh` there: 
 container on `localhost:5173` that comes back at every boot (`--lan` to reach it from a phone, `--stop` to remove
 it). The comments at the top of the script explain the details.
 
-Open Food Facts' text search needs the `/off-search` proxy that the Vite server and the production image provide
-(see `app/vite.config.js`, `deploy/web/Caddyfile`). A plain static host doesn't have it, so product names won't
-search there; barcodes, CIQUAL and USDA still work.
+Open Food Facts comes from our own copy on the server, under `/off/`: the Vite server relays it to production's
+(`OFF_COPY` to use another, see `app/vite.config.js`). A plain static host doesn't have it, so product names won't
+search there (OFF's own search is mostly down); barcodes, CIQUAL and USDA still work.
 
 ## Deploy
 
@@ -51,29 +51,36 @@ origin. Images are built from a clone of this repo; each serves plain HTTP (TLS 
 |-------|------------|---------------|------|
 | web app | `deploy/web/Dockerfile` | repo root | 80 |
 | backup server | `deploy/backup/Dockerfile` | repo root | 8080 |
+| Open Food Facts copy | `deploy/off/Dockerfile` | repo root | 8080 |
 
 ```sh
 docker build -f deploy/web/Dockerfile -t track-shit-web .
 docker build -f deploy/backup/Dockerfile -t track-shit-backup .
+docker build -f deploy/off/Dockerfile -t track-shit-off .
 ```
 
-- **web app**: the built `app/dist/` served by Caddy, plus `/off-search/*` relayed to
-  `https://search.openfoodfacts.org` (prefix stripped), at most 10 a minute for all users together (OFF's per-IP
-  search limit; past it, 429 with `Retry-After`). `/assets/*` is cached `immutable`; everything else is
+- **web app**: the built `app/dist/` served by Caddy. `/assets/*` is cached `immutable`; everything else is
   `no-cache`. `/backup/*` is relayed to `$BACKUP_UPSTREAM` (default `backup:8080`, the backup service on the
-  compose project's network). No volume, no state. Routing is in the hash, so no `index.html` fallback.
+  compose project's network), `/off/*` to `$OFF_UPSTREAM` (default `off:8080`). No volume, no state. Routing is in
+  the hash, so no `index.html` fallback.
 - **backup server** (`backup/server.mjs`): encrypted blobs, one per public key plus an inbox, at most 4 MB each
   (`MAX_BYTES`). Keep
   `/data` on a volume. Invite codes are made by hand: `node server.mjs invite <name>` in the container prints a
   single-use code; `list` and `remove <key>` too.
+- **Open Food Facts copy** (`off/server.mjs`): a SQLite file on `/data` (~1.5 GB, twice that during a full import)
+  that it builds itself from OFF's full export (streamed, ~13 GB download, ~3 M products, under an hour), then updates every 6 h from
+  OFF's daily deltas, with a full import again every 30 days (`FULL_DAYS`). Until the first one is done it answers
+  503 and the app asks OFF directly. `GET /off/status` shows the product count, dates, import progress and the last
+  error.
 
 ### On the server
 
 `/srv/track-shit` holds a clone of this repo in `src/`, plus copies of `deploy/server/compose.yaml` and
 `deploy/server/deploy.sh` (`git -C src pull --ff-only`, then `docker compose up -d --build`, under a lock), which the
-push hook runs over SSH. Both containers come from the compose file, so each deploy rebuilds both. The web one is on
-the host's reverse-proxy network (`proxy`); the backup one only on the project's default network, where the web app
-reaches it as `backup:8080`. Its data is on the `track-shit-backup` volume.
+push hook runs over SSH. All containers come from the compose file, so each deploy rebuilds them. The web one is on
+the host's reverse-proxy network (`proxy`); the others only on the project's default network, where the web app
+reaches them as `backup:8080` and `off:8080`. The backup's data is on the `track-shit-backup` volume; the Open Food
+Facts copy's on `off-data`, made by compose (losing it only means a new import).
 
 First time:
 
@@ -89,12 +96,14 @@ Invite codes: `docker compose exec backup node server.mjs invite <name>` (from `
 
 ### Updating
 
-`./deploy.sh` (the push hook runs it): pulls, rebuilds both images, recreates both containers.
+`./deploy.sh` (the push hook runs it): pulls, rebuilds the images, recreates the containers whose image changed.
 
 - **web app**: no state. Each browser gets the new version on its next load (the service worker fetches network
   first). Data on the devices is untouched.
 - **backup server**: everything is on the `/data` volume (codes, keys, backups), so it survives. While it's down,
   the app's icon turns yellow ("Can't reach the backup server") and it retries every 5 s while shown; restores say the server can't be reached.
+- **Open Food Facts copy**: keeps its file on `off-data`. A restart during a full import starts that import over;
+  meanwhile the old copy keeps answering.
 - Changing the address loses every device's data and backup secret (both are tied to the origin).
 - The backup protocol (`food-tracker-backup/1`) and file format (`FTB1`) are versioned: a change to either must
   keep accepting the old ones, as open tabs and stored backups still use them. Backups hold a normal export, so an
@@ -126,8 +135,10 @@ app/                  web app
 docs/instructions/    what to build: requirements, kept terse (design.md)
 docs/execution/       how it was built: one entry per decision, indexed in its README
 backup/server.mjs     backup server (Node, no dependencies)
+off/server.mjs        our copy of Open Food Facts (Node, no dependencies)
 deploy/web/           production image of the web app (Dockerfile, Caddyfile)
 deploy/backup/        production image of the backup server
+deploy/off/           production image of the Open Food Facts copy
 deploy/server/        the VPS's compose.yaml and deploy.sh (copied to /srv/track-shit)
 serve.sh              runs the dev server in its own Docker container
 ```

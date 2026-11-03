@@ -4,13 +4,11 @@
 //     read-only (ciqualFoods); editing one saves a copy.
 //   USDA FoodData Central: Foundation Foods and SR Legacy, ~8.1k generic foods, bundled as public/fdc.json (built by
 //     scripts/fdc.py), loaded on first use, in the food database like CIQUAL's (fdcFoods). Public domain (CC0).
-//   Open Food Facts: packaged products, fetched live from the browser. ODbL. Rate limits: 15 product
-//     reads/min and 10 searches/min per IP, so searches only run on Enter, never per keystroke.
-//     Text search uses search-a-licious (search.openfoodfacts.org) through the /off-search proxy in vite.config.js
-//     (and deploy/web/Caddyfile, which caps all users together at 10 searches/min),
-//     since it sends no CORS headers; the legacy cgi/search.pl, mostly answering 503 since 2026-10, is the fallback
-//     where there is no proxy. Search hits lack serving/package sizes and most micronutrients, so picking one
-//     reads the full product (offProductDraft).
+//   Open Food Facts: packaged products, from our own copy on the server (off/server.mjs, behind /off/ on the app's
+//     origin; vite.config.js relays it to production's in development), rebuilt from OFF's exports and updated daily.
+//     Its products come in the shape of OFF's API. Where the copy can't answer (server down, or a barcode newer than
+//     it), OFF is asked directly: products by barcode (15 reads/min per IP), and text through the legacy
+//     cgi/search.pl, which mostly answers 503 since 2026-10. ODbL.
 // Both give values per 100 g (or 100 ml). OFF results become a *draft* food that prefills the "New food" form.
 // Drafts carry a `database` attribute (CIQUAL / USDA / OFF) plus `source` ({db, id}) for the link back.
 
@@ -226,7 +224,7 @@ export function offDraft(p) {
   if (serving > 0) units.push({ ...ONE, fromUnit: 'serving', toAmount: serving, toUnit: p.serving_quantity_unit || unit })
   const pack = Number(p.product_quantity)
   if (pack > 0) units.push({ ...ONE, fromUnit: 'package', toAmount: pack, toUnit: p.product_quantity_unit || unit })
-  // Legacy API: "A, B"; search-a-licious: ["A", "B"].
+  // "A, B" (OFF's API); also accepts ["A", "B"].
   const brand = String(Array.isArray(p.brands) ? p.brands[0] ?? '' : p.brands ?? '').split(',')[0].trim()
   return {
     name: (p.product_name || '').trim() || `Product ${p.code}`, brand, attributes: [['database', 'OFF']], ...PER_100, unit, units,
@@ -236,6 +234,20 @@ export function offDraft(p) {
   }
 }
 
+/** Our copy: its JSON, null if it doesn't have that product, undefined if it can't answer. */
+async function copyGet(path) {
+  try {
+    const r = await fetch(`${import.meta.env.BASE_URL}off/${path}`)
+    if (r.status === 404) return null
+    // A static host without the copy answers /off/ with the app's index.html; 503 while it's first built.
+    if (r.ok && r.headers.get('content-type')?.includes('json')) return await r.json()
+  } catch {
+    // Offline, or the server is down.
+  }
+  return undefined
+}
+
+/** Open Food Facts itself. */
 async function offGet(url) {
   let r
   try {
@@ -243,17 +255,20 @@ async function offGet(url) {
   } catch {
     throw new Error("Open Food Facts didn't answer (offline, or busy / rate-limited). Try again in a minute.")
   }
-  if (r.status === 429) {
-    // The deployed /off-search relay says how long until its shared 10-per-minute budget frees up.
-    const wait = Number(r.headers.get('retry-after'))
-    throw new Error(`Open Food Facts rate limit reached (10 searches per minute). Try again ${wait > 0 ? `in ${Math.ceil(wait)} s` : 'shortly'}.`)
-  }
+  if (r.status === 429) throw new Error('Open Food Facts rate limit reached. Try again in a minute.')
   if (r.status === 503) throw new Error('Open Food Facts search is temporarily unavailable. Try again in a minute.')
   if (r.status === 404) return null
   if (!r.ok) throw new Error(`Open Food Facts: HTTP ${r.status}`)
-  // A static host without the proxy answers /off-search with the app's index.html.
   if (!r.headers.get('content-type')?.includes('json')) return null
   return r.json()
+}
+
+/** A product by barcode, from our copy, else from OFF (newer than the copy, or no copy to ask); null if neither has it. */
+async function offProduct(code) {
+  const mine = await copyGet(`product/${code}`)
+  if (mine?.product) return mine.product
+  const res = await offGet(`${OFF}/api/v2/product/${code}.json?fields=${OFF_FIELDS}`)
+  return res?.status === 1 && res.product ? { ...res.product, code: res.product.code ?? code } : null
 }
 
 const hasPer100 = (p) => p.nutriments && Object.keys(p.nutriments).some((k) => k.endsWith('_100g'))
@@ -266,13 +281,11 @@ export const isBarcode = (q) => /^\d{8,14}$/.test(digitsOnly(q))
 export async function searchOff(query) {
   const q = query.trim()
   if (isBarcode(q)) {
-    const code = digitsOnly(q)
-    const res = await offGet(`${OFF}/api/v2/product/${code}.json?fields=${OFF_FIELDS}`)
-    return res?.status === 1 && res.product ? [{ ...res.product, code: res.product.code ?? code }] : []
+    const product = await offProduct(digitsOnly(q))
+    return product ? [product] : []
   }
-  const params = new URLSearchParams({ q, page_size: 24, fields: OFF_FIELDS })
-  const res = await offGet(`${import.meta.env.BASE_URL}off-search/search?${params}`)
-  if (res?.hits) return res.hits.filter(hasPer100)
+  const mine = await copyGet(`search?${new URLSearchParams({ q, page_size: 24 })}`)
+  if (mine?.hits) return mine.hits
   const legacy = new URLSearchParams({
     search_terms: q, search_simple: 1, action: 'process', json: 1, page_size: 24, fields: OFF_FIELDS,
   })
@@ -280,11 +293,14 @@ export async function searchOff(query) {
   return (old?.products ?? []).filter(hasPer100)
 }
 
-/** The full product behind a search hit's draft; the hit's own draft if the read fails. */
+/**
+ * The full product behind a search hit's draft (a hit from cgi/search.pl may lack serving/package sizes and some
+ * nutrients); the hit's own draft if the read fails.
+ */
 export async function offProductDraft(draft) {
   try {
-    const res = await offGet(`${OFF}/api/v2/product/${draft.source.id}.json?fields=${OFF_FIELDS}`)
-    if (res?.status === 1 && res.product && hasPer100(res.product)) return offDraft({ ...res.product, code: draft.source.id })
+    const product = await offProduct(draft.source.id)
+    if (product && hasPer100(product)) return offDraft({ ...product, code: draft.source.id })
   } catch {
     // Rate limit or outage: the search hit still has name, brand and the main nutrients.
   }

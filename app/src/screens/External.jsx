@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { MacroLine, Screen } from '../components'
 import { isBarcode, offDraft, offProductDraft, searchOff, setPendingDraft } from '../external'
 
-// "Search external", opened from New food: Open Food Facts, searched on Enter (rate-limited). Picking a result goes
+// "Search external", opened from New food: Open Food Facts (our copy on the server), searched on Enter. Picking a result goes
 // back to the form, prefilled (see external.js). CIQUAL's generic foods are in the food database itself.
 
 export default function External({ initialQuery = '' }) {
@@ -69,7 +69,7 @@ function OffSearch({ query, setQuery }) {
       {state.status === 'done' && <Results drafts={state.drafts} onPick={choose} empty={`Nothing found for "${state.searched}".`} />}
       <p className="muted small">
         Data: <a href="https://world.openfoodfacts.org/" target="_blank" rel="noreferrer">Open Food Facts</a>, community-made,
-        ODbL. Values per 100 g/ml as on the label; check them against your pack. Max 10 searches per minute.
+        ODbL. Values per 100 g/ml as on the label; check them against your pack.
       </p>
     </>
   )

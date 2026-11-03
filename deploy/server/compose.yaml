@@ -8,7 +8,7 @@ services:
     restart: unless-stopped
     networks:
       - proxy
-      - default   # reaches the backup server as backup:8080
+      - default   # reaches the backup server as backup:8080, the copy of Open Food Facts as off:8080
 
   backup:
     build:
@@ -19,6 +19,15 @@ services:
     volumes:
       - track-shit-backup:/data
 
+  off:
+    build:
+      context: ./src
+      dockerfile: deploy/off/Dockerfile
+    image: track-shit-off
+    restart: unless-stopped
+    volumes:
+      - off-data:/data
+
 networks:
   proxy:
     external: true   # the host's reverse proxy
@@ -26,3 +35,4 @@ networks:
 volumes:
   track-shit-backup:
     external: true   # created by hand; compose never deletes it
+  off-data: {}       # rebuilt from Open Food Facts' export if lost

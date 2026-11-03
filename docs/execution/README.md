@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-03 | [Open Food Facts: our own copy on the server](2026-11-03-off-copy.md) | accepted |
 | 2026-11-02 | [Faster start: reference foods made when needed; opens from the cache](2026-11-02-fast-start.md) | accepted |
 | 2026-11-02 | [Temp notes: arrow keys and swipes go through a note's pictures](2026-11-02-note-picture-viewer.md) | accepted |
 | 2026-11-02 | [Temp notes: pictures keep their filenames](2026-11-02-note-picture-names.md) | accepted |
@@ -44,7 +45,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | 2026-10-27 | [Import: merge into the current data, or replace it](2026-10-27-import-merge.md) | accepted |
 | 2026-10-27 | [Backup: change the secret, signed by the old key; deploy and update steps](2026-10-27-backup-rotate.md) | accepted |
 | 2026-10-27 | [Encrypted backup: invite codes, one blob per public key, secret by QR link](2026-10-27-backup.md) | accepted |
-| 2026-10-26 | [Server rate-limits its Open Food Facts searches](2026-10-26-off-rate-limit.md) | accepted |
+| 2026-10-26 | [Server rate-limits its Open Food Facts searches](2026-10-26-off-rate-limit.md) | superseded by [off-copy](2026-11-03-off-copy.md) |
 | 2026-10-26 | [Backup server: encrypted only; account mode discarded](2026-10-26-backup-direction.md) | accepted (direction); built in [backup](2026-10-27-backup.md) |
 | 2026-10-26 | [Production image of the web app](2026-10-26-web-image.md) | accepted |
 | 2026-10-26 | [Android port removed: web app only](2026-10-26-android-removed.md) | accepted |
@@ -113,7 +114,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | 2026-10-17 | [Homescreen: + buttons beside Consumptions, Foods and Targets](2026-10-17-home-add-buttons.md) | accepted |
 | 2026-10-17 | [Weekly/monthly dashboards: per-day averages](2026-10-17-per-day-averages.md) | accepted |
 | 2026-10-17 | [Weekly calorie correction](2026-10-17-weekly-calorie-correction.md) | superseded in part by correction-per-bound |
-| 2026-10-17 | [Open Food Facts: text search via search-a-licious](2026-10-17-off-search.md) | accepted |
+| 2026-10-17 | [Open Food Facts: text search via search-a-licious](2026-10-17-off-search.md) | superseded by [off-copy](2026-11-03-off-copy.md) |
 | 2026-10-16 | [Serve script: reach the app from outside the container](2026-10-16-serve-script.md) | accepted |
 | 2026-10-16 | [Error maths audit](2026-10-16-error-math-audit.md) | accepted |
 | 2026-10-16 | [Food screen: Edit and Info tabs](2026-10-16-food-info.md) | accepted |

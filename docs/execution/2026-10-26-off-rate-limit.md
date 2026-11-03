@@ -1,7 +1,7 @@
 # Server rate-limits its Open Food Facts searches
 
 - **Date:** 2026-10-26
-- **Status:** accepted
+- **Status:** superseded by [off-copy](2026-11-03-off-copy.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (V2 external databases; user in chat:
   "Ensure the server rate-limits itself towards Open Food Facts")
 - **Amends:** [Production image of the web app](2026-10-26-web-image.md)
