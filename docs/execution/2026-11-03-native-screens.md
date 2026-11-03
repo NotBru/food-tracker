@@ -106,13 +106,13 @@ another device first, stays quiet, as on the web). Restoring is two calls: the f
 when) and, once confirmed, the restore of what was fetched. The QR's modules come from qrcode-generator in the web
 app; Kotlin draws them. The secret reaches Kotlin only when shown.
 
-Open: the emulator's WebView (124, as its Chrome) can't make Ed25519 signatures (Chrome has them from 137), so the
-backup can't start or restore there; phones update WebView through the Play Store. Sync was not tested on the
-emulator for that reason. The scripts now install a newer image, whose WebView has them (the user's choice, over a
-Play Store sign-in on the emulator or a JS fallback): Android 16 (`android-36.1;google_apis`). Android 17's
-(`android-37.0`, WebView 145) was tried first: with emulator 37.2.13 on the user's AMD laptop, every read of the screen
-back from graphics memory aborts (`hasReadColorBufferDma`), so SurfaceFlinger, screenshots and system_server's task
-snapshots crash in a loop, also with `-gpu swiftshader_indirect`.
+The emulator's first WebView (124, Android 15's image) couldn't make Ed25519 signatures (Chrome has them from 137), so
+the backup couldn't start or restore there; phones update WebView through the Play Store. The scripts now install
+Android 17's image (`android-37.0;google_apis`, WebView 145; the user's choice, over a Play Store sign-in on the
+emulator or a JS fallback). Its first AVD crashed in a loop (every read of the screen back from graphics memory
+aborted, `hasReadColorBufferDma`: SurfaceFlinger, screenshots, system_server's task snapshots; also in software). The
+cause was the AVD: command-line tools 12.0's avdmanager writes `target=android-0` for images named `android-37.0`
+(and gives 1.5 GB of RAM, 800 MB of storage, which Android 17 fills). Recreated with 23.0's, it runs.
 
 ## Alternatives considered
 

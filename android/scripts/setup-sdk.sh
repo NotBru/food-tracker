@@ -21,7 +21,7 @@ CMDLINE_TOOLS_ZIP=commandlinetools-linux-16111833_latest.zip
 CMDLINE_TOOLS_VERSION=23.0
 PLATFORM="platforms;android-35"
 BUILD_TOOLS="build-tools;35.0.0"
-SYSTEM_IMAGE="system-images;android-36.1;google_apis;x86_64"
+SYSTEM_IMAGE="system-images;android-37.0;google_apis;x86_64"
 EMULATOR=$([ "${1:-}" = "--emulator" ] && echo 1 || true)
 
 STEP="starting"
