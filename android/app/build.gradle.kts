@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -13,16 +15,29 @@ android {
         applicationId = "app.foodtracker"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0"
+        // Each port: the patch number and versionCode both go up by one (README, Re-porting).
+        versionCode = 3
+        versionName = "0.2.1"
+    }
+
+    // The release key: ../.secrets/android-release.properties (outside git; keep a copy of it and the .p12 it names).
+    // Without it the release APK comes out unsigned (app-release-unsigned.apk), never signed with another key.
+    val releaseKeys = rootProject.file("../.secrets/android-release.properties")
+    signingConfigs {
+        if (releaseKeys.exists()) create("release") {
+            val p = Properties().apply { releaseKeys.inputStream().use { load(it) } }
+            storeFile = releaseKeys.resolveSibling(p.getProperty("storeFile"))
+            storePassword = p.getProperty("storePassword")
+            keyAlias = p.getProperty("keyAlias")
+            keyPassword = p.getProperty("keyPassword")
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            // Signed with the debug key so `assembleRelease` gives an installable APK; installing a newer one over it
-            // keeps the app's data as long as the key is the same (keep ~/.android/debug.keystore).
-            signingConfig = signingConfigs.getByName("debug")
+            // Installing a newer APK over the old one keeps the app's data only if both are signed with this key.
+            signingConfig = signingConfigs.findByName("release")
         }
     }
     compileOptions {

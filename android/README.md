@@ -33,7 +33,8 @@ listed are the web app's screens.
 
 ## Re-porting (about weekly)
 
-1. Rebuild the APK from the current checkout: the web app's logic and screens come in as they are.
+1. Rebuild the APK from the current checkout: the web app's logic and screens come in as they are. Bump
+   `versionName`'s patch number and `versionCode` by one each (`app/build.gradle.kts`).
 2. For each native screen, see what changed in the web screen it ports since the last port, and port that layout:
    `git log --oneline <last port>.. -- app/src/screens/Home.jsx`.
 3. To make another screen native: move what it shows into a view in `app/src/native/core.js` (texts formatted,
@@ -55,8 +56,10 @@ source scripts/env.sh          # JAVA_HOME, ANDROID_HOME (setup: scripts/setup-s
 
 Install the APK on the phone (copy it over and open it, or `adb install -r …`). **Updating**: install the newer APK
 over the old one; the app's data stays, as long as it's signed with the same key. Release builds are signed with
-this container's debug key, `~/.android/debug.keystore`: keep a copy of it. With another key Android refuses the
-update, and the app has to be uninstalled first (its data goes; the backup brings it back).
+`../.secrets/android-release.p12` (outside git; its passwords in `android-release.properties` beside it): keep a copy
+of both off this laptop. Without them the release APK comes out unsigned. With another key Android refuses the
+update, and the app has to be uninstalled first (its data goes; the backup brings it back). Up to 0.2.0 the APKs
+were signed with the container's debug key; 0.2.1 needs that one uninstall.
 
 The app's data is its own, not Firefox's: on the first run, open the sync icon → Backup and enter the backup
 secret (or open the secret's QR link with the app) and it syncs like any other device.

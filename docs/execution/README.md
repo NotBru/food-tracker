@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-03 | [Android app: its own release key; versions bumped at each port](2026-11-03-android-release-key.md) | accepted |
 | 2026-11-03 | [Android app: dashboard bar notes and the "only nutrients with a target" switch, ported](2026-11-03-android-bar-notes.md) | accepted |
 | 2026-11-03 | [Config: dashboard shows only nutrients with a target](2026-11-03-only-targets.md) | accepted |
 | 2026-11-03 | [Dashboard bars: every number a note on the bar; the budget a segment](2026-11-03-bar-notes.md) | accepted |
