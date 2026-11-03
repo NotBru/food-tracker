@@ -1,0 +1,16 @@
+# fdroidserver's config for the Android app's F-Droid repo (android/scripts/publish.sh runs `fdroid update` here).
+# The repo is served at repo_url by the web container (deploy/web/Caddyfile); the push hook uploads repo/.
+repo_url: https://track-shit.notbru.xyz/fdroid/repo
+repo_name: Food Tracker
+repo_description: >-
+  The Food Tracker Android app, built from github.com/NotBru/food-tracker.
+archive_older: 3   # older versions move to archive/, which isn't uploaded
+
+# Index signing: the fdroid-repo key, beside the app's own in the same keystore (outside git).
+keystore: ../../.secrets/android-release.p12
+repo_keyalias: fdroid-repo
+keystorepass: {env: FDROID_KEY_PASS}
+keypass: {env: FDROID_KEY_PASS}
+keydname: CN=Food Tracker F-Droid repo, O=Bru
+
+# The Android SDK: fdroid finds it from ANDROID_HOME (scripts/env.sh).

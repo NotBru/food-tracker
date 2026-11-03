@@ -16,6 +16,14 @@
 		reverse_proxy {$BACKUP_UPSTREAM:backup:8080}
 	}
 
+	# The Android app's F-Droid repo (android/fdroid/repo), uploaded by the push hook into /srv/track-shit/fdroid/repo
+	# and mounted here by compose. Its index changes with each release, so nothing is cached for long.
+	handle /fdroid/repo/* {
+		root * /srv
+		file_server
+		header Cache-Control "no-cache"
+	}
+
 	handle {
 		root * /srv
 		file_server

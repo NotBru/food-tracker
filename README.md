@@ -93,6 +93,8 @@ docker volume create track-shit-backup
 ```
 
 After a change to `deploy/server/`, copy the files again (`cp src/deploy/server/{compose.yaml,deploy.sh} .`).
+The Android app's F-Droid repo is in `fdroid/repo/` there, uploaded by the push hook (`deploy/hooks/reference-transaction`,
+copied into `.git/hooks/` of the clone you push from) and served at `/fdroid/repo/`; see `android/README.md`.
 Invite codes: `docker compose exec backup node server.mjs invite <name>` (from `/srv/track-shit`).
 
 ### Updating

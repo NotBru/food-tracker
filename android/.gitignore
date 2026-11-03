@@ -6,3 +6,9 @@ local.properties
 captures/
 .idea/
 *.iml
+
+# F-Droid repo: made by scripts/publish.sh, uploaded by the push hook
+fdroid/repo/
+fdroid/archive/
+fdroid/tmp/
+fdroid/tmp*/

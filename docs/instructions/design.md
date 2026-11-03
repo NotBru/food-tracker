@@ -7,7 +7,7 @@ Opens fast, offline too: from its cache, without waiting for the network; a new 
 it was fetched.
 
 Android app: native UI over the web app's own logic (data, calculations, sync), which runs inside it; re-ported from
-the web app about weekly. Screens not ported yet are the web app's own.
+the web app about weekly. Screens not ported yet are the web app's own. Updates through an F-Droid repo on the server.
 
 Production: a Docker image serving the build, at https://track-shit.notbru.xyz (final: data is tied to the origin).
 A backup server beside it, holding only ciphertext. A copy of Open Food Facts beside it too, updated daily.

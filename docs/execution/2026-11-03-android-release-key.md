@@ -31,4 +31,4 @@ only for a higher `versionCode`, and updates need one key that outlives the cont
 
 ## Open questions
 
-- The F-Droid repo itself (its own index-signing key, a Caddy route, a publish script): not started.
+- The F-Droid repo itself: done in [fdroid-repo](2026-11-03-fdroid-repo.md).

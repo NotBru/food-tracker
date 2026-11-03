@@ -1,0 +1,10 @@
+Categories:
+  - Sports & Health
+License: Unknown
+AuthorName: Bru
+SourceCode: https://github.com/NotBru/food-tracker
+Name: Food Tracker
+Summary: Food and nutrients, with honest error margins
+Description: |-
+  A personal food and nutrient tracker: what you ate, against your targets, with error margins on every number.
+  Native screens over the web app's own logic; syncs through an encrypted backup.

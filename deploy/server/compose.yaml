@@ -6,6 +6,8 @@ services:
       dockerfile: deploy/web/Dockerfile
     image: track-shit-web
     restart: unless-stopped
+    volumes:
+      - ./fdroid/repo:/srv/fdroid/repo:ro   # the F-Droid repo the push hook uploads (android/scripts/publish.sh)
     networks:
       - proxy
       - default   # reaches the backup server as backup:8080, the copy of Open Food Facts as off:8080
