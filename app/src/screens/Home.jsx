@@ -127,14 +127,28 @@ function Budget({ row, val, range }) {
 // Dashboard style "bars": each number sits on the bar, at its place (dashboard.js barNotes). Notes in a lane that
 // would overlap are pushed apart, as little as needed, and kept within the bar's width.
 
-/** The fonts of .note, .note.value and .note.budget-note (styles.css), for measuring a note's width before it's drawn. */
-const NOTE_FONT = { value: '700 16px', budget: '600 12px', other: '400 12px' }
 const NOTE_GAP = 6 // px between two notes in a lane
-let measureCtx
-function noteWidth(text, kind) {
-  measureCtx ??= document.createElement('canvas').getContext('2d')
-  measureCtx.font = `${NOTE_FONT[kind] ?? NOTE_FONT.other} ${getComputedStyle(document.body).fontFamily}`
-  return measureCtx.measureText(text).width
+
+/**
+ * Widths (px) of the elements given `ref(i)`, as the browser drew them (its fonts, text size and zoom: a canvas
+ * measure in the CSS font missed text scaling and let notes overlap); null until measured. Measured before paint.
+ */
+function useWidths(n) {
+  const els = useRef([])
+  els.current.length = n
+  const [ws, setWs] = useState(null)
+  const measure = () => {
+    const next = Array.from({ length: n }, (_, i) => els.current[i]?.getBoundingClientRect().width ?? 0)
+    setWs((prev) => (prev?.length === n && prev.every((w, i) => Math.abs(w - next[i]) < 0.5) ? prev : next))
+  }
+  useLayoutEffect(measure)
+  // A note's size changing by itself (a font arriving, text scaling changed): measured again.
+  useLayoutEffect(() => {
+    const ro = new ResizeObserver(() => measure())
+    for (const el of els.current) el && ro.observe(el)
+    return () => ro.disconnect()
+  })
+  return [(i) => (el) => { els.current[i] = el }, ws?.length === n ? ws : null]
 }
 
 /**
@@ -167,24 +181,33 @@ function spreadNotes(items, W, gap = NOTE_GAP) {
   return lefts
 }
 
+/**
+ * One lane of notes, in a row on one baseline, left to right as on the bar: each note's margin puts it where
+ * spreadNotes wants it (at least NOTE_GAP from the one before).
+ */
 function NoteLane({ notes, width, className }) {
-  const ws = notes.map((n) => noteWidth(n.text, n.kind))
-  const lefts = width ? spreadNotes(notes.map((n, i) => ({ c: (n.at / 100) * width, w: ws[i] })), width) : []
+  const sorted = [...notes].sort((a, b) => a.at - b.at)
+  const [ref, ws] = useWidths(sorted.length)
+  const lefts = width && ws ? spreadNotes(sorted.map((n, i) => ({ c: (n.at / 100) * width, w: ws[i] })), width) : null
   return (
     <div className={`note-lane ${className}`}>
-      {width > 0 && notes.map((n, i) => <span key={n.kind} className={`note ${n.kind}`} style={{ left: lefts[i] }}>{n.text}</span>)}
+      {width > 0 && sorted.map((n, i) => (
+        <span key={n.kind} ref={ref(i)} className={`note ${n.kind}`}
+          style={lefts ? { marginLeft: lefts[i] - (i ? lefts[i - 1] + ws[i - 1] : 0) } : { visibility: 'hidden' }}>{n.text}</span>
+      ))}
     </div>
   )
 }
 
 /** Calories with a max: a segment from the estimate's high end to the max, labelled with what's left (Δ). */
 function BudgetLane({ budget, width }) {
-  const w = noteWidth(budget.text, 'budget')
+  const [ref, ws] = useWidths(1)
+  const w = ws?.[0] ?? 0
   const mid = ((budget.from + budget.to) / 200) * width
   return (
     <div className={`note-lane budget-lane ${budget.over ? 'over' : ''}`} title={budget.over ? 'Over the max by' : "Budget: what's left to eat"}>
       <div className="budget-seg" style={{ left: `${budget.from}%`, width: `${budget.to - budget.from}%` }} />
-      {width > 0 && <span className="note budget-note" style={{ left: Math.min(Math.max(mid - w / 2, 0), Math.max(0, width - w)) }}>{budget.text}</span>}
+      {width > 0 && <span ref={ref(0)} className="note budget-note" style={ws ? { left: Math.min(Math.max(mid - w / 2, 0), Math.max(0, width - w)) } : { visibility: 'hidden' }}>{budget.text}</span>}
     </div>
   )
 }

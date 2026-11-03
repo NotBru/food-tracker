@@ -117,23 +117,22 @@ h3 { margin: 8px 0 0; font-size: 16px; }
 .dash-name small { color: var(--muted); font-size: 12px; opacity: .75; }
 .err-range { font-size: 13px; font-weight: 400; color: var(--range); }
 .bar { position: relative; height: 8px; }
-/* Bar notes: each number at its place on the bar (Home.jsx NOTE_FONT measures them: keep the fonts in step). */
+/* Bar notes: each number at its place on the bar (Home.jsx NoteLane): a lane is one row of notes on one baseline,
+   placed by their margins; heights in em, so scaled-up text grows the lanes instead of spilling over the bar. */
 .dash-bar { min-width: 0; }
-.note-lane { position: relative; height: 15px; }
-.note-lane.above { height: 19px; margin-bottom: 2px; }
-.note-lane.below { margin-top: 2px; }
-.note { position: absolute; white-space: nowrap; font: 400 12px/1 system-ui, sans-serif; font-family: inherit; }
-.note-lane.above .note { bottom: 0; }
-.note-lane.below .note, .budget-lane .note { top: 2px; }
+.note-lane { position: relative; display: flex; align-items: baseline; font-size: 12px; line-height: 1; min-height: 1.25em; }
+.note-lane.above { align-items: last baseline; min-height: 1.6em; margin-bottom: 2px; }
+.note-lane.below { margin-top: 2px; padding-top: 2px; min-height: 1.1em; }
+.note { flex: none; white-space: nowrap; }
 .note.value { font-weight: 700; font-size: 16px; color: currentColor; }
 .note.lo, .note.hi { color: var(--range); }
 .note-lane.below { color: var(--muted); }
-.budget-lane { height: 16px; color: var(--kcal); }
+.budget-lane { display: block; min-height: 16px; color: var(--kcal); }
 .budget-lane.over { color: var(--prot); }
 /* The segment: a thin line between two end ticks; its label sits on it, over a gap cut in the line. */
 .budget-seg { position: absolute; top: 4px; height: 8px; box-sizing: border-box; border: 0 solid currentColor; border-width: 0 1.5px; }
 .budget-seg::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 1.5px solid currentColor; transform: translateY(-50%); opacity: .7; }
-.note.budget-note { font-weight: 600; padding: 0 4px; margin-left: -4px; background: var(--panel-2); box-sizing: content-box; }
+.note.budget-note { position: absolute; top: 2px; font-weight: 600; padding: 0 4px; background: var(--panel-2); }
 .bar-track { position: absolute; inset: 0; background: var(--bg); overflow: hidden; }
 .zone { position: absolute; top: 0; bottom: 0; opacity: .28; }
 .zone.under { background: var(--prot); }
