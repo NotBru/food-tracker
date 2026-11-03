@@ -36,10 +36,6 @@ fi
 if ! avdmanager list avd -c | grep -qx "$AVD"; then
   echo "== Creating AVD $AVD"
   echo no | avdmanager create avd -n "$AVD" -k "$IMAGE" -d pixel_7
-  # More RAM than avdmanager's default (2 GB; 12.0's 1.5 GB and 800 MB of storage were filled by Android 17's first boot).
-  CONFIG="$HOME/.android/avd/$AVD.avd/config.ini"
-  sed -i '/^hw.ramSize=/d; /^disk.dataPartition.size=/d' "$CONFIG"
-  printf 'hw.ramSize=4096\ndisk.dataPartition.size=6G\n' >> "$CONFIG"
 fi
 
 if ! adb devices | grep -q emulator; then
