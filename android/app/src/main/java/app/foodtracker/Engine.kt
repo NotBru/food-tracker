@@ -149,6 +149,9 @@ class Engine(private val context: Context) : Core {
             }
             "watch" -> watches[id]?.second?.invoke(m["value"], m["error"]?.jsonPrimitive?.contentOrNull)
             "exit" -> onExit?.invoke()
+            // The page is going (a reload): wait for the next one's "ready". Not onPageStarted: WebView 145 calls it
+            // after the page has already started and said "ready", which then never came again.
+            "unload" -> _ready.value = false
             "route" -> _route.value = m["path"]?.jsonPrimitive?.contentOrNull ?: "/"
             "sync" -> _sync.value = m["value"]?.let { json.decodeFromJsonElement(SyncStatus.serializer(), it) }
             "ready" -> {
@@ -204,10 +207,6 @@ class Engine(private val context: Context) : Core {
             if (request.url.host == HOST) return false
             runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, request.url).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
             return true
-        }
-
-        override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) {
-            _ready.value = false
         }
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {

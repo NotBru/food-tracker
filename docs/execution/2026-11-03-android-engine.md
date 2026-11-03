@@ -25,7 +25,10 @@ a second copy of the logic (calculations, data, sync, encryption).
   screen. So the app is complete from the start, and screens become native one at a time; back goes through the
   WebView's history.
 - **Bridge** (`app/src/native/bridge.js`, `Engine.kt`): `core.call` (once) and `core.watch` (again whenever the data
-  it reads changes: Dexie's `liveQuery`, as `useLiveQuery`; again on a day change), JSON both ways.
+  it reads changes: Dexie's `liveQuery`, as `useLiveQuery`; again on a day change), JSON both ways. Calls wait
+  for the page's `ready` and, after a reload, for the next one's (`unload` on `pagehide`). Not `onPageStarted`:
+  WebView 145 (Android 17's emulator) calls it after the page has started and said `ready`, which left every call
+  waiting (found 2026-11-03: taps that change screen did nothing).
 - **Views** (`app/src/native/core.js`): one function per native screen, returning what it shows: texts formatted,
   bars in %, links as routes. The Kotlin side only lays them out, so formatting and rounding stay JavaScript's.
   The logic they need moved out of the web screens into shared modules (`dashboard.js`: Home's loader and bar

@@ -75,6 +75,8 @@ export function startBridge() {
   }
   const route = () => post({ type: 'route', path: location.hash.slice(1) || '/' })
   window.addEventListener('hashchange', route)
+  // Before a reload's next page says "ready", so the app holds its calls until then.
+  window.addEventListener('pagehide', () => post({ type: 'unload' }))
   onState(() => post({ type: 'sync', value: views.syncStatus() }))
   post({ type: 'ready', path: location.hash.slice(1) || '/', sync: views.syncStatus() })
 }
