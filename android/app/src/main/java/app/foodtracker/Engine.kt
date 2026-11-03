@@ -155,6 +155,7 @@ class Engine(private val context: Context) : Core {
             "route" -> _route.value = m["path"]?.jsonPrimitive?.contentOrNull ?: "/"
             "sync" -> _sync.value = m["value"]?.let { json.decodeFromJsonElement(SyncStatus.serializer(), it) }
             "ready" -> {
+                Log.i("Engine", "web app ready") // startup timing: logcat's time since the activity's START
                 _route.value = m["path"]?.jsonPrimitive?.contentOrNull ?: "/"
                 _sync.value = m["sync"]?.let { json.decodeFromJsonElement(SyncStatus.serializer(), it) }
                 _ready.value = true

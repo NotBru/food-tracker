@@ -116,6 +116,21 @@ cause was the AVD: command-line tools 12.0's avdmanager writes `target=android-0
 checked there with the user's secret (after a local copy of their backup): restore (same dashboard numbers as the
 web), a note up to the server within seconds, and its delete.
 
+### Startup time
+
+Measured on the emulator (Android 17, the user's laptop), with the user's data, from the tap until the homescreen
+stops changing (screen recordings; `Engine: web app ready` in logcat for the engine):
+
+| | cold | warm |
+|-|------|------|
+| This app, release build | 1.1–1.3 s (engine ready ~1.0 s) | 0.2–0.3 s |
+| This app, debug build | 2.6 s | |
+| Chrome's home-screen shortcut | 1.8–1.9 s (2.7 s the first time) | 0.4–0.5 s |
+| Firefox's home-screen shortcut | 1.8–1.9 s | 0.2–0.5 s |
+
+The app's first frame comes with the engine's ready (both ~1 s cold), so the saved homescreen hardly shows before
+taps work; creating the WebView after the first frame would show it sooner but make taps wait longer.
+
 ## Alternatives considered
 
 - **The form's state in the web app** (Kotlin sending keystrokes): a round trip per key, and the text field's value
