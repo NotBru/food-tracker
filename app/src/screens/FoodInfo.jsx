@@ -5,7 +5,7 @@ import { MadeTag, Select } from '../components'
 import { MACROS, NUTRIENTS, calories, fmt, normalizeNumber, pmText, rangeText } from '../nutrients'
 import { getCoverage, sdOf } from '../stats'
 import { DEFAULT_ENTRY_ERROR, categoryName } from '../errors'
-import { ROWS } from './Home'
+import { ROWS } from '../dashboard'
 import EnergyChart from './EnergyChart'
 
 // Info tab of a food: the nutrients for any amount (picked on top), computed with the same error maths as

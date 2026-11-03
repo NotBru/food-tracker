@@ -8,7 +8,7 @@ import { bounds, sdOf, zero } from '../stats'
 import { addDays, dayBounds, logicalDay, prettyDay } from '../time'
 import { Screen, go, replace, useToday } from '../components'
 import { dailyValues, measures, weekMean } from '../body'
-import { ROWS, fillPieces, hasMean, statusMark } from './Home'
+import { ROWS, fillPieces, hasMean, statusMark } from '../dashboard'
 
 // Time graphs: per nutrient on the dashboard, one column per day, back to back. Each column is a dashboard bar
 // standing up: the day's target as tinted regions (below min, within, above max), the fill solid up to the low end

@@ -19,6 +19,7 @@ import Body from './screens/Body'
 import Backup from './screens/Backup'
 import Notes from './screens/Notes'
 import { startAutoSync } from './backup'
+import { native, nativeRoute, startBridge } from './native/bridge'
 import './styles.css'
 
 function App() {
@@ -27,6 +28,8 @@ function App() {
   const config = useLiveQuery(getConfig)
   if (!config) return null
   setCoverage(config.coverage)
+  // In the Android app, a route with a native screen is drawn by the app, over this (native/bridge.js).
+  if (nativeRoute()) return null
   const [a, b] = parts
   if (a === 'consumptions' && b) return <ConsumptionInfo id={b} nutrient={query.nutrient} />
   if (a === 'consumptions') return <Consumptions day={query.day} add={query.new != null} />
@@ -51,7 +54,8 @@ createRoot(document.getElementById('root')).render(
 )
 
 // Service workers need a secure context (HTTPS or localhost); only used in production builds.
-if (import.meta.env.PROD && 'serviceWorker' in navigator && window.isSecureContext) {
+// Not in the Android app: it serves this build itself, offline (native/bridge.js).
+if (import.meta.env.PROD && !native && 'serviceWorker' in navigator && window.isSecureContext) {
   navigator.serviceWorker.register('/sw.js')
 }
 
@@ -59,6 +63,7 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator && window.isSecureConte
 navigator.storage?.persist?.()
 
 startAutoSync()
+if (native) startBridge()
 
 // Temp notes go a week after they're made: checked as the app opens and every hour while it's open.
 expireNotes()

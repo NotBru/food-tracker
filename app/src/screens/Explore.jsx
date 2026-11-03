@@ -5,7 +5,7 @@ import { db, fold, itemLabel, searchText } from '../db'
 import { NUTRIENTS, calories, fmt, pmText } from '../nutrients'
 import { bounds } from '../stats'
 import { Screen, go } from '../components'
-import { ROWS } from './Home'
+import { ROWS } from '../dashboard'
 import EnergyChart, { macroKcal } from './EnergyChart'
 
 // One nutrient across the food databases (from a breakdown's 🔍): the foods ranked by the share of their energy the

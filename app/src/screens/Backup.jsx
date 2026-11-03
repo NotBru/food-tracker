@@ -39,7 +39,7 @@ function useBackupState() {
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`
 
 /** What the sync icon's colour means, in words (its hover text, and the Backup screen's status line). */
-function statusText(s) {
+export function statusText(s) {
   const last = s?.at ? ` Last synced ${formatDateTime(s.at)}.` : ''
   switch (status(s)) {
     case 'off': return 'Backup is off.'

@@ -6,7 +6,7 @@ import { NUTRIENTS, amountText, calories, fmt, pmText, rangeText } from '../nutr
 import { addScaled, bounds, variance, zero } from '../stats'
 import { addDays, dayBounds, formatDateTime, logicalDay, prettyDay, toLocalInput } from '../time'
 import { MadeTag, Screen, go, replace } from '../components'
-import { ROWS } from './Home'
+import { ROWS } from '../dashboard'
 
 // One nutrient over a window (from the dashboard): how much each consumption contributed, as horizontal bars
 // sorted largest first. Each bar is drawn like the dashboard's fill: solid to the interval's low end, hatched to its
