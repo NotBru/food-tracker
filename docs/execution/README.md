@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-03 | [Food searches: foods already eaten first](2026-11-03-search-used-first.md) | accepted |
 | 2026-11-03 | [Dashboard bar notes: measured as drawn, one line per lane](2026-11-03-bar-notes-measured.md) | accepted |
 | 2026-11-03 | [Android app: an F-Droid repo on the VPS](2026-11-03-fdroid-repo.md) | accepted |
 | 2026-11-03 | [Android app: its own release key; versions bumped at each port](2026-11-03-android-release-key.md) | accepted |

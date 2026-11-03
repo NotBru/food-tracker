@@ -45,6 +45,7 @@ listed are the web app's screens.
 ## Next port
 
 - Scan the backup secret's QR code in the app.
+- Food searches: foods already eaten first (search.js, calc.js `loadContext` `used`): comes with the next build, nothing to port.
 
 ## Build, install, update
 

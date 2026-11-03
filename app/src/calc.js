@@ -1,4 +1,5 @@
-import { db, getConfig } from './db'
+import Dexie from 'dexie'
+import { db, getConfig, getCurrentUser } from './db'
 import { addDays, dayBounds } from './time'
 import { NUTRIENTS, calories, deltaFromInput } from './nutrients'
 import { DEFAULT_ENTRY_ERROR, sampling } from './errors'
@@ -156,14 +157,23 @@ class Foods {
  * Load everything nutrient computation needs, once. `list` is the user's own foods; CIQUAL's and USDA's are read-only
  * foods (external.js ciqualFoods, fdcFoods) that always resolve, so consumptions of them keep working, and are listed
  * (`generic()`, all of them made on the first call: only searches need it) only while the config includes them.
+ * `used`: the foods already in use, for searches to list first (search.js): id -> when the current user last ate it
+ * ('' if never: a concoction, or a component of one of the foods).
  */
 export async function loadContext() {
-  const [list, config] = await Promise.all([db.items.toArray(), getConfig()])
+  const [list, config, user] = await Promise.all([db.items.toArray(), getConfig(), getCurrentUser()])
   // Not loaded (offline on first use): without that table.
-  const [ciqual, usda] = await Promise.all([ciqualFoods().catch(() => null), fdcFoods().catch(() => null)])
+  const [ciqual, usda, logs] = await Promise.all([ciqualFoods().catch(() => null), fdcFoods().catch(() => null),
+    user ? db.logs.where('[userId+datetime]').between([user.id, Dexie.minKey], [user.id, Dexie.maxKey]).toArray() : []])
   const items = new Foods(new Map(list.map((r) => [r.id, r])), [ciqual, usda].filter(Boolean))
   const generic = () => [...(config.ciqual && ciqual ? ciqual.all() : []), ...(config.usda && usda ? usda.all() : [])]
-  return { items, list, generic }
+  const used = new Map()
+  for (const it of list) {
+    if (it.madeAt) used.set(it.id, '')
+    for (const c of it.components ?? []) if (c.itemId != null) used.set(c.itemId, '')
+  }
+  for (const l of logs) if (!(used.get(l.itemId) > l.datetime)) used.set(l.itemId, l.datetime)
+  return { items, list, generic, used }
 }
 
 /** Keep `unit` if it still works for the newly picked food, otherwise switch to the food's own unit. */

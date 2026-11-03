@@ -66,7 +66,8 @@ a band. The last N days (slider and box); drag sideways to move, tap a day to pi
 
 Ingredients, recipes, and concoctions are all foods, and they are exchangeable: anywhere a food is
 picked, any of them can be picked, from a single search. Searches rank by whole words: "pear" lists "Pears, raw"
-first, not "Spearmint" or baby food with pears.
+first, not "Spearmint" or baby food with pears. Foods already eaten (also concoctions and components) first, the most
+recently eaten first.
 
 Scrollable, searchable list, last element is “add new food”. Concoctions last. Repeated foods are ignored; the same
 ID with different values is flagged.

@@ -12,7 +12,8 @@ import { fold, itemLabel, searchText } from './db'
 //   3. the name starting with the first word typed ("Pears, raw" over "Prickly pears");
 //   4. fewer other words in the name ("Pear nectar" over "Pears, canned, in heavy syrup"); "raw" doesn't count, as it's
 //      the plain food ("Pears, raw" over "Pear nectar").
-// Callers put their own order (the user's foods first, concoctions by date) between 2 and 3.
+// Callers put foods already in use (ctx.used: eaten by the user, a concoction, a component) before 2, and their own
+// order (the user's foods first, concoctions by date, then the most recently eaten) between 2 and 3.
 
 // Plurals: "pears" -> pear, "tomatoes" -> tomato (not "glass").
 const stem = (w) => (w.length > 3 ? w.replace(/oes$/, 'o').replace(/(?<!s)s$/, '') : w)
@@ -83,6 +84,9 @@ export function matchRank(item, words) {
 }
 
 const isOld = (it, before) => !!(before && it.madeAt && it.madeAt < before)
+// 0 for a food already in use (eaten, a concoction, a component), 1 otherwise; and when it was last eaten.
+const unused = (ctx, it) => (ctx.used?.has(it.id) ? 0 : 1)
+const lastEaten = (ctx, it) => ctx.used?.get(it.id) ?? ''
 
 /**
  * The food picker's list (components.jsx ItemPicker) for `query`: [food, label] for the first 50 matches, best first.
@@ -96,18 +100,21 @@ export function foodMatches(ctx, query, { exclude, oldBefore, show } = {}) {
     .map((it) => [it, matchRank(it, words)])
     .filter(([, r]) => r)
     .map(([it, r]) => [it, itemLabel(it), r])
-    // Old concoctions (if `oldBefore`) last; then the better matches; among those, the user's foods before CIQUAL's
-    // and USDA's, most recently made concoctions first; then the closer names, then alphabetical.
+    // Old concoctions (if `oldBefore`) last; then the better matches, foods already in use first; among those, the
+    // user's foods before CIQUAL's and USDA's, most recently made concoctions first, then the most recently eaten;
+    // then the closer names, then alphabetical.
     .sort(([a, la, ra], [b, lb, rb]) => isOld(a, oldBefore) - isOld(b, oldBefore) || ra.inside - rb.inside
-      || ra.partial - rb.partial || !!a.readOnly - !!b.readOnly || (b.madeAt ?? '').localeCompare(a.madeAt ?? '')
+      || unused(ctx, a) - unused(ctx, b) || ra.partial - rb.partial || !!a.readOnly - !!b.readOnly
+      || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || lastEaten(ctx, b).localeCompare(lastEaten(ctx, a))
       || ra.first - rb.first || ra.extra - rb.extra || la.localeCompare(lb))
     .slice(0, 50)
 }
 
 /**
  * The Foods list for `query` (screens/Foods.jsx FoodList): [food, label]. No search: the user's foods. The better
- * matches first; among those, the user's foods before CIQUAL's and USDA's (the first `genericShown` of them),
- * concoctions after the rest (newest first); then the closer names, then alphabetical.
+ * matches first, foods already in use first; among those, the user's foods before CIQUAL's and USDA's (the first
+ * `genericShown` of them), concoctions after the rest (newest first), then the most recently eaten; then the closer
+ * names, then alphabetical.
  */
 export function foodListMatches(ctx, query, genericShown = 50) {
   const words = queryWords(query)
@@ -116,8 +123,9 @@ export function foodListMatches(ctx, query, genericShown = 50) {
     .map((r) => [r, matchRank(r, words)])
     .filter(([, rank]) => rank)
     .map(([r, rank]) => [r, itemLabel(r), rank])
-    .sort(([a, la, ra], [b, lb, rb]) => ra.inside - rb.inside || ra.partial - rb.partial || !!a.readOnly - !!b.readOnly
-      || !!a.madeAt - !!b.madeAt || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || ra.first - rb.first
-      || ra.extra - rb.extra || la.localeCompare(lb))
+    .sort(([a, la, ra], [b, lb, rb]) => ra.inside - rb.inside || (words.length && unused(ctx, a) - unused(ctx, b))
+      || ra.partial - rb.partial || !!a.readOnly - !!b.readOnly || !!a.madeAt - !!b.madeAt
+      || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || (words.length && lastEaten(ctx, b).localeCompare(lastEaten(ctx, a)))
+      || ra.first - rb.first || ra.extra - rb.extra || la.localeCompare(lb))
     .filter(([r]) => !r.readOnly || ++generic <= genericShown)
 }
