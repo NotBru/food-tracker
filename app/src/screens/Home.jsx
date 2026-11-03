@@ -1,11 +1,11 @@
-import { useId, useRef, useState } from 'react'
+import { useId, useLayoutEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { exportAll, importAll } from '../db'
 import { barScale } from '../calc'
 import { calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf, zero } from '../stats'
 import { WINDOWS, WINDOW_NAMES, addDays, daysBetween, versionStamp } from '../time'
-import { barFor, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
+import { barFor, barNotes, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
 import { Chevron, go, replace, useToday } from '../components'
 import { getState } from '../backup'
 import { SyncStatus } from './Backup'
@@ -123,56 +123,136 @@ function Budget({ row, val, range }) {
   )
 }
 
-/** Dashboard style "bars": one full-width row per nutrient with a horizontal bar over tinted regions. */
+// --- Bar notes -----------------------------------------------------------------
+// Dashboard style "bars": each number sits on the bar, at its place (dashboard.js barNotes). Notes in a lane that
+// would overlap are pushed apart, as little as needed, and kept within the bar's width.
+
+/** The fonts of .note, .note.value and .note.budget-note (styles.css), for measuring a note's width before it's drawn. */
+const NOTE_FONT = { value: '700 16px', budget: '600 12px', other: '400 12px' }
+const NOTE_GAP = 6 // px between two notes in a lane
+let measureCtx
+function noteWidth(text, kind) {
+  measureCtx ??= document.createElement('canvas').getContext('2d')
+  measureCtx.font = `${NOTE_FONT[kind] ?? NOTE_FONT.other} ${getComputedStyle(document.body).fontFamily}`
+  return measureCtx.measureText(text).width
+}
+
+/**
+ * Left edges (px) for labels of widths `w` wanted centred at `c`, in a lane `W` wide: neighbours that would overlap
+ * become one block, centred where its labels want it on average, then kept inside the lane.
+ */
+function spreadNotes(items, W, gap = NOTE_GAP) {
+  const place = (b) => {
+    let o = 0
+    let sum = 0
+    for (const it of b.list) { sum += it.c - (o + it.w / 2); o += it.w + gap }
+    b.w = o - gap
+    b.left = Math.min(Math.max(sum / b.list.length, 0), Math.max(0, W - b.w))
+    return b
+  }
+  const blocks = []
+  for (const it of items.map((it, i) => ({ ...it, i })).sort((a, b) => a.c - b.c)) {
+    blocks.push(place({ list: [it] }))
+    while (blocks.length > 1) {
+      const [a, b] = blocks.slice(-2)
+      if (a.left + a.w + gap <= b.left) break
+      blocks.splice(-2, 2, place({ list: [...a.list, ...b.list] }))
+    }
+  }
+  const lefts = []
+  for (const b of blocks) {
+    let x = b.left
+    for (const it of b.list) { lefts[it.i] = x; x += it.w + gap }
+  }
+  return lefts
+}
+
+function NoteLane({ notes, width, className }) {
+  const ws = notes.map((n) => noteWidth(n.text, n.kind))
+  const lefts = width ? spreadNotes(notes.map((n, i) => ({ c: (n.at / 100) * width, w: ws[i] })), width) : []
+  return (
+    <div className={`note-lane ${className}`}>
+      {width > 0 && notes.map((n, i) => <span key={n.kind} className={`note ${n.kind}`} style={{ left: lefts[i] }}>{n.text}</span>)}
+    </div>
+  )
+}
+
+/** Calories with a max: a segment from the estimate's high end to the max, labelled with what's left (Δ). */
+function BudgetLane({ budget, width }) {
+  const w = noteWidth(budget.text, 'budget')
+  const mid = ((budget.from + budget.to) / 200) * width
+  return (
+    <div className={`note-lane budget-lane ${budget.over ? 'over' : ''}`} title={budget.over ? 'Over the max by' : "Budget: what's left to eat"}>
+      <div className="budget-seg" style={{ left: `${budget.from}%`, width: `${budget.to - budget.from}%` }} />
+      {width > 0 && <span className="note budget-note" style={{ left: Math.min(Math.max(mid - w / 2, 0), Math.max(0, width - w)) }}>{budget.text}</span>}
+    </div>
+  )
+}
+
+/** The width of an element, kept up to date (0 until it's laid out). */
+function useWidth() {
+  const ref = useRef(null)
+  const [width, setWidth] = useState(0)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    setWidth(el.clientWidth)
+    const ro = new ResizeObserver(([e]) => setWidth(e.contentRect.width))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  return [ref, width]
+}
+
+/**
+ * Dashboard style "bars": one slim row per nutrient, its name and unit, then the bar with its numbers on it: the
+ * estimate above, the target below; calories also get the budget under those.
+ */
 function BarRow({ row: r, val, range, adj, onOpen }) {
-  const bar = barFor(r, val, range)
+  const { bar, top, bottom, budget } = barNotes(r, val, range)
   const ghost = ghostFor(r, val, range, adj)
+  const [laneRef, width] = useWidth()
   // Mouse hover over a bar with a target: the amount under the cursor, in % of the bar's width.
   const [hover, setHover] = useState(null)
   const onHover = (e) => {
-    if (e.pointerType !== 'mouse' || !bar || bar.dummy) return
+    if (e.pointerType !== 'mouse' || bar.dummy) return
     const box = e.currentTarget.getBoundingClientRect()
     setHover(Math.min(100, Math.max(0, ((e.clientX - box.left) / box.width) * 100)))
   }
   return (
     <div className="dash-row" role="button" tabIndex={0} onClick={onOpen} onKeyDown={enterOpen(onOpen)}>
-      <span className="dash-label">{r.label}</span>
-      <span className={`dash-value ${r.cls}`}>
-        {val.estimated ? '~' : ''}{fmt(val.value, 0)}
-        <small> {r.unit} {pmText(val)}</small>
-        <ErrRange val={val} />
+      <span className="dash-name">
+        <span className="dash-label">{r.label}</span>
+        <small>{r.unit}</small>
       </span>
-      {/* Without a target the bar keeps its space, so every row is equally spaced. */}
-      <div className={`dash-target ${bar ? '' : 'placeholder'}`} aria-hidden={!bar}>
-        <div className={`bar ${bar?.status ?? ''}`} onPointerMove={onHover} onPointerLeave={() => setHover(null)}>
-          {bar && (
-            <>
-              <div className="bar-track">
-                {/* Tinted regions: below min, within range, above max. */}
-                {bar.minAt != null && <div className="zone under" style={{ left: 0, width: `${bar.minAt}%` }} />}
-                {!bar.dummy && <div className="zone ok" style={{ left: `${bar.minAt ?? 0}%`, width: `${(bar.maxAt ?? 100) - (bar.minAt ?? 0)}%` }} />}
-                {bar.maxAt != null && <div className="zone over" style={{ left: `${bar.maxAt}%`, width: `${100 - bar.maxAt}%` }} />}
-                {/* The fill's shape (0 → end); pieces inside are placed in % of it. */}
-                <div className="bar-fillbox" style={{ width: `${fillEnd(bar)}%` }}>
-                  {fillPieces(bar).map((pc, i) => {
-                    const end = fillEnd(bar)
-                    const style = { left: `${(pc.from / end) * 100}%`, width: `${((pc.to - pc.from) / end) * 100}%` }
-                    return <div key={i} className={`${pc.hatched ? 'bar-err' : 'bar-fill'} r-${pc.region}`} style={style} />
-                  })}
-                </div>
-              </div>
-              {hasMean(bar) && <div className="bar-mean" style={{ left: `${bar.fill}%` }} />}
-              {ghost && <div className="bar-ghost" style={{ left: `${ghost.from}%`, width: `${ghost.to - ghost.from}%` }} />}
-              {hover != null && (
-                <div className="bar-hover" style={{ left: `${hover}%` }}>
-                  <span className="bar-tip">{fmt(barScale(range, val).at(hover), 0)} {r.unit}</span>
-                </div>
-              )}
-            </>
+      <div className={`dash-bar ${r.cls}`} ref={laneRef}>
+        <NoteLane notes={top} width={width} className="above" />
+        <div className={`bar ${bar.status}`} onPointerMove={onHover} onPointerLeave={() => setHover(null)}>
+          <div className="bar-track">
+            {/* Tinted regions: below min, within range, above max. */}
+            {bar.minAt != null && <div className="zone under" style={{ left: 0, width: `${bar.minAt}%` }} />}
+            {!bar.dummy && <div className="zone ok" style={{ left: `${bar.minAt ?? 0}%`, width: `${(bar.maxAt ?? 100) - (bar.minAt ?? 0)}%` }} />}
+            {bar.maxAt != null && <div className="zone over" style={{ left: `${bar.maxAt}%`, width: `${100 - bar.maxAt}%` }} />}
+            {/* The fill's shape (0 → end); pieces inside are placed in % of it. */}
+            <div className="bar-fillbox" style={{ width: `${fillEnd(bar)}%` }}>
+              {fillPieces(bar).map((pc, i) => {
+                const end = fillEnd(bar)
+                const style = { left: `${(pc.from / end) * 100}%`, width: `${((pc.to - pc.from) / end) * 100}%` }
+                return <div key={i} className={`${pc.hatched ? 'bar-err' : 'bar-fill'} r-${pc.region}`} style={style} />
+              })}
+            </div>
+          </div>
+          {hasMean(bar) && <div className="bar-mean" style={{ left: `${bar.fill}%` }} />}
+          {ghost && <div className="bar-ghost" style={{ left: `${ghost.from}%`, width: `${ghost.to - ghost.from}%` }} />}
+          {hover != null && (
+            <div className="bar-hover" style={{ left: `${hover}%` }}>
+              <span className="bar-tip">{fmt(barScale(range ?? {}, val).at(hover), 0)} {r.unit}</span>
+            </div>
           )}
         </div>
-        <RangeLine bar={bar} range={range} unit={r.unit} />
-        <Budget row={r} val={val} range={range} />
+        {/* Always there, so rows with and without a target are spaced alike. */}
+        <NoteLane notes={bottom} width={width} className={`below ${bar.status}`} />
+        {budget && <BudgetLane budget={budget} width={width} />}
       </div>
     </div>
   )

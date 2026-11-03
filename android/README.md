@@ -41,6 +41,12 @@ listed are the web app's screens.
    Editors keep the form as the web app's JSON and ask core.js what it adds up to
    (`../docs/execution/2026-11-03-native-screens.md`).
 
+## Next port
+
+- Scan the backup secret's QR code in the app.
+- Dashboard bars: every number a note on the bar, the budget a segment (web `Home.jsx` `BarRow`, `dashboard.js`
+  `barNotes`; `../docs/execution/2026-11-03-bar-notes.md`).
+
 ## Build, install, update
 
 ```sh

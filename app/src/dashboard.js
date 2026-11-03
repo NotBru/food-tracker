@@ -2,7 +2,8 @@
 // and the Android app's native one (native/core.js).
 import { db, getConfig, getCurrentUser } from './db'
 import { averageTargets, barScale, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from './calc'
-import { NUTRIENTS, calories } from './nutrients'
+import { NUTRIENTS, calories, fmt } from './nutrients'
+import { bounds } from './stats'
 import { addDays, dayBounds, logicalDay, prettyDay, toDateStr, toLocalInput, today, windowDays } from './time'
 
 // Always shown; any other nutrient gets a row when a target covers it.
@@ -25,6 +26,33 @@ export function ghostFor(row, val, range, adj) {
   const pos = barScale(range, val)
   const { min, max } = adj.uncapped
   return { from: Number.isFinite(min) ? pos(min) : 0, to: Number.isFinite(max) ? pos(max) : 100 }
+}
+
+/**
+ * Dashboard style "bars" (web for now): every number is a note on the bar, at its place on the bar's scale (% of its
+ * width). Above: the estimate (its value; its interval's low and high ends). Below: the target's min and max.
+ * Calories with a max: the budget, a segment between the near ends of the estimate and the target (from the
+ * interval's high end to the max: what's left to eat, or how far over). Without a target the bar still has a scale
+ * (barScale: the interval's top at 80%), with a grey fill.
+ * Returns {bar (as targetBar), top, bottom: [{at, text, kind}], budget: {from, to, text, over} | null}.
+ */
+export function barNotes(row, val, range = {}) {
+  const pos = barScale(range, val)
+  const [lo, hi] = bounds(val)
+  const spread = hi > lo
+  const bar = targetBar(val, range, pos) ??
+    { fill: pos(val.value), minAt: null, maxAt: null, status: 'none', dummy: true, errLo: spread ? pos(lo) : null, errHi: spread ? pos(hi) : null }
+  const n = (x) => fmt(x, 0)
+  const value = { at: bar.fill, text: `${val.estimated ? '~' : ''}${n(val.value)}`, kind: 'value' }
+  const top = spread ? [{ at: pos(lo), text: n(lo), kind: 'lo' }, value, { at: pos(hi), text: n(hi), kind: 'hi' }] : [value]
+  const bottom = [['min', range.min, bar.minAt], ['max', range.max, bar.maxAt]]
+    .filter(([, x]) => Number.isFinite(x)).map(([kind, x, at]) => ({ at, text: n(x), kind }))
+  let budget = null
+  if (row.key === 'energy' && Number.isFinite(range.max)) {
+    const left = range.max - hi
+    budget = { from: Math.min(pos(hi), bar.maxAt), to: Math.max(pos(hi), bar.maxAt), text: `Δ ${left < 0 ? '−' : ''}${n(Math.abs(left))}`, over: !(left > 0) }
+  }
+  return { bar, top, bottom, budget }
 }
 
 export function windowTitle(win, first, last, back = 0) {

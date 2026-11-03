@@ -110,16 +110,30 @@ h3 { margin: 8px 0 0; font-size: 16px; }
 .dashboard.gauges { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); } /* 2 on a phone, more when wider */
 .dashboard.bars { grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); align-content: start; }
 .dashboard > p { grid-column: 1 / -1; }
-.dash-row { display: grid; grid-template-columns: 90px 1fr; align-items: baseline; padding: 10px 16px; background: var(--panel-2); border-radius: 20px; }
+.dash-row { display: grid; grid-template-columns: 72px 1fr; gap: 10px; align-items: center; padding: 6px 14px; background: var(--panel-2); border-radius: 18px; }
 .dashboard > p { margin: 4px 10px; }
 .dash-label { color: var(--muted); }
-.dash-value { font-size: 34px; font-weight: 800; }
-.dash-value small { font-size: 14px; font-weight: 400; color: var(--muted); }
+.dash-name { display: flex; flex-direction: column; font-size: 14px; line-height: 1.2; min-width: 0; overflow-wrap: anywhere; }
+.dash-name small { color: var(--muted); font-size: 12px; opacity: .75; }
 .err-range { font-size: 13px; font-weight: 400; color: var(--range); }
-.dash-value .err-range { display: block; line-height: 1.2; }
-.dash-target { grid-column: 2; font-size: 14px; display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
-.bar { position: relative; height: 10px; margin: 4px 0; }
-.dash-target.placeholder { visibility: hidden; }
+.bar { position: relative; height: 8px; }
+/* Bar notes: each number at its place on the bar (Home.jsx NOTE_FONT measures them: keep the fonts in step). */
+.dash-bar { min-width: 0; }
+.note-lane { position: relative; height: 15px; }
+.note-lane.above { height: 19px; margin-bottom: 2px; }
+.note-lane.below { margin-top: 2px; }
+.note { position: absolute; white-space: nowrap; font: 400 12px/1 system-ui, sans-serif; font-family: inherit; }
+.note-lane.above .note { bottom: 0; }
+.note-lane.below .note, .budget-lane .note { top: 2px; }
+.note.value { font-weight: 700; font-size: 16px; color: currentColor; }
+.note.lo, .note.hi { color: var(--range); }
+.note-lane.below { color: var(--muted); }
+.budget-lane { height: 16px; color: var(--kcal); }
+.budget-lane.over { color: var(--prot); }
+/* The segment: a thin line between two end ticks; its label sits on it, over a gap cut in the line. */
+.budget-seg { position: absolute; top: 4px; height: 8px; box-sizing: border-box; border: 0 solid currentColor; border-width: 0 1.5px; }
+.budget-seg::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 1.5px solid currentColor; transform: translateY(-50%); opacity: .7; }
+.note.budget-note { font-weight: 600; padding: 0 4px; margin-left: -4px; background: var(--panel-2); box-sizing: content-box; }
 .bar-track { position: absolute; inset: 0; background: var(--bg); overflow: hidden; }
 .zone { position: absolute; top: 0; bottom: 0; opacity: .28; }
 .zone.under { background: var(--prot); }
