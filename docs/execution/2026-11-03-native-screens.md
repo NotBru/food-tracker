@@ -56,8 +56,8 @@ until the list says it's here.
 `app/src/foodForm.js` (the editor's logic, from Foods.jsx FoodForm), `search.js foodListMatches` (the list's
 ranking). The list is a lazy list (hundreds of foods) whose view is watched per search text. A new component made
 with "+" stashes the form in Kotlin (`FoodStash`, as Foods.jsx's `parents`, in memory only) and the new food, once
-saved, is set as that component back on the form. "Search external" stays the web screen; its pick reaches the
-native editor through external.js's pending draft, which the web app's module holds for both.
+saved, is set as that component back on the form. "Search external"'s pick reaches the native editor through
+external.js's pending draft, which the web app's module holds for both.
 
 ### Targets, body measurements, users, config
 
@@ -66,6 +66,14 @@ screens use it too). Forms are sent back as typed; Kotlin's JSON keeps blank fie
 code reads them. Body's "looks like a typo of a known name" question loops as on the web: each answer is sent back
 with the next save (`answers`), Cancel meaning keep the new name. Config's day start uses the phone's time picker.
 Checked on the emulator and in a browser: same averages, alerts and questions.
+
+### Search external
+
+core.js `offSearch` keeps the last results' drafts and hands rows to show; `offPick(i)` sets the picked product as
+external.js's pending draft, and the native food editor reads it when going back, as on the web. Found while testing:
+the engine still passed `/off-search/` (the relay replaced by the `/off/` copy, 2026-11-03-off-copy.md) through to
+the server, so the APK served `/off/` from its own files and every search fell back to OFF itself (blocked by CORS
+in a page); it now passes `/off/`.
 
 ## Alternatives considered
 

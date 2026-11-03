@@ -20,6 +20,7 @@ import app.foodtracker.ui.ConfigScreen
 import app.foodtracker.ui.ConsumptionInfoScreen
 import app.foodtracker.ui.ConsumptionsScreen
 import app.foodtracker.ui.HomeActions
+import app.foodtracker.ui.ExternalScreen
 import app.foodtracker.ui.FoodScreen
 import app.foodtracker.ui.FoodsScreen
 import app.foodtracker.ui.HomeScreen
@@ -59,7 +60,8 @@ fun App(activity: MainActivity) {
             parts == listOf("body") -> BodyRoute(activity, r)
             parts == listOf("users") -> UsersScreen(watchView(activity, "users", emptyList(), UsersView.serializer()), engine)
             parts == listOf("config") -> ConfigScreen(engine)
-            parts.size == 2 && parts[0] == "foods" && parts[1] != "external" -> FoodScreen(
+            parts == listOf("foods", "external") -> ExternalScreen(engine, r.query["q"] ?: "")
+            parts.size == 2 && parts[0] == "foods" -> FoodScreen(
                 engine, parts[1], route, r.query["tab"] == "info", r.query["nutrient"], r.query["in"]?.toIntOrNull(), r.query["name"],
             )
             parts.size == 2 && parts[0] == "consumptions" -> {

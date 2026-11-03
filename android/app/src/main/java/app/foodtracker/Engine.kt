@@ -34,7 +34,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import java.io.IOException
 import java.util.UUID
 
-/** The web app's address. Its own files are served from the APK (assets/web/); /backup/ and /off-search/ are live. */
+/** The web app's address. Its own files are served from the APK (assets/web/); /backup/ and /off/ (the Open Food Facts copy) are live. */
 const val HOST = "track-shit.notbru.xyz"
 const val ORIGIN = "https://$HOST"
 
@@ -188,7 +188,7 @@ class Engine(private val context: Context) : Core {
                     WebResourceResponse(context.contentResolver.getType(uri) ?: "image/jpeg", null, context.contentResolver.openInputStream(uri))
                 }.getOrNull()
             }
-            if (path.startsWith("/backup/") || path.startsWith("/off-search/")) return null
+            if (path.startsWith("/backup/") || path.startsWith("/off/")) return null
             val asset = "web" + if (path == "/") "/index.html" else path
             return try {
                 val type = mimeOf(asset)

@@ -18,7 +18,7 @@ import * as ff from '../foodForm'
 import * as forms from '../forms'
 import { BUILTIN_FIELDS, lookalike, nameKey, nameMatches } from '../body'
 import { DEFAULT_CONFIG, setCurrentUser } from '../db'
-import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
+import { clearPendingDraft, isBarcode, offDraft, offProductDraft, peekPendingDraft, searchOff, setPendingDraft, sourceLabel } from '../external'
 import { ROWS } from '../dashboard'
 import { barFor, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
 import { conflictLabelShown, getState, status } from '../backup'
@@ -683,3 +683,25 @@ export async function config() {
 }
 
 export const saveConfig = async (form) => (await forms.saveConfigForm(form)) ?? { done: true }
+
+// --- Search external (Open Food Facts) -----------------------------------------------------------------------
+
+let offDrafts = []
+
+/** screens/External.jsx's results for `query`: each product as its row shows it; picked by index (offPick). */
+export async function offSearch(query) {
+  const q = query.trim()
+  offDrafts = (await searchOff(q)).map(offDraft)
+  return {
+    rows: offDrafts.map((d) => ({ name: d.name, per: `per 100 ${d.unit}`, subtitle: d.subtitle || null, macros: macroLine(d.nutrients) })),
+    empty: `Nothing found for "${q}".`,
+  }
+}
+
+/** The button's label for what's typed: a barcode is looked up. */
+export const offButton = (query) => (isBarcode(query) ? 'Look up' : 'Search')
+
+/** Picks result `i`: its full product, waiting for the food editor it goes back to (as External.jsx's pick). */
+export async function offPick(i) {
+  setPendingDraft(await offProductDraft(offDrafts[i]))
+}

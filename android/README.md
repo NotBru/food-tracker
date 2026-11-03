@@ -15,6 +15,7 @@ Design: `../docs/instructions/design.md` · Decisions: `../docs/execution/2026-1
 | `/` | `ui/HomeScreen.kt` | `app/src/screens/Home.jsx` | `app/src/dashboard.js`, `app/src/native/core.js` `home` |
 | `/consumptions` | `ui/ConsumptionsScreen.kt` | `app/src/screens/Consumptions.jsx` | `app/src/consumptionForm.js`, core.js `consumptions`, `consumptionEditor` |
 | `/foods` | `ui/FoodsScreen.kt` `FoodsScreen` | `app/src/screens/Foods.jsx` FoodList | `search.js foodListMatches`, core.js `foods` |
+| `/foods/external` | `ui/ExternalScreen.kt` | `app/src/screens/External.jsx` | `app/src/external.js`, core.js `offSearch`, `offPick` |
 | `/foods/:id` | `ui/FoodsScreen.kt` `FoodScreen` | `Foods.jsx` FoodEditor, FoodForm; `FoodInfo.jsx` (Info tab) | `app/src/foodForm.js`, core.js `foodEditor`, `foodInfo` |
 | `/notes` | `ui/NotesScreen.kt` | `app/src/screens/Notes.jsx` | `app/src/notes.js`, core.js `notes`, `notePick`, `notePicture`, `saveNote` |
 | `/targets` | `ui/TargetsScreen.kt` | `app/src/screens/Targets.jsx` | `app/src/forms.js`, core.js `targets`, `targetEditor`, `saveTarget` |
@@ -24,8 +25,7 @@ Design: `../docs/instructions/design.md` · Decisions: `../docs/execution/2026-1
 | `/consumptions/:id` | `ui/ConsumptionInfoScreen.kt` | `app/src/screens/ConsumptionInfo.jsx` (+ `EnergyChart.jsx`, `FoodInfo.jsx` NutrientTable) | `app/src/energy.js`, core.js `consumptionInfo` |
 
 Shared controls (top bar, sheets, food picker, …): `ui/Kit.kt`; info parts (donut, tables): `ui/Info.kt`. Routes not
-listed are the web app's screens (`/foods/external` among them: its pick comes back to the native editor through
-external.js's draft, as on the web).
+listed are the web app's screens.
 
 ## Re-porting (about weekly)
 

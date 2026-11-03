@@ -370,3 +370,11 @@ data class ConfigView(val form: JsonObject, val placeholders: Map<String, String
 
 @Serializable
 data class ReferenceDb(val key: String, val name: String, val about: String)
+
+// --- Search external (Open Food Facts) ---
+
+@Serializable
+data class OffSearchView(val rows: List<OffRow>, val empty: String)
+
+@Serializable
+data class OffRow(val name: String, val per: String, val subtitle: String? = null, val macros: MacroLine)
