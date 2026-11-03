@@ -164,8 +164,9 @@ fun Modifier.dashedBorder(color: Color, radius: Dp, width: Dp = 2.dp) = drawBehi
 @Composable
 fun MainLine(text: String, right: String? = null, tag: String? = null, color: Color = C.text) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
-        Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(text, color = color, fontSize = 16.sp, modifier = Modifier.weight(1f, fill = false))
+        // The tag under the text: beside it, a long tag left a short name one letter per line.
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(text, color = color, fontSize = 16.sp)
             if (tag != null) Tag(tag)
         }
         if (right != null) Text(right, color = C.muted, fontSize = 16.sp)
