@@ -1,6 +1,7 @@
 package app.foodtracker
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 
 // The views app/src/native/core.js sends: texts already formatted, links as routes. Only what's laid out is here.
 
@@ -73,3 +74,81 @@ data class Budget(val text: String, val over: Boolean)
 /** Export databases (core.js exportFile). */
 @Serializable
 data class ExportFile(val name: String, val text: String)
+
+// --- Shared parts ---
+
+/** components.jsx MacroLine (core.js macroLine): ok false = "can't compute". */
+@Serializable
+data class MacroLine(val ok: Boolean, val parts: List<MacroPart> = emptyList())
+
+@Serializable
+data class MacroPart(val color: String, val text: String, val pm: String? = null, val after: String = "")
+
+/** A food as pickers list it (core.js foodSearch). */
+@Serializable
+data class FoodLabel(val id: String, val label: String, val recipe: Boolean = false, val made: String? = null)
+
+/** A nutrient of "Details" (Consumptions.jsx NutrientDetails). */
+@Serializable
+data class DetailRow(val label: String, val value: String, val pm: String, val unit: String, val missing: Boolean = false)
+
+/** What a save says (core.js): can't ([alert]), asks first ([confirm], then saved again confirmed), or [done]. */
+@Serializable
+data class SaveReply(val alert: String? = null, val confirm: String? = null, val done: Boolean = false)
+
+// --- Consumptions ---
+
+@Serializable
+data class ConsumptionsView(
+    val day: String,
+    val title: String,
+    val user: String,
+    val prev: String,
+    val next: String,
+    val rows: List<ConsumptionRow>,
+)
+
+@Serializable
+data class ConsumptionRow(
+    val id: String,
+    val label: String,
+    val made: String? = null,
+    val line: String,
+    val macros: MacroLine,
+    val open: String,
+    val ask: String,
+)
+
+/** core.js consumptionEditor: the consumption and form to send back, and what to show. */
+@Serializable
+data class ConsumptionEditorReply(val consumption: JsonObject, val form: JsonObject, val view: ConsumptionEditorView)
+
+@Serializable
+data class ConsumptionEditorView(
+    val title: String,
+    val isNew: Boolean,
+    val item: FoodLabel? = null,
+    val amountLabel: String,
+    val amountPlaceholder: String? = null,
+    val deltaPlaceholder: String,
+    val units: List<String>? = null,
+    val ownFood: Boolean,
+    val entryErrorPlaceholder: String,
+    val expiryPlaceholder: String,
+    val max: String? = null,
+    val preview: MacroLine? = null,
+    val details: List<DetailRow>? = null,
+    val components: List<EditorComponent> = emptyList(),
+    val total: String? = null,
+    val save: String,
+    val search: JsonObject,
+)
+
+@Serializable
+data class EditorComponent(
+    val item: FoodLabel? = null,
+    val units: List<String>? = null,
+    val deltaPlaceholder: String,
+    val entryError: String,
+    val macros: MacroLine? = null,
+)

@@ -50,7 +50,7 @@ class EngineError(message: String) : Exception(message)
  * the data it reads changes.
  */
 @SuppressLint("SetJavaScriptEnabled")
-class Engine(private val context: Context) {
+class Engine(private val context: Context) : Core {
     private val json = Json { ignoreUnknownKeys = true }
     private val main = Handler(Looper.getMainLooper())
 
@@ -90,7 +90,7 @@ class Engine(private val context: Context) {
         webView.loadUrl(url)
     }
 
-    suspend fun call(name: String, vararg args: JsonElement): JsonElement {
+    override suspend fun call(name: String, vararg args: JsonElement): JsonElement {
         val id = UUID.randomUUID().toString()
         val reply = CompletableDeferred<JsonElement>()
         replies[id] = reply
@@ -113,10 +113,10 @@ class Engine(private val context: Context) {
         }
     }
 
-    fun go(path: String) = send("core.go(${str(path)})")
-    fun replace(path: String) = send("core.replace(${str(path)})")
+    override fun go(path: String) = send("core.go(${str(path)})")
+    override fun replace(path: String) = send("core.replace(${str(path)})")
     /** A step back through the routes; [onExit] when there's none. Before the web app is up: [onExit] at once. */
-    fun back() {
+    override fun back() {
         if (_ready.value) send("core.back()") else onExit?.invoke()
     }
     /** The app is in front again: the day may have changed while it slept. */

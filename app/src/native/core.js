@@ -1,10 +1,15 @@
 // What the Android app's native screens ask the web app's logic for (through bridge.js). Each view returns what its
 // screen shows, as plain JSON: texts already formatted and links as routes, so the Kotlin side only lays it out and
 // no logic is copied there. One function per native screen; the web screen it replaces uses the same modules.
-import { exportAll, getConfig, importAll } from '../db'
-import { calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
+import { liveQuery } from 'dexie'
+import { DEFAULT_EXPIRY_DAYS, db, exportAll, getConfig, getCurrentUser, importAll, itemLabel, kindOf, madeText } from '../db'
+import { amountText, autoAmountDelta, calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf, setCoverage, zero } from '../stats'
-import { WINDOWS, WINDOW_NAMES, addDays, daysBetween, today, versionStamp } from '../time'
+import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, prettyDay, toLocalInput, today, versionStamp } from '../time'
+import { consumptionNutrients, loadContext, resolve } from '../calc'
+import { DEFAULT_ENTRY_ERROR } from '../errors'
+import { foodMatches } from '../search'
+import * as cf from '../consumptionForm'
 import { barFor, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
 import { conflictLabelShown, getState, status } from '../backup'
 import { statusText } from '../screens/Backup'
@@ -88,3 +93,183 @@ export const importFile = (text, merge) => importAll(text, { merge })
 
 /** For the Replace confirmation (Home.jsx ImportSheet): whether a backup is set up, so other devices are replaced too. */
 export const backupOn = () => !!getState()
+
+// --- Shared bits --------------------------------------------------------------------------------------------
+
+/**
+ * The latest value of `load` (a Dexie read), kept current by a live query once first asked for: for calls made on
+ * every keystroke (an editor's view, a food search), which would otherwise read every food each time. Not for
+ * watched views: a live query only follows the reads made inside it.
+ */
+function cached(load) {
+  let latest = null
+  let sub = null
+  return () => {
+    if (!sub) {
+      latest = new Promise((resolve, reject) => {
+        sub = liveQuery(load).subscribe({
+          next: (v) => { latest = Promise.resolve(v); resolve(v) },
+          error: (e) => { sub = null; reject(e) },
+        })
+      })
+    }
+    return latest
+  }
+}
+const ctxNow = cached(() => loadContext())
+const logsNow = cached(() => db.logs.toArray())
+
+/** components.jsx MacroLine: "P 12 · F 5 · C 30 · 230 kcal", each part in its colour; with `deltas`, its ±. */
+export function macroLine(nutrients, ok = true, deltas = false) {
+  if (!ok) return { ok: false, parts: [] }
+  const v = (k) => nutrients[k]?.value ?? 0
+  const kcal = calories(nutrients)
+  const pm = (n, digits) => (deltas && n ? pmText(n, digits) : null)
+  return {
+    ok: true,
+    parts: [
+      { color: 'c-prot', text: `P ${fmt(v('proteins'))}`, pm: pm(nutrients.proteins) },
+      { color: 'c-fat', text: `F ${fmt(v('fat'))}`, pm: pm(nutrients.fat) },
+      { color: 'c-carb', text: `C ${fmt(v('carbohydrates'))}`, pm: pm(nutrients.carbohydrates) },
+      { color: 'c-kcal', text: `${kcal.estimated ? '~' : ''}${fmt(kcal.value, 0)}`, pm: pm(kcal, 0), after: ' kcal' },
+    ],
+  }
+}
+
+/** A food as a picker shows it: its label, "recipe", its made-at tag. */
+const foodLabel = (it) => ({ id: it.id, label: itemLabel(it), recipe: kindOf(it) === 'recipe', made: madeText(it) || null })
+
+/** Placeholder of a "± Δ" box (components.jsx DeltaInput): the error from the digits typed. */
+const deltaPlaceholder = (amount, unit) => {
+  const auto = autoAmountDelta(amount ?? '', unit)
+  return Number.isFinite(auto) ? String(auto) : 'auto'
+}
+
+/**
+ * The food picker's list for what's typed (components.jsx ItemPicker). `opts`: `exclude` (an id), `oldBefore`, and
+ * for a consumption's picker `at` (its time) and `skipLog` (its id): concoctions eaten up or expired then are left out.
+ */
+export async function foodSearch(query, opts = {}) {
+  const [ctx, logs] = await Promise.all([ctxNow(), logsNow()])
+  let show
+  if (opts.at !== undefined) {
+    const st = cf.editorState(ctx, logs, { id: opts.skipLog ?? undefined }, { datetime: opts.at, itemId: null, concoction: false, amount: '', amountDelta: '', unit: '', entryError: '' }, (await getConfig()).dayStart)
+    show = st.show
+  }
+  return foodMatches(ctx, query, { exclude: opts.exclude, oldBefore: opts.oldBefore, show }).map(([it]) => foodLabel(it))
+}
+
+// --- Consumptions -------------------------------------------------------------------------------------------
+
+/** screens/Consumptions.jsx: a day's consumptions, newest first. `query`: its route's (`day`). */
+export async function consumptions(query = {}) {
+  const config = await getConfig()
+  const day = query.day || today(config.dayStart)
+  const [start, end] = dayBounds(day, config.dayStart)
+  const user = await getCurrentUser()
+  const logs = await db.logs.where('[userId+datetime]').between([user.id, start.toISOString()], [user.id, end.toISOString()], true, false)
+    .reverse().toArray()
+  const ctx = await loadContext()
+  return {
+    day, title: prettyDay(day), user: user.name,
+    prev: `/consumptions?day=${addDays(day, -1)}`,
+    next: `/consumptions?day=${addDays(day, 1)}`,
+    rows: logs.map((c) => {
+      const item = resolve(ctx, c.itemId)
+      const n = consumptionNutrients(ctx, c)
+      return {
+        id: c.id,
+        label: item ? itemLabel(item) : '(deleted item)',
+        made: madeText(item) || null,
+        line: `${toLocalInput(new Date(c.datetime)).slice(11)} · ${amountText(c.amount, c.amountText)}${c.amountDeltaAuto === false ? ` ±${c.amountDelta}` : ''} ${c.unit}`,
+        macros: macroLine(n.nutrients, n.ok, true),
+        open: `/consumptions/${c.id}`,
+        ask: cf.deleteQuestion(c, item),
+      }
+    }),
+  }
+}
+
+export const deleteConsumption = (id) => db.logs.delete(id)
+
+const editorEvents = {
+  pick: (st, id) => cf.pickItem(st, id),
+  concoction: (st, on) => cf.toggleConcoction(st, on),
+  component: (st, [i, id]) => cf.pickComponent(st, i, id),
+  addComponent: (st) => ({ ...st.form, components: [...st.form.components, cf.emptyComponent()] }),
+  removeComponent: (st, i) => ({ ...st.form, components: st.form.components.filter((_, j) => j !== i) }),
+  max: (st) => cf.takeMax(st),
+}
+
+async function editorFor(args) {
+  const config = await getConfig()
+  let { consumption, form } = args
+  if (!consumption) {
+    consumption = args.id ? await db.logs.get(args.id) : cf.newConsumption(args.day || today(config.dayStart), config.dayStart, (await getCurrentUser()).id)
+    if (!consumption) throw new Error('This consumption was deleted.')
+  }
+  form ??= cf.initialForm(consumption)
+  const [ctx, logs] = await Promise.all([ctxNow(), logsNow()])
+  let st = cf.editorState(ctx, logs, consumption, form, config.dayStart)
+  if (args.event) {
+    const [name, arg] = args.event
+    st = cf.editorState(ctx, logs, consumption, editorEvents[name](st, arg), config.dayStart)
+  }
+  return st
+}
+
+/**
+ * The consumption editor (Consumptions.jsx ConsumptionEditor). `args`: to open it, `id` (a stored consumption) or
+ * `day` (a new one on it); then `consumption` and `form` as this returned them, the form as typed since, and maybe an
+ * `event` ([name, arg] of editorEvents) that changes it. Returns the consumption, the form and what to show.
+ */
+export async function consumptionEditor(args) {
+  const st = await editorFor(args)
+  const { form, consumption } = st
+  const picked = (id, ctx) => {
+    const it = id != null ? resolve(ctx, id) : null
+    return it ? foodLabel(it) : null
+  }
+  const units = cf.unitsOf(st)
+  const detail = st.preview?.ok ? cf.detailRows(st.preview.nutrients).map(({ key, label, unit }) => {
+    const n = st.preview.nutrients[key]
+    return { label, value: fmt(n.value, 2), pm: pmText(n, 2), unit, missing: !!n.missing }
+  }) : null
+  return {
+    consumption, form,
+    view: {
+      title: consumption.id ? 'Edit consumption' : 'New consumption',
+      isNew: !consumption.id,
+      item: picked(form.itemId, st.ctx),
+      amountLabel: form.concoction ? 'Amount eaten' : 'Amount',
+      amountPlaceholder: form.concoction ? 'all' : null,
+      deltaPlaceholder: deltaPlaceholder(form.amount, st.unit),
+      units,
+      ownFood: st.ownFood,
+      entryErrorPlaceholder: fmt(DEFAULT_ENTRY_ERROR * 100),
+      expiryPlaceholder: String(DEFAULT_EXPIRY_DAYS),
+      max: st.maxText ? `Max: ${st.maxText} ${st.rest.unit} left` : null,
+      preview: st.preview ? macroLine(st.preview.nutrients, st.preview.ok, true) : null,
+      details: detail,
+      components: form.concoction ? form.components.map((c, i) => ({
+        item: picked(c.itemId, st.savedCtx),
+        units: cf.componentUnits(st, c),
+        deltaPlaceholder: deltaPlaceholder(c.amount, c.unit),
+        entryError: fmt((c.entryError ?? DEFAULT_ENTRY_ERROR) * 100, 2),
+        macros: st.componentNutrients[i] ? macroLine(st.componentNutrients[i].nutrients, st.componentNutrients[i].ok, true) : null,
+      })) : [],
+      total: st.total,
+      save: form.concoction ? 'Add' : 'Save',
+      search: { oldBefore: st.oldBefore, at: form.datetime, skipLog: consumption.id ?? null },
+    },
+  }
+}
+
+/** Saves the editor's form: {alert}, {confirm} (then again with `confirmed`), or {done}. */
+export async function saveConsumption(args, confirmed = false) {
+  const st = await editorFor(args)
+  const problem = cf.saveProblem(st, confirmed)
+  if (problem) return problem
+  await cf.save(st)
+  return { done: true }
+}

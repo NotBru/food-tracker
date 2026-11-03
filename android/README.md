@@ -13,8 +13,9 @@ Design: `../docs/instructions/design.md` · Decisions: `../docs/execution/2026-1
 | Route | Screen | Ports (layout) | Its data (shared with the web) |
 |-------|--------|----------------|--------------------------------|
 | `/` | `ui/HomeScreen.kt` | `app/src/screens/Home.jsx` | `app/src/dashboard.js`, `app/src/native/core.js` `home` |
+| `/consumptions` | `ui/ConsumptionsScreen.kt` | `app/src/screens/Consumptions.jsx` | `app/src/consumptionForm.js`, core.js `consumptions`, `consumptionEditor` |
 
-Everything else (consumptions, foods, notes, backup, …) is the web app's screen.
+Shared controls (top bar, sheets, food picker, …): `ui/Kit.kt`. Routes not listed are the web app's screens.
 
 ## Re-porting (about weekly)
 
@@ -23,6 +24,8 @@ Everything else (consumptions, foods, notes, backup, …) is the web app's scree
    `git log --oneline <last port>.. -- app/src/screens/Home.jsx`.
 3. To make another screen native: move what it shows into a view in `app/src/native/core.js` (texts formatted,
    links as routes; the web screen uses the same modules), add its route to `Routes.kt` and a branch in `App.kt`.
+   Editors keep the form as the web app's JSON and ask core.js what it adds up to
+   (`../docs/execution/2026-11-03-native-screens.md`).
 
 ## Build, install, update
 

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { DEFAULT_EXPIRY_DAYS, db, expiresAt, getConfig, getCurrentUser, itemLabel, parseExpiryDays } from '../db'
-import { componentsTotal, concoctionsLeft, consumptionNutrients, keepUnit, lastEntryError, loadContext, nutrientsFor, resolve, unitsFor, usedUp } from '../calc'
+import { DEFAULT_EXPIRY_DAYS, db, getConfig, getCurrentUser, itemLabel } from '../db'
+import { consumptionNutrients, loadContext, resolve } from '../calc'
 import { addDays, dayBounds, prettyDay, toLocalInput, today } from '../time'
-import { NUTRIENTS, amountText, deltaText, emptyNutrients, fmt, measure, normalizeNumber, pmText } from '../nutrients'
+import { amountText, fmt, pmText } from '../nutrients'
 import { DEFAULT_ENTRY_ERROR } from '../errors'
+import { componentUnits, deleteQuestion, detailRows, editorState, emptyComponent, initialForm, newConsumption as newConsumptionAt, pickComponent, pickItem, save as saveForm, saveProblem, setComponent, takeMax, toggleConcoction, unitsOf } from '../consumptionForm'
 import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, EntryErrorButton, Field, enterSaves, ItemPicker, MacroLine, Screen, TrashIcon, UnitCombo, go, pressable, replace, useToday } from '../components'
 
 export default function Consumptions({ day: dayParam, add }) {
@@ -39,14 +40,11 @@ export default function Consumptions({ day: dayParam, add }) {
   const setDay = (d) => replace(`/consumptions?day=${d}`)
 
   function newConsumption() {
-    // Default time: now if viewing today, otherwise noon of the viewed day.
-    const now = new Date()
-    const dt = day === today(data.config.dayStart) ? now : new Date(`${day}T12:00`)
-    setEditing({ datetime: dt.toISOString(), userId: data.user.id, itemId: null, amount: '', unit: '' })
+    setEditing(newConsumptionAt(day, data.config.dayStart, data.user.id))
   }
 
   async function remove(consumption, item) {
-    if (confirm(`Delete ${item ? `“${itemLabel(item)}”` : 'this entry'} at ${toLocalInput(new Date(consumption.datetime)).slice(11)}?`)) {
+    if (confirm(deleteQuestion(consumption, item))) {
       await db.logs.delete(consumption.id)
     }
   }
@@ -82,139 +80,22 @@ export default function Consumptions({ day: dayParam, add }) {
   )
 }
 
-// --- New concoction from the consumption sheet --------------------------------------------------------------
-// Ticking "New concoction" on a new consumption swaps the food picker for a name and components. Saving adds the
-// concoction (made at the consumption's time, its amount the sum of the components, like the food editor's Auto)
-// and the consumption of it. A blank amount eaten means all of it, exactly. An existing concoction is edited under Foods.
-
-const DRAFT_ID = -1
-const round = (x, digits) => String(Number(x.toPrecision(digits)))
-const emptyComponent = () => ({ itemId: null, amount: '', amountDelta: '', unit: '' })
-
-/** Sum of `components` (stored form) as the concoction's amount: tries each unit in turn, rounded like Auto. */
-function sumAs(ctx, components, units) {
-  const totals = [...new Set(units)].map((u) => [u, componentsTotal(ctx, components, u)])
-  const [unit, total] = totals.find(([, t]) => !t.problem) ?? totals[0]
-  if (total.problem) return { problem: total.problem }
-  const amount = round(total.value, 6)
-  return { amount: Number(amount), amountText: amount, amountDelta: Number(round(total.delta, 3)), amountDeltaAuto: false, unit }
-}
-
-/** The concoction as it would be stored, or {problem} while it can't be added up yet. */
-function concoctionDraft(ctx, form) {
-  const components = form.components.filter((c) => c.itemId != null)
-    .map((c) => {
-      const m = measure(c.amount, c.amountDelta, c.unit)
-      return {
-        itemId: c.itemId, amount: m.value, amountText: m.text, amountDelta: m.delta, amountDeltaAuto: m.auto, unit: c.unit.trim(),
-        entryError: Number.isFinite(c.entryError) ? c.entryError : undefined,
-      }
-    })
-  if (!components.length) return { problem: 'add a component' }
-  // In g if everything converts to it, else ml, else the first component's unit (e.g. eggs counted in u).
-  const sum = sumAs(ctx, components, ['g', 'ml', components[0].unit || 'portion'])
-  if (sum.problem) return { problem: sum.problem }
-  return {
-    units: [], nutrients: emptyNutrients(), source: null,
-    name: form.name.trim(), brand: form.brand.trim(), attributes: form.attributes, ...sum, components,
-    expiresAfterDays: parseExpiryDays(form.expiresAfterDays),
-    madeAt: new Date(form.datetime).toISOString(),
-    sum, // shown under the components; not stored
-  }
-}
-
 /** The add/edit sheet. Also opened from a consumption's info screen, which leaves it on `onDeleted`. */
 export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClose, onDeleted = onClose }) {
-  // Concoctions made before yesterday (logical days) are likely eaten up: listed after every other food.
-  const oldBefore = dayBounds(addDays(today(dayStart), -1), dayStart)[0].toISOString()
   const addComponentRef = useRef(null)
-  const [form, setForm] = useState(() => {
-    return {
-      ...consumption,
-      datetime: toLocalInput(new Date(consumption.datetime)),
-      amount: amountText(consumption.amount, consumption.amountText),
-      amountDelta: deltaText(consumption.amountDelta, consumption.amountDeltaAuto),
-      // In %; blank = the default.
-      entryError: String(+((Number.isFinite(consumption.entryError) ? consumption.entryError : DEFAULT_ENTRY_ERROR) * 100).toPrecision(6)),
-      concoction: false, name: '', brand: '', attributes: [], expiresAfterDays: '', components: [emptyComponent()],
-    }
-  })
-  const picked = resolve(savedCtx, form.itemId)
-  // Concoctions eaten up, or expired at the consumption's time, aren't offered. What this consumption took is counted
-  // back in, so editing it still finds its food.
+  const [form, setForm] = useState(() => initialForm(consumption))
   const logs = useLiveQuery(() => db.logs.toArray(), [])
-  const left = concoctionsLeft(savedCtx, logs ?? [], consumption.id)
-  const at = new Date(form.datetime)
-  const atIso = Number.isNaN(at.getTime()) ? new Date().toISOString() : at.toISOString()
-  const show = (it) => !it.madeAt || (expiresAt(it) > atIso && !usedUp(left.get(it.id)))
-  // "Max": the rest of the picked concoction, in its own unit, with no error of its own (like "all of it").
-  const rest = !form.concoction && left.get(form.itemId)
-  const maxText = rest && rest.value > 0 ? round(rest.value, 6) : null
+  const st = editorState(savedCtx, logs ?? [], consumption, form, dayStart)
+  const { oldBefore, show, rest, maxText, ctx, itemId, unit, ownFood, preview } = st
   const set = (k) => (v) => setForm((f) => ({ ...f, [k]: v }))
-  const setC = (i, patch) => setForm((f) => ({ ...f, components: f.components.map((c, j) => (j === i ? { ...c, ...patch } : c)) }))
-  // The concoction is computed like a saved food: the draft is swapped into the context, under a placeholder id
-  // while new.
-  const draft = form.concoction ? concoctionDraft(savedCtx, form) : null
-  const ctx = draft && !draft.problem ? { ...savedCtx, items: savedCtx.items.with(DRAFT_ID, { ...draft, id: DRAFT_ID }) } : savedCtx
-  const itemId = form.concoction ? (draft.problem ? null : DRAFT_ID) : form.itemId
-  // Error of the amount; blank = from the digits typed, like nutrient values ("250" -> ±1, "1.5" -> ±0.1).
-  // Of a concoction being made, a blank amount is all of it: its own amount, with no error of its own.
-  const all = form.concoction && form.amount.trim() === ''
-  const m = all && itemId != null
-    ? { value: draft.amount, text: draft.amountText, delta: 0, auto: false }
-    : measure(form.amount, form.amountDelta, form.unit)
-  // Its unit defaults to the concoction's own.
-  const unit = form.concoction && itemId != null && (all || !form.unit.trim()) ? draft.unit : form.unit
-  const amount = m.value
-  // Entry error: a food of its own only (a recipe's components take the default). Blank or not a number: the default.
-  const ownFood = !form.concoction && !picked?.components?.length
-  const typedError = Number(normalizeNumber(form.entryError))
-  const logError = ownFood && form.entryError.trim() && typedError >= 0 ? typedError / 100 : undefined
-  const preview = itemId != null && amount > 0 && unit
-    ? consumptionNutrients(ctx, { itemId, amount, unit, amountDelta: m.delta, entryError: logError }) : null
+  const setC = (i, patch) => setForm((f) => setComponent(f, i, patch))
 
-  // A food picked brings the entry error it was last logged with (calc.js lastEntryError).
-  const pctText = (x) => String(+(x * 100).toPrecision(6))
-  function pickItem(itemId) {
-    setForm((f) => ({ ...f, itemId, unit: keepUnit(ctx, itemId, f.unit), entryError: pctText(lastEntryError(savedCtx, logs, itemId)) }))
-  }
-
-  function toggleConcoction(on) {
-    // The amount eaten starts as "all of it"; a unit typed for the picked food may not fit the concoction.
-    setForm((f) => ({ ...f, concoction: on, amount: '', amountDelta: '', unit: on ? '' : keepUnit(savedCtx, f.itemId, f.unit) ?? '' }))
-  }
-
-  async function save() {
-    if (form.concoction) return saveConcoction()
-    if (form.itemId == null || !(amount > 0) || !form.unit.trim()) return alert('Item, amount and unit are required.')
-    const unit = form.unit.trim()
-    if (!unitsFor(ctx, form.itemId).includes(unit.toLowerCase())
-      && !confirm(`“${unit}” doesn't convert for this food, so its nutrients can't be computed (add it under the food's Units). Save anyway?`)) return
-    const rec = {
-      datetime: new Date(form.datetime).toISOString(), userId: consumption.userId, itemId: form.itemId,
-      amount, amountText: m.text, amountDelta: m.delta, amountDeltaAuto: m.auto, unit: form.unit.trim(),
-      entryError: logError,
-    }
-    if (consumption.id) await db.logs.update(consumption.id, rec)
-    else await db.logs.add(rec)
+  async function save(confirmed = false) {
+    const problem = saveProblem(st, confirmed)
+    if (problem?.alert) return alert(problem.alert)
+    if (problem?.confirm) return confirm(problem.confirm) && save(true)
+    await saveForm(st)
     onClose() // stays on the same day's screen even if the date changed
-  }
-
-  async function saveConcoction() {
-    if (!form.name.trim()) return alert('The concoction needs a name.')
-    if (draft.problem) return alert(`Can't add up the components: ${draft.problem}.`)
-    if (form.components.some((c) => c.itemId != null && !(measure(c.amount, c.amountDelta, c.unit).value >= 0))) {
-      return alert('Every component needs an amount.')
-    }
-    if (!(amount > 0) || !unit.trim()) return alert('Amount eaten must be above 0 (leave it blank for all of it).')
-    if (!unitsFor(ctx, DRAFT_ID).includes(unit.trim().toLowerCase())) return alert(`“${unit.trim()}” doesn't convert to ${draft.unit}.`)
-    const { sum, id, ...rec } = draft
-    const log = { datetime: new Date(form.datetime).toISOString(), userId: consumption.userId,
-      amount, amountText: m.text, amountDelta: m.delta, amountDeltaAuto: m.auto, unit: unit.trim() }
-    await db.transaction('rw', db.items, db.logs, async () => {
-      await db.logs.add({ ...log, itemId: await db.items.add(rec) })
-    })
-    onClose()
   }
 
   async function remove() {
@@ -226,14 +107,14 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
 
   return (
     <div className="modal" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()} onKeyDown={enterSaves(save)}>
+      <div className="sheet" onClick={(e) => e.stopPropagation()} onKeyDown={enterSaves(() => save())}>
         <h2>{consumption.id ? 'Edit consumption' : 'New consumption'}</h2>
         <Field label="Date and time">
           <DateTimeInput value={form.datetime} onChange={set('datetime')} />
         </Field>
         {!consumption.id && (
           <label className="check">
-            <input type="checkbox" checked={form.concoction} onChange={(e) => toggleConcoction(e.target.checked)} />
+            <input type="checkbox" checked={form.concoction} onChange={(e) => setForm(toggleConcoction(st, e.target.checked))} />
             <span>New concoction (made at this time)</span>
           </label>
         )}
@@ -246,34 +127,26 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
             <ul className="list compact">
               {form.components.map((c, i) => (
                 <li key={i} className="component">
-                  <ItemPicker ctx={savedCtx} value={c.itemId} oldBefore={oldBefore} show={show} enterNext onChange={(id) => setC(i, { itemId: id, unit: keepUnit(savedCtx, id, c.unit) ?? '', entryError: lastEntryError(savedCtx, logs, id, true) })} />
+                  <ItemPicker ctx={savedCtx} value={c.itemId} oldBefore={oldBefore} show={show} enterNext onChange={(id) => setForm(pickComponent(st, i, id))} />
                   {/* Enter in any of its boxes (a unit picked, ε set) goes on to "+ add component", as in the food editor. */}
                   <div className="row" onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); addComponentRef.current?.focus() } }}>
                     <input inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
                     <DeltaInput value={c.amountDelta} amount={c.amount} unit={c.unit} onChange={(v) => setC(i, { amountDelta: v })} />
-                    <UnitCombo units={c.itemId != null ? unitsFor(savedCtx, c.itemId) : null} value={c.unit} onChange={(u) => setC(i, { unit: u })} />
+                    <UnitCombo units={componentUnits(st, c)} value={c.unit} onChange={(u) => setC(i, { unit: u })} />
                     <EntryErrorButton value={c.entryError ?? DEFAULT_ENTRY_ERROR} onChange={(x) => setC(i, { entryError: x })} />
                     <button className="icon" onClick={() => setForm((f) => ({ ...f, components: f.components.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
                   </div>
                   {/* What this component brings in, live, as in the food editor. */}
-                  {(() => {
-                    const cm = measure(c.amount, c.amountDelta, c.unit)
-                    if (c.itemId == null || !(cm.value >= 0)) return null
-                    const sub = nutrientsFor(savedCtx, c.itemId, cm.value, c.unit.trim(), cm.delta, undefined, c.entryError)
-                    return <MacroLine nutrients={sub.nutrients} ok={sub.ok} deltas />
-                  })()}
+                  {st.componentNutrients[i] && <MacroLine nutrients={st.componentNutrients[i].nutrients} ok={st.componentNutrients[i].ok} deltas />}
                 </li>
               ))}
               <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, emptyComponent()] })), { focusOnClick: true, scrollUp: true })}>+ add component</li>
             </ul>
-            <p className="small muted">
-              {draft.problem ? `Total: ${draft.problem}`
-                : `Total: ${draft.sum.problem ?? `${draft.sum.amountText} ± ${draft.sum.amountDelta} ${draft.sum.unit}`}`}
-            </p>
+            <p className="small muted">{st.total}</p>
           </>
         ) : (
           <Field label="Item">
-            <ItemPicker ctx={ctx} value={form.itemId} oldBefore={oldBefore} show={show} onChange={pickItem} enterNext />
+            <ItemPicker ctx={ctx} value={form.itemId} oldBefore={oldBefore} show={show} onChange={(id) => setForm(pickItem(st, id))} enterNext />
           </Field>
         )}
         <div className="row amount-row">
@@ -284,7 +157,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
             <DeltaInput value={form.amountDelta} amount={form.amount} unit={unit} onChange={set('amountDelta')} />
           </Field>
           <Field label="Unit">
-            <UnitCombo units={itemId != null ? unitsFor(ctx, itemId) : null} value={form.unit} onChange={set('unit')} enterNext />
+            <UnitCombo units={unitsOf(st)} value={form.unit} onChange={set('unit')} enterNext />
           </Field>
         </div>
         {ownFood && (
@@ -298,7 +171,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
           </Field>
         )}
         {maxText && (
-          <button className="secondary" onClick={() => setForm((f) => ({ ...f, amount: maxText, amountDelta: '0', unit: rest.unit }))}>
+          <button className="secondary" onClick={() => setForm(takeMax(st))}>
             Max: {maxText} {rest.unit} left
           </button>
         )}
@@ -307,7 +180,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
         <div className="row actions">
           {consumption.id && <button className="danger" onClick={remove}>Delete</button>}
           <button className="secondary" onClick={onClose}>Cancel</button>
-          <button onClick={save}>{form.concoction ? 'Add' : 'Save'}</button>
+          <button onClick={() => save()}>{form.concoction ? 'Add' : 'Save'}</button>
         </div>
       </div>
     </div>
@@ -320,7 +193,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
  */
 function NutrientDetails({ nutrients }) {
   const [open, setOpen] = useState(false)
-  const rows = NUTRIENTS.filter(({ key }) => key !== 'energy' && nutrients[key] && !(nutrients[key].missing && nutrients[key].value === 0))
+  const rows = detailRows(nutrients)
   return (
     <div className="details">
       <button className="link" onClick={() => setOpen((o) => !o)} aria-expanded={open}>

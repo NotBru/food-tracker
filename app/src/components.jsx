@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { fold, getConfig, itemLabel, kindOf, madeText } from './db'
-import { matchRank, queryWords } from './search'
+import { foodMatches } from './search'
 import { today } from './time'
 import { autoAmountDelta, calories, fmt, pmText } from './nutrients'
 
@@ -366,8 +366,6 @@ export function useListNav(count, onPick, onClose) {
   }
 }
 
-const isOld = (it, before) => !!(before && it.madeAt && it.madeAt < before)
-
 /**
  * One search box over every food: ingredients, recipes and concoctions are interchangeable,
  * so the picker never asks which kind you want.
@@ -381,18 +379,7 @@ export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore,
   const [query, setQuery] = useState(null) // null = closed
   const inputRef = useRef(null)
   const selected = value != null ? ctx.items.get(value) : null
-  const words = queryWords(query)
-  const matches = (words.length ? [...ctx.list, ...ctx.generic()] : ctx.list)
-    .filter((it) => it.id !== exclude && (!show || show(it)))
-    .map((it) => [it, matchRank(it, words)])
-    .filter(([, r]) => r)
-    .map(([it, r]) => [it, itemLabel(it), r])
-    // Old concoctions (if `oldBefore`) last; then the better matches (search.js); among those, the user's foods before
-    // CIQUAL's and USDA's, most recently made concoctions first; then the closer names, then alphabetical.
-    .sort(([a, la, ra], [b, lb, rb]) => isOld(a, oldBefore) - isOld(b, oldBefore) || ra.inside - rb.inside
-      || ra.partial - rb.partial || !!a.readOnly - !!b.readOnly || (b.madeAt ?? '').localeCompare(a.madeAt ?? '')
-      || ra.first - rb.first || ra.extra - rb.extra || la.localeCompare(lb))
-    .slice(0, 50)
+  const matches = foodMatches(ctx, query, { exclude, oldBefore, show })
   const nav = useListNav(matches.length, (i, byEnter) => {
     onChange(matches[i][0].id)
     byEnter && enterNext ? focusNextField(inputRef.current) : inputRef.current.blur()

@@ -18,7 +18,10 @@ data class Route(val path: String, val query: Map<String, String>) {
 
 /** Which routes have a native screen; the others are the web app's own (in the WebView under them). */
 object Routes {
-    private val native = setOf("/")
+    /** Paths with a native screen; ":x" stands for any one part ("/consumptions/:id"). */
+    val native = listOf("/", "/consumptions")
 
-    fun isNative(path: String) = path.split('?')[0].ifEmpty { "/" } in native
+    private val patterns = native.map { p -> Regex("^" + p.split('/').joinToString("/") { if (it.startsWith(":")) "[^/]+" else Regex.escape(it) } + "$") }
+
+    fun isNative(path: String) = path.split('?')[0].ifEmpty { "/" }.let { p -> patterns.any { it.matches(p) } }
 }

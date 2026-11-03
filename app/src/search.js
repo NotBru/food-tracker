@@ -1,4 +1,4 @@
-import { fold, searchText } from './db'
+import { fold, itemLabel, searchText } from './db'
 
 // Food searches (the Foods list and the food picker): which foods match what's typed, and how well, so "pear" puts
 // "Pears, raw" first, before "Babyfood, fruit, pears, junior" and "Spearmint".
@@ -80,4 +80,26 @@ export function matchRank(item, words) {
   if (!best) return null
   const [inside, partial, first, extra] = best
   return { inside, partial, first, extra }
+}
+
+const isOld = (it, before) => !!(before && it.madeAt && it.madeAt < before)
+
+/**
+ * The food picker's list (components.jsx ItemPicker) for `query`: [food, label] for the first 50 matches, best first.
+ * `exclude`: an id left out. `oldBefore` (ISO time): concoctions made before it go last. `show(item)`: only those it
+ * accepts. CIQUAL's and USDA's foods (`ctx.generic()`) come after the user's own, once something is typed.
+ */
+export function foodMatches(ctx, query, { exclude, oldBefore, show } = {}) {
+  const words = queryWords(query)
+  return (words.length ? [...ctx.list, ...ctx.generic()] : ctx.list)
+    .filter((it) => it.id !== exclude && (!show || show(it)))
+    .map((it) => [it, matchRank(it, words)])
+    .filter(([, r]) => r)
+    .map(([it, r]) => [it, itemLabel(it), r])
+    // Old concoctions (if `oldBefore`) last; then the better matches; among those, the user's foods before CIQUAL's
+    // and USDA's, most recently made concoctions first; then the closer names, then alphabetical.
+    .sort(([a, la, ra], [b, lb, rb]) => isOld(a, oldBefore) - isOld(b, oldBefore) || ra.inside - rb.inside
+      || ra.partial - rb.partial || !!a.readOnly - !!b.readOnly || (b.madeAt ?? '').localeCompare(a.madeAt ?? '')
+      || ra.first - rb.first || ra.extra - rb.extra || la.localeCompare(lb))
+    .slice(0, 50)
 }
