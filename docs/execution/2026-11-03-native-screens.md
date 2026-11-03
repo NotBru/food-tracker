@@ -112,7 +112,9 @@ Android 17's image (`android-37.0;google_apis`, WebView 145; the user's choice, 
 emulator or a JS fallback). Its first AVD crashed in a loop (every read of the screen back from graphics memory
 aborted, `hasReadColorBufferDma`: SurfaceFlinger, screenshots, system_server's task snapshots; also in software). The
 cause was the AVD: command-line tools 12.0's avdmanager writes `target=android-0` for images named `android-37.0`
-(and gives 1.5 GB of RAM, 800 MB of storage, which Android 17 fills). Recreated with 23.0's, it runs.
+(and gives 1.5 GB of RAM, 800 MB of storage, which Android 17 fills). Recreated with 23.0's, it runs. Sync then
+checked there with the user's secret (after a local copy of their backup): restore (same dashboard numbers as the
+web), a note up to the server within seconds, and its delete.
 
 ## Alternatives considered
 
