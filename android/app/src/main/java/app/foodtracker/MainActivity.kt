@@ -36,20 +36,35 @@ class MainActivity : ComponentActivity() {
     val importing = MutableStateFlow<PickedFile?>(null)
     private var exportText: String? = null
 
-    // A web screen's file input (temp notes: camera or gallery).
-    private var chooser: ValueCallback<Array<Uri>>? = null
+    // Pictures and files: for a web screen's file input, or a native screen (temp notes: camera or gallery).
+    // `picked` gets what was picked, or null if nothing was.
+    private var picked: ((Array<Uri>?) -> Unit)? = null
     private var shot: Uri? = null
-    private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
-        chooser?.onReceiveValue(if (ok) shot?.let { arrayOf(it) } else null)
-        chooser = null
+    private fun deliver(uris: Array<Uri>?) {
+        val f = picked
+        picked = null
+        f?.invoke(uris?.takeIf { it.isNotEmpty() })
     }
-    private val pickMany = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
-        chooser?.onReceiveValue(uris.toTypedArray().takeIf { it.isNotEmpty() })
-        chooser = null
+    private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) { ok -> deliver(if (ok) shot?.let { arrayOf(it) } else null) }
+    private val pickMany = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris -> deliver(uris.toTypedArray()) }
+    private val pickOne = registerForActivityResult(ActivityResultContracts.GetContent()) { uri -> deliver(uri?.let { arrayOf(it) }) }
+
+    /** A picture from the camera, or (`camera` false) any number from the gallery: [(address the web app can fetch,
+     * file name)], empty if none. */
+    fun pickPictures(camera: Boolean, onPicked: (List<Pair<String, String>>) -> Unit) {
+        deliver(null)
+        picked = { uris -> onPicked(uris.orEmpty().map { engine.serve(it) to (displayName(it) ?: "picture.jpg") }) }
+        runCatching { if (camera) launchCamera() else pickMany.launch("image/*") }
+            .onFailure { picked = null; toast("Can't open a picker: ${it.message}") }
     }
-    private val pickOne = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        chooser?.onReceiveValue(uri?.let { arrayOf(it) })
-        chooser = null
+
+    private fun launchCamera() {
+        val dir = File(cacheDir, "pictures").apply { mkdirs() }
+        // Earlier shots: the web app has its own copy by now (shrunk, in its database).
+        dir.listFiles()?.forEach { it.delete() }
+        val file = File(dir, "photo-${System.currentTimeMillis()}.jpg")
+        shot = FileProvider.getUriForFile(this, "app.foodtracker.files", file)
+        takePicture.launch(shot!!)
     }
 
     private val openImport = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -118,24 +133,18 @@ class MainActivity : ComponentActivity() {
     fun pickImport() = openImport.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
 
     private fun chooseFiles(callback: ValueCallback<Array<Uri>>, params: FileChooserParams): Boolean {
-        chooser?.onReceiveValue(null)
-        chooser = callback
+        deliver(null)
+        picked = { callback.onReceiveValue(it) }
         val type = params.acceptTypes.firstOrNull { it.isNotBlank() } ?: "*/*"
         return runCatching {
             when {
-                params.isCaptureEnabled -> {
-                    val dir = File(cacheDir, "pictures").apply { mkdirs() }
-                    dir.listFiles()?.forEach { it.delete() } // earlier shots: the web app has its own copy by now
-                    val file = File(dir, "photo-${System.currentTimeMillis()}.jpg")
-                    shot = FileProvider.getUriForFile(this, "app.foodtracker.files", file)
-                    takePicture.launch(shot!!)
-                }
+                params.isCaptureEnabled -> launchCamera()
                 params.mode == FileChooserParams.MODE_OPEN_MULTIPLE -> pickMany.launch(type)
                 else -> pickOne.launch(type)
             }
             true
         }.getOrElse {
-            chooser = null
+            picked = null
             toast("Can't open a picker: ${it.message}")
             false
         }

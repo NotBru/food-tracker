@@ -2,7 +2,7 @@
 // screen shows, as plain JSON: texts already formatted and links as routes, so the Kotlin side only lays it out and
 // no logic is copied there. One function per native screen; the web screen it replaces uses the same modules.
 import { liveQuery } from 'dexie'
-import { DEFAULT_EXPIRY_DAYS, db, exportAll, getConfig, getCurrentUser, importAll, itemLabel, kindOf, madeText } from '../db'
+import { DEFAULT_EXPIRY_DAYS, NOTE_DAYS, db, exportAll, makeId, getConfig, getCurrentUser, importAll, itemLabel, kindOf, madeText } from '../db'
 import { amountText, autoAmountDelta, calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf, setCoverage, zero } from '../stats'
 import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, formatDateTime, prettyDay, toLocalInput, today, versionStamp } from '../time'
@@ -12,6 +12,8 @@ import { consumptionNutrients, loadContext, resolve, span } from '../calc'
 import { DEFAULT_ENTRY_ERROR } from '../errors'
 import { foodMatches } from '../search'
 import * as cf from '../consumptionForm'
+import { deleteNote as dropNote, leftText, saveNote as putNote, shrink } from '../notes'
+import Dexie from 'dexie'
 import { barFor, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
 import { conflictLabelShown, getState, status } from '../backup'
 import { statusText } from '../screens/Backup'
@@ -349,3 +351,60 @@ export async function consumptionInfo(id, nutrient) {
     table: nutrientTable(res.nutrients),
   }
 }
+
+// --- Temp notes ---------------------------------------------------------------------------------------------
+// Pictures go to the app as base64 JPEG (notePicture), once each: it keeps them. Picked ones come from the app as
+// addresses it serves (the camera's shot, the gallery's files), are shrunk here as on the web, and wait in `staged`
+// until the note is saved.
+
+const staged = new Map() // key -> {blob, name}
+
+/** screens/Notes.jsx: the user's notes, newest first; `have` says whether a picture is on this device yet. */
+export async function notes() {
+  const user = await getCurrentUser()
+  const list = await db.notes.where('[userId+datetime]').between([user.id, Dexie.minKey], [user.id, Dexie.maxKey]).reverse().toArray()
+  const have = new Set(await db.files.where('id').anyOf(list.flatMap((n) => n.pictures ?? [])).primaryKeys())
+  return {
+    user: user.name, userId: user.id,
+    keep: `Deleted ${NOTE_DAYS} days after they're made.`,
+    rows: list.map((n) => ({
+      note: n, when: formatDateTime(n.datetime), title: `Note of ${formatDateTime(n.datetime)}`, done: !!n.done, left: leftText(n), text: n.text ?? '',
+      pics: (n.pictures ?? []).map((id) => ({ id, name: n.pictureNames?.[id] ?? null, have: have.has(id) })),
+    })),
+  }
+}
+
+/** Pictures picked in the app: [{url, name}] -> [{key, name}], shrunk and waiting for the note's save. */
+export async function notePick(files) {
+  const out = []
+  for (const f of files) {
+    const blob = await (await fetch(f.url)).blob()
+    const key = makeId()
+    staged.set(key, { blob: await shrink(Object.assign(blob, { name: f.name })), name: f.name || undefined })
+    out.push({ key, name: f.name || null })
+  }
+  return out
+}
+
+/** A picture (stored, or picked and not saved yet) as base64 JPEG; null if it isn't on this device yet. */
+export async function notePicture(id) {
+  const blob = staged.get(id)?.blob ?? (await db.files.get(id))?.blob
+  if (!blob) return null
+  const url = await new Promise((resolve, reject) => {
+    const r = new FileReader()
+    r.onload = () => resolve(r.result)
+    r.onerror = () => reject(r.error)
+    r.readAsDataURL(blob)
+  })
+  return url.slice(url.indexOf(',') + 1)
+}
+
+/** Saves a note: `pics` [{id, name}] stored or [{key, name}] picked. {alert} if there's nothing in it. */
+export async function saveNote(note, text, done, pics) {
+  if (!text.trim() && !pics.length) return { alert: 'Write something or add a picture.' }
+  await putNote(note, text, done, pics.map((p) => (p.key ? { key: p.key, blob: staged.get(p.key)?.blob, name: p.name ?? undefined } : { id: p.id, name: p.name ?? undefined })))
+  for (const p of pics) if (p.key) staged.delete(p.key)
+  return { done: true }
+}
+
+export const deleteNote = async (note) => dropNote(note)

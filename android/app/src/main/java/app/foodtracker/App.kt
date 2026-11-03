@@ -19,6 +19,8 @@ import app.foodtracker.ui.ConsumptionInfoScreen
 import app.foodtracker.ui.ConsumptionsScreen
 import app.foodtracker.ui.HomeActions
 import app.foodtracker.ui.HomeScreen
+import app.foodtracker.ui.NotesScreen
+import app.foodtracker.ui.PicturePicker
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -44,6 +46,7 @@ fun App(activity: MainActivity) {
         when {
             r.path == "/" -> HomeRoute(activity, r)
             parts == listOf("consumptions") -> ConsumptionsRoute(activity, r)
+            parts == listOf("notes") -> NotesRoute(activity, r)
             parts.size == 2 && parts[0] == "consumptions" -> {
                 val view = watchView(activity, "consumptionInfo", listOf(JsonPrimitive(parts[1]), jsOf(r.query["nutrient"])), ConsumptionInfoView.serializer())
                 ConsumptionInfoScreen(parts[1], view, engine)
@@ -109,6 +112,21 @@ private fun ConsumptionsRoute(activity: MainActivity, r: Route) {
         engine.replace("/consumptions${if (day != null) "?day=$day" else ""}")
     }
     ConsumptionsScreen(view, engine, editing) { editing = it }
+}
+
+@Composable
+private fun NotesRoute(activity: MainActivity, r: Route) {
+    val engine = activity.engine
+    val view = watchView(activity, "notes", emptyList(), NotesView.serializer())
+    var editing by remember { mutableStateOf<JsonObject?>(null) }
+    // ?new (the homescreen's +): straight into a new note, once.
+    val adding = "new" in r.query
+    LaunchedEffect(adding, view != null) {
+        if (!adding || view == null) return@LaunchedEffect
+        editing = js("userId" to view.userId, "text" to "", "pictures" to emptyList<String>(), "pictureNames" to emptyMap<String, String>())
+        engine.replace("/notes")
+    }
+    NotesScreen(view, engine, PicturePicker(activity::pickPictures), editing) { editing = it }
 }
 
 /** The last view of each native screen, kept between runs so the app shows something at once. */

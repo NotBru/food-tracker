@@ -43,6 +43,14 @@ and concoction totals.
 CSS variables). Rich texts (bold, muted parts) come as spans. The donut is drawn on a canvas; tapping a slice shows
 it in the middle, as on the web.
 
+### Temp notes
+
+`app/src/notes.js` (shrinking, saving, deleting, from Notes.jsx). Pictures stay the web app's: the camera's shot or
+the gallery's files are served to it at an address of its own origin (`/__native/file/…`, Engine.serve), it fetches
+and shrinks them as on the web and keeps them waiting until the note is saved; the native screen gets each picture
+back once, as base64 JPEG, and keeps it decoded (downsampled for thumbnails). A picture not synced yet shows "…"
+until the list says it's here.
+
 ## Alternatives considered
 
 - **The form's state in the web app** (Kotlin sending keystrokes): a round trip per key, and the text field's value

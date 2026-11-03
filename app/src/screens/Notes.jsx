@@ -1,34 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import Dexie from 'dexie'
-import { db, dropUnusedFiles, getCurrentUser, makeId, noteExpiry, NOTE_DAYS } from '../db'
-import { deleteFiles } from '../backup'
+import { db, getCurrentUser, makeId, NOTE_DAYS } from '../db'
+import { deleteNote, leftText, saveNote, shrink } from '../notes'
 import { formatDateTime } from '../time'
 import { Screen, replace, useComputer } from '../components'
 
 // Temp notes: text and pictures (camera or gallery), stamped with when they were made, gone a week later (db.js
 // expireNotes). Mostly for Claude's log-food skill, which reads them from the backup. `done: true` once taken care of
 // (logged, or nothing to log): set here or by the skill once it has logged a note, so it skips it next time.
-
-// Pictures are shrunk to this many pixels on their long side, as JPEG: plenty to read a plate or a label, and a few
-// hundred KB instead of a phone camera's several MB.
-const MAX_SIDE = 1600
-const QUALITY = 0.85
-
-/** A picked image as a JPEG Blob at most MAX_SIDE on its long side, upright. */
-async function shrink(file) {
-  let bmp
-  try {
-    bmp = await createImageBitmap(file, { imageOrientation: 'from-image' })
-  } catch {
-    throw new Error(`Couldn't read “${file.name}” as a picture.`)
-  }
-  const k = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height))
-  const canvas = Object.assign(document.createElement('canvas'), { width: Math.round(bmp.width * k), height: Math.round(bmp.height * k) })
-  canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height)
-  bmp.close()
-  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Couldn't save the picture."))), 'image/jpeg', QUALITY))
-}
 
 /** An object URL for a Blob, revoked when it changes or the component goes. */
 function useObjectUrl(blob) {
@@ -92,8 +72,6 @@ function Viewer({ pics, at, onClose }) {
   )
 }
 
-const daysLeft = (note) => Math.max(0, Math.ceil((noteExpiry(note) - Date.now()) / 864e5))
-
 export default function Notes({ add }) {
   const data = useLiveQuery(async () => {
     const user = await getCurrentUser()
@@ -122,7 +100,7 @@ export default function Notes({ add }) {
           <li key={n.id} className={n.done ? 'note-done' : undefined} onClick={() => setEditing(n)}>
             <div className="list-main">
               <span className="muted nowrap">{formatDateTime(n.datetime)}{n.done && <span className="done-mark"> · ✓ done</span>}</span>
-              <span className="muted small nowrap">{daysLeft(n) ? `${daysLeft(n)} day${daysLeft(n) === 1 ? '' : 's'} left` : 'goes today'}</span>
+              <span className="muted small nowrap">{leftText(n)}</span>
             </div>
             {n.text && <p className="note-text">{n.text}</p>}
             {n.pictures?.length > 0 && (
@@ -174,31 +152,13 @@ function NoteEditor({ note, onView, onClose }) {
 
   async function save() {
     if (!text.trim() && !pics.length) return alert('Write something or add a picture.')
-    const fresh = pics.filter((p) => p.blob).map((p) => ({ id: p.key, blob: p.blob, uploaded: false }))
-    const rec = {
-      ...(note.id && { id: note.id }),
-      userId: note.userId,
-      datetime: note.datetime ?? new Date().toISOString(),
-      text: text.trim(),
-      pictures: pics.map((p) => p.id ?? p.key),
-      pictureNames: Object.fromEntries(pics.filter((p) => p.name).map((p) => [p.id ?? p.key, p.name])),
-      ...(done && { done: true }),
-    }
-    // Pictures first, in the same transaction: no note ever names a picture that isn't here.
-    await db.transaction('rw', db.notes, db.files, async () => {
-      await db.files.bulkPut(fresh)
-      await db.notes.put(rec)
-    })
-    const removed = (note.pictures ?? []).filter((id) => !rec.pictures.includes(id))
-    if (removed.length) await dropUnusedFiles().then(() => deleteFiles(removed))
+    await saveNote(note, text, done, pics)
     onClose()
   }
 
   async function remove() {
     if (!confirm('Delete this note?')) return
-    await db.notes.delete(note.id)
-    await dropUnusedFiles()
-    deleteFiles(note.pictures ?? [])
+    await deleteNote(note)
     onClose()
   }
 

@@ -1,6 +1,7 @@
 package app.foodtracker
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
 // The views app/src/native/core.js sends: texts already formatted, links as routes. Only what's laid out is here.
@@ -202,3 +203,25 @@ data class ConsumptionInfoView(
     val energy: EnergyChartView? = null,
     val table: NutrientTableView? = null,
 )
+
+// --- Temp notes ---
+
+@Serializable
+data class NotesView(val user: String, val userId: JsonElement, val keep: String, val rows: List<NoteRow>)
+
+@Serializable
+data class NoteRow(
+    val note: JsonObject,
+    val `when`: String,
+    val title: String,
+    val done: Boolean,
+    val left: String,
+    val text: String,
+    val pics: List<NotePic>,
+)
+
+/** A note's picture: stored ([id]; [have] once it's on this device) or picked and not saved yet ([key]). */
+@Serializable
+data class NotePic(val id: String? = null, val key: String? = null, val name: String? = null, val have: Boolean = true) {
+    val ref get() = id ?: key!!
+}

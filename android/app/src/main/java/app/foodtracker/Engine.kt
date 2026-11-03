@@ -70,6 +70,18 @@ class Engine(private val context: Context) : Core {
     /** Back with no route to go back to: leave the app. */
     var onExit: (() -> Unit)? = null
 
+    private val served = java.util.concurrent.ConcurrentHashMap<String, Uri>()
+
+    /**
+     * An address the web app can fetch `uri` from (a picture taken or picked for a native screen), so the file never
+     * crosses the bridge as text.
+     */
+    fun serve(uri: Uri): String {
+        val token = UUID.randomUUID().toString()
+        served[token] = uri
+        return "$ORIGIN/__native/file/$token"
+    }
+
     private val replies = HashMap<String, CompletableDeferred<JsonElement>>()
     private val watches = HashMap<String, Pair<String, (JsonElement?, String?) -> Unit>>() // id -> (script, listener)
     private val waiting = ArrayList<String>() // scripts sent before the web app was ready
@@ -170,6 +182,12 @@ class Engine(private val context: Context) : Core {
             val url = request.url
             if (url.host != HOST || request.method != "GET") return null
             val path = url.path.orEmpty().ifEmpty { "/" }
+            if (path.startsWith("/__native/file/")) {
+                val uri = served[path.removePrefix("/__native/file/")] ?: return WebResourceResponse("text/plain", null, 404, "Gone", null, null)
+                return runCatching {
+                    WebResourceResponse(context.contentResolver.getType(uri) ?: "image/jpeg", null, context.contentResolver.openInputStream(uri))
+                }.getOrNull()
+            }
             if (path.startsWith("/backup/") || path.startsWith("/off-search/")) return null
             val asset = "web" + if (path == "/") "/index.html" else path
             return try {

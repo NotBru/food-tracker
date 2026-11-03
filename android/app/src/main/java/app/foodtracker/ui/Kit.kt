@@ -329,7 +329,7 @@ fun TextBox(
                 Modifier.clip(if (singleLine) Pill else RoundedCornerShape(20.dp)).background(bg)
                     .border(1.dp, when { invalid -> C.prot; focused -> C.accent; else -> Color.Transparent }, if (singleLine) Pill else RoundedCornerShape(20.dp))
                     .alpha(if (enabled) 1f else 0.5f).padding(contentPadding),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = if (singleLine) Alignment.CenterVertically else Alignment.Top,
             ) {
                 if (leading != null) Text(leading, color = C.muted, fontSize = textStyle.fontSize, modifier = Modifier.padding(end = 6.dp))
                 Box(Modifier.weight(1f)) {
