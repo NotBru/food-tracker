@@ -5,8 +5,10 @@ import { liveQuery } from 'dexie'
 import { DEFAULT_EXPIRY_DAYS, db, exportAll, getConfig, getCurrentUser, importAll, itemLabel, kindOf, madeText } from '../db'
 import { amountText, autoAmountDelta, calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf, setCoverage, zero } from '../stats'
-import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, prettyDay, toLocalInput, today, versionStamp } from '../time'
-import { consumptionNutrients, loadContext, resolve } from '../calc'
+import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, formatDateTime, prettyDay, toLocalInput, today, versionStamp } from '../time'
+import { energySplit } from '../energy'
+import { nutrientRows } from '../screens/FoodInfo'
+import { consumptionNutrients, loadContext, resolve, span } from '../calc'
 import { DEFAULT_ENTRY_ERROR } from '../errors'
 import { foodMatches } from '../search'
 import * as cf from '../consumptionForm'
@@ -272,4 +274,78 @@ export async function saveConsumption(args, confirmed = false) {
   if (problem) return problem
   await cf.save(st)
   return { done: true }
+}
+
+// --- Info screens -------------------------------------------------------------------------------------------
+// Rich text as spans: {t, b (bold), m (muted), c (a colour: warn, kcal, …), small}.
+
+/** FoodInfo.jsx Amount: "50 ±1 g · 49–51 (±2%)". */
+export function amountSpans(value, lo, hi, unit, delta) {
+  const d = delta ?? Math.max(hi - value, value - lo)
+  return [
+    { t: fmt(value, 2), b: true },
+    { t: `${d > 0 ? ` ±${fmt(d, 2)}` : ' (exact)'} ${unit}` },
+    ...(d > 0 ? [{ t: ` · ${fmt(lo, 2)}–${fmt(hi, 2)} (±${fmt((d / value) * 100, 1)}%)`, m: true }] : []),
+  ]
+}
+
+/** EnergyChart.jsx: the donut's slices and centre, the legend and the note. */
+export function energyChart(nutrients) {
+  const { macros, total, totalN } = energySplit(nutrients)
+  const registered = calories(nutrients)
+  const pct = (x) => (total > 0 ? `${fmt((x / total) * 100, 0)}%` : '')
+  return {
+    total: fmt(total, 0),
+    totalPm: `${pmText(totalN, 0)} kcal`,
+    slices: macros.flatMap((m) => m.slices.filter((s) => s.kcal > 0).map((s) => ({
+      label: s.label, tone: s.tone, shade: s.shade, share: total > 0 ? s.kcal / total : 0,
+      kcal: fmt(s.kcal, 0), pct: total > 0 ? fmt((s.kcal / total) * 100, 0) : '0',
+    }))),
+    legend: macros.flatMap((m) => [
+      { macro: true, label: m.label, tone: m.tone, shade: 1, g: `${fmt(m.g)} ${pmText(m.n)}`, kcal: `${fmt(m.kcal, 0)} ${pmText(m.kcalN, 0)}`, pct: pct(m.kcal) },
+      ...(m.slices.length > 1 ? m.slices.map((s) => ({ macro: false, label: s.label, tone: s.tone, shade: s.shade, g: fmt(s.g), kcal: fmt(s.kcal, 0), pct: pct(s.kcal) })) : []),
+    ]),
+    note: `From the grams: 9 kcal/g fat, 4 proteins and carbohydrates${macros.some((m) => m.key === 'alcohol') ? ', 7 alcohol' : ''}.`
+      + (!registered.estimated ? ` Registered energy: ${fmt(registered.value, 0)} ${pmText(registered, 0)} kcal.` : ''),
+  }
+}
+
+/** FoodInfo.jsx NutrientTable: value ± interval, range and CV of every known nutrient. */
+export function nutrientTable(nutrients) {
+  const rows = nutrientRows(nutrients)
+  return {
+    rows: rows.map(([n, v]) => ({
+      label: n.label, missing: !!v.missing, value: `${v.estimated ? '~' : ''}${fmt(v.value)}`, pm: pmText(v), unit: n.unit,
+      range: rangeText(v, 1), cv: v.value > 0 ? `CV ${fmt((sdOf(v) / v.value) * 100, 1)}%` : '',
+    })),
+    missing: rows.some(([, v]) => v.missing),
+  }
+}
+
+/** screens/ConsumptionInfo.jsx: one consumption, for exactly the amount eaten. `nutrient`: from a breakdown. */
+export async function consumptionInfo(id, nutrient) {
+  const [log, ctx] = await Promise.all([db.logs.get(id), loadContext()])
+  if (!log) return { found: false }
+  const item = resolve(ctx, log.itemId)
+  const res = consumptionNutrients(ctx, log)
+  const [, lo, hi] = span(log.amount, log.amountDelta)
+  const list = [{ label: 'Amount eaten', text: amountSpans(log.amount, lo, hi, log.unit, log.amountDelta || 0),
+    sub: log.amountText && log.amountText !== String(log.amount) ? `typed as ${amountText(log.amount, log.amountText)}` : null }]
+  if (item && !item.components?.length) {
+    list.push({ label: 'Entry error', text: [{ t: `${fmt((Number.isFinite(log.entryError) ? log.entryError : DEFAULT_ENTRY_ERROR) * 100, 2)}%` }] })
+  }
+  if (item) {
+    list.push({ label: 'Food', text: [{ t: itemLabel(item) }], tag: madeText(item) || null, more: '· info ›',
+      link: `/foods/${item.id}?tab=info${nutrient ? `&nutrient=${nutrient}` : ''}` })
+  }
+  return {
+    found: true,
+    title: item ? itemLabel(item) : '(deleted item)',
+    subtitle: formatDateTime(log.datetime),
+    list,
+    macros: macroLine(res.nutrients, res.ok, true),
+    failed: !res.ok,
+    energy: energyChart(res.nutrients),
+    table: nutrientTable(res.nutrients),
+  }
 }

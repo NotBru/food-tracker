@@ -120,11 +120,14 @@ export default function FoodInfo({ ctx, item, nutrient }) {
   )
 }
 
+/** The table's rows: [nutrient, value] for every one known, energy first. */
+export const nutrientRows = (nutrients) => ORDERED.map((n) => [n, n.key === 'energy' ? calories(nutrients) : nutrients[n.key]])
+  .filter(([n, v]) => v && Number.isFinite(v.value) && (v.value !== 0 || sdOf(v) > 0 || n.key === 'energy'))
+
 /** Every known nutrient of `nutrients` (from nutrientsFor): value with its interval, range and relative deviation
  * (CV). Also used by the consumption info screen. */
 export function NutrientTable({ nutrients }) {
-  const rows = ORDERED.map((n) => [n, n.key === 'energy' ? calories(nutrients) : nutrients[n.key]])
-    .filter(([n, v]) => v && Number.isFinite(v.value) && (v.value !== 0 || sdOf(v) > 0 || n.key === 'energy'))
+  const rows = nutrientRows(nutrients)
   return (
     <>
       <table className="info-table">

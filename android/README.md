@@ -14,6 +14,7 @@ Design: `../docs/instructions/design.md` · Decisions: `../docs/execution/2026-1
 |-------|--------|----------------|--------------------------------|
 | `/` | `ui/HomeScreen.kt` | `app/src/screens/Home.jsx` | `app/src/dashboard.js`, `app/src/native/core.js` `home` |
 | `/consumptions` | `ui/ConsumptionsScreen.kt` | `app/src/screens/Consumptions.jsx` | `app/src/consumptionForm.js`, core.js `consumptions`, `consumptionEditor` |
+| `/consumptions/:id` | `ui/ConsumptionInfoScreen.kt` | `app/src/screens/ConsumptionInfo.jsx` (+ `EnergyChart.jsx`, `FoodInfo.jsx` NutrientTable) | `app/src/energy.js`, core.js `consumptionInfo` |
 
 Shared controls (top bar, sheets, food picker, …): `ui/Kit.kt`. Routes not listed are the web app's screens.
 

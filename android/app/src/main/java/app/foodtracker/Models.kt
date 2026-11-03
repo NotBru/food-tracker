@@ -152,3 +152,53 @@ data class EditorComponent(
     val entryError: String,
     val macros: MacroLine? = null,
 )
+
+// --- Info screens ---
+
+/** A piece of rich text (core.js): bold, muted, a colour (warn, kcal, …), small. */
+@Serializable
+data class Rich(val t: String, val b: Boolean = false, val m: Boolean = false, val c: String? = null, val small: Boolean = false)
+
+/** An `.info-list` row: a muted label, then its text; maybe a tag, a muted "more", a line under it, a link. */
+@Serializable
+data class InfoItem(
+    val label: String? = null,
+    val text: List<Rich> = emptyList(),
+    val tag: String? = null,
+    val more: String? = null,
+    val sub: String? = null,
+    val link: String? = null,
+    /** A component's value of the nutrient it's ranked by (FoodInfo.jsx info-lead). */
+    val lead: List<Rich>? = null,
+    /** A plain muted note between rows. */
+    val note: Boolean = false,
+)
+
+/** EnergyChart.jsx (core.js energyChart). */
+@Serializable
+data class EnergyChartView(val total: String, val totalPm: String, val slices: List<EnergySlice>, val legend: List<EnergyLegendRow>, val note: String)
+
+@Serializable
+data class EnergySlice(val label: String, val tone: String, val shade: Double, val share: Double, val kcal: String, val pct: String)
+
+@Serializable
+data class EnergyLegendRow(val macro: Boolean, val label: String, val tone: String, val shade: Double, val g: String, val kcal: String, val pct: String)
+
+/** FoodInfo.jsx NutrientTable (core.js nutrientTable). */
+@Serializable
+data class NutrientTableView(val rows: List<NutrientTableRow>, val missing: Boolean)
+
+@Serializable
+data class NutrientTableRow(val label: String, val missing: Boolean, val value: String, val pm: String, val unit: String, val range: String, val cv: String)
+
+@Serializable
+data class ConsumptionInfoView(
+    val found: Boolean,
+    val title: String = "",
+    val subtitle: String = "",
+    val list: List<InfoItem> = emptyList(),
+    val macros: MacroLine? = null,
+    val failed: Boolean = false,
+    val energy: EnergyChartView? = null,
+    val table: NutrientTableView? = null,
+)

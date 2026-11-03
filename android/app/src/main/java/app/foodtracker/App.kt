@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import app.foodtracker.ui.C
+import app.foodtracker.ui.ConsumptionInfoScreen
 import app.foodtracker.ui.ConsumptionsScreen
 import app.foodtracker.ui.HomeActions
 import app.foodtracker.ui.HomeScreen
@@ -43,6 +44,10 @@ fun App(activity: MainActivity) {
         when {
             r.path == "/" -> HomeRoute(activity, r)
             parts == listOf("consumptions") -> ConsumptionsRoute(activity, r)
+            parts.size == 2 && parts[0] == "consumptions" -> {
+                val view = watchView(activity, "consumptionInfo", listOf(JsonPrimitive(parts[1]), jsOf(r.query["nutrient"])), ConsumptionInfoView.serializer())
+                ConsumptionInfoScreen(parts[1], view, engine)
+            }
         }
     }
 }

@@ -37,6 +37,12 @@ ranking, from components.jsx ItemPicker). core.js: `consumptions`, `consumptionE
 `deleteConsumption`, `foodSearch`. Checked on the emulator against the web screen in a browser: same preview, list
 and concoction totals.
 
+### Consumption info
+
+`app/src/energy.js` (the energy split, from EnergyChart.jsx: colours named by tone and shade, as Kotlin can't read
+CSS variables). Rich texts (bold, muted parts) come as spans. The donut is drawn on a canvas; tapping a slice shows
+it in the middle, as on the web.
+
 ## Alternatives considered
 
 - **The form's state in the web app** (Kotlin sending keystrokes): a round trip per key, and the text field's value
