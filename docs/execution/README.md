@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-03 | [log-food skill: recognise a photo before asking; few questions for a simple one](2026-11-03-log-food-photo-questions.md) | accepted |
 | 2026-11-03 | [Android app: the other screens, native](2026-11-03-native-screens.md) | accepted |
 | 2026-11-03 | [Food searches ranked by whole words](2026-11-03-food-search-ranking.md) | accepted |
 | 2026-11-03 | [Temp notes: a "done" mark; no keyboard on a phone](2026-11-03-note-done.md) | accepted |
