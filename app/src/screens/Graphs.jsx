@@ -6,7 +6,7 @@ import { bounds, sdOf } from '../stats'
 import { addDays, prettyDay } from '../time'
 import { Screen, go, replace, useToday } from '../components'
 import { statusMark } from '../dashboard'
-import { DEFAULT_DAYS, MAX_DAYS, MAX_SLIDER, columnShapes, loadGraphs, measureScale, nutrientScale, spanOf, weekPoints } from '../graphs'
+import { DEFAULT_DAYS, MAX_DAYS, SLIDER_STOPS, columnShapes, loadGraphs, measureScale, nutrientScale, spanOf, stopDays, stopIndex, weekPoints } from '../graphs'
 
 // Time graphs: per nutrient on the dashboard, one column per day, back to back. Each column: the day's target range
 // in light green; the day's interval hatched, green within the range and red outside it (nothing below it); a white
@@ -44,6 +44,7 @@ export default function Graphs({ days: daysParam, end: endParam }) {
     if (done) panFrom.current = null
   }
   const [sel, setSel] = useState(null)
+  const stop = last ? stopIndex(span, last) : 0
 
   const data = useLiveQuery(async () => (last ? loadGraphs(last, span) : null), [last, span])
 
@@ -51,8 +52,10 @@ export default function Graphs({ days: daysParam, end: endParam }) {
   return (
     <Screen className="graphs" title="Time graphs" subtitle={data ? `${data.list[0]} → ${data.list.at(-1)} · daily` : ''}>
       <div className="tg-days">
-        <input type="range" min="1" max={MAX_SLIDER} value={Math.min(span, MAX_SLIDER)} aria-label="Days"
-          onChange={(e) => { setText(e.target.value); setSpan(Number(e.target.value)) }} />
+        {/* Stops (graphs.js SLIDER_STOPS): 12 months on the left, down to 1 day on the right. */}
+        <input type="range" min="0" max={SLIDER_STOPS.length - 1} value={stop} aria-label="Days"
+          aria-valuetext={SLIDER_STOPS[stop].label} disabled={!last}
+          onChange={(e) => { const n = stopDays(SLIDER_STOPS[Number(e.target.value)], last); setText(String(n)); setSpan(n) }} />
         <input inputMode="numeric" value={text} aria-label="Days" onChange={(e) => onType(e.target.value)}
           onBlur={() => setText(String(span))} />
         <span className="muted">days</span>
@@ -109,7 +112,7 @@ function MeasureChart({ list, measure, shown, onPick, onPan }) {
   const { label, unit, daily } = measure
   const { avgOf, pos, grid, digits } = measureScale(measure, list)
   const pointer = usePlotPointer(list, onPick, onPan)
-  const labelled = [0, Math.floor((list.length - 1) / 2), list.length - 1]
+  const labelled = [...new Set([0, Math.floor((list.length - 1) / 2), list.length - 1])]
   const x = daily[shown]
   const avg = avgOf(shown)
 
@@ -178,7 +181,7 @@ function TimeChart({ row, data, shown, onPick, onPan }) {
   const avg = avgOf(shown)
   const range = targets[shown]?.[row.key]
   const bar = v && targetBar(v, range, pos)
-  const labelled = [0, Math.floor((list.length - 1) / 2), list.length - 1]
+  const labelled = [...new Set([0, Math.floor((list.length - 1) / 2), list.length - 1])]
 
   return (
     <section className="tg">

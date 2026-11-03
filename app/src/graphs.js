@@ -3,16 +3,36 @@ import { db, getConfig, getCurrentUser } from './db'
 import { averageTargets, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from './calc'
 import { NUTRIENTS, calories } from './nutrients'
 import { bounds, zero } from './stats'
-import { addDays, dayBounds, logicalDay } from './time'
+import { addDays, addMonths, dayBounds, daysBetween, logicalDay } from './time'
 import { dailyValues, measures, weekMean } from './body'
 import { ROWS, fillPieces } from './dashboard'
 
 // Time graphs' data and scales (screens/Graphs.jsx; the Android app's native screen too).
 
-// Days shown: the slider covers up to MAX_SLIDER; the box takes up to MAX_DAYS.
+// Days shown: the slider's stops (SLIDER_STOPS) or any number up to MAX_DAYS in the box.
 export const DEFAULT_DAYS = 30
-export const MAX_SLIDER = 180
+export const MAX_SLIDER = 180 // the Android app's slider, until it has the stops (android/README.md Next port)
 export const MAX_DAYS = 730
+
+/** The slider's stops, left to right: 12 months, 11, …, 1 month, 3 weeks, 2 weeks, 13 days, …, 1 day. */
+export const SLIDER_STOPS = [
+  ...Array.from({ length: 12 }, (_, i) => ({ months: 12 - i, label: `${12 - i} month${12 - i > 1 ? 's' : ''}` })),
+  { days: 21, label: '3 weeks' },
+  { days: 14, label: '2 weeks' },
+  ...Array.from({ length: 13 }, (_, i) => ({ days: 13 - i, label: `${13 - i} day${13 - i > 1 ? 's' : ''}` })),
+]
+
+/** A stop's days, ending on `last`: a month is a calendar month back from it (1 month on 11-03: 10-04 → 11-03, 31). */
+export const stopDays = (stop, last) => stop.days ?? daysBetween(addMonths(last, -stop.months), last)
+
+/** The slider's stop for `span` days ending on `last`: the one with those days, else the nearest. */
+export function stopIndex(span, last) {
+  let best = 0
+  SLIDER_STOPS.forEach((st, i) => {
+    if (Math.abs(stopDays(st, last) - span) < Math.abs(stopDays(SLIDER_STOPS[best], last) - span)) best = i
+  })
+  return best
+}
 
 /** The `days` route parameter as a number of days (the default if it isn't one). */
 export const spanOf = (daysParam) =>

@@ -41,6 +41,16 @@ export function addDays(dayStr, n) {
   return toDateStr(d)
 }
 
+/** `n` calendar months from `dayStr` (YYYY-MM-DD), on the same day of the month or its last day ("03-31" − 1 → "02-28"). */
+export function addMonths(dayStr, n) {
+  const d = parseDay(dayStr)
+  const day = d.getDate()
+  d.setDate(1)
+  d.setMonth(d.getMonth() + n)
+  d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()))
+  return toDateStr(d)
+}
+
 /** Real-time [start, end) of a logical day. */
 export function dayBounds(dayStr, dayStart) {
   const start = parseDay(dayStr)
