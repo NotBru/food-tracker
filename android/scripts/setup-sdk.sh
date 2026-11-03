@@ -15,7 +15,10 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 source "$HERE/env.sh"
 
-CMDLINE_TOOLS_ZIP=commandlinetools-linux-11076708_latest.zip
+# 23.0. 12.0's avdmanager writes `target=android-0` for images named like android-36.1 or -37.0 (reported to make the
+# emulator crash in a loop: SurfaceFlinger, hasReadColorBufferDma) and gives AVDs 1.5 GB of RAM, 800 MB of storage.
+CMDLINE_TOOLS_ZIP=commandlinetools-linux-16111833_latest.zip
+CMDLINE_TOOLS_VERSION=23.0
 PLATFORM="platforms;android-35"
 BUILD_TOOLS="build-tools;35.0.0"
 SYSTEM_IMAGE="system-images;android-36.1;google_apis;x86_64"
@@ -37,8 +40,9 @@ fi
 echo "JAVA_HOME=$JAVA_HOME"
 
 step "Android command-line tools (sdkmanager) in $ANDROID_HOME"
-if [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
-  echo "Already there."
+if [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ] &&
+  grep -qx "Pkg.Revision=$CMDLINE_TOOLS_VERSION" "$ANDROID_HOME/cmdline-tools/latest/source.properties"; then
+  echo "Already there ($CMDLINE_TOOLS_VERSION)."
 else
   tmp="$(mktemp -d)"
   echo "Downloading $CMDLINE_TOOLS_ZIP"
