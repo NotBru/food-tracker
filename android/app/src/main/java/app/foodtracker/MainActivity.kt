@@ -8,6 +8,8 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient.FileChooserParams
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -70,15 +72,17 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Edge to edge on every Android version (15 enforces it), light bar icons over the app's dark background;
+        // App keeps the content clear of the bars.
+        enableEdgeToEdge(SystemBarStyle.dark(android.graphics.Color.TRANSPARENT), SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
         engine = Engine(this)
         engine.onFileChooser = ::chooseFiles
         engine.onGone = { recreate() }
+        engine.onExit = { finish() }
         engine.load(linkOf(intent) ?: "$ORIGIN/")
-        // Back goes back through the web app's routes; from the first one, out of the app.
+        // Back goes back through the web app's routes; from the first one, out of the app (Engine.back).
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (engine.webView.canGoBack()) engine.back() else finish()
-            }
+            override fun handleOnBackPressed() = engine.back()
         })
         setContent { FoodTheme { App(this) } }
     }

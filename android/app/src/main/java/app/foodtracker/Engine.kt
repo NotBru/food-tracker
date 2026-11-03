@@ -67,6 +67,8 @@ class Engine(private val context: Context) {
     var onFileChooser: ((ValueCallback<Array<Uri>>, WebChromeClient.FileChooserParams) -> Boolean)? = null
     /** The web app's renderer died (out of memory, usually): the activity starts it again. */
     var onGone: (() -> Unit)? = null
+    /** Back with no route to go back to: leave the app. */
+    var onExit: (() -> Unit)? = null
 
     private val replies = HashMap<String, CompletableDeferred<JsonElement>>()
     private val watches = HashMap<String, Pair<String, (JsonElement?, String?) -> Unit>>() // id -> (script, listener)
@@ -113,7 +115,10 @@ class Engine(private val context: Context) {
 
     fun go(path: String) = send("core.go(${str(path)})")
     fun replace(path: String) = send("core.replace(${str(path)})")
-    fun back() = send("core.back()")
+    /** A step back through the routes; [onExit] when there's none. Before the web app is up: [onExit] at once. */
+    fun back() {
+        if (_ready.value) send("core.back()") else onExit?.invoke()
+    }
     /** The app is in front again: the day may have changed while it slept. */
     fun resume() = send("core.resume()")
 
@@ -131,6 +136,7 @@ class Engine(private val context: Context) {
                 else r.completeExceptionally(EngineError(m["error"]?.jsonPrimitive?.contentOrNull ?: "Failed."))
             }
             "watch" -> watches[id]?.second?.invoke(m["value"], m["error"]?.jsonPrimitive?.contentOrNull)
+            "exit" -> onExit?.invoke()
             "route" -> _route.value = m["path"]?.jsonPrimitive?.contentOrNull ?: "/"
             "sync" -> _sync.value = m["value"]?.let { json.decodeFromJsonElement(SyncStatus.serializer(), it) }
             "ready" -> {

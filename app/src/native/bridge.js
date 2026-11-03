@@ -3,7 +3,8 @@
 //   NativeBridge.handles(path) -> whether a native screen shows that route (the web screen then draws nothing);
 //   NativeBridge.post(json)    -> a message to the app.
 // The app calls in through `window.core`: call (once), watch (again whenever the data it reads changes, like
-// useLiveQuery), unwatch, go/replace/back (the router: the web app's hash stays the one navigation state).
+// useLiveQuery), unwatch, go/replace/back (the router: the web app's hash stays the one navigation state;
+// back with nothing to go back to sends `exit`).
 import { liveQuery } from 'dexie'
 import { getConfig } from '../db'
 import { onState } from '../backup'
@@ -64,7 +65,13 @@ export function startBridge() {
     resume: () => checkDay(),
     go: (path) => (location.hash = path),
     replace: (path) => location.replace(`#${path}`),
-    back: () => history.back(),
+    // Android's back: a step back through the routes, or out of the app from the first one. The WebView's own
+    // canGoBack skips entries added without a tap in the page (Chromium's back-button intervention), which the native
+    // screens' go() are, so the page's Navigation API decides.
+    back() {
+      if (window.navigation ? navigation.canGoBack : history.length > 1) history.back()
+      else post({ type: 'exit' })
+    },
   }
   const route = () => post({ type: 'route', path: location.hash.slice(1) || '/' })
   window.addEventListener('hashchange', route)

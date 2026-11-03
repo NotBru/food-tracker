@@ -3,6 +3,9 @@ package app.foodtracker
 import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.background
+import app.foodtracker.ui.C
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,7 +33,9 @@ fun App(activity: MainActivity) {
     val engine = activity.engine
     val route by engine.route.collectAsState()
     val r = remember(route) { Route.parse(route) }
-    Box(Modifier.fillMaxSize()) {
+    // Android 15 draws apps edge to edge: everything is kept clear of the status and navigation bars, the camera
+    // cutout and the keyboard (which no longer resizes the window by itself), web screens included.
+    Box(Modifier.fillMaxSize().background(C.bg).safeDrawingPadding()) {
         AndroidView({ engine.webView }, Modifier.fillMaxSize())
         when {
             r.path == "/" -> HomeRoute(activity, r)
