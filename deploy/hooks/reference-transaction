@@ -21,7 +21,7 @@ while read -r old new ref; do
 	repo="$(git rev-parse --show-toplevel)/android/fdroid/repo/"
 	if [ -d "$repo" ]; then
 		echo "Uploading the F-Droid repo"
-		rsync -a --delete --mkpath "$repo" "$HOST":/srv/track-shit/fdroid/repo/ </dev/null ||
+		rsync -a --no-group --delete --mkpath "$repo" "$HOST":/srv/track-shit/fdroid/repo/ </dev/null ||
 			echo "F-Droid repo upload failed (rsync on both ends?)." >&2
 	fi
 
