@@ -115,7 +115,7 @@ fun Sheet(onDismiss: () -> Unit, content: @Composable () -> Unit) {
 
 /** An alert or a confirmation (the web's alert/confirm), in the same style. */
 @Composable
-fun Ask(text: String, onDismiss: () -> Unit, confirm: String? = null, danger: Boolean = false, onConfirm: () -> Unit = {}, onCancel: () -> Unit = {}) {
+fun Ask(text: String, onDismiss: () -> Unit, confirm: String? = null, danger: Boolean = false, onCancel: () -> Unit = {}, onConfirm: () -> Unit = {}) {
     Sheet({ onDismiss(); onCancel() }) {
         Text(text, color = C.text, fontSize = 16.sp)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
