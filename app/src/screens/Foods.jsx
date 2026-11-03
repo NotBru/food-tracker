@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { DEFAULT_EXPIRY_DAYS, conflictingFoods, db, expiresAt, findEqualFood, fold, getConfig, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays, searchText } from '../db'
+import { DEFAULT_EXPIRY_DAYS, conflictingFoods, db, expiresAt, findEqualFood, getConfig, itemLabel, kindOf, mergeEqualFoodsInDb, parseExpiryDays } from '../db'
+import { matchRank, queryWords } from '../search'
 import { baseAmount, componentsTotal, concoctionsLeft, keepUnit, lastEntryError, loadContext, nutrientsFor, unitsFor, usedUp } from '../calc'
 import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measure, normalizeNumber } from '../nutrients'
 import { CATEGORY_GROUPS, DEFAULT_ENTRY_ERROR } from '../errors'
@@ -25,17 +26,18 @@ export function FoodList() {
   const ctx = useLiveQuery(loadContext)
   if (!ctx) return null
   const conflicts = conflictingFoods(ctx.list)
-  const words = fold(query).split(/\s+/).filter(Boolean)
-  const match = (r) => words.every((w) => searchText(r).includes(w))
-  const rows = ctx.list
-    .filter(match)
-    .map((r) => [r, itemLabel(r)])
-    // Alphabetical, concoctions after everything else (newest first).
-    .sort(([a, la], [b, lb]) => !!a.madeAt - !!b.madeAt || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || la.localeCompare(lb))
-  if (words.length) {
-    rows.push(...ctx.generic().filter(match).map((r) => [r, itemLabel(r)])
-      .sort(([, la], [, lb]) => la.length - lb.length || la.localeCompare(lb)).slice(0, GENERIC_SHOWN))
-  }
+  const words = queryWords(query)
+  let generic = 0
+  const rows = (words.length ? [...ctx.list, ...ctx.generic()] : ctx.list)
+    .map((r) => [r, matchRank(r, words)])
+    .filter(([, rank]) => rank)
+    .map(([r, rank]) => [r, itemLabel(r), rank])
+    // The better matches first (search.js); among those, the user's foods before CIQUAL's and USDA's, concoctions
+    // after the rest (newest first); then the closer names, then alphabetical. No search: just the user's foods.
+    .sort(([a, la, ra], [b, lb, rb]) => ra.inside - rb.inside || ra.partial - rb.partial || !!a.readOnly - !!b.readOnly
+      || !!a.madeAt - !!b.madeAt || (b.madeAt ?? '').localeCompare(a.madeAt ?? '') || ra.first - rb.first
+      || ra.extra - rb.extra || la.localeCompare(lb))
+    .filter(([r]) => !r.readOnly || ++generic <= GENERIC_SHOWN)
   return (
     <Screen title="Foods">
       <input className="search" type="search" placeholder="Search foods…" value={query} onChange={(e) => setQuery(e.target.value)} />

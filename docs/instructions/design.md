@@ -65,7 +65,8 @@ a band. The last N days (slider and box); drag sideways to move, tap a day to pi
 ### Foods screen
 
 Ingredients, recipes, and concoctions are all foods, and they are exchangeable: anywhere a food is
-picked, any of them can be picked, from a single search.
+picked, any of them can be picked, from a single search. Searches rank by whole words: "pear" lists "Pears, raw"
+first, not "Spearmint" or baby food with pears.
 
 Scrollable, searchable list, last element is “add new food”. Concoctions last. Repeated foods are ignored; the same
 ID with different values is flagged.
@@ -137,6 +138,8 @@ entry, each with Δ. On top: 7-day averages and maintenance calories from the we
 Notes, latest first: text and pictures (one or many, from the camera or the gallery, with their filenames), stamped
 with when the note was made. Deleted a week after that, automatically. Synced; Claude's log-food skill reads them (the main use).
 A tapped picture fills the screen; left/right keys or a swipe go through the note's other pictures.
+A note can be marked done (taken care of), by hand or by the skill once it has logged it; the skill skips done notes.
+A new note doesn't open the keyboard on a phone.
 
 ### Users screen
 

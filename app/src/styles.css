@@ -479,6 +479,9 @@ input.switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
 /* Temp notes (Notes.jsx): text as typed, pictures as square thumbnails; a tapped one fills the screen (Viewer: ←/→ or
    a swipe for the note's others, and which of them it is). */
 .note-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+/* Taken care of: still there for reference, quieter. */
+.note-done .note-text, .note-done .note-pics { opacity: 0.55; }
+.done-mark { color: var(--kcal); }
 .note-pics { display: flex; flex-wrap: wrap; gap: 6px; }
 .note-pic { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; background: var(--panel-2); display: grid; place-items: center; color: var(--muted); }
 .note-pic-wrap { position: relative; }
