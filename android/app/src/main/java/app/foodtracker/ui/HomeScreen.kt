@@ -53,6 +53,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -253,31 +256,114 @@ private fun Dashboard(view: HomeView, actions: HomeActions, modifier: Modifier) 
 
 private const val NBSP = " "
 
-/** "bars": one row per nutrient, the value and a horizontal bar over tinted regions. */
+/**
+ * "bars": one slim row per nutrient (Home.jsx BarRow): its name and unit, then the bar with its numbers on it: the
+ * estimate above, the target below; calories also get the budget under those.
+ */
 @Composable
 private fun BarRow(r: DashRow, view: HomeView, onOpen: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(18.dp))
             .background(C.panel2)
             .clickable(onClick = onOpen)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(horizontal = 14.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(r.label, Modifier.width(90.dp).alignByBaseline(), color = C.muted, fontSize = 16.sp)
-        Column(Modifier.weight(1f).alignByBaseline()) {
-            Text(buildAnnotatedString {
-                withStyle(SpanStyle(color = C.ofClass(r.color), fontSize = 34.sp, fontWeight = FontWeight.ExtraBold)) { append(r.value) }
-                withStyle(SpanStyle(color = C.muted, fontSize = 14.sp)) { append(" ${r.unit} ${r.pm}") }
-            })
-            Text(r.err.ifEmpty { NBSP }, color = C.range, fontSize = 13.sp, lineHeight = 16.sp)
-            // Without a target the bar keeps its space, so every row is equally spaced.
-            Column(Modifier.padding(top = 2.dp).alpha(if (r.bar != null) 1f else 0f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                TargetBar(r.bar, r.ghost)
-                Text(r.rangeLine.ifEmpty { NBSP }, color = C.ofRegion(r.bar?.status ?: ""), fontSize = 14.sp)
-                r.budget?.let { BudgetText(it, r.unit) }
-            }
+        Column(Modifier.width(72.dp)) {
+            Text(r.label, color = C.muted, fontSize = 14.sp, lineHeight = 17.sp)
+            Text(r.unit, Modifier.alpha(0.75f), color = C.muted, fontSize = 12.sp, lineHeight = 14.sp)
         }
+        Spacer(Modifier.width(10.dp))
+        Column(Modifier.weight(1f)) {
+            val notes = r.notes
+            NoteLane(notes?.top.orEmpty(), above = true, valueColor = C.ofClass(r.color))
+            TargetBar(r.bar, r.ghost)
+            // Always there, so rows with and without a target are spaced alike.
+            NoteLane(notes?.bottom.orEmpty(), above = false, valueColor = C.text)
+            notes?.budget?.let { BudgetLane(it) }
+        }
+    }
+}
+
+// --- Bar notes (Home.jsx NoteLane, spreadNotes, BudgetLane) ---
+
+private val NOTE_GAP = 6.dp
+
+/**
+ * Left edges for labels of widths `w` wanted centred at `c`, in a lane `width` wide: neighbours that would overlap
+ * become one block, centred where its labels want it on average, then kept inside the lane.
+ */
+private fun spreadNotes(c: List<Float>, w: List<Float>, width: Float, gap: Float): List<Float> {
+    class Block(val list: List<Int>) { var left = 0f; var w = 0f }
+    fun place(b: Block): Block {
+        var o = 0f
+        var sum = 0f
+        for (i in b.list) { sum += c[i] - (o + w[i] / 2); o += w[i] + gap }
+        b.w = o - gap
+        b.left = (sum / b.list.size).coerceIn(0f, maxOf(0f, width - b.w))
+        return b
+    }
+    val blocks = mutableListOf<Block>()
+    for (i in c.indices.sortedBy { c[it] }) {
+        blocks.add(place(Block(listOf(i))))
+        while (blocks.size > 1) {
+            val a = blocks[blocks.size - 2]
+            val b = blocks[blocks.size - 1]
+            if (a.left + a.w + gap <= b.left) break
+            blocks.removeAt(blocks.size - 1); blocks.removeAt(blocks.size - 1)
+            blocks.add(place(Block(a.list + b.list)))
+        }
+    }
+    val lefts = MutableList(c.size) { 0f }
+    for (b in blocks) {
+        var x = b.left
+        for (i in b.list) { lefts[i] = x; x += w[i] + gap }
+    }
+    return lefts
+}
+
+private fun noteStyle(kind: String, valueColor: Color) = when (kind) {
+    "value" -> TextStyle(color = valueColor, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+    "lo", "hi" -> TextStyle(color = C.range, fontSize = 12.sp)
+    else -> TextStyle(color = C.muted, fontSize = 12.sp)
+}
+
+/** One lane of notes, each centred on its place on the bar: above it, baselines on its top; below, under it. */
+@Composable
+private fun NoteLane(notes: List<app.foodtracker.Note>, above: Boolean, valueColor: Color) {
+    val measurer = rememberTextMeasurer()
+    val shown = notes.filter { it.at != null }
+    Canvas(Modifier.fillMaxWidth().padding(top = if (above) 0.dp else 2.dp, bottom = if (above) 2.dp else 0.dp).height(if (above) 19.dp else 15.dp)) {
+        val texts = shown.map { measurer.measure(it.text, noteStyle(it.kind, valueColor)) }
+        val lefts = spreadNotes(shown.map { (it.at!! / 100 * size.width).toFloat() }, texts.map { it.size.width.toFloat() }, size.width, NOTE_GAP.toPx())
+        texts.forEachIndexed { i, t ->
+            val y = if (above) size.height - 3.dp.toPx() - t.firstBaseline else 2.dp.toPx()
+            drawText(t, topLeft = Offset(lefts[i], y))
+        }
+    }
+}
+
+/** Calories with a max: a segment from the estimate's high end to the max, labelled with what's left (Δ). */
+@Composable
+private fun BudgetLane(b: app.foodtracker.NoteBudget) {
+    val measurer = rememberTextMeasurer()
+    val color = if (b.over) C.prot else C.kcal
+    Canvas(Modifier.fillMaxWidth().height(16.dp)) {
+        val from = ((b.from ?: return@Canvas) / 100 * size.width).toFloat()
+        val to = ((b.to ?: return@Canvas) / 100 * size.width).toFloat()
+        val mid = size.height / 2
+        val lw = 1.5.dp.toPx()
+        val tick = 4.dp.toPx()
+        drawLine(color.copy(alpha = 0.7f), Offset(from, mid), Offset(to, mid), strokeWidth = lw)
+        for (x in listOf(from, to)) drawLine(color, Offset(x, mid - tick), Offset(x, mid + tick), strokeWidth = lw)
+        val t = measurer.measure(b.text, TextStyle(color = color, fontSize = 12.sp, fontWeight = FontWeight.SemiBold))
+        val pad = 4.dp.toPx()
+        val left = ((from + to) / 2 - t.size.width / 2f).coerceIn(0f, maxOf(0f, size.width - t.size.width))
+        // Its label sits on the line, over a gap cut in it.
+        drawRect(C.panel2, Offset(left - pad, 0f), Size(t.size.width + 2 * pad, size.height))
+        drawText(t, topLeft = Offset(left, mid - t.size.height / 2f))
     }
 }
 
@@ -294,7 +380,7 @@ private fun BudgetText(b: app.foodtracker.Budget, unit: String, modifier: Modifi
 /** The horizontal bar (Home.jsx BarRow): regions, the fill in pieces (hatched over the error range), the estimate, the ghost. */
 @Composable
 private fun TargetBar(bar: Bar?, ghost: Span?) {
-    Canvas(Modifier.fillMaxWidth().padding(vertical = 4.dp).height(10.dp)) {
+    Canvas(Modifier.fillMaxWidth().height(8.dp)) {
         val w = size.width
         val h = size.height
         val x = { p: Double -> (p / 100 * w).toFloat() }

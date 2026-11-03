@@ -23,7 +23,7 @@ import { ROWS } from '../dashboard'
 import { exploreDbs, exploreFoods } from '../explore'
 import * as bd from '../breakdown'
 import * as gr from '../graphs'
-import { barFor, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
+import { barFor, barNotes, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
 import * as bk from '../backup'
 import { conflictLabelShown, getState, status } from '../backup'
 import { differingFields } from '../sync'
@@ -53,8 +53,11 @@ export async function home(query = {}) {
   const rows = data.rows.map((r) => {
     const val = r.key === 'energy' ? calories(data.total) : data.total[r.key] ?? zero()
     const range = data.targets[r.key]
-    const bar = barFor(r, val, range)
+    // Bars: every number a note on the bar (dashboard.js barNotes); a row without a target gets a scale too.
+    const notes = data.style === 'bars' ? barNotes(r, val, range) : null
+    const bar = notes ? notes.bar : barFor(r, val, range)
     const ghost = ghostFor(r, val, range, data.adj)
+    const note = (n) => ({ ...n, at: finite(n.at) })
     const left = r.key === 'energy' && Number.isFinite(range?.max) ? range.max - bounds(val)[1] : null
     return {
       key: r.key, label: r.label, unit: r.unit, color: r.cls,
@@ -68,6 +71,10 @@ export async function home(query = {}) {
       ghost: ghost && ghost.to > ghost.from ? ghost : null,
       rangeLine: bar && !bar.dummy ? `${rangeLabel(range)} ${r.unit} ${statusMark(bar.status)}` : '',
       budget: left == null ? null : { text: `${left < 0 ? '−' : ''}${fmt(Math.abs(left), 0)}`, over: !(left > 0) },
+      notes: notes && {
+        top: notes.top.map(note), bottom: notes.bottom.map(note),
+        budget: notes.budget && { ...notes.budget, from: finite(notes.budget.from), to: finite(notes.budget.to) },
+      },
       open: `/breakdown/${r.key}?from=${data.first}&to=${data.last}&win=${win}`,
     }
   })

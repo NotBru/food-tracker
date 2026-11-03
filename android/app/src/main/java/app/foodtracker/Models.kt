@@ -47,8 +47,22 @@ data class DashRow(
     val ghost: Span? = null,
     val rangeLine: String,
     val budget: Budget? = null,
+    /** Style "bars" only: the numbers drawn on the bar (dashboard.js barNotes). */
+    val notes: BarNotes? = null,
     val open: String,
 )
+
+/** Above the bar: the estimate (lo, value, hi); below: the target (min, max); calories: the budget's segment. */
+@Serializable
+data class BarNotes(val top: List<Note>, val bottom: List<Note>, val budget: NoteBudget? = null)
+
+/** A number at its place on the bar (`at`, % of its width); kind lo | value | hi | min | max. */
+@Serializable
+data class Note(val at: Double? = null, val text: String, val kind: String)
+
+/** From the estimate's high end to the max, or back (over), in % of the bar. */
+@Serializable
+data class NoteBudget(val from: Double? = null, val to: Double? = null, val text: String, val over: Boolean)
 
 /** A target bar, in % of its width (dashboard.js): regions under/ok/over, the fill in pieces, the estimate's tick. */
 @Serializable

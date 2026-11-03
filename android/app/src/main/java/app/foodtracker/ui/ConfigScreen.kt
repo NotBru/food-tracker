@@ -28,6 +28,7 @@ import kotlinx.serialization.json.JsonObject
 // the web app's (forms.js configForm), edited by key.
 
 private val SWITCHES = listOf(
+    Triple("onlyTargets", "Dashboard: only nutrients with a target", "Off: calories, protein, fat and carbs are always shown, with or without a target."),
     Triple("adjGhost", "Ghost of the uncapped calorie bar", "Where the bar would be with no correction caps, drawn faintly over the capped one."),
     Triple("showVersion", "App version", "When this version of the app was built (YYYYMMDDHHmm, local time), beside the backup icon on the homescreen."),
 )
