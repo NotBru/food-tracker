@@ -168,8 +168,11 @@ fun EnergyChart(e: EnergyChartView) {
                 }
                 val w = if (row.macro) FontWeight.SemiBold else null
                 val col = if (row.macro) C.text else C.muted
-                Text(buildAnnotatedString { append(row.g); withStyle(SpanStyle(color = C.muted)) { append(" g") } }, color = col, fontSize = 14.sp, fontWeight = w, textAlign = TextAlign.End)
-                Text(buildAnnotatedString { append(row.kcal); withStyle(SpanStyle(color = C.muted)) { append(" kcal") } }, color = col, fontSize = 14.sp, fontWeight = w, textAlign = TextAlign.End)
+                val g = @Composable { Text(buildAnnotatedString { append(row.g); withStyle(SpanStyle(color = C.muted)) { append(" g") } }, color = col, fontSize = 14.sp, fontWeight = w, textAlign = TextAlign.End) }
+                val kcal = @Composable { Text(buildAnnotatedString { append(row.kcal); withStyle(SpanStyle(color = C.muted)) { append(" kcal") } }, color = col, fontSize = 14.sp, fontWeight = w, textAlign = TextAlign.End) }
+                // A macro's grams and kcal (with their ranges) one above the other: side by side they left
+                // "Carbohydrates" broken mid-word.
+                if (row.macro) Column(horizontalAlignment = Alignment.End) { g(); kcal() } else { g(); kcal() }
                 Text(row.pct, color = col, fontSize = 14.sp, fontWeight = w, textAlign = TextAlign.End, modifier = Modifier.width(44.dp))
             }
         }
