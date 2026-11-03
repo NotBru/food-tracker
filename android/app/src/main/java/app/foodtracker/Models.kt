@@ -392,3 +392,61 @@ data class ExploreRow(val id: String, val label: String, val value: String, val 
 
 @Serializable
 data class ExplorePicked(val label: String, val per: String, val link: String, val chart: EnergyChartView)
+
+// --- Breakdown ---
+
+@Serializable
+data class BreakdownView(
+    val unknown: Boolean,
+    val title: String,
+    val subtitle: String,
+    val cls: String = "",
+    val total: BdTotal? = null,
+    val per: BdPer? = null,
+    val views: List<BdViewOption> = emptyList(),
+    val view: String = "ranked",
+    val empty: String? = null,
+    val rows: List<BdEntry> = emptyList(),
+    val days: List<BdEntry> = emptyList(),
+    val quintiles: List<BdQuintile> = emptyList(),
+    val notes: String? = null,
+    val failed: String? = null,
+    val explore: String = "",
+)
+
+@Serializable
+data class BdTotal(val value: String, val unit: String, val pm: String, val range: String)
+
+/** "Total | per 100 kcal": which is on, and the route of each. */
+@Serializable
+data class BdPer(val kcal: Boolean, val total: String, val perKcal: String)
+
+@Serializable
+data class BdViewOption(val key: String, val label: String)
+
+/** A bar: the low end, high end and value as fractions of its width. */
+@Serializable
+data class BdBar(val lo: Double, val hi: Double, val mean: Double, val err: Boolean)
+
+/** A consumption, a group of them (with [members]), or a day. */
+@Serializable
+data class BdEntry(
+    val key: String,
+    val group: Boolean,
+    val groupId: String? = null,
+    val name: String? = null,
+    val label: String,
+    val made: String? = null,
+    val value: String,
+    val more: String,
+    val bar: BdBar,
+    val sub: String,
+    val link: String? = null,
+    val members: List<BdMember> = emptyList(),
+)
+
+@Serializable
+data class BdMember(val label: String, val made: String? = null, val value: String, val more: String, val sub: String, val link: String)
+
+@Serializable
+data class BdQuintile(val name: String, val keys: List<String>, val info: String)

@@ -21,6 +21,7 @@ import { DEFAULT_CONFIG, fold, searchText, setCurrentUser } from '../db'
 import { clearPendingDraft, isBarcode, offDraft, offProductDraft, peekPendingDraft, searchOff, setPendingDraft, sourceLabel } from '../external'
 import { ROWS } from '../dashboard'
 import { exploreDbs, exploreFoods } from '../explore'
+import * as bd from '../breakdown'
 import { barFor, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
 import { conflictLabelShown, getState, status } from '../backup'
 import { statusText } from '../screens/Backup'
@@ -761,3 +762,92 @@ export async function explorePicked(nutrient, id) {
     link: `/foods/${f.item.id}?tab=info&nutrient=${nutrient}`, chart: energyChart(f.nutrients),
   }
 }
+
+// --- Breakdown ----------------------------------------------------------------------------------------------
+
+/**
+ * screens/Breakdown.jsx: one nutrient over `query`'s window (`from`, `to`; `win`, `per`), every row ready to lay
+ * out. Bars: the low end, high end and value as fractions of the bar.
+ */
+export async function breakdown(nutrient, query = {}) {
+  const { from, to, win, per } = query
+  const meta = bd.breakdownMeta(nutrient)
+  const when = from === to ? prettyDay(from) : `${from} → ${to}`
+  if (!meta?.label) return { unknown: true, title: 'Breakdown', subtitle: when }
+  const byDay = win === 'last7' && from !== to
+  const perKcal = per === 'kcal' && nutrient !== 'energy'
+  const data = await bd.loadBreakdown(nutrient, from, to)
+  const st = bd.breakdownState(data, perKcal)
+  const { dg } = st
+  const unit = perKcal ? `${meta.unit}/100 kcal` : meta.unit
+  const value = (r) => ({
+    value: `${r.estimated ? '~' : ''}${fmt(r.value, dg)}`,
+    more: ` ${pmText(r.n)} · ${perKcal ? `${fmt(r.e.value, 0)} kcal` : `${st.total ? fmt((r.value / st.total) * 100, 0) : 0}%`}`,
+  })
+  const bar = (r, scale) => {
+    const [lo, hi] = bounds(r.n)
+    const at = (x) => Math.max(0, Math.min(1, x / scale))
+    return { lo: at(lo), hi: at(hi), mean: at(r.value), err: hi > lo }
+  }
+  const time = (datetime) => (from === to ? toLocalInput(new Date(datetime)).slice(11) : formatDateTime(datetime))
+  const label = (item) => (item ? itemLabel(item) : '(deleted item)')
+  const made = (item) => madeText(item) || null
+  const amount = (c) => `${amountText(c.amount, c.amountText)} ${c.unit}`
+  const link = (r) => `/consumptions/${r.c.id}?nutrient=${nutrient}`
+  const entry = (e) => {
+    if (e.groupId == null) {
+      const r = e.members[0]
+      return {
+        key: e.key, group: false, label: label(r.item), made: made(r.item), ...value(r), bar: bar(r, st.scale),
+        sub: `${time(r.c.datetime)} · ${amount(r.c)} · range ${rangeText(r.n, dg)} ${unit}`, link: link(r), members: [],
+      }
+    }
+    const names = [...new Set(e.members.map((r) => label(r.item)))].join(' + ')
+    const times = e.members.map((r) => r.c.datetime).sort()
+    return {
+      key: e.key, group: true, groupId: e.groupId, name: e.name, label: e.name || names, made: null, ...value(e), bar: bar(e, st.scale),
+      sub: `${e.name ? names : `Group of ${e.members.length}`} · ${time(times[0])}${times.length > 1 && times[0] !== times.at(-1) ? `–${time(times.at(-1))}` : ''} · range ${rangeText(e.n, dg)} ${unit}`,
+      members: e.members.map((r) => ({ label: label(r.item), made: made(r.item), ...value(r), sub: `${time(r.c.datetime)} · ${amount(r.c)}`, link: link(r) })),
+    }
+  }
+  const route = (kcal) => `/breakdown/${nutrient}?${new URLSearchParams({ from, to, ...(win && { win }), ...(kcal && { per: 'kcal' }) })}`
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`
+  return {
+    unknown: false,
+    title: meta.label, subtitle: when, cls: meta.cls,
+    total: { value: fmt(st.shown.value, dg), unit, pm: pmText(st.shown), range: `· range ${rangeText(st.shown, dg)} ${unit}` },
+    per: nutrient === 'energy' ? null : { kcal: perKcal, total: route(false), perKcal: route(true) },
+    views: [...(byDay ? [['days', 'Days']] : []), ['ranked', 'Ranked'], ...(perKcal ? [] : [['quintiles', 'Quintiles']])].map(([key, l]) => ({ key, label: l })),
+    view: byDay ? 'days' : 'ranked',
+    empty: st.rows.length ? null : `No consumption with ${meta.label.toLowerCase()} in this period.`,
+    rows: st.rows.map(entry),
+    days: st.dayRows.map((d) => ({
+      key: d.day, group: false, label: prettyDay(d.day), made: null, ...value(d), bar: bar(d, st.dayScale), members: [],
+      sub: d.count ? `${plural(d.count, 'consumption', 'consumptions')} · range ${rangeText(d.n, dg)} ${unit}` : `No consumption with ${meta.label.toLowerCase()}`,
+      link: `/breakdown/${nutrient}?from=${d.day}&to=${d.day}${perKcal ? '&per=kcal' : ''}`,
+    })),
+    quintiles: perKcal ? [] : bd.quintiles(st.rows, st.total).map((g) => {
+      const v = bd.sum(g.rows, 'value')
+      return {
+        name: g.name, keys: g.rows.map((r) => r.key),
+        info: ` · ${fmt(v, 0)} ${meta.unit} (${st.total ? fmt((v / st.total) * 100, 0) : 0}%) · ${plural(g.rows.length, 'entry', 'entries')}`,
+      }
+    }),
+    notes: [
+      ...(st.noKcal > 0 ? [`${st.noKcal} without calories left out.`] : []),
+      ...(data.missing > 0 ? [`${plural(data.missing, 'consumption', 'consumptions')} without ${meta.label.toLowerCase()}.`] : []),
+    ].join(' ') || null,
+    failed: data.failed > 0 ? `${data.failed} couldn't be computed.` : null,
+    explore: `/explore/${nutrient}`,
+  }
+}
+
+/** Groups the ticked entries (`keys`) of the breakdown shown (`query` as breakdown's); `name` may be blank. */
+export async function breakdownGroup(nutrient, query, keys, name) {
+  const data = await bd.loadBreakdown(nutrient, query.from, query.to)
+  const { rows } = bd.breakdownState(data, query.per === 'kcal' && nutrient !== 'energy')
+  await bd.makeGroup(data.userId, rows.filter((e) => keys.includes(e.key)), name)
+}
+
+export const renameGroup = async (groupId, name) => bd.renameGroup((await getCurrentUser()).id, groupId, name)
+export const ungroup = async (groupId) => bd.ungroup((await getCurrentUser()).id, groupId)

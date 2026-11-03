@@ -9,12 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import app.foodtracker.ui.BodyScreen
+import app.foodtracker.ui.BreakdownScreen
 import app.foodtracker.ui.C
 import app.foodtracker.ui.ConfigScreen
 import app.foodtracker.ui.ConsumptionInfoScreen
@@ -62,6 +64,11 @@ fun App(activity: MainActivity) {
             parts == listOf("users") -> UsersScreen(watchView(activity, "users", emptyList(), UsersView.serializer()), engine)
             parts == listOf("config") -> ConfigScreen(engine)
             parts.size == 2 && parts[0] == "explore" -> ExploreScreen(engine, parts[1])
+            // A new screen per nutrient and window (as Breakdown.jsx's key): scrolled to the top, nothing ticked.
+            parts.size == 2 && parts[0] == "breakdown" -> key(parts[1], r.query["from"], r.query["to"]) {
+                val query = r.args()
+                BreakdownScreen(watchView(activity, "breakdown", listOf(JsonPrimitive(parts[1]), query), BreakdownView.serializer(), snapshot = false), engine, parts[1], query)
+            }
             parts == listOf("foods", "external") -> ExternalScreen(engine, r.query["q"] ?: "")
             parts.size == 2 && parts[0] == "foods" -> FoodScreen(
                 engine, parts[1], route, r.query["tab"] == "info", r.query["nutrient"], r.query["in"]?.toIntOrNull(), r.query["name"],

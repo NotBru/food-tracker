@@ -174,8 +174,8 @@ fun MainLine(text: String, right: String? = null, tag: String? = null, color: Co
 
 /** `.tag` (a concoction's made-at time, "made 2026-11-01 13:00"). */
 @Composable
-fun Tag(text: String, color: Color = C.muted) =
-    Text(text, Modifier.clip(Pill).background(C.bg).padding(horizontal = 8.dp), color = color, fontSize = 12.sp, maxLines = 1)
+fun Tag(text: String, color: Color = C.muted, bg: Color = C.bg) =
+    Text(text, Modifier.clip(Pill).background(bg).padding(horizontal = 8.dp), color = color, fontSize = 12.sp, maxLines = 1)
 
 private val trash = svgPath("M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5")
 

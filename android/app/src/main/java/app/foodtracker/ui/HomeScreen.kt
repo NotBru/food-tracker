@@ -326,7 +326,7 @@ private fun TargetBar(bar: Bar?, ghost: Span?) {
 }
 
 /** The error range's band (styles.css .bar-err): the colour see-through, lines slanted at 110° in a lighter shade. */
-private fun DrawScope.hatchRect(r: Rect, color: Color) {
+internal fun DrawScope.hatchRect(r: Rect, color: Color) {
     clipRect(r.left, r.top, r.right, r.bottom) {
         drawRect(color.copy(alpha = 0.4f), r.topLeft, r.size)
         val step = 5.dp.toPx()

@@ -81,6 +81,14 @@ in a page); it now passes `/off/`.
 ranked once per nutrient and food data (cached in core.js) and sent once per filter change; the search box asks
 only for the matching row's index, and the picked food's chart separately, so typing doesn't resend the list.
 
+### Breakdown
+
+`app/src/breakdown.js` (loading, ranking, per 100 kcal, quintiles, grouping, from Breakdown.jsx). Bars come as
+fractions (low end, high end, value) and are drawn like the dashboard's (`hatchRect`). Ticked entries go back by key;
+core.js finds them again in the same view to group them. A new screen per nutrient and window (`key`, as the web
+screen's), so a day opened from the 7 days starts at the top. Checked against the web screen on the user's data,
+imported into the emulator only (backup off there): same totals, days and quintiles.
+
 ## Alternatives considered
 
 - **The form's state in the web app** (Kotlin sending keystrokes): a round trip per key, and the text field's value
