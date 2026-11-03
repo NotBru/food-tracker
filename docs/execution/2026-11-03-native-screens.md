@@ -75,6 +75,12 @@ the engine still passed `/off-search/` (the relay replaced by the `/off/` copy, 
 the server, so the APK served `/off/` from its own files and every search fell back to OFF itself (blocked by CORS
 in a page); it now passes `/off/`.
 
+### Explore
+
+`app/src/explore.js` (the ranking, from Explore.jsx). The list (~11.5k foods with both reference databases) is
+ranked once per nutrient and food data (cached in core.js) and sent once per filter change; the search box asks
+only for the matching row's index, and the picked food's chart separately, so typing doesn't resend the list.
+
 ## Alternatives considered
 
 - **The form's state in the web app** (Kotlin sending keystrokes): a round trip per key, and the text field's value

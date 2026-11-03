@@ -378,3 +378,17 @@ data class OffSearchView(val rows: List<OffRow>, val empty: String)
 
 @Serializable
 data class OffRow(val name: String, val per: String, val subtitle: String? = null, val macros: MacroLine)
+
+// --- Explore ---
+
+@Serializable
+data class ExploreView(val title: String, val unknown: Boolean, val dbs: List<ExploreDb>, val rows: List<ExploreRow>, val empty: String)
+
+@Serializable
+data class ExploreDb(val name: String, val on: Boolean)
+
+@Serializable
+data class ExploreRow(val id: String, val label: String, val value: String, val pm: String, val text: String)
+
+@Serializable
+data class ExplorePicked(val label: String, val per: String, val link: String, val chart: EnergyChartView)

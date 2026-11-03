@@ -17,9 +17,10 @@ import Dexie from 'dexie'
 import * as ff from '../foodForm'
 import * as forms from '../forms'
 import { BUILTIN_FIELDS, lookalike, nameKey, nameMatches } from '../body'
-import { DEFAULT_CONFIG, setCurrentUser } from '../db'
+import { DEFAULT_CONFIG, fold, searchText, setCurrentUser } from '../db'
 import { clearPendingDraft, isBarcode, offDraft, offProductDraft, peekPendingDraft, searchOff, setPendingDraft, sourceLabel } from '../external'
 import { ROWS } from '../dashboard'
+import { exploreDbs, exploreFoods } from '../explore'
 import { barFor, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
 import { conflictLabelShown, getState, status } from '../backup'
 import { statusText } from '../screens/Backup'
@@ -704,4 +705,59 @@ export const offButton = (query) => (isBarcode(query) ? 'Look up' : 'Search')
 /** Picks result `i`: its full product, waiting for the food editor it goes back to (as External.jsx's pick). */
 export async function offPick(i) {
   setPendingDraft(await offProductDraft(offDrafts[i]))
+}
+
+// --- Explore ------------------------------------------------------------------------------------------------
+
+const exploreMeta = (nutrient) => ROWS.find((r) => r.key === nutrient) ?? NUTRIENTS.find((n) => n.key === nutrient)
+let exploreLast = { ctx: null, nutrient: null, foods: [] }
+
+/** Every food ranked for `nutrient` (explore.js), worked out again only when the foods change. */
+async function exploreAll(nutrient) {
+  const ctx = await ctxNow()
+  if (exploreLast.ctx !== ctx || exploreLast.nutrient !== nutrient) {
+    exploreLast = { ctx, nutrient, foods: exploreFoods(ctx, nutrient, exploreMeta(nutrient)) }
+  }
+  return exploreLast.foods
+}
+
+/** The foods listed: databases in `off` left out; with `loggedOnly`, only foods any user has logged. */
+async function exploreShown(nutrient, off, loggedOnly) {
+  const foods = await exploreAll(nutrient)
+  const logged = loggedOnly ? new Set((await logsNow()).map((l) => l.itemId)) : null
+  return { foods, shown: foods.filter((f) => !off.includes(f.db) && (!logged || logged.has(f.item.id))) }
+}
+
+/** screens/Explore.jsx's list and switches; `off`: the databases switched off. */
+export async function explore(nutrient, off = [], loggedOnly = false) {
+  const meta = exploreMeta(nutrient)
+  if (!meta) return { title: 'Explore', unknown: true, dbs: [], rows: [], empty: 'Unknown nutrient.' }
+  const { foods, shown } = await exploreShown(nutrient, off, loggedOnly)
+  return {
+    title: meta.label,
+    unknown: false,
+    dbs: exploreDbs(foods).map((d) => ({ name: d, on: !off.includes(d) })),
+    rows: shown.map((f) => ({
+      id: String(f.item.id), label: itemLabel(f.item), value: fmt(f.n.value, 1), pm: `${pmText(f.n)} ${meta.unit}`,
+      text: `${f.text} · per ${fmt(f.per[0], 2)} ${f.per[1]}`,
+    })),
+    empty: `No food with ${meta.label.toLowerCase()} here.`,
+  }
+}
+
+/** The search box: the index of the best-ranked listed food matching `query`, -1 if none (or nothing typed). */
+export async function exploreFind(nutrient, off, loggedOnly, query) {
+  const q = fold(query.trim())
+  if (!q) return -1
+  return (await exploreShown(nutrient, off, loggedOnly)).shown.findIndex((f) => searchText(f.item).includes(q))
+}
+
+/** The picked food on top: its name (a link to its info), per what, and its energy chart. */
+export async function explorePicked(nutrient, id) {
+  const f = (await exploreAll(nutrient)).find((x) => String(x.item.id) === id)
+  if (!f) return null
+  return {
+    label: itemLabel(f.item), per: ` · per ${fmt(f.per[0], 2)} ${f.per[1]}`,
+    link: `/foods/${f.item.id}?tab=info&nutrient=${nutrient}`, chart: energyChart(f.nutrients),
+  }
 }

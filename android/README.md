@@ -22,6 +22,7 @@ Design: `../docs/instructions/design.md` · Decisions: `../docs/execution/2026-1
 | `/body` | `ui/BodyScreen.kt` | `app/src/screens/Body.jsx` | `app/src/forms.js`, core.js `body`, `bodyEditor`, `bodyNames`, `saveBody` |
 | `/users` | `ui/UsersScreen.kt` | `app/src/screens/Users.jsx` | `app/src/forms.js`, core.js `users`, `saveUser`, `deleteUser` |
 | `/config` | `ui/ConfigScreen.kt` | `app/src/screens/Config.jsx` | `app/src/forms.js`, core.js `config`, `saveConfig` |
+| `/explore/:nutrient` | `ui/ExploreScreen.kt` | `app/src/screens/Explore.jsx` | `app/src/explore.js`, core.js `explore`, `exploreFind`, `explorePicked` |
 | `/consumptions/:id` | `ui/ConsumptionInfoScreen.kt` | `app/src/screens/ConsumptionInfo.jsx` (+ `EnergyChart.jsx`, `FoodInfo.jsx` NutrientTable) | `app/src/energy.js`, core.js `consumptionInfo` |
 
 Shared controls (top bar, sheets, food picker, …): `ui/Kit.kt`; info parts (donut, tables): `ui/Info.kt`. Routes not
