@@ -25,6 +25,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | Date | Entry | Status |
 |------|-------|--------|
 | 2026-11-03 | [Open Food Facts: our own copy on the server](2026-11-03-off-copy.md) | accepted |
+| 2026-11-03 | [Android app: the web app as the engine, native screens over it; the homescreen first](2026-11-03-android-engine.md) | accepted |
 | 2026-11-03 | [Android app: native UI over the web app's own logic](2026-11-03-native-ui.md) | accepted |
 | 2026-11-02 | [Faster start: reference foods made when needed; opens from the cache](2026-11-02-fast-start.md) | accepted |
 | 2026-11-02 | [Temp notes: arrow keys and swipes go through a note's pictures](2026-11-02-note-picture-viewer.md) | accepted |

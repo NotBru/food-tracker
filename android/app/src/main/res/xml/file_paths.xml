@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Camera shots for temp notes (MainActivity), handed to the camera app through a FileProvider. -->
+<paths>
+    <cache-path name="pictures" path="pictures/" />
+</paths>

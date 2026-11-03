@@ -1,0 +1,202 @@
+{
+ "win": "daily",
+ "winName": "daily",
+ "title": "Today · Mon 2026-11-02",
+ "dots": [
+  true,
+  false,
+  false,
+  false
+ ],
+ "daily": true,
+ "prevWin": "/?win=monthly",
+ "nextWin": "/?win=last7",
+ "prevDay": "/?day=2026-11-01",
+ "nextDay": "/?day=2026-11-03",
+ "todayView": null,
+ "user": "Alex",
+ "version": "v202611030100",
+ "style": "bars",
+ "rows": [
+  {
+   "key": "energy",
+   "label": "Calories",
+   "unit": "kcal",
+   "color": "c-kcal",
+   "value": "1840",
+   "pm": "−150 +170",
+   "err": "1690–2010",
+   "bar": {
+    "status": "ok",
+    "dummy": false,
+    "minAt": 62,
+    "maxAt": 78,
+    "fill": 70,
+    "end": 76,
+    "pieces": [
+     {
+      "from": 0,
+      "to": 62,
+      "region": "under",
+      "hatched": false
+     },
+     {
+      "from": 62,
+      "to": 64,
+      "region": "ok",
+      "hatched": false
+     },
+     {
+      "from": 64,
+      "to": 76,
+      "region": "ok",
+      "hatched": true
+     }
+    ],
+    "mean": true
+   },
+   "ghost": {
+    "from": 66,
+    "to": 82
+   },
+   "rangeLine": "2000–2500 kcal ✓",
+   "budget": {
+    "text": "490",
+    "over": false
+   },
+   "open": "/breakdown/energy?from=2026-11-02&to=2026-11-02&win=daily"
+  },
+  {
+   "key": "proteins",
+   "label": "Protein",
+   "unit": "g",
+   "color": "c-prot",
+   "value": "92",
+   "pm": "−9 +10",
+   "err": "83–102",
+   "bar": {
+    "status": "under",
+    "dummy": false,
+    "minAt": 65,
+    "maxAt": 80,
+    "fill": 52,
+    "end": 57,
+    "pieces": [
+     {
+      "from": 0,
+      "to": 47,
+      "region": "under",
+      "hatched": false
+     },
+     {
+      "from": 47,
+      "to": 57,
+      "region": "under",
+      "hatched": true
+     }
+    ],
+    "mean": true
+   },
+   "ghost": null,
+   "rangeLine": "120–150 g ↓",
+   "budget": null,
+   "open": "/breakdown/proteins"
+  },
+  {
+   "key": "fat",
+   "label": "Fat",
+   "unit": "g",
+   "color": "c-fat",
+   "value": "~81",
+   "pm": "−12 +14",
+   "err": "69–95",
+   "bar": {
+    "status": "over",
+    "dummy": false,
+    "minAt": 40,
+    "maxAt": 70,
+    "fill": 72,
+    "end": 80,
+    "pieces": [
+     {
+      "from": 0,
+      "to": 40,
+      "region": "under",
+      "hatched": false
+     },
+     {
+      "from": 40,
+      "to": 64,
+      "region": "ok",
+      "hatched": false
+     },
+     {
+      "from": 64,
+      "to": 70,
+      "region": "ok",
+      "hatched": true
+     },
+     {
+      "from": 70,
+      "to": 80,
+      "region": "over",
+      "hatched": true
+     }
+    ],
+    "mean": true
+   },
+   "ghost": null,
+   "rangeLine": "50–90 g ↑",
+   "budget": null,
+   "open": "/breakdown/fat"
+  },
+  {
+   "key": "carbohydrates",
+   "label": "Carbs",
+   "unit": "g",
+   "color": "c-carb",
+   "value": "205",
+   "pm": "±0",
+   "err": "",
+   "bar": {
+    "status": "none",
+    "dummy": true,
+    "minAt": null,
+    "maxAt": null,
+    "fill": 100,
+    "end": 100,
+    "pieces": [
+     {
+      "from": 0,
+      "to": 100,
+      "region": "none",
+      "hatched": false
+     }
+    ],
+    "mean": false
+   },
+   "ghost": null,
+   "rangeLine": "",
+   "budget": null,
+   "open": "/breakdown/carbohydrates"
+  },
+  {
+   "key": "fibers",
+   "label": "Fibre",
+   "unit": "g",
+   "color": "",
+   "value": "18",
+   "pm": "−3 +3",
+   "err": "15–21",
+   "bar": null,
+   "ghost": null,
+   "rangeLine": "",
+   "budget": null,
+   "open": "/breakdown/fibers"
+  }
+ ],
+ "summary": "12 consumptions",
+ "failed": "1 couldn't be computed",
+ "consumptions": "/consumptions",
+ "addConsumption": "/consumptions?new"
+}

@@ -6,6 +6,7 @@ Log what you eat, see how it adds up against your targets, and know how sure eac
 every nutrient value carries an error (± Δ), and totals are worked out worst case.
 
 A web app (PWA) in [`app/`](app/README.md): Vite + React; data in the browser's IndexedDB.
+An Android app in [`android/`](android/README.md): native screens over the web app's own logic, which runs inside it.
 
 ## What it does
 
