@@ -450,3 +450,52 @@ data class BdMember(val label: String, val made: String? = null, val value: Stri
 
 @Serializable
 data class BdQuintile(val name: String, val keys: List<String>, val info: String)
+
+// --- Time graphs ---
+
+@Serializable
+data class GraphsView(
+    val subtitle: String,
+    val span: Int,
+    val last: String,
+    val today: String,
+    val defaultDays: Int,
+    val maxSlider: Int,
+    val maxDays: Int,
+    val list: List<String>,
+    val xLabels: List<GraphLabel>,
+    val charts: List<GraphChart>,
+)
+
+/** A date under the plot, `at` its fraction across. */
+@Serializable
+data class GraphLabel(val at: Double, val text: String)
+
+/** One chart: `kind` "nutrient" (columns) or "measure" (dots); heights in % of the plot. */
+@Serializable
+data class GraphChart(
+    val kind: String,
+    val key: String,
+    val label: String,
+    val unit: String,
+    val cls: String = "",
+    val grid: List<GraphLabel>,
+    val columns: List<GraphColumn>,
+    val week: List<WeekPoint?>,
+)
+
+@Serializable
+data class GraphColumn(val zones: List<GraphPiece>, val pieces: List<GraphPiece>, val mean: Double? = null, val dot: GraphDot? = null)
+
+@Serializable
+data class GraphPiece(val from: Double, val to: Double, val region: String, val hatched: Boolean = false)
+
+@Serializable
+data class GraphDot(val at: Double, val lo: Double? = null, val hi: Double? = null)
+
+/** The 7-day average on a day: `x` in columns (the day before the first at −0.5), `lo` and `hi` in % from the top. */
+@Serializable
+data class WeekPoint(val x: Double, val lo: Double, val hi: Double)
+
+@Serializable
+data class GraphReadout(val line1: List<Rich>, val line2: List<Rich>, val link: String? = null)

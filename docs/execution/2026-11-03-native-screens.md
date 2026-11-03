@@ -89,6 +89,15 @@ core.js finds them again in the same view to group them. A new screen per nutrie
 screen's), so a day opened from the 7 days starts at the top. Checked against the web screen on the user's data,
 imported into the emulator only (backup off there): same totals, days and quintiles.
 
+### Time graphs
+
+`app/src/graphs.js` (loading, scales, a column's bars, the 7-day points, from Graphs.jsx). core.js sends each chart as
+geometry in % of its plot (regions, fill pieces, the estimate, a measure's dot and whisker, the band's points) and
+the readouts for the picked day separately (`graphsReadout`, from the data it just loaded), so a tap doesn't resend
+the charts. Drawn on canvases; sliding sideways replaces the route per column, as on the web, and the last graphs
+stay shown until the next window's arrive. The slider sets the route when let go. Checked against the web screen on
+the user's data (emulator only): same readouts.
+
 ## Alternatives considered
 
 - **The form's state in the web app** (Kotlin sending keystrokes): a round trip per key, and the text field's value

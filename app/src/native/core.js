@@ -8,7 +8,7 @@ import { bounds, getCoverage, sdOf, setCoverage, zero } from '../stats'
 import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, formatDateTime, prettyDay, toLocalInput, today, versionStamp } from '../time'
 import { energySplit } from '../energy'
 import { nutrientRows } from '../screens/FoodInfo'
-import { baseAmount, concoctionsLeft, consumptionNutrients, loadContext, nutrientsFor, resolve, span, unitFactorSpan, unitsFor, usedUp } from '../calc'
+import { baseAmount, concoctionsLeft, consumptionNutrients, loadContext, nutrientsFor, resolve, span, targetBar, unitFactorSpan, unitsFor, usedUp } from '../calc'
 import { DEFAULT_ENTRY_ERROR, categoryName } from '../errors'
 import { foodListMatches, foodMatches } from '../search'
 import * as cf from '../consumptionForm'
@@ -22,6 +22,7 @@ import { clearPendingDraft, isBarcode, offDraft, offProductDraft, peekPendingDra
 import { ROWS } from '../dashboard'
 import { exploreDbs, exploreFoods } from '../explore'
 import * as bd from '../breakdown'
+import * as gr from '../graphs'
 import { barFor, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
 import { conflictLabelShown, getState, status } from '../backup'
 import { statusText } from '../screens/Backup'
@@ -851,3 +852,104 @@ export async function breakdownGroup(nutrient, query, keys, name) {
 
 export const renameGroup = async (groupId, name) => bd.renameGroup((await getCurrentUser()).id, groupId, name)
 export const ungroup = async (groupId) => bd.ungroup((await getCurrentUser()).id, groupId)
+
+// --- Time graphs --------------------------------------------------------------------------------------------
+
+let graphsLast = null // the data of the graphs shown last: {key, data}, for their readouts
+
+/** The day graphs end on and how many days, from the route's query (`days`, `end`), as Graphs.jsx. */
+async function graphsWindow(query) {
+  const day = today((await getConfig()).dayStart)
+  return { day, span: gr.spanOf(query.days), last: query.end && query.end < day ? query.end : day }
+}
+
+/**
+ * screens/Graphs.jsx: a chart per dashboard row (body measurements after calories), each as columns in % of its
+ * height (target regions, fill pieces, the estimate; a measure's dot and whisker), gridlines and the 7-day
+ * average's points.
+ */
+export async function graphs(query = {}) {
+  const { day, span, last } = await graphsWindow(query)
+  const data = await gr.loadGraphs(last, span)
+  graphsLast = { key: `${last} ${span}`, data }
+  const { list } = data
+  const n = list.length
+  const empty = { zones: [], pieces: [], mean: null, dot: null }
+  const chart = (kind, key, label, unit, cls, sc, column) => ({
+    kind, key, label, unit, cls,
+    grid: sc.grid.map((t) => ({ at: sc.pos(t), text: fmt(t, sc.digits) })),
+    columns: list.map(column),
+    week: gr.weekPoints(list, sc.avgOf, sc.pos),
+  })
+  const nutrient = (row) => {
+    const sc = gr.nutrientScale(row, data)
+    return chart('nutrient', row.key, row.label, row.unit, row.cls, sc, (d) => {
+      const { target, bar } = gr.columnBars(sc.valueOf(d), data.targets[d][row.key], sc.pos)
+      const minAt = target?.minAt
+      const maxAt = target?.maxAt
+      return {
+        zones: target ? [
+          ...(minAt != null ? [{ from: 0, to: minAt, region: 'under' }] : []),
+          { from: minAt ?? 0, to: maxAt ?? 100, region: 'ok' },
+          ...(maxAt != null ? [{ from: maxAt, to: 100, region: 'over' }] : []),
+        ] : [],
+        pieces: bar ? fillPieces(bar).map((pc) => ({ from: pc.from, to: pc.to, region: pc.region, hatched: !!pc.hatched })) : [],
+        mean: bar && hasMean(bar) ? bar.fill : null,
+        dot: null,
+      }
+    })
+  }
+  const measure = (m) => {
+    const sc = gr.measureScale(m, list)
+    return chart('measure', m.key, m.label, m.unit, '', sc, (d) => {
+      const v = m.daily[d]
+      if (!v) return empty
+      const [lo, hi] = bounds(v)
+      return { ...empty, dot: { at: sc.pos(v.value), lo: hi > lo ? sc.pos(lo) : null, hi: hi > lo ? sc.pos(hi) : null } }
+    })
+  }
+  return {
+    subtitle: `${list[0]} → ${list.at(-1)} · daily`,
+    span, last, today: day, defaultDays: gr.DEFAULT_DAYS, maxSlider: gr.MAX_SLIDER, maxDays: gr.MAX_DAYS,
+    list,
+    xLabels: [...new Set([0, Math.floor((n - 1) / 2), n - 1])].map((i) => ({ at: (i + 0.5) / n, text: list[i].slice(5) })),
+    charts: data.rows.flatMap((r) => [nutrient(r), ...(r.key === 'energy' ? data.measures.map(measure) : [])]),
+  }
+}
+
+/** Under each chart, `day` spelled out: its value and the 7-day average's (rich spans), and where tapping goes. */
+export async function graphsReadout(query, day) {
+  const { span, last } = await graphsWindow(query)
+  const data = graphsLast?.key === `${last} ${span}` ? graphsLast.data : await gr.loadGraphs(last, span)
+  const pm = (x, digits, rangeDigits) => (x.v > 0 ? [{ t: ` ${pmText(x, digits)}` }, { t: ` (${rangeText(x, rangeDigits)})`, c: 'range', small: true }] : [])
+  const head = { t: `${prettyDay(day)} · `, m: true }
+  const avgHead = { t: '7-day average · ', m: true }
+  const out = {}
+  for (const row of data.rows) {
+    const sc = gr.nutrientScale(row, data)
+    const v = sc.valueOf(day)
+    const avg = sc.avgOf(day)
+    const range = data.targets[day]?.[row.key]
+    const bar = v && targetBar(v, range, sc.pos)
+    const value = (x, cls) => [{ t: `${x.estimated ? '~' : ''}${fmt(x.value, 0)}`, b: true, c: cls }, { t: ` ${row.unit} ${pmText(x)}` },
+      ...(sdOf(x) > 0 ? [{ t: ` (${rangeText(x)})`, c: 'range', small: true }] : [])]
+    out[row.key] = {
+      line1: [head, ...(v ? value(v, row.cls || null) : [{ t: 'no consumptions', m: true }]),
+        ...(range && (Number.isFinite(range.min) || Number.isFinite(range.max))
+          ? [{ t: ` · ${rangeLabel(range)} ${bar ? statusMark(bar.status) : ''}`, c: bar ? ({ ok: 'kcal', under: 'prot', over: 'prot' })[bar.status] ?? null : null }] : [])],
+      line2: [avgHead, ...(avg ? value(avg, 'accent') : [{ t: 'no consumptions', m: true }])],
+      link: v ? `/breakdown/${row.key}?from=${day}&to=${day}&win=daily` : null,
+    }
+  }
+  for (const m of data.measures) {
+    const x = m.daily[day]
+    const avg = m.week[day]
+    const value = (y, c) => [{ t: fmt(y.value, 2), b: true, c }, { t: ` ${m.unit}` }, ...pm(y, 2, 1)]
+    out[m.key] = {
+      line1: [head, ...(x ? value(x, null) : [{ t: 'not measured', m: true }])],
+      line2: [avgHead, ...(avg ? value(avg, 'accent') : [{ t: 'none', m: true }])],
+      link: null,
+    }
+  }
+  return out
+}

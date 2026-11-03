@@ -26,6 +26,7 @@ import app.foodtracker.ui.ExploreScreen
 import app.foodtracker.ui.ExternalScreen
 import app.foodtracker.ui.FoodScreen
 import app.foodtracker.ui.FoodsScreen
+import app.foodtracker.ui.GraphsScreen
 import app.foodtracker.ui.HomeScreen
 import app.foodtracker.ui.NotesScreen
 import app.foodtracker.ui.PicturePicker
@@ -64,6 +65,14 @@ fun App(activity: MainActivity) {
             parts == listOf("users") -> UsersScreen(watchView(activity, "users", emptyList(), UsersView.serializer()), engine)
             parts == listOf("config") -> ConfigScreen(engine)
             parts.size == 2 && parts[0] == "explore" -> ExploreScreen(engine, parts[1])
+            parts == listOf("graphs") -> {
+                val query = r.args()
+                // Sliding through the days changes the route at every column: the last graphs stay until the next come.
+                var last by remember { mutableStateOf<GraphsView?>(null) }
+                val view = watchView(activity, "graphs", listOf(query), GraphsView.serializer(), snapshot = r.query.isEmpty())
+                if (view != null) last = view
+                GraphsScreen(view ?: last, engine, query)
+            }
             // A new screen per nutrient and window (as Breakdown.jsx's key): scrolled to the top, nothing ticked.
             parts.size == 2 && parts[0] == "breakdown" -> key(parts[1], r.query["from"], r.query["to"]) {
                 val query = r.args()

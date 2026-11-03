@@ -1,14 +1,12 @@
 import { Fragment, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import Dexie from 'dexie'
-import { db, getConfig, getCurrentUser } from '../db'
-import { averageTargets, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from '../calc'
-import { NUTRIENTS, calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
-import { bounds, sdOf, zero } from '../stats'
-import { addDays, dayBounds, logicalDay, prettyDay } from '../time'
+import { targetBar } from '../calc'
+import { fmt, pmText, rangeLabel, rangeText } from '../nutrients'
+import { bounds, sdOf } from '../stats'
+import { addDays, prettyDay } from '../time'
 import { Screen, go, replace, useToday } from '../components'
-import { dailyValues, measures, weekMean } from '../body'
-import { ROWS, fillPieces, hasMean, statusMark } from '../dashboard'
+import { fillPieces, hasMean, statusMark } from '../dashboard'
+import { DEFAULT_DAYS, MAX_DAYS, MAX_SLIDER, columnBars, loadGraphs, measureScale, nutrientScale, spanOf, weekPoints } from '../graphs'
 
 // Time graphs: per nutrient on the dashboard, one column per day, back to back. Each column is a dashboard bar
 // standing up: the day's target as tinted regions (below min, within, above max), the fill solid up to the low end
@@ -19,27 +17,11 @@ import { ROWS, fillPieces, hasMean, statusMark } from '../dashboard'
 // consumptions, as the dashboard's windows): its interval as a dark grey band between two lines.
 // Body measurements come right after calories, one chart each that has ever been measured (weight, body fat, lean
 // mass, muscle, waist, the user's own): a dot per day measured with its error bar, and its 7-day average the same
-// way as above (body.js weekMean), on a scale fitted to the values rather than from 0.
-
-// Days shown: the slider covers up to MAX_SLIDER; the box takes up to MAX_DAYS.
-const DEFAULT_DAYS = 30
-const MAX_SLIDER = 180
-const MAX_DAYS = 730
-
-/** Ticks at 1/2/5 × 10^k strictly between `lo` and `hi`: the finest step that gives at most four. */
-function ticks(lo, hi) {
-  if (!(hi > lo)) return { step: 1, list: [] }
-  const p = 10 ** Math.floor(Math.log10((hi - lo) / 4))
-  const count = (s) => Math.ceil(hi / s - 1e-9) - Math.floor(lo / s + 1e-9) - 1
-  const step = [1, 2, 5, 10].map((m) => m * p).find((s) => count(s) <= 4)
-  const list = []
-  for (let t = (Math.floor(lo / step + 1e-9) + 1) * step; t < hi - 1e-9; t += step) list.push(t)
-  return { step, list }
-}
+// way as above (body.js weekMean), on a scale fitted to the values rather than from 0. Data and scales: graphs.js.
 
 /** `days` (how many) and `end` (the last day shown; none = today) live in the URL, like the dashboard's view. */
 export default function Graphs({ days: daysParam, end: endParam }) {
-  const span = Number.isInteger(Number(daysParam)) && daysParam >= 1 && daysParam <= MAX_DAYS ? Number(daysParam) : DEFAULT_DAYS
+  const span = spanOf(daysParam)
   const day = useToday()
   const last = endParam && day && endParam < day ? endParam : day
   const setView = (n, e) => {
@@ -64,46 +46,7 @@ export default function Graphs({ days: daysParam, end: endParam }) {
   }
   const [sel, setSel] = useState(null)
 
-  const data = useLiveQuery(async () => {
-    if (!last) return null
-    const config = await getConfig()
-    const first = addDays(last, -(span - 1))
-    const list = []
-    for (let d = first; d <= last; d = addDays(d, 1)) list.push(d)
-    // The 7 days before are loaded too, for the weekly calorie correction and the 7-day average (from the day before
-    // the first, so its band comes in from the left edge instead of starting mid-column).
-    const from = dayBounds(addDays(first, -7), config.dayStart)[0]
-    const end = dayBounds(last, config.dayStart)[1]
-    const user = await getCurrentUser()
-    const logs = await db.logs.where('[userId+datetime]').between([user.id, from.toISOString()], [user.id, end.toISOString()], true, false).toArray()
-    const ctx = await loadContext()
-    const byDay = {}
-    for (const l of logs) (byDay[logicalDay(l.datetime, config.dayStart)] ??= []).push(consumptionNutrients(ctx, l).nutrients)
-    const totals = Object.fromEntries(Object.entries(byDay).map(([d, ns]) => [d, sumNutrients(ns)]))
-    const eaten = Object.fromEntries(Object.entries(totals).map(([d, t]) => [d, calories(t)]))
-    const allTargets = await db.targets.where('userId').equals(user.id).toArray()
-    const targets = Object.fromEntries(list.map((d) => {
-      const t = averageTargets(allTargets, [d], config.dayStart)
-      const adj = weeklyCorrection(allTargets, d, config.dayStart, eaten, config.adjCap)
-      if (adj) t.energy = adj.range
-      return [d, t]
-    }))
-    // The dashboard's rows: the macros, plus any nutrient a target mentions.
-    const targeted = new Set(allTargets.flatMap((t) => Object.keys(t.values)))
-    const extra = NUTRIENTS.filter((n) => targeted.has(n.key) && !ROWS.some((r) => r.key === n.key))
-      .map((n) => ({ key: n.key, label: n.label, unit: n.unit, cls: '' }))
-    const week = Object.fromEntries([addDays(first, -1), ...list].map((d) => {
-      const had = [0, 1, 2, 3, 4, 5, 6].map((i) => totals[addDays(d, -i)]).filter(Boolean)
-      return [d, had.length ? perDay(sumNutrients(had), had.length) : null]
-    }))
-    // Body measurements: the user's few rows, all of them (a measure never taken: no chart).
-    const body = await db.weights.where('[userId+datetime]').between([user.id, Dexie.minKey], [user.id, Dexie.maxKey]).toArray()
-    const shownMeasures = measures(body).filter((m) => body.some((r) => m.of(r))).map((m) => {
-      const daily = dailyValues(body, m.of, config.dayStart)
-      return { ...m, daily, week: Object.fromEntries([addDays(first, -1), ...list].map((d) => [d, weekMean(daily, d)])) }
-    })
-    return { list, totals, week, targets, measures: shownMeasures, rows: [...ROWS, ...extra] }
-  }, [last, span])
+  const data = useLiveQuery(async () => (last ? loadGraphs(last, span) : null), [last, span])
 
   const shown = sel && data?.list.includes(sel) ? sel : data?.list.at(-1)
   return (
@@ -164,24 +107,8 @@ function usePlotPointer(list, onPick, onPan) {
  * scale fitted to them.
  */
 function MeasureChart({ list, measure, shown, onPick, onPan }) {
-  const { label, unit, minRange, daily, week } = measure
-  const avgOf = (d) => week[d]
-  // The scale: the values and the average's interval in view (the day before the first too), with a margin, at
-  // least `minRange` tall (a user's field: 5% of its value, or 1).
-  const vals = []
-  for (const d of [addDays(list[0], -1), ...list]) {
-    if (daily[d] && d >= list[0]) vals.push(...bounds(daily[d]))
-    if (week[d]) vals.push(...bounds(week[d]))
-  }
-  let lo = vals.length ? Math.min(...vals) : 0
-  let hi = vals.length ? Math.max(...vals) : 0
-  const least = minRange ?? Math.max(Math.abs(hi) * 0.05, 1)
-  const pad = Math.max(0.1 * (hi - lo), (least - (hi - lo)) / 2)
-  lo -= pad
-  hi += pad
-  const pos = (x) => Math.min(100, Math.max(0, ((x - lo) / (hi - lo)) * 100))
-  const { step, list: grid } = ticks(vals.length ? lo : 0, vals.length ? hi : 0)
-  const digits = step < 1 ? Math.ceil(-Math.log10(step)) : 0
+  const { label, unit, daily } = measure
+  const { avgOf, pos, grid, digits } = measureScale(measure, list)
   const pointer = usePlotPointer(list, onPick, onPan)
   const labelled = [0, Math.floor((list.length - 1) / 2), list.length - 1]
   const x = daily[shown]
@@ -244,23 +171,8 @@ function Dot({ val, pos }) {
 
 /** One nutrient over the days: the columns, a y axis, a few dates, and the picked day spelled out underneath. */
 function TimeChart({ row, data, shown, onPick, onPan }) {
-  const { list, totals, week, targets } = data
-  const of = (t) => t && (row.key === 'energy' ? calories(t) : t[row.key] ?? zero())
-  const valueOf = (d) => of(totals[d])
-  const avgOf = (d) => of(week[d])
-  // One scale for the chart: the highest of the days' bounds and intervals' tops (the average's too) at 90% of the
-  // height.
-  let top = 0
-  for (const d of list) {
-    const r = targets[d][row.key] ?? {}
-    const v = valueOf(d)
-    const a = avgOf(d)
-    top = Math.max(top, ...[r.min, r.max, v && bounds(v)[1], a && bounds(a)[1]].filter(Number.isFinite))
-  }
-  const full = top > 0 ? top / 0.9 : 1
-  const pos = (x) => Math.min(100, Math.max(0, (x / full) * 100))
-  const { step, list: grid } = ticks(0, top > 0 ? full : 0) // nothing to measure: no gridlines
-  const digits = step < 1 ? Math.ceil(-Math.log10(step)) : 0
+  const { list, targets } = data
+  const { valueOf, avgOf, pos, grid, digits } = nutrientScale(row, data)
 
   const pointer = usePlotPointer(list, onPick, onPan)
   const v = valueOf(shown)
@@ -321,12 +233,7 @@ function TimeChart({ row, data, shown, onPick, onPan }) {
  */
 function WeekOverlay({ list, avgOf, pos }) {
   // The day before the first is in too, half a column left of the plot (which clips it): the band enters at the edge.
-  const pts = [addDays(list[0], -1), ...list].map((d, i) => {
-    const a = avgOf(d)
-    if (!a) return null
-    const [lo, hi] = bounds(a)
-    return { x: i - 0.5, lo: 100 - pos(lo), hi: 100 - pos(hi) }
-  })
+  const pts = weekPoints(list, avgOf, pos)
   // Breaks where a day has no average (7 days without consumptions).
   const runs = [[]]
   for (const p of pts) p ? runs.at(-1).push(p) : runs.push([])
@@ -344,14 +251,9 @@ function WeekOverlay({ list, avgOf, pos }) {
 
 /** A day: the target's regions, and the fill when it has consumptions. Heights in % of the plot. */
 function Column({ val, range, pos, picked }) {
-  const target = targetBar(val ?? zero(), range, pos)
+  const { target, bar } = columnBars(val, range, pos)
   const minAt = target?.minAt
   const maxAt = target?.maxAt
-  let bar = val && target
-  if (val && !bar) {
-    const [lo, hi] = bounds(val)
-    bar = { fill: pos(val.value), minAt: null, maxAt: null, status: 'none', dummy: true, errLo: hi > lo ? pos(lo) : null, errHi: hi > lo ? pos(hi) : null }
-  }
   return (
     <div className={`tg-col ${picked ? 'picked' : ''}`}>
       {minAt != null && <div className="zone under" style={{ bottom: 0, height: `${minAt}%` }} />}
