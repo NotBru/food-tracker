@@ -108,7 +108,8 @@ app; Kotlin draws them. The secret reaches Kotlin only when shown.
 
 Open: the emulator's WebView (124, as its Chrome) can't make Ed25519 signatures (Chrome has them from 137), so the
 backup can't start or restore there; phones update WebView through the Play Store. Sync was not tested on the
-emulator for that reason.
+emulator for that reason. The scripts now install the Android 17 image (`android-37.0;google_apis`), whose WebView
+has them (the user's choice, over a Play Store sign-in on the emulator or a JS fallback).
 
 ## Alternatives considered
 

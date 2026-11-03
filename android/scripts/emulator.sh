@@ -13,7 +13,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(dirname "$HERE")"
 source "$HERE/env.sh"
 AVD=food-tracker
-IMAGE="system-images;android-35;google_apis;x86_64"
+IMAGE="system-images;android-37.0;google_apis;x86_64"
 
 install_and_launch() {
   echo "== Building and installing"
