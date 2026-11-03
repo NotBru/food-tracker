@@ -24,8 +24,11 @@ import { exploreDbs, exploreFoods } from '../explore'
 import * as bd from '../breakdown'
 import * as gr from '../graphs'
 import { barFor, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
+import * as bk from '../backup'
 import { conflictLabelShown, getState, status } from '../backup'
-import { statusText } from '../screens/Backup'
+import { differingFields } from '../sync'
+import qrcode from 'qrcode-generator'
+import { TABLE_NAMES, rowLabel, shownValue, statusText } from '../screens/Backup'
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`
 const finite = (x) => (Number.isFinite(x) ? x : null)
@@ -953,3 +956,89 @@ export async function graphsReadout(query, day) {
   }
   return out
 }
+
+// --- Backup -------------------------------------------------------------------------------------------------
+
+/** An action of the Backup screen: {} when done, {alert} when it failed (409: another device synced first, quiet). */
+async function backupAct(f) {
+  try {
+    return (await f()) ?? {}
+  } catch (e) {
+    return e.status === 409 ? {} : { alert: e.message }
+  }
+}
+
+/** screens/Backup.jsx: off, or the status line, the inbox note, the conflicts' count. The secret only when asked. */
+export function backup() {
+  const s = getState()
+  if (!s) return { on: false }
+  return {
+    on: true,
+    status: statusText(s), synced: status(s) === 'synced',
+    inbox: s.inbox ? `Took in ${plural(s.inbox.entries, 'consumption')} from the inbox ${formatDateTime(s.inbox.at)}.` : null,
+    conflicts: s.conflicts ?? 0,
+    conflictLabel: conflictLabelShown(),
+  }
+}
+
+/** The rows changed differently here and on another device, as Backup.jsx Conflicts lists them. */
+export async function backupConflicts() {
+  const [list, ctx] = await Promise.all([bk.getConflicts(), ctxNow()])
+  return list.map((c) => ({
+    title: TABLE_NAMES[c.t], label: rowLabel(c.t, c.local ?? c.cloud, ctx),
+    fields: c.local && c.cloud ? differingFields(c.local, c.cloud).map((f) => ({ name: f, here: shownValue(c.local[f]), there: shownValue(c.cloud[f]) })) : [],
+    note: c.local && c.cloud ? null : c.local ? 'Deleted on the other device, changed here.' : 'Deleted here, changed on the other device.',
+  }))
+}
+
+/** The secret, its link and the link's QR code (rows of "1" dark, "0" light; the quiet zone left to the drawing). */
+export function backupSecret() {
+  const s = getState()
+  if (!s) return null
+  const link = bk.backupLink(s.secret)
+  const qr = qrcode(0, 'M')
+  qr.addData(link)
+  qr.make()
+  const n = qr.getModuleCount()
+  const rows = []
+  for (let r = 0; r < n; r++) {
+    let row = ''
+    for (let c = 0; c < n; c++) row += qr.isDark(r, c) ? '1' : '0'
+    rows.push(row)
+  }
+  return { secret: s.secret, link, qr: rows }
+}
+
+export const backupStart = (invite) => backupAct(() => bk.start(invite))
+export const backupSync = () => backupAct(() => bk.sync())
+export const backupChangeSecret = () => backupAct(() => bk.changeSecret())
+export const backupForget = () => backupAct(() => bk.forget())
+export const backupResolve = (i, side) => backupAct(() => bk.resolveConflict(i, side))
+export const backupConflictLabel = (on) => bk.showConflictLabel(on)
+
+let fetched = null // the backup fetched to restore, until confirmed: {secret, backup}
+
+/**
+ * Restoring, step one: the secret pasted or this device's (`text` null), checked, and its backup fetched. Asks back
+ * {confirm} (with {switching} first if the device is on another secret), or {alert}.
+ */
+export const backupFetch = (text) => backupAct(async () => {
+  const secret = text == null ? getState()?.secret : bk.parseSecret(text)
+  if (!secret) throw new Error("That isn't a backup secret or link.")
+  const s = getState()
+  fetched = { secret, backup: await bk.fetchBackup(secret) }
+  return {
+    switching: !!(s && secret !== s.secret),
+    confirm: `Restoring REPLACES all data on this device with the backup from ${formatDateTime(fetched.backup.updated)}; `
+      + "changes here that haven't synced are lost. Continue?",
+  }
+})
+
+/** Restoring, step two: the backup fetched replaces this device's data. */
+export const backupRestore = () => backupAct(async () => {
+  if (!fetched) throw new Error('Nothing fetched to restore.')
+  const { secret, backup: b } = fetched
+  fetched = null
+  await bk.restore(secret, b)
+  return { done: 'Restored.' }
+})

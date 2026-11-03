@@ -82,9 +82,9 @@ export function SyncStatus() {
   )
 }
 
-const TABLE_NAMES = { users: 'User', items: 'Food', logs: 'Consumption', targets: 'Target', weights: 'Body measurements', config: 'Settings' }
+export const TABLE_NAMES = { users: 'User', items: 'Food', logs: 'Consumption', targets: 'Target', weights: 'Body measurements', config: 'Settings' }
 
-function rowLabel(t, row, ctx) {
+export function rowLabel(t, row, ctx) {
   if (t === 'users') return row.name
   if (t === 'items') return itemLabel(row)
   if (t === 'logs') return `${itemLabel(ctx?.items.get(row.itemId))}, ${row.amountText ?? row.amount} ${row.unit} · ${formatDateTime(row.datetime)}`
@@ -93,7 +93,8 @@ function rowLabel(t, row, ctx) {
   return ''
 }
 
-const shown = (v) => {
+/** A field's value in a conflict, cut at 80 characters. */
+export const shownValue = (v) => {
   const text = typeof v === 'string' ? v : JSON.stringify(v)
   return text.length > 80 ? `${text.slice(0, 79)}…` : text
 }
@@ -127,7 +128,7 @@ function Conflicts({ count }) {
             {c.local && c.cloud ? (
               <ul className="small">
                 {differingFields(c.local, c.cloud).map((f) => (
-                  <li key={f}><span className="muted">{f}:</span> here {shown(c.local[f])} · other device {shown(c.cloud[f])}</li>
+                  <li key={f}><span className="muted">{f}:</span> here {shownValue(c.local[f])} · other device {shownValue(c.cloud[f])}</li>
                 ))}
               </ul>
             ) : (

@@ -499,3 +499,29 @@ data class WeekPoint(val x: Double, val lo: Double, val hi: Double)
 
 @Serializable
 data class GraphReadout(val line1: List<Rich>, val line2: List<Rich>, val link: String? = null)
+
+// --- Backup ---
+
+@Serializable
+data class BackupView(
+    val on: Boolean,
+    val status: String? = null,
+    val synced: Boolean = false,
+    val inbox: String? = null,
+    val conflicts: Int = 0,
+    val conflictLabel: Boolean = true,
+)
+
+@Serializable
+data class BackupConflict(val title: String, val label: String, val fields: List<ConflictField> = emptyList(), val note: String? = null)
+
+@Serializable
+data class ConflictField(val name: String, val here: String, val there: String)
+
+/** The secret, its link, and the link's QR code: rows of "1" (dark) and "0". */
+@Serializable
+data class BackupSecret(val secret: String, val link: String, val qr: List<String>)
+
+/** A Backup action's answer: an [alert], a question before going on ([confirm]; [switching] first), or [done]. */
+@Serializable
+data class BackupReply(val alert: String? = null, val confirm: String? = null, val switching: Boolean = false, val done: String? = null)

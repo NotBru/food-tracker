@@ -98,6 +98,18 @@ the charts. Drawn on canvases; sliding sideways replaces the route per column, a
 stay shown until the next window's arrive. The slider sets the route when let go. Checked against the web screen on
 the user's data (emulator only): same readouts.
 
+### Backup
+
+Its state is the web app's (localStorage, not the database), so the native screen reads it again whenever the sync
+status the bridge already sends changes, and after each action. Actions answer {alert} rather than failing (a 409,
+another device first, stays quiet, as on the web). Restoring is two calls: the fetch (checks the secret, says from
+when) and, once confirmed, the restore of what was fetched. The QR's modules come from qrcode-generator in the web
+app; Kotlin draws them. The secret reaches Kotlin only when shown.
+
+Open: the emulator's WebView (124, as its Chrome) can't make Ed25519 signatures (Chrome has them from 137), so the
+backup can't start or restore there; phones update WebView through the Play Store. Sync was not tested on the
+emulator for that reason.
+
 ## Alternatives considered
 
 - **The form's state in the web app** (Kotlin sending keystrokes): a round trip per key, and the text field's value

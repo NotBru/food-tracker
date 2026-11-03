@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import app.foodtracker.ui.BackupScreen
 import app.foodtracker.ui.BodyScreen
 import app.foodtracker.ui.BreakdownScreen
 import app.foodtracker.ui.C
@@ -65,6 +66,10 @@ fun App(activity: MainActivity) {
             parts == listOf("users") -> UsersScreen(watchView(activity, "users", emptyList(), UsersView.serializer()), engine)
             parts == listOf("config") -> ConfigScreen(engine)
             parts.size == 2 && parts[0] == "explore" -> ExploreScreen(engine, parts[1])
+            parts == listOf("backup") -> {
+                val sync by engine.sync.collectAsState()
+                BackupScreen(engine, sync, r.query["secret"])
+            }
             parts == listOf("graphs") -> {
                 val query = r.args()
                 // Sliding through the days changes the route at every column: the last graphs stay until the next come.
