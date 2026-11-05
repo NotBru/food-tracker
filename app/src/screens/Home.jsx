@@ -436,13 +436,54 @@ function PieTile({ data }) {
   const [pointed, setPointed] = useState(null)
   const model = pieModel(data.targets)
   const kcal = calories(data.total)
-  const at = pointed ?? (kcal.value > 0 ? kcal.value : null)
   return (
     <div className="pie-tile">
       <PieCanvas model={model} val={kcal} total={data.total} onPoint={setPointed} />
-      <p className="pie-readout">{at == null ? '\u00a0' : <><b>{fmt(at, 0)} kcal</b>{pointed == null && ' (eaten)'}: {ringText(model, at)}</>}</p>
+      {pointed != null && <p className="pie-readout"><b>{fmt(pointed, 0)} kcal</b>: {ringText(model, pointed)}</p>}
     </div>
   )
+}
+
+/**
+ * The dashboard's grid with the energy pie (section `ref`, when `on`): the pie's tile is square, k columns wide and n
+ * rows of tiles tall, every tile as tall as those rows (the pie's side split into n, gaps included): never shorter
+ * than the tallest tile's own height, nor over 30% taller (else a wider pie is tried). Without room for a tile beside
+ * it (one column, or gauges too narrow), the pie goes on top, as wide as the dashboard. Measured again at each render
+ * and when the dashboard's width changes.
+ */
+function useFitPie(ref, on) {
+  const [, setWidth] = useState(0)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el || !on) return
+    const ro = new ResizeObserver(([e]) => setWidth(e.contentRect.width))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [ref, on])
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el || !on) return
+    el.classList.remove('fit') // tiles at their own height, to measure
+    const tiles = [...el.querySelectorAll(':scope > [role=button]')]
+    const H = Math.max(1, ...tiles.map((t) => t.getBoundingClientRect().height))
+    const cs = getComputedStyle(el)
+    const cols = cs.gridTemplateColumns.split(' ').map(parseFloat)
+    const g = parseFloat(cs.columnGap) || 0
+    let fit = { k: cols.length, n: 1, h: H } // on top
+    for (let k = 1; k < cols.length; k++) {
+      const side = k * cols[0] + (k - 1) * g
+      const n = Math.floor((side + g) / (H + g))
+      const h = (side + g) / n - g
+      if (n >= 1 && h <= 1.3 * H) {
+        fit = { k, n, h }
+        break
+      }
+    }
+    el.style.setProperty('--tile-h', `${fit.h}px`)
+    el.style.setProperty('--pie-cols', fit.k)
+    el.style.setProperty('--pie-rows', fit.n)
+    el.classList.add('fit')
+  })
 }
 
 /**
@@ -506,6 +547,8 @@ export default function Home({ query = {} }) {
   }
 
   const data = useLiveQuery(() => loadDashboard({ win, day, picked }), [win, day, picked])
+  const dashRef = useRef(null)
+  useFitPie(dashRef, !!data?.pie)
 
   const otherDay = win === 'daily' && back !== 0 && data ? data.first : null
   const openBreakdown = (key) => go(`/breakdown/${key}?from=${data.first}&to=${data.last}&win=${win}`)
@@ -571,7 +614,7 @@ export default function Home({ query = {} }) {
       {/* Only the dashboard scrolls; the header and the buttons stay in view. */}
       <main className="home-main">
         {data && (
-          <section className={`dashboard ${data.style}${data.pie ? ' with-pie' : ''}`}>
+          <section ref={dashRef} className={`dashboard ${data.style}${data.pie ? ' with-pie' : ''}`}>
             {data.pie && <PieTile data={data} />}
             {data.rows.map((r) => {
               const n = data.total[r.key]

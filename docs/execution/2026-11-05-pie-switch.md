@@ -1,7 +1,7 @@
 # Energy pie: a switch, a square tile among the others
 
 - **Date:** 2026-11-05
-- **Status:** accepted
+- **Status:** accepted; layout superseded by [pie-fit](2026-11-05-pie-fit.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (Homescreen: energy pie; Config screen)
 
 ## Context
