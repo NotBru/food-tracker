@@ -320,16 +320,27 @@ function piePalette() {
   const v = (n) => rgb(style.getPropertyValue(`--${n}`))
   const bg = v('panel-2')
   const tones = Object.fromEntries(['prot', 'fat', 'carb', 'muted'].map((t) => [t, v(t)]))
-  return {
-    // Where no split is allowed (outside the calorie target, or the macros can't fit): deep blue, plain.
+  const pal = {
+    // Where the macros' targets can't fit: deep blue, plain. Outside the calorie target: the same split, faded.
     out: rgb('#000421'),
     free: mix(v('kcal'), bg, 0.4), shared: mix(v('muted'), bg, 0.6),
     core: Object.fromEntries(PIE_MACROS.map((m) => [m.key, tones[m.tone]])),
     flank: Object.fromEntries(PIE_MACROS.map((m) => [m.key, mix(tones[m.tone], [255, 255, 255], 0.5)])),
     tone: tones, range: v('range'),
   }
+  const fadeAll = (x) => (Array.isArray(x) ? fade(x, bg) : Object.fromEntries(Object.entries(x).map(([k, c]) => [k, fade(c, bg)])))
+  pal.faded = Object.fromEntries(['free', 'shared', 'core', 'flank'].map((k) => [k, fadeAll(pal[k])]))
+  return pal
 }
-const segColour = (pal, s) => (s.kind === 'core' || s.kind === 'flank' ? pal[s.kind][s.key] : pal[s.kind])
+/** A colour faded for the rings outside the calorie target: most of its saturation gone, a little darker. */
+const fade = (c, bg) => {
+  const grey = 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2]
+  return mix(mix(c, [grey, grey, grey], 0.4), bg, 0.42)
+}
+const segColour = (pal, s) => {
+  const p = s.dim ? pal.faded : pal
+  return s.kind === 'core' || s.kind === 'flank' ? p[s.kind][s.key] : p[s.kind]
+}
 
 const RING = 9 // px: the eaten ring's thickness
 

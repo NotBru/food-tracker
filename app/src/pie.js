@@ -34,16 +34,16 @@ export function pieFull(model, val) {
 }
 
 /**
- * The share of energy (0–1) each macro may take on the ring at `kcal`: [{m, lo, hi, hasMax, restricted}] in the
- * model's order, each range narrowed by what the others leave (protein ≤ 1 − fat's min − carbs' min, and so on).
- * {out: 'under' | 'over' | 'none'} when no split works: below the calorie min, above the max, or the macros' targets
- * can't fit (their minimums over 100%, a min over its max, or all three maxes under 100%).
+ * The share of energy (0–1) each macro may take on the ring at `kcal`: {shares: [{m, lo, hi, hasMax, restricted}],
+ * calories}, the shares in the model's order, each range narrowed by what the others leave (protein ≤ 1 − fat's min −
+ * carbs' min, and so on); `calories` 'under' / 'over' when the ring is below the calorie min / above the max (the
+ * shares still hold, for planning), else null. {out: true} when the macros' targets can't fit (their minimums over
+ * 100%, a min over its max, or all three maxes under 100%).
  */
 export function ringShares(model, kcal) {
   const { min, max } = model.energy
-  if (has(min) && kcal < min) return { out: 'under' }
-  if (has(max) && kcal > max) return { out: 'over' }
-  if (!(kcal > 0)) return { out: 'none' }
+  if (!(kcal > 0)) return { out: true }
+  const calories = has(min) && kcal < min ? 'under' : has(max) && kcal > max ? 'over' : null
   const s = model.order.map((m) => {
     const r = model.targets[m.key] ?? {}
     const restricted = model.restricted.includes(m)
@@ -55,23 +55,25 @@ export function ringShares(model, kcal) {
   })
   const sumLo = s.reduce((a, x) => a + x.lo, 0)
   const sumHi = s.reduce((a, x) => a + x.hi, 0)
-  if (sumLo > 1 + EPS || sumHi < 1 - EPS || s.some((x) => x.lo > x.hi + EPS)) return { out: 'none' }
-  return { shares: s.map((x) => ({ ...x, lo: Math.max(x.lo, 1 - (sumHi - x.hi)), hi: Math.min(x.hi, 1 - (sumLo - x.lo)) })) }
+  if (sumLo > 1 + EPS || sumHi < 1 - EPS || s.some((x) => x.lo > x.hi + EPS)) return { out: true }
+  return { calories, shares: s.map((x) => ({ ...x, lo: Math.max(x.lo, 1 - (sumHi - x.hi)), hi: Math.min(x.hi, 1 - (sumLo - x.lo)) })) }
 }
 
 const mod1 = (x) => ((x % 1) + 1) % 1
 const covers = (iv, t) => iv.b - iv.a >= 1 - EPS || mod1(t - iv.a) < iv.b - iv.a
 
 /**
- * The ring at `kcal`, as arcs covering the whole turn: [{from, to, kind, key}], from < to, in turns from the top.
- * kind: 'out' (deep blue: outside the calorie target, or no split fits), 'free' (green: no macro target says anything
+ * The ring at `kcal`, as arcs covering the whole turn: [{from, to, kind, key, dim}], from < to, in turns from the top.
+ * `dim`: the ring is outside the calorie target (drawn faded: the macros' split still shows, to plan by).
+ * kind: 'out' (deep blue: no split fits the macros' targets), 'free' (green: no macro target says anything
  * here), 'core' (a macro's minimum: its colour), 'flank' (from its minimum out to its maximum, half on each side:
  * brighter), 'shared' (two macros' flanks overlap: grey). A minimum always wins over another macro's flank (that
  * macro can't reach it). The third macro, when all three have targets, sits halfway between the other two's cores.
  */
 export function ringSegments(model, kcal) {
   const ring = ringShares(model, kcal)
-  if (ring.out) return [{ from: 0, to: 1, kind: 'out', key: ring.out }]
+  if (ring.out) return [{ from: 0, to: 1, kind: 'out', key: null, dim: false }]
+  const dim = !!ring.calories
   const [A, B, C] = ring.shares
   const iv = []
   const put = (c, w, x, core) => w > EPS && iv.push({ a: c - w / 2, b: c + w / 2, key: x.m.key, core })
@@ -101,7 +103,7 @@ export function ringSegments(model, kcal) {
       : keys.size === 1 ? { kind: 'flank', key: [...keys][0] } : { kind: 'shared', key: null }
     const last = out[out.length - 1]
     if (last && last.kind === seg.kind && last.key === seg.key) last.to = to
-    else out.push({ from, to, ...seg })
+    else out.push({ from, to, ...seg, dim })
   }
   return out
 }
@@ -137,10 +139,9 @@ const pct = (x) => `${Math.round(x * 100)}%`
 /** One line on the ring at `kcal`: "Protein 19–29% · Fat 20–35%", or why no split is allowed there. */
 export function ringText(model, kcal) {
   const ring = ringShares(model, kcal)
-  if (ring.out === 'under') return 'below the calorie min'
-  if (ring.out === 'over') return 'above the calorie max'
   if (ring.out) return "the macros' targets can't all be met"
   const span = (x) => (x.hi - x.lo < 0.005 ? pct(x.lo) : x.lo < 0.005 ? `≤ ${pct(x.hi)}` : x.hi > 0.995 ? `≥ ${pct(x.lo)}` : `${pct(x.lo)}–${pct(x.hi)}`)
   const parts = ring.shares.filter((x) => x.restricted).map((x) => `${x.m.label} ${span(x)}`)
-  return parts.length ? parts.join(' · ') : 'any split'
+  const calories = ring.calories === 'under' ? 'below the calorie min' : ring.calories === 'over' ? 'above the calorie max' : null
+  return [calories, ...(parts.length || !calories ? [parts.length ? parts.join(' · ') : 'any split'] : [])].filter(Boolean).join(' · ')
 }

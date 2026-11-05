@@ -24,7 +24,8 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
-| 2026-11-05 | [Energy pie: disallowed rings deep blue, not striped red](2026-11-05-pie-blue.md) | accepted |
+| 2026-11-05 | [Energy pie: outside the calorie target, the macros' split faded](2026-11-05-pie-faded.md) | accepted |
+| 2026-11-05 | [Energy pie: disallowed rings deep blue, not striped red](2026-11-05-pie-blue.md) | accepted; calorie zones superseded by [pie-faded](2026-11-05-pie-faded.md) |
 | 2026-11-05 | [Dashboard style "energy pie": calories as the radius, the macros' shares as angles](2026-11-05-energy-pie.md) | accepted; three macros open; red zones superseded by [pie-blue](2026-11-05-pie-blue.md) |
 | 2026-11-03 | [Time graphs: the days slider in months, weeks and days](2026-11-03-graph-slider-stops.md) | accepted |
 | 2026-11-03 | [Time graphs: only the estimate's interval coloured](2026-11-03-graph-columns-interval.md) | accepted |
