@@ -37,11 +37,17 @@ export function pieFull(model, val) {
  * The share of energy (0–1) each macro may take on the ring at `kcal`: {shares: [{m, lo, hi, hasMax, restricted}],
  * calories}, the shares in the model's order, each range narrowed by what the others leave (protein ≤ 1 − fat's min −
  * carbs' min, and so on); `calories` 'under' / 'over' when the ring is below the calorie min / above the max (the
- * shares still hold, for planning), else null. {out: true} when the macros' targets can't fit (their minimums over
+ * shares still hold, for planning; below the min, the min's), else null. {out: true} when the macros' targets can't fit (their minimums over
  * 100%, a min over its max, or all three maxes under 100%).
  */
 export function ringShares(model, kcal) {
   const { min, max } = model.energy
+  // Below the calorie min: the split the min's ring allows, at every radius (radial lines from the centre): eating
+  // less in the same proportions as a plan that meets the targets once the min is reached.
+  if (has(min) && min > 0 && kcal < min) {
+    const atMin = ringShares(model, min)
+    return atMin.out ? atMin : { ...atMin, calories: 'under' }
+  }
   if (!(kcal > 0)) return { out: true }
   const calories = has(min) && kcal < min ? 'under' : has(max) && kcal > max ? 'over' : null
   const s = model.order.map((m) => {

@@ -27,7 +27,8 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
   carbs targets allow: deep blue (#000421) where the macros can't fit; green where no macro target applies; a macro's
   min in its colour, centred (first restricted macro on top, second at the bottom), brighter flanks out to its max,
   half each side; overlapping flanks grey; a third restricted macro split on the sides (provisional: see the
-  execution log). Below the calorie min and above the max: the same, faded (to plan by). What was eaten: a
+  execution log). Above the calorie max: the same, faded (to plan by); below the min: the min's split, faded (radial
+  lines). What was eaten: a
   white-edged ring at its kcal, split by the macros eaten, the interval as dashed circles. Pointing reads a ring.
   Below: bars for the other nutrients with a target.
 - Daily calories: the target moves by what the 6 days before missed, so the 7 days average to it, within caps (config). Optionally a grey ghost of the uncapped correction. Δ Budget: what's left to eat (bars: a segment from the range's high end to the max).
