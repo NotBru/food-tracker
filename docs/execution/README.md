@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-05 | [Dashboard style "energy pie": calories as the radius, the macros' shares as angles](2026-11-05-energy-pie.md) | accepted; three macros open |
 | 2026-11-03 | [Time graphs: the days slider in months, weeks and days](2026-11-03-graph-slider-stops.md) | accepted |
 | 2026-11-03 | [Time graphs: only the estimate's interval coloured](2026-11-03-graph-columns-interval.md) | accepted |
 | 2026-11-03 | [Food searches: foods already eaten first](2026-11-03-search-used-first.md) | accepted |

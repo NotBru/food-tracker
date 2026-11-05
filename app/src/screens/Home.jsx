@@ -1,11 +1,12 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { exportAll, importAll } from '../db'
-import { barScale } from '../calc'
+import { barScale, targetBar } from '../calc'
 import { calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf, zero } from '../stats'
 import { WINDOWS, WINDOW_NAMES, addDays, daysBetween, versionStamp } from '../time'
-import { barFor, barNotes, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
+import { ROWS, barFor, barNotes, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
+import { PIE_MACROS, eatenArcs, pieFull, pieModel, ringSegments, ringText } from '../pie'
 import { Chevron, go, replace, useToday } from '../components'
 import { getState } from '../backup'
 import { SyncStatus } from './Backup'
@@ -300,6 +301,164 @@ function GaugeTile({ row: r, val, range, adj, onOpen }) {
   )
 }
 
+// --- Pie -----------------------------------------------------------------------
+// Dashboard style "pie" (pie.js): calories as the radius, the macros' shares of them as angles. Drawn on a canvas
+// pixel by pixel, one ring per pixel of radius (the shares' edges curve: a share of grams shrinks as the ring grows),
+// then what was eaten on top: a white-edged ring at the calories eaten, split by the macros' shares; the calories'
+// interval as two dashed circles (a ring as thick as the interval hid the targets under it).
+
+const rgb = (s) => {
+  const h = s.trim().replace('#', '')
+  return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16))
+}
+const mix = (a, b, t) => a.map((x, i) => Math.round(x * t + b[i] * (1 - t)))
+const css = (c) => `rgb(${c.join(' ')})`
+
+/** The pie's colours from the app's colour variables, mixed with the tile's background. */
+function piePalette() {
+  const style = getComputedStyle(document.documentElement)
+  const v = (n) => rgb(style.getPropertyValue(`--${n}`))
+  const bg = v('panel-2')
+  const tones = Object.fromEntries(['prot', 'fat', 'carb', 'muted'].map((t) => [t, v(t)]))
+  return {
+    // Red zones are striped, so they don't pass for protein (coral).
+    out: mix([248, 81, 73], bg, 0.3), outStripe: mix([248, 81, 73], bg, 0.65),
+    free: mix(v('kcal'), bg, 0.4), shared: mix(v('muted'), bg, 0.6),
+    core: Object.fromEntries(PIE_MACROS.map((m) => [m.key, tones[m.tone]])),
+    flank: Object.fromEntries(PIE_MACROS.map((m) => [m.key, mix(tones[m.tone], [255, 255, 255], 0.5)])),
+    tone: tones, range: v('range'),
+  }
+}
+const segColour = (pal, s) => (s.kind === 'core' || s.kind === 'flank' ? pal[s.kind][s.key] : pal[s.kind])
+
+const RING = 9 // px: the eaten ring's thickness
+
+function PieCanvas({ model, val, total, onPoint }) {
+  const [boxRef, width] = useWidth()
+  const ref = useRef(null)
+  const full = pieFull(model, val)
+  const [lo, hi] = bounds(val)
+  const arcs = eatenArcs(model, total)
+  const key = JSON.stringify([model.targets, full, val.value, lo, hi, arcs])
+  useLayoutEffect(() => {
+    const cv = ref.current
+    if (!cv || !width) return
+    const k = Math.max(2, devicePixelRatio || 1) // at least 2× and scaled down: smoother edges
+    const n = Math.round(width * k)
+    cv.width = cv.height = n
+    const ctx = cv.getContext('2d')
+    const pal = piePalette()
+    const R = n / 2
+    const img = ctx.createImageData(n, n)
+    const rings = []
+    for (let y = 0; y < n; y++) {
+      for (let x = 0; x < n; x++) {
+        const dx = x + 0.5 - R
+        const dy = y + 0.5 - R
+        const r = Math.hypot(dx, dy)
+        if (r > R) continue
+        const i = Math.floor(r)
+        const segs = (rings[i] ??= ringSegments(model, ((i + 0.5) / R) * full))
+        let t = Math.atan2(dx, -dy) / (2 * Math.PI)
+        if (t < 0) t += 1
+        const seg = segs.find((s) => t < s.to) ?? segs[segs.length - 1]
+        const c = seg.kind === 'out' && (x + y) % (8 * k) < 3 * k ? pal.outStripe : segColour(pal, seg)
+        const o = (y * n + x) * 4
+        img.data[o] = c[0]
+        img.data[o + 1] = c[1]
+        img.data[o + 2] = c[2]
+        img.data[o + 3] = Math.round(Math.min(1, R - r) * 255) // the disc's edge, anti-aliased
+      }
+    }
+    ctx.putImageData(img, 0, 0)
+    if (!arcs.length) return
+    const at = (kcal) => (kcal / full) * R
+    // The calories' interval: two thin dashed circles at its ends, in the dashboard's range colour.
+    ctx.setLineDash([4 * k, 3 * k])
+    ctx.lineWidth = 1.5 * k
+    ctx.strokeStyle = css(pal.range)
+    if (hi > lo) for (const kcal of [lo, hi]) {
+      ctx.beginPath()
+      ctx.arc(R, R, at(kcal), 0, 2 * Math.PI)
+      ctx.stroke()
+    }
+    ctx.setLineDash([])
+    // The estimate: a ring split by what was eaten, edged in white.
+    const thick = RING * k
+    const mid = Math.min(R - thick / 2, Math.max(thick / 2, at(val.value)))
+    const ang = (turns) => turns * 2 * Math.PI - Math.PI / 2
+    ctx.lineWidth = thick
+    for (const a of arcs) {
+      ctx.strokeStyle = css(pal.tone[a.tone])
+      ctx.beginPath()
+      ctx.arc(R, R, mid, ang(a.from), ang(a.to))
+      ctx.stroke()
+    }
+    ctx.strokeStyle = '#fff'
+    ctx.lineWidth = 1.5 * k
+    for (const r of [mid - thick / 2, mid + thick / 2]) {
+      if (r <= 0) continue
+      ctx.beginPath()
+      ctx.arc(R, R, r, 0, 2 * Math.PI)
+      ctx.stroke()
+    }
+  }, [width, key]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Pointing (hover with a mouse, a tap on a phone) reads the ring under it.
+  const point = (e) => {
+    const box = e.currentTarget.getBoundingClientRect()
+    const r = Math.hypot(e.clientX - box.left - box.width / 2, e.clientY - box.top - box.height / 2)
+    onPoint(r <= box.width / 2 ? (r / (box.width / 2)) * full : null)
+  }
+  return (
+    <div className="pie-box" ref={boxRef}>
+      <canvas ref={ref} onPointerMove={point} onPointerDown={point} onPointerLeave={(e) => e.pointerType === 'mouse' && onPoint(null)}
+        role="img" aria-label="Calories as the radius, the macros' shares of them by angle" />
+    </div>
+  )
+}
+
+/**
+ * Dashboard style "pie": calories, protein, fat and carbs in one pie (PieCanvas), a line reading the ring at what
+ * was eaten (or the one pointed at), a legend; then bars for any other nutrient with a target.
+ */
+function PieDash({ data, open }) {
+  const [pointed, setPointed] = useState(null)
+  const model = pieModel(data.targets)
+  const kcal = calories(data.total)
+  const at = pointed ?? (kcal.value > 0 ? kcal.value : null)
+  const macroKcal = PIE_MACROS.reduce((s, m) => s + m.kcal * Math.max(0, data.total[m.key]?.value || 0), 0)
+  const rows = [
+    { ...ROWS[0], val: kcal },
+    ...PIE_MACROS.map((m) => ({ ...ROWS.find((r) => r.key === m.key), val: data.total[m.key] ?? zero(), share: macroKcal > 0 ? (m.kcal * Math.max(0, data.total[m.key]?.value || 0)) / macroKcal : null })),
+  ]
+  const others = data.rows.filter((r) => !ROWS.some((x) => x.key === r.key) && (Number.isFinite(data.targets[r.key]?.min) || Number.isFinite(data.targets[r.key]?.max)))
+  return (
+    <>
+      <div className="pie-tile">
+        <PieCanvas model={model} val={kcal} total={data.total} onPoint={setPointed} />
+        <p className="pie-readout">{at == null ? '\u00a0' : <><b>{fmt(at, 0)} kcal</b>{pointed == null && ' (eaten)'}: {ringText(model, at)}</>}</p>
+        <div className="pie-legend">
+          {rows.map((r) => {
+            const range = data.targets[r.key]
+            const bar = targetBar(r.val, range)
+            return (
+              <div key={r.key} className="pie-row" role="button" tabIndex={0} onClick={() => open(r.key)} onKeyDown={enterOpen(() => open(r.key))}>
+                <span className={`pie-name ${r.cls}`}>{r.label}</span>
+                <span className="num"><b>{r.val.estimated ? '~' : ''}{fmt(r.val.value, 0)}</b> <span className="muted">{pmText(r.val, 0)} {r.unit}</span></span>
+                <span className="num muted">{r.share != null ? `${Math.round(r.share * 100)}%` : ''}</span>
+                <span className={`pie-target ${bar?.status ?? ''}`}>{bar ? <>{rangeLabel(range)} {statusMark(bar.status)}</> : ''}</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      {others.map((r) => (
+        <BarRow key={r.key} row={r} val={data.total[r.key] ?? zero()} range={data.targets[r.key]} adj={data.adj} onOpen={() => open(r.key)} />
+      ))}
+    </>
+  )
+}
+
 /**
  * The window and the picked day live in the URL (`#/?win=weekly&day=2026-10-15`), so going back from a screen
  * opened here (breakdown, consumptions) returns to the same view. No `day` = today, following midnight.
@@ -363,6 +522,7 @@ export default function Home({ query = {} }) {
   const data = useLiveQuery(() => loadDashboard({ win, day, picked }), [win, day, picked])
 
   const otherDay = win === 'daily' && back !== 0 && data ? data.first : null
+  const openBreakdown = (key) => go(`/breakdown/${key}?from=${data.first}&to=${data.last}&win=${win}`)
   const shift = (d) => setView(WINDOWS[(winIdx + d + WINDOWS.length) % WINDOWS.length], picked)
   const stepDay = (n) => day && setView(win, addDays(picked ?? day, n))
   const onTouchEnd = (e) => {
@@ -426,11 +586,11 @@ export default function Home({ query = {} }) {
       <main className="home-main">
         {data && (
           <section className={`dashboard ${data.style}`}>
-            {data.rows.map((r) => {
+            {data.style === 'pie' ? <PieDash data={data} open={openBreakdown} /> : data.rows.map((r) => {
               const n = data.total[r.key]
               const val = r.key === 'energy' ? calories(data.total) : n ?? zero()
               const Item = data.style === 'bars' ? BarRow : GaugeTile
-              return <Item key={r.key} row={r} val={val} range={data.targets[r.key]} adj={data.adj} onOpen={() => go(`/breakdown/${r.key}?from=${data.first}&to=${data.last}&win=${win}`)} />
+              return <Item key={r.key} row={r} val={val} range={data.targets[r.key]} adj={data.adj} onOpen={() => openBreakdown(r.key)} />
             })}
             <p className="muted">
               {data.count} consumption{data.count === 1 ? '' : 's'}

@@ -306,7 +306,7 @@ export function migrateV1({ ingredients = [], recipes = [], concoctions = [], co
 
 export const DEFAULT_CONFIG = {
   dayStart: '05:00',
-  dashboard: 'gauges', // 'gauges' (2-column tiles) or 'bars' (one row per nutrient)
+  dashboard: 'gauges', // 'gauges' (2-column tiles), 'bars' (one row per nutrient) or 'pie' (calories and macros in one pie, pie.js)
   showVersion: false, // homescreen: the app version's build date, YYYYMMDDHHmm
   onlyTargets: false, // dashboard: only the nutrients a target mentions (else calories, protein, fat and carbs always too)
   coverage: 0.9, // share of the probability the error intervals hold

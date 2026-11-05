@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 import { DEFAULT_CONFIG, getConfig } from '../db'
 import { REFERENCE_DBS, configForm, pct, saveConfigForm } from '../forms'
-import { Field, Screen, enterSaves, go } from '../components'
+import { Field, Screen, Select, enterSaves, go } from '../components'
+
+const DASHBOARD_STYLES = [
+  { value: 'gauges', label: 'Gauges' },
+  { value: 'bars', label: 'Bars' },
+  { value: 'pie', label: 'Energy pie (calories, protein, fat, carbs)' },
+]
 
 export default function Config() {
   const [form, setForm] = useState(null)
@@ -26,15 +32,9 @@ export default function Config() {
         <Field label="Day starts at (meals before this count for the previous day)">
           <input type="time" value={form.dayStart} onChange={(e) => setForm({ ...form, dayStart: e.target.value })} />
         </Field>
-        <div className="field">
-          <span>Dashboard style</span>
-          <div className="segmented" role="radiogroup" aria-label="Dashboard style">
-            {[['gauges', 'Gauges'], ['bars', 'Bars']].map(([v, label]) => (
-              <button key={v} role="radio" aria-checked={form.dashboard === v} className={form.dashboard === v ? 'on' : ''}
-                onClick={() => setForm({ ...form, dashboard: v })}>{label}</button>
-            ))}
-          </div>
-        </div>
+        <Field label="Dashboard style">
+          <Select value={form.dashboard} options={DASHBOARD_STYLES} onChange={(v) => setForm({ ...form, dashboard: v })} />
+        </Field>
         <Field label="Error intervals hold (% of the probability)">
           <input inputMode="decimal" value={form.coverage} placeholder={pct(DEFAULT_CONFIG.coverage)}
             onChange={(e) => setForm({ ...form, coverage: e.target.value })} />
