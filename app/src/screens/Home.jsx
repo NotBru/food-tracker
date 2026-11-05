@@ -322,7 +322,7 @@ function piePalette() {
   const tones = Object.fromEntries(['prot', 'fat', 'carb', 'muted'].map((t) => [t, v(t)]))
   return {
     // Where no split is allowed (outside the calorie target, or the macros can't fit): deep blue, plain.
-    out: [30, 50, 140],
+    out: rgb('#000421'),
     free: mix(v('kcal'), bg, 0.4), shared: mix(v('muted'), bg, 0.6),
     core: Object.fromEntries(PIE_MACROS.map((m) => [m.key, tones[m.tone]])),
     flank: Object.fromEntries(PIE_MACROS.map((m) => [m.key, mix(tones[m.tone], [255, 255, 255], 0.5)])),
