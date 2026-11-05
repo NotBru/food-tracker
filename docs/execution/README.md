@@ -24,10 +24,11 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-05 | [Energy pie: a switch, a square tile among the others](2026-11-05-pie-switch.md) | accepted |
 | 2026-11-05 | [Energy pie: below the calorie min, the min's split (radial lines)](2026-11-05-pie-under-radial.md) | accepted |
 | 2026-11-05 | [Energy pie: outside the calorie target, the macros' split faded](2026-11-05-pie-faded.md) | accepted; below the min superseded by [pie-under-radial](2026-11-05-pie-under-radial.md) |
 | 2026-11-05 | [Energy pie: disallowed rings deep blue, not striped red](2026-11-05-pie-blue.md) | accepted; calorie zones superseded by [pie-faded](2026-11-05-pie-faded.md) |
-| 2026-11-05 | [Dashboard style "energy pie": calories as the radius, the macros' shares as angles](2026-11-05-energy-pie.md) | accepted; three macros open; red zones superseded by [pie-blue](2026-11-05-pie-blue.md) |
+| 2026-11-05 | [Dashboard style "energy pie": calories as the radius, the macros' shares as angles](2026-11-05-energy-pie.md) | accepted; three macros open; red zones superseded by [pie-blue](2026-11-05-pie-blue.md); style and layout by [pie-switch](2026-11-05-pie-switch.md) |
 | 2026-11-03 | [Time graphs: the days slider in months, weeks and days](2026-11-03-graph-slider-stops.md) | accepted |
 | 2026-11-03 | [Time graphs: only the estimate's interval coloured](2026-11-03-graph-columns-interval.md) | accepted |
 | 2026-11-03 | [Food searches: foods already eaten first](2026-11-03-search-used-first.md) | accepted |

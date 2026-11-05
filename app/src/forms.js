@@ -189,6 +189,7 @@ export const pct = (p) => String(+(p * 100).toPrecision(4))
 export const configForm = (c) => ({
   dayStart: c.dayStart, dashboard: c.dashboard, coverage: pct(c.coverage), ciqual: c.ciqual, usda: c.usda,
   capMin: String(c.adjCap.min), capMax: String(c.adjCap.max), adjGhost: c.adjGhost, showVersion: c.showVersion, onlyTargets: c.onlyTargets,
+  pie: c.pie,
 })
 
 export async function saveConfigForm(form) {
@@ -201,6 +202,7 @@ export async function saveConfigForm(form) {
   await saveConfig({
     dayStart: form.dayStart || DEFAULT_CONFIG.dayStart, dashboard: form.dashboard, coverage: p, ciqual: form.ciqual, usda: form.usda,
     adjCap, adjGhost: form.adjGhost, showVersion: form.showVersion, onlyTargets: !!form.onlyTargets,
+    pie: !!form.pie,
   })
   return null
 }

@@ -6,7 +6,6 @@ import { Field, Screen, Select, enterSaves, go } from '../components'
 const DASHBOARD_STYLES = [
   { value: 'gauges', label: 'Gauges' },
   { value: 'bars', label: 'Bars' },
-  { value: 'pie', label: 'Energy pie (calories, protein, fat, carbs)' },
 ]
 
 export default function Config() {
@@ -58,6 +57,13 @@ export default function Config() {
               <span><strong>Dashboard: only nutrients with a target</strong><small className="muted">Off: calories, protein, fat and carbs are always shown, with or without a target.</small></span>
               <input type="checkbox" role="switch" className="switch" checked={form.onlyTargets}
                 onChange={(e) => setForm({ ...form, onlyTargets: e.target.checked })} />
+            </label>
+          </li>
+          <li>
+            <label>
+              <span><strong>Dashboard: energy pie</strong><small className="muted">Calories, protein, fat and carbs in one pie, as the dashboard's first tile.</small></span>
+              <input type="checkbox" role="switch" className="switch" checked={form.pie}
+                onChange={(e) => setForm({ ...form, pie: e.target.checked })} />
             </label>
           </li>
           <li>

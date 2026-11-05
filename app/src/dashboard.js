@@ -130,7 +130,7 @@ export async function loadDashboard({ win, day, picked }) {
   const extra = NUTRIENTS.filter((n) => targeted.has(n.key) && !ROWS.some((r) => r.key === n.key))
     .map((n) => ({ key: n.key, label: n.label, unit: n.unit, cls: '' }))
   return {
-    user, first, last, count: logs.length, days: logged.length, targets, adj, rows: [...ROWS.filter((r) => !config.onlyTargets || targeted.has(r.key)), ...extra], style: config.dashboard, showVersion: config.showVersion,
+    user, first, last, count: logs.length, days: logged.length, targets, adj, rows: [...ROWS.filter((r) => !config.onlyTargets || targeted.has(r.key)), ...extra], style: config.dashboard, pie: config.pie, showVersion: config.showVersion,
     failed: results.filter((r) => !r.ok).length,
     total: perDay(sumNutrients(results.map((r) => r.nutrients)), daily ? 1 : Math.max(1, logged.length)),
   }

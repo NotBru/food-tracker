@@ -429,44 +429,19 @@ function PieCanvas({ model, val, total, onPoint }) {
 }
 
 /**
- * Dashboard style "pie": calories, protein, fat and carbs in one pie (PieCanvas), a line reading the ring at what
- * was eaten (or the one pointed at), a legend; then bars for any other nutrient with a target.
+ * The energy pie tile (Config switch): calories, protein, fat and carbs in one square pie (PieCanvas), as wide as
+ * the other tiles, the first of the dashboard; a line under it reads the ring at what was eaten (or the one pointed at).
  */
-function PieDash({ data, open }) {
+function PieTile({ data }) {
   const [pointed, setPointed] = useState(null)
   const model = pieModel(data.targets)
   const kcal = calories(data.total)
   const at = pointed ?? (kcal.value > 0 ? kcal.value : null)
-  const macroKcal = PIE_MACROS.reduce((s, m) => s + m.kcal * Math.max(0, data.total[m.key]?.value || 0), 0)
-  const rows = [
-    { ...ROWS[0], val: kcal },
-    ...PIE_MACROS.map((m) => ({ ...ROWS.find((r) => r.key === m.key), val: data.total[m.key] ?? zero(), share: macroKcal > 0 ? (m.kcal * Math.max(0, data.total[m.key]?.value || 0)) / macroKcal : null })),
-  ]
-  const others = data.rows.filter((r) => !ROWS.some((x) => x.key === r.key) && (Number.isFinite(data.targets[r.key]?.min) || Number.isFinite(data.targets[r.key]?.max)))
   return (
-    <>
-      <div className="pie-tile">
-        <PieCanvas model={model} val={kcal} total={data.total} onPoint={setPointed} />
-        <p className="pie-readout">{at == null ? '\u00a0' : <><b>{fmt(at, 0)} kcal</b>{pointed == null && ' (eaten)'}: {ringText(model, at)}</>}</p>
-        <div className="pie-legend">
-          {rows.map((r) => {
-            const range = data.targets[r.key]
-            const bar = targetBar(r.val, range)
-            return (
-              <div key={r.key} className="pie-row" role="button" tabIndex={0} onClick={() => open(r.key)} onKeyDown={enterOpen(() => open(r.key))}>
-                <span className={`pie-name ${r.cls}`}>{r.label}</span>
-                <span className="num"><b>{r.val.estimated ? '~' : ''}{fmt(r.val.value, 0)}</b> <span className="muted">{pmText(r.val, 0)} {r.unit}</span></span>
-                <span className="num muted">{r.share != null ? `${Math.round(r.share * 100)}%` : ''}</span>
-                <span className={`pie-target ${bar?.status ?? ''}`}>{bar ? <>{rangeLabel(range)} {statusMark(bar.status)}</> : ''}</span>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-      {others.map((r) => (
-        <BarRow key={r.key} row={r} val={data.total[r.key] ?? zero()} range={data.targets[r.key]} adj={data.adj} onOpen={() => open(r.key)} />
-      ))}
-    </>
+    <div className="pie-tile">
+      <PieCanvas model={model} val={kcal} total={data.total} onPoint={setPointed} />
+      <p className="pie-readout">{at == null ? '\u00a0' : <><b>{fmt(at, 0)} kcal</b>{pointed == null && ' (eaten)'}: {ringText(model, at)}</>}</p>
+    </div>
   )
 }
 
@@ -596,8 +571,9 @@ export default function Home({ query = {} }) {
       {/* Only the dashboard scrolls; the header and the buttons stay in view. */}
       <main className="home-main">
         {data && (
-          <section className={`dashboard ${data.style}`}>
-            {data.style === 'pie' ? <PieDash data={data} open={openBreakdown} /> : data.rows.map((r) => {
+          <section className={`dashboard ${data.style}${data.pie ? ' with-pie' : ''}`}>
+            {data.pie && <PieTile data={data} />}
+            {data.rows.map((r) => {
               const n = data.total[r.key]
               const val = r.key === 'energy' ? calories(data.total) : n ?? zero()
               const Item = data.style === 'bars' ? BarRow : GaugeTile
