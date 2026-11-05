@@ -47,6 +47,8 @@ listed are the web app's screens.
 - Scan the backup secret's QR code in the app.
 - Time graphs: the days slider's stops, 12 months … 1 month, 3 weeks, 2 weeks, 13 … 1 days (graphs.js `SLIDER_STOPS`,
   `stopDays`, `stopIndex`; core.js to pass them). Until then it's 1–180 days (`MAX_SLIDER`).
+- Text boxes: tapping one puts the cursor at the end of its text, to delete leftwards.
+- Attributes: neither the key nor the value starts capitalized when tapped.
 - Food searches: foods already eaten first (search.js, calc.js `loadContext` `used`): comes with the next build, nothing to port.
 
 ## Build, install, update
