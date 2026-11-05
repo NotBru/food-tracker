@@ -321,8 +321,8 @@ function piePalette() {
   const bg = v('panel-2')
   const tones = Object.fromEntries(['prot', 'fat', 'carb', 'muted'].map((t) => [t, v(t)]))
   return {
-    // Red zones are striped, so they don't pass for protein (coral).
-    out: mix([248, 81, 73], bg, 0.3), outStripe: mix([248, 81, 73], bg, 0.65),
+    // Where no split is allowed (outside the calorie target, or the macros can't fit): deep blue, plain.
+    out: [30, 50, 140],
     free: mix(v('kcal'), bg, 0.4), shared: mix(v('muted'), bg, 0.6),
     core: Object.fromEntries(PIE_MACROS.map((m) => [m.key, tones[m.tone]])),
     flank: Object.fromEntries(PIE_MACROS.map((m) => [m.key, mix(tones[m.tone], [255, 255, 255], 0.5)])),
@@ -362,7 +362,7 @@ function PieCanvas({ model, val, total, onPoint }) {
         let t = Math.atan2(dx, -dy) / (2 * Math.PI)
         if (t < 0) t += 1
         const seg = segs.find((s) => t < s.to) ?? segs[segs.length - 1]
-        const c = seg.kind === 'out' && (x + y) % (8 * k) < 3 * k ? pal.outStripe : segColour(pal, seg)
+        const c = segColour(pal, seg)
         const o = (y * n + x) * 4
         img.data[o] = c[0]
         img.data[o + 1] = c[1]

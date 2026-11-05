@@ -64,7 +64,7 @@ const covers = (iv, t) => iv.b - iv.a >= 1 - EPS || mod1(t - iv.a) < iv.b - iv.a
 
 /**
  * The ring at `kcal`, as arcs covering the whole turn: [{from, to, kind, key}], from < to, in turns from the top.
- * kind: 'out' (red: outside the calorie target, or no split fits), 'free' (green: no macro target says anything
+ * kind: 'out' (deep blue: outside the calorie target, or no split fits), 'free' (green: no macro target says anything
  * here), 'core' (a macro's minimum: its colour), 'flank' (from its minimum out to its maximum, half on each side:
  * brighter), 'shared' (two macros' flanks overlap: grey). A minimum always wins over another macro's flank (that
  * macro can't reach it). The third macro, when all three have targets, sits halfway between the other two's cores.
@@ -134,7 +134,7 @@ export function eatenArcs(model, total) {
 
 const pct = (x) => `${Math.round(x * 100)}%`
 
-/** One line on the ring at `kcal`: "Protein 19–29% · Fat 20–35%", or why it's red. */
+/** One line on the ring at `kcal`: "Protein 19–29% · Fat 20–35%", or why no split is allowed there. */
 export function ringText(model, kcal) {
   const ring = ringShares(model, kcal)
   if (ring.out === 'under') return 'below the calorie min'

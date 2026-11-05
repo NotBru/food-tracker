@@ -1,7 +1,7 @@
 # Dashboard style "energy pie": calories as the radius, the macros' shares as angles
 
 - **Date:** 2026-11-05
-- **Status:** accepted; three restricted macros provisional (open question)
+- **Status:** accepted; three restricted macros provisional (open question); red zones superseded by [pie-blue](2026-11-05-pie-blue.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (Homescreen, Config screen)
 
 ## Context

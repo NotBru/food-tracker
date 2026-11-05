@@ -24,7 +24,7 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
   turned off).
 - Dashboard first, showing in colorful plain text how much has been eaten in the selected time window. Time windows are changed by swiping left/right on a header for the dashboard, which shows the selected time window. Options: daily, last 7 days, weekly, monthly. Daily has day arrows and a "Today" button, up to tomorrow. Longer windows show per-day averages. If set up, show whether the target is being reached: a gauge or progress bar per nutrient, tinted below min, within range and above max. The error range is a hatched band, and a target only counts as reached if the whole range is within it. Hovering a bar shows the amount under the cursor. Bars: slim rows; every number is a note at its place on the bar: the value and its range's ends above, the target's min and max below, each lane on one line, the notes a minimum distance apart (never overlapping); without a target, a grey bar on the same scale.
 - Energy pie (style): radius = kcal; each ring split by the share of its energy (4/9/4 kcal/g) the protein, fat and carbs
-  targets allow: red below the calorie min, above the max, or where the macros can't fit; green where no macro target
+  targets allow: deep blue below the calorie min, above the max, or where the macros can't fit; green where no macro target
   applies; a macro's min in its colour, centred (first restricted macro on top, second at the bottom), brighter
   flanks out to its max, half each side; overlapping flanks grey; a third restricted macro split on the sides
   (provisional: see the execution log). What was eaten: a white-edged ring at its kcal, split by the macros eaten,
