@@ -45,8 +45,6 @@ listed are the web app's screens.
 ## Next port
 
 - Scan the backup secret's QR code in the app.
-- Text boxes: tapping one puts the cursor at the end of its text, to delete leftwards.
-- Attributes: neither the key nor the value starts capitalized when tapped.
 - Food searches: foods already eaten first (search.js, calc.js `loadContext` `used`): comes with the next build, nothing to port.
 
 ## Build, install, update

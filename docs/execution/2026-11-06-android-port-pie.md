@@ -1,4 +1,4 @@
-# Android port (2026-11-06): energy pie, Config blocks, slider stops, …
+# Android port (2026-11-06): energy pie, Config blocks, slider stops, text boxes, …
 
 - **Date:** 2026-11-06
 - **Status:** accepted
@@ -39,6 +39,14 @@ core.js sends the stops (graphs.js `SLIDER_STOPS`) as days ending on the window'
 at (`stopIndex`); the native slider steps through them (no tick marks, as the web's range input) and sets the
 stop's days when let go. `MAX_SLIDER` (1–180 days, the native slider until now) is gone. Checked on the emulator:
 11 months → 335 days, 10 → 304, the right end → 1 day.
+
+### Text boxes
+
+From `android/README.md` Next port (the user's, 2026-11-03): tapping into a text box puts the cursor at the end of
+its text, wherever the tap was (to delete leftwards); taps once inside place it as usual. `TextBox` keeps the text
+with its selection and, for 0.6 s after gaining focus, moves a tap's cursor to the end. Attributes' key and value
+boxes aren't capitalized. Checked on the emulator (a new food, not saved): "abcdef", tap in the middle from another
+box, type → "abcdefX"; tap in the middle again → "abYcdefX"; the attribute boxes' keyboard without caps.
 
 ## Consequences
 

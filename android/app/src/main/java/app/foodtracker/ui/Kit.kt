@@ -68,7 +68,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -311,11 +313,36 @@ fun TextBox(
 ) {
     var focused by remember { mutableStateOf(false) }
     val focus = LocalFocusManager.current
+    // The text with its cursor. Tapping into the box puts the cursor at the end of the text, wherever the tap was (to
+    // delete leftwards); once in, taps place it as usual.
+    var field by remember { mutableStateOf(TextFieldValue(value, TextRange(value.length))) }
+    if (field.text != value) field = TextFieldValue(value, TextRange(value.length))
+    var focusedAt by remember { mutableStateOf(0L) }
     BasicTextField(
-        value, onChange,
+        field,
+        { next ->
+            val justIn = android.os.SystemClock.uptimeMillis() - focusedAt < 600
+            if (justIn && next.text == field.text) {
+                focusedAt = 0
+                field = next.copy(selection = TextRange(next.text.length))
+            } else {
+                if (next.text != field.text) focusedAt = 0
+                field = next
+                if (next.text != value) onChange(next.text)
+            }
+        },
         modifier.fillMaxWidth()
             .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
-            .onFocusChanged { if (it.isFocused != focused) { focused = it.isFocused; onFocus(it.isFocused) } },
+            .onFocusChanged {
+                if (it.isFocused != focused) {
+                    focused = it.isFocused
+                    if (it.isFocused) {
+                        focusedAt = android.os.SystemClock.uptimeMillis()
+                        field = field.copy(selection = TextRange(field.text.length))
+                    }
+                    onFocus(it.isFocused)
+                }
+            },
         enabled = enabled,
         singleLine = singleLine,
         textStyle = textStyle,
@@ -477,8 +504,9 @@ fun AttributesEditor(value: List<Pair<String, String>>, onChange: (List<Pair<Str
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         value.forEachIndexed { i, (k, v) ->
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                TextBox(k, { t -> onChange(value.mapIndexed { j, p -> if (j == i) t to p.second else p }) }, Modifier.weight(1f), placeholder = "key")
-                TextBox(v, { t -> onChange(value.mapIndexed { j, p -> if (j == i) p.first to t else p }) }, Modifier.weight(1f), placeholder = "value")
+                // Not capitalized: keys and values are mostly lowercase ("size: small").
+                TextBox(k, { t -> onChange(value.mapIndexed { j, p -> if (j == i) t to p.second else p }) }, Modifier.weight(1f), placeholder = "key", capitalize = false)
+                TextBox(v, { t -> onChange(value.mapIndexed { j, p -> if (j == i) p.first to t else p }) }, Modifier.weight(1f), placeholder = "value", capitalize = false)
                 RoundIconButton("Remove", { onChange(value.filterIndexed { j, _ -> j != i }) }) { Text("×", color = C.text, fontSize = 20.sp) }
             }
         }
