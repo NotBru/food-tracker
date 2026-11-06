@@ -57,7 +57,7 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
 A scrollable list of consumptions for a specific day, with a calendar button that pops up a day
 selection. Each entry has a delete button.
 
-Clicking on a consumption shows its info (amount, food, energy donut by macro, nutrients); ✎ lets you edit its data:
+Clicking on a consumption shows its info (amount, food, energy donut by macro, nutrients); a printer button makes its food's nutrition label (as eaten); ✎ lets you edit its data:
 - Date and time (changing a date shouldn't change the screen you return to)
 - Food (Name, brand, attributes, optionally preparation time). Eaten-up and expired concoctions are hidden; a new concoction can be made and eaten in one go.
 - Amount, with Δ ("Max" for a concoction's leftover)

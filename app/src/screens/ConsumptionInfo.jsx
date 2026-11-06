@@ -5,18 +5,20 @@ import { consumptionNutrients, loadContext, resolve, span } from '../calc'
 import { amountText, fmt } from '../nutrients'
 import { DEFAULT_ENTRY_ERROR } from '../errors'
 import { formatDateTime } from '../time'
-import { MadeTag, MacroLine, Screen, go } from '../components'
+import { MadeTag, MacroLine, PrinterIcon, Screen, go } from '../components'
 import { Amount, NutrientTable } from './FoodInfo'
 import { ConsumptionEditor } from './Consumptions'
 import EnergyChart from './EnergyChart'
+import LabelSheet from './LabelSheet'
 
 // Info screen of one consumption (opened from the Consumptions list or a breakdown): everything for exactly the
 // amount eaten (amount ± Δ, as everywhere else), with its energy by macro on top (EnergyChart.jsx).
-// ✎ opens the usual editor sheet over it.
+// 🖨 opens the food's nutrition label (LabelSheet.jsx) at the amount eaten; ✎ opens the usual editor sheet over it.
 
 /** `nutrient` (opened from a breakdown) is passed on to the food's Info tab, which ranks its components by it. */
 export default function ConsumptionInfo({ id, nutrient }) {
   const [editing, setEditing] = useState(false)
+  const [printing, setPrinting] = useState(false)
   const data = useLiveQuery(async () => {
     const [log, ctx, config] = await Promise.all([db.logs.get(id), loadContext(), getConfig()])
     return { id, log, ctx, dayStart: config.dayStart }
@@ -31,7 +33,12 @@ export default function ConsumptionInfo({ id, nutrient }) {
 
   return (
     <Screen title={item ? itemLabel(item) : '(deleted item)'} subtitle={formatDateTime(log.datetime)}
-      right={<button className="icon" onClick={() => setEditing(true)} aria-label="Edit">✎</button>}>
+      right={
+        <span className="topbar-actions">
+          {item && <button className="icon" onClick={() => setPrinting(true)} aria-label="Nutrition label"><PrinterIcon /></button>}
+          <button className="icon" onClick={() => setEditing(true)} aria-label="Edit">✎</button>
+        </span>
+      }>
       <ul className="info-list">
         <li>
           <span>Amount eaten</span>
@@ -61,6 +68,7 @@ export default function ConsumptionInfo({ id, nutrient }) {
       <h3>Nutrients</h3>
       <NutrientTable nutrients={res.nutrients} />
 
+      {printing && <LabelSheet ctx={ctx} item={item} log={log} per={{ text: String(log.amount), unit: log.unit }} onClose={() => setPrinting(false)} />}
       {editing && (
         <ConsumptionEditor ctx={ctx} dayStart={data.dayStart} consumption={log}
           onClose={() => setEditing(false)} onDeleted={() => history.back()} />

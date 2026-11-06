@@ -62,3 +62,15 @@ User: "Make it include the energy-by-macro graph, and have it be dark themed."
 - The app's dark colours (`styles.css` `:root`): background, text, muted; thick rules in the text colour, row lines
   in the line colour. The preview in the sheet gets an outline, as it now matches the sheet's background.
 - Size unchanged: 1200 px wide, height by content (the Gula burger: 1200 × 3584).
+
+## Revision: the printer on a consumption's info too
+
+User: on Calories → Nalga they found no printer: that opens the consumption's info, and the printer was on the food's
+Info tab, a tap further (Food · info ›). "Add the printer to the meal data page".
+
+- The consumption's info screen: 🖨 left of ✎, the same sheet starting at "Eaten" (the food's amount a tap away).
+  Hidden for a deleted food.
+- Two buttons on the top bar's right: `.topbar-actions`; the bar's side columns widen to 88 px when it is there, so
+  the title stays centred.
+- Verified in headless Chromium (390, 1400 px): breakdown → consumption → 🖨 shows "Eaten: 150 ±5 g", 300 kcal as on
+  the screen; ✎ still opens the editor; a long name wraps beside the two buttons. No console errors.

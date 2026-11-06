@@ -52,6 +52,8 @@ button.link { background: none; color: var(--accent); padding: 4px 0; font-weigh
 .home-main > .menu { flex: none; margin-top: auto; } /* pinned to the bottom even when the dashboard is short */
 main { padding: 0 16px 32px; }
 .topbar { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; padding: 10px 12px; position: sticky; top: 0; background: var(--bg); z-index: 1; }
+.topbar:has(.topbar-actions) { grid-template-columns: 88px 1fr 88px; }
+.topbar-actions { display: flex; justify-content: flex-end; gap: 8px; }
 .topbar h1 { font-size: 18px; text-align: center; margin: 0; }
 .topbar h1 .subtitle { display: block; font-size: 13px; font-weight: 400; color: var(--muted); }
 
