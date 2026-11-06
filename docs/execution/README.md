@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-06 | [Barcode scanner for OFF, live graphs slider, emulator script](2026-11-06-scanner-live-graphs.md) | accepted |
 | 2026-11-06 | [Android port: energy pie, Config blocks, slider stops, text boxes, nutrition label](2026-11-06-android-port-pie.md) | accepted |
 | 2026-11-06 | [Food Info: a printer button makes a nutrition label image](2026-11-06-nutrition-label.md) | accepted |
 | 2026-11-06 | [Every unit but a measure defaults to an exact count](2026-11-06-count-units.md) | accepted |

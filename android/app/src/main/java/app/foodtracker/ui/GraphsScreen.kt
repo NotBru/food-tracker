@@ -20,6 +20,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -98,12 +99,23 @@ fun GraphsScreen(view: GraphsView?, core: Core, query: JsonObject) {
 @Composable
 private fun DaysRow(v: GraphsView, onSpan: (Int) -> Unit, onToday: () -> Unit) {
     var text by remember(v.span) { mutableStateOf(v.span.toString()) }
-    var slide by remember(v.span, v.stop) { mutableFloatStateOf(v.stop.toFloat()) }
+    // The graphs follow the slider as it moves (a new window at each stop), as the web's range input; while it's held,
+    // the views that arrive don't move its thumb back.
+    var slide by remember { mutableFloatStateOf(v.stop.toFloat()) }
+    var held by remember { mutableStateOf(false) }
+    LaunchedEffect(v.span, v.stop) { if (!held) slide = v.stop.toFloat() }
     val stopAt = { x: Float -> v.stops[x.roundToInt().coerceIn(0, v.stops.size - 1)] }
     Row(Modifier.padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        Slider(slide, { slide = it; text = stopAt(it).days.toString() },
+        Slider(slide, {
+            held = true
+            val before = stopAt(slide)
+            slide = it
+            val now = stopAt(it)
+            text = now.days.toString()
+            if (now != before) onSpan(now.days)
+        },
             Modifier.weight(1f).semantics { stateDescription = stopAt(slide).label }, valueRange = 0f..(v.stops.size - 1).toFloat(), steps = v.stops.size - 2,
-            onValueChangeFinished = { onSpan(stopAt(slide).days) },
+            onValueChangeFinished = { held = false; onSpan(stopAt(slide).days) },
             colors = SliderDefaults.colors(thumbColor = C.accent, activeTrackColor = C.accent, inactiveTrackColor = C.line,
                 activeTickColor = Color.Transparent, inactiveTickColor = Color.Transparent))
         TextBox(text, { t ->
