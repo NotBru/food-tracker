@@ -463,7 +463,8 @@ function PieCanvas({ model, val, total, steps, square, onPoint }) {
     ctx.lineWidth = 1.5 * k
     ctx.strokeStyle = css(pal.range)
     if (hi > lo) for (const kcal of [lo, hi]) ring(at(kcal))
-    // The estimate: a ring split by what was eaten, edged in white.
+    // The estimate: a ring split by what was eaten, edged in white (solid).
+    ctx.setLineDash([])
     ctx.lineWidth = thick
     for (const a of arcs) {
       ctx.strokeStyle = css(pal.tone[a.tone])
