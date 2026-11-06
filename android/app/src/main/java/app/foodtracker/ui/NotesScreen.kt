@@ -207,8 +207,8 @@ fun SwitchRow(title: String, about: String?, checked: Boolean, enabled: Boolean 
 }
 
 @Composable
-fun SwitchPanel(content: @Composable () -> Unit) {
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(C.panel).padding(horizontal = 14.dp, vertical = 4.dp)) { content() }
+fun SwitchPanel(bg: Color = C.panel, content: @Composable () -> Unit) {
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(bg).padding(horizontal = 14.dp, vertical = 4.dp)) { content() }
 }
 
 @Composable

@@ -563,10 +563,10 @@ fun Segmented(options: List<String>, selected: Int, onSelect: (Int) -> Unit, mod
  * the options under their groups, with a search box (every word, as on a computer).
  */
 @Composable
-fun SelectBox(label: String, options: List<app.foodtracker.SelectOption>, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, searchable: Boolean = true) {
+fun SelectBox(label: String, options: List<app.foodtracker.SelectOption>, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, searchable: Boolean = true, bg: Color = C.panel) {
     var open by remember { mutableStateOf(false) }
     Row(
-        modifier.fillMaxWidth().clip(Pill).background(C.panel).clickable { open = true }.padding(horizontal = 16.dp, vertical = 12.dp),
+        modifier.fillMaxWidth().clip(Pill).background(bg).clickable { open = true }.padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(label, Modifier.weight(1f), color = C.text, fontSize = 16.sp, maxLines = 1)
