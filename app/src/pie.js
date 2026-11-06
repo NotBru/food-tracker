@@ -200,8 +200,8 @@ export function eatenAt(steps, eaten, kcal) {
 
 /**
  * Between the eaten ring and the calorie min, each restricted macro's room as a guide to the min: from its share eaten
- * now (at the eaten ring) out to its min and its max allowed at the min, each straight in grams (eating the rest at
- * one mix, its share of the energy from then on fixed). (kcal) → ringShares-like {calories: 'under', shares}, for
+ * now (at the eaten ring) out to its min and its max allowed at the min, each share linear in kcal (straight lines
+ * in the square). (kcal) → ringShares-like {calories: 'under', shares}, for
  * eaten ≤ kcal < min; null without a min, past it, with nothing eaten, or when the macros can't fit at the min. A
  * macro already past its min (or max) at the min stays at what it is (nothing eaten can be taken back).
  */
@@ -211,16 +211,16 @@ export function guideToMin(model, total, eaten) {
   if (!has(min) || !(eaten > 0) || eaten >= min || !(split.total > 0)) return null
   const atMin = ringShares(model, min)
   if (atMin.out) return null
-  // In kcal of each macro, scaled to the ring's calories (registered energy can differ from the macros' sum).
+  // In kcal of each macro, scaled to the ring's calories (registered energy can differ from the macros' sum); at the
+  // min, never less than what's already eaten.
   const now = Object.fromEntries(split.macros.map((m) => [m.key, (m.kcal / split.total) * eaten]))
   const ends = atMin.shares.map((x) => {
     const e0 = now[x.m.key] ?? 0
     return { e0, lo: Math.max(e0, x.lo * min), hi: Math.max(e0, x.hi * min) }
   })
   return (kcal) => {
-    const k = Math.min(min, Math.max(eaten, kcal))
-    const t = (k - eaten) / (min - eaten)
-    const share = (e0, e1) => Math.min(1, (e0 + t * (e1 - e0)) / k)
+    const t = Math.min(1, Math.max(0, (kcal - eaten) / (min - eaten)))
+    const share = (e0, e1) => Math.min(1, e0 / eaten + t * (e1 / min - e0 / eaten))
     return {
       calories: 'under',
       shares: atMin.shares.map((x, i) => ({ ...x, lo: share(ends[i].e0, ends[i].lo), hi: share(ends[i].e0, ends[i].hi) })),

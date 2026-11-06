@@ -32,7 +32,7 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
   lines). What was eaten: a white-edged ring at its kcal, split by the macros eaten, the interval as dashed circles;
   inside it, the split as the kcal grew through the window (consumption by consumption); faint dashed radial lines
   at each macro target's min and max share at the calorie min, from the centre to it; from the eaten ring to the
-  calorie min, each macro's room straight in grams from its share eaten to its min and max there. Pointing reads a
+  calorie min, each macro's room from its share eaten to its min and max there, the shares linear in kcal. Pointing reads a
   ring (over the pie). Square (switch): the pie's right half unrolled, calories up, the macros' shares across.
 - Daily calories: the target moves by what the 6 days before missed, so the 7 days average to it, within caps (config). Optionally a grey ghost of the uncapped correction. Δ Budget: what's left to eat (bars: a segment from the range's high end to the max).
 - Tapping a nutrient -> breakdown screen
