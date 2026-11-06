@@ -74,7 +74,7 @@ const covers = (iv, t) => iv.b - iv.a >= 1 - EPS || mod1(t - iv.a) < iv.b - iv.a
  * first macro on top, the second at the bottom, the third, when all three have targets, halfway between the other
  * two's cores, half on each side.
  */
-function ringIntervals(shares, flanks = false) {
+function ringIntervals(shares) {
   const [A, B, C] = shares
   const iv = []
   const put = (c, w, x, core) => w > EPS && iv.push({ a: c - w / 2, b: c + w / 2, key: x.m.key, core })
@@ -82,7 +82,7 @@ function ringIntervals(shares, flanks = false) {
     if (!x?.restricted) return
     for (const c of centres) {
       put(c, x.lo * part, x, true)
-      if (x.hasMax || flanks) put(c, x.hi * part, x, false)
+      if (x.hasMax) put(c, x.hi * part, x, false)
     }
   }
   place(A, [0], 1)
@@ -98,8 +98,6 @@ function ringIntervals(shares, flanks = false) {
  * The ring at `kcal`, as arcs covering the whole turn: [{from, to, kind, key, dim}], from < to, in turns from the top.
  * `ring`: its shares (ringShares, or guideToMin's between the eaten ring and the calorie min).
  * `dim`: the ring is outside the calorie target (drawn faded: the macros' split still shows, to plan by).
- * Below the calorie min, with macro targets, only two kinds: 'want' (a macro's edge belongs here: between its min
- * and its max, or past its min when it has no max) and 'out' (elsewhere, the same deep blue), neither dim.
  * kind: 'out' (deep blue: no split fits the macros' targets), 'free' (green: no macro target says anything
  * here), 'core' (a macro's minimum: its colour), 'flank' (from its minimum out to its maximum, half on each side:
  * brighter), 'shared' (two macros' flanks overlap: grey). A minimum always wins over another macro's flank (that
@@ -108,8 +106,7 @@ function ringIntervals(shares, flanks = false) {
 export function ringSegments(model, kcal, ring = ringShares(model, kcal)) {
   if (ring.out) return [{ from: 0, to: 1, kind: 'out', key: null, dim: false }]
   const dim = !!ring.calories
-  const guide = ring.calories === 'under' && ring.shares.some((x) => x.restricted)
-  const iv = ringIntervals(ring.shares, guide)
+  const iv = ringIntervals(ring.shares)
   const cuts = [...new Set([0, ...iv.flatMap((x) => [mod1(x.a), mod1(x.b)])])].sort((a, b) => a - b)
   const out = []
   for (let i = 0; i < cuts.length; i++) {
@@ -119,12 +116,11 @@ export function ringSegments(model, kcal, ring = ringShares(model, kcal)) {
     const t = (from + to) / 2
     const core = iv.find((x) => x.core && covers(x, t))
     const keys = new Set(iv.filter((x) => !x.core && covers(x, t)).map((x) => x.key))
-    const seg = guide ? (!core && keys.size ? { kind: 'want', key: null } : { kind: 'out', key: null })
-      : core ? { kind: 'core', key: core.key } : keys.size === 0 ? { kind: 'free', key: null }
-        : keys.size === 1 ? { kind: 'flank', key: [...keys][0] } : { kind: 'shared', key: null }
+    const seg = core ? { kind: 'core', key: core.key } : keys.size === 0 ? { kind: 'free', key: null }
+      : keys.size === 1 ? { kind: 'flank', key: [...keys][0] } : { kind: 'shared', key: null }
     const last = out[out.length - 1]
     if (last && last.kind === seg.kind && last.key === seg.key) last.to = to
-    else out.push({ from, to, ...seg, dim: dim && !guide })
+    else out.push({ from, to, ...seg, dim })
   }
   return out
 }
