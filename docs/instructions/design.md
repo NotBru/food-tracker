@@ -31,8 +31,9 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
   execution log). Above the calorie max: the same, faded (to plan by); below the min: the min's split, faded (radial
   lines). What was eaten: a white-edged ring at its kcal, split by the macros eaten, the interval as dashed circles;
   inside it, the split as the kcal grew through the window (consumption by consumption); faint dashed radial lines
-  from the centre to the ring at the split eaten now, continued as curves from the ring to the calorie min: the
-  straight path in grams to the nearest split allowed there. Pointing reads a ring (over the pie).
+  at the split eaten now, from the centre to the calorie target's ring (its min); solid lines from the eaten ring's
+  outer edge to the min: the straight path in grams to the nearest split allowed there. Pointing reads a ring (over
+  the pie). Square (switch): the pie's right half unrolled, calories up, the macros' shares across.
 - Daily calories: the target moves by what the 6 days before missed, so the 7 days average to it, within caps (config). Optionally a grey ghost of the uncapped correction. Δ Budget: what's left to eat (bars: a segment from the range's high end to the max).
 - Tapping a nutrient -> breakdown screen
 - Button: time graphs -> time graphs screen
@@ -169,7 +170,7 @@ shared.
 - Dashboard:
   - Style (a dropdown): gauges or bars
   - 7-day calorie correction caps: min, max
-  - Energy pie (switch)
+  - Energy chart (switch); square, else round (switch)
   - Only nutrients with a target (switch; off: calories, protein, fat, carbs always too)
   - Ghost of the uncapped calorie bar (switch)
 - Food database: reference databases (a switch each)

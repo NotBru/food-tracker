@@ -118,6 +118,7 @@ h3 { margin: 8px 0 0; font-size: 16px; }
 .dashboard.fit > .pie-tile { grid-column: span var(--pie-cols); grid-row: span var(--pie-rows); }
 .pie-box { width: 100%; height: 100%; }
 .pie-box canvas { display: block; width: 100%; height: 100%; touch-action: pan-y; }
+.pie-box.square canvas { border-radius: 10px; }
 /* Pointing at a ring reads it, over the pie's foot. */
 .pie-readout { position: absolute; left: 8px; right: 8px; bottom: 8px; margin: 0; padding: 4px 8px; border-radius: 10px; background: rgb(0 0 0 / .7); font-size: 13px; color: var(--muted); text-align: center; pointer-events: none; }
 .pie-readout b { color: var(--text); font-weight: 600; }

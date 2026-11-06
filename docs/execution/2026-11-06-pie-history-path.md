@@ -1,7 +1,7 @@
 # Energy pie: the day's eating inside the eaten ring; the path to the calorie min
 
 - **Date:** 2026-11-06
-- **Status:** accepted
+- **Status:** accepted; the lines' extent and style superseded by [pie-square](2026-11-06-pie-square.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (Homescreen: energy pie)
 
 ## Context

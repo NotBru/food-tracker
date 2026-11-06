@@ -349,13 +349,57 @@ const arcSegs = (arcs, colour) =>
   arcs.flatMap((a) => (a.from < 0 ? [{ ...a, from: a.from + 1, to: 1 }, { ...a, from: 0 }] : [a]))
     .sort((a, b) => a.from - b.from).map((a) => ({ to: a.to, c: colour(a.tone) }))
 
-function PieCanvas({ model, val, total, steps, onPoint }) {
+/**
+ * The two shapes, in "levels" (px from 0 kcal: the radius, or the height) and turns (pie.js angles):
+ * - round: the pie, a level a ring;
+ * - square: the pie's right half unrolled (it mirrors the left): a level a row from the bottom, x = 2 × turns, so the
+ *   first macro grows from the left edge, the second from the right, the third between: each one's width its share.
+ */
+function shapeOf(square, n) {
+  if (square) {
+    return {
+      S: n,
+      at: (px, py) => [n - py, px / (2 * n)], // pixel centre → [level, turns]
+      xy: (t, L) => [2 * t * n, n - L],
+      // A ring's arc as a stroke: a horizontal segment, the part in the right half.
+      arc: (ctx, L, from, to) => {
+        const a = Math.max(0, from)
+        const b = Math.min(0.5, to)
+        if (b <= a) return false
+        ctx.moveTo(2 * a * n, n - L)
+        ctx.lineTo(2 * b * n, n - L)
+        return true
+      },
+      shown: (t) => t <= 0.5 + 1e-9,
+    }
+  }
+  const R = n / 2
+  return {
+    S: R,
+    at: (px, py) => {
+      const dx = px - R
+      const dy = py - R
+      const t = Math.atan2(dx, -dy) / (2 * Math.PI)
+      return [Math.hypot(dx, dy), t < 0 ? t + 1 : t]
+    },
+    xy: (t, L) => [R + L * Math.sin(t * 2 * Math.PI), R - L * Math.cos(t * 2 * Math.PI)],
+    arc: (ctx, L, from, to) => {
+      if (L <= 0) return false
+      ctx.moveTo(R + L * Math.sin(from * 2 * Math.PI), R - L * Math.cos(from * 2 * Math.PI))
+      ctx.arc(R, R, L, from * 2 * Math.PI - Math.PI / 2, to * 2 * Math.PI - Math.PI / 2)
+      return true
+    },
+    shown: () => true,
+  }
+}
+
+function PieCanvas({ model, val, total, steps, square, onPoint }) {
   const [boxRef, width] = useWidth()
   const ref = useRef(null)
   const full = pieFull(model, val)
   const [lo, hi] = bounds(val)
   const arcs = eatenArcs(model, total)
-  const key = JSON.stringify([model.targets, full, val.value, lo, hi, arcs, steps])
+  const key = JSON.stringify([model.targets, full, val.value, lo, hi, arcs, steps, square])
   useLayoutEffect(() => {
     const cv = ref.current
     if (!cv || !width) return
@@ -364,104 +408,96 @@ function PieCanvas({ model, val, total, steps, onPoint }) {
     cv.width = cv.height = n
     const ctx = cv.getContext('2d')
     const pal = piePalette()
-    const R = n / 2
-    const at = (kcal) => (kcal / full) * R
+    const sh = shapeOf(square, n)
+    const S = sh.S
+    const at = (kcal) => (kcal / full) * S
     const thick = RING * k
-    const mid = Math.min(R - thick / 2, Math.max(thick / 2, at(val.value)))
+    const mid = Math.min(S - thick / 2, Math.max(thick / 2, at(val.value)))
     // Inside the eaten ring: the split as the calories grew (eatenAt), in the eaten ring's colours, darker.
     const inner = arcs.length && steps?.length > 1 ? mid - thick / 2 : 0
     const hist = Object.fromEntries(Object.entries(pal.tone).map(([t, c]) => [t, mix(c, pal.bg, 0.55)]))
     const img = ctx.createImageData(n, n)
-    const rings = []
+    const levels = []
     for (let y = 0; y < n; y++) {
       for (let x = 0; x < n; x++) {
-        const dx = x + 0.5 - R
-        const dy = y + 0.5 - R
-        const r = Math.hypot(dx, dy)
-        if (r > R) continue
-        const i = Math.floor(r)
-        const kcal = ((i + 0.5) / R) * full
-        const segs = (rings[i] ??= i + 1 <= inner
+        const [L, t] = sh.at(x + 0.5, y + 0.5)
+        if (L > S || L < 0) continue
+        const i = Math.floor(L)
+        const kcal = ((i + 0.5) / S) * full
+        const segs = (levels[i] ??= i + 1 <= inner
           ? arcSegs(eatenArcs(model, eatenAt(steps, val.value, kcal)), (tone) => hist[tone])
           : ringSegments(model, kcal).map((sg) => ({ to: sg.to, c: segColour(pal, sg) })))
-        let t = Math.atan2(dx, -dy) / (2 * Math.PI)
-        if (t < 0) t += 1
         const c = (segs.find((sg) => t < sg.to) ?? segs[segs.length - 1]).c
         const o = (y * n + x) * 4
         img.data[o] = c[0]
         img.data[o + 1] = c[1]
         img.data[o + 2] = c[2]
-        img.data[o + 3] = Math.round(Math.min(1, R - r) * 255) // the disc's edge, anti-aliased
+        img.data[o + 3] = square ? 255 : Math.round(Math.min(1, S - L) * 255) // the disc's edge, anti-aliased
       }
     }
     ctx.putImageData(img, 0, 0)
     if (!arcs.length) return
-    // The calories' interval: two thin dashed circles at its ends, in the dashboard's range colour.
+    const ring = (L, from = 0, to = 1) => {
+      ctx.beginPath()
+      if (sh.arc(ctx, L, from, to)) ctx.stroke()
+    }
+    // The calories' interval: two thin dashed rings at its ends, in the dashboard's range colour.
     ctx.setLineDash([4 * k, 3 * k])
     ctx.lineWidth = 1.5 * k
     ctx.strokeStyle = css(pal.range)
-    if (hi > lo) for (const kcal of [lo, hi]) {
-      ctx.beginPath()
-      ctx.arc(R, R, at(kcal), 0, 2 * Math.PI)
-      ctx.stroke()
-    }
-    ctx.setLineDash([])
-    // The estimate: a ring split by what was eaten, edged in white.
-    const ang = (turns) => turns * 2 * Math.PI - Math.PI / 2
-    ctx.lineWidth = thick
-    for (const a of arcs) {
-      ctx.strokeStyle = css(pal.tone[a.tone])
-      ctx.beginPath()
-      ctx.arc(R, R, mid, ang(a.from), ang(a.to))
-      ctx.stroke()
-    }
-    ctx.strokeStyle = '#fff'
-    ctx.lineWidth = 1.5 * k
-    for (const r of [mid - thick / 2, mid + thick / 2]) {
-      if (r <= 0) continue
-      ctx.beginPath()
-      ctx.arc(R, R, r, 0, 2 * Math.PI)
-      ctx.stroke()
-    }
-    // Dashed, faint: the split eaten now as radial lines from the centre to the ring; then each edge on to the
-    // calorie min, along the straight path there in grams (pathToMin).
+    if (hi > lo) for (const kcal of [lo, hi]) ring(at(kcal))
+    // The split eaten now, kept: dashed lines from 0 kcal out to the calorie target (its min, else its max).
     const alcohol = (total.alcohol?.value || 0) > 0
-    const xy = (turns, r) => [R + r * Math.sin(turns * 2 * Math.PI), R - r * Math.cos(turns * 2 * Math.PI)]
-    ctx.setLineDash([5 * k, 4 * k])
+    const { min, max } = model.energy
+    const goal = Math.min(S, Number.isFinite(min) ? at(min) : Number.isFinite(max) ? at(max) : mid)
     ctx.lineWidth = 1.2 * k
     ctx.strokeStyle = 'rgb(255 255 255 / .55)'
+    ctx.setLineDash([5 * k, 4 * k])
     for (const e of eatenEdges(model, total, alcohol)) {
+      if (!sh.shown(e)) continue
       ctx.beginPath()
-      ctx.moveTo(R, R)
-      ctx.lineTo(...xy(e, mid - thick / 2))
+      ctx.moveTo(...sh.xy(e, 0))
+      ctx.lineTo(...sh.xy(e, goal))
       ctx.stroke()
     }
+    // The path to the calorie min (pathToMin), solid: from the eaten ring's outer edge to the min.
+    ctx.setLineDash([])
     const path = pathToMin(model, total, val.value)
     if (path) {
-      const r0 = mid + thick / 2
-      const r1 = Math.min(R, at(model.energy.min))
-      const rs = []
-      for (let r = r0; r < r1; r += 2 * k) rs.push(r)
-      rs.push(r1)
-      const lines = rs.map((r) => eatenEdges(model, path(Math.max(val.value, (r / R) * full)), alcohol))
+      const L0 = mid + thick / 2
+      const Ls = []
+      for (let L = L0; L < goal; L += 2 * k) Ls.push(L)
+      Ls.push(goal)
+      const lines = Ls.map((L) => eatenEdges(model, path(Math.max(val.value, (L / S) * full)), alcohol))
       for (let j = 0; j < (lines[0]?.length ?? 0); j++) {
+        if (!sh.shown(lines[0][j])) continue
         ctx.beginPath()
-        rs.forEach((r, i) => ctx[i ? 'lineTo' : 'moveTo'](...xy(lines[i][j], r)))
+        Ls.forEach((L, i) => ctx[i ? 'lineTo' : 'moveTo'](...sh.xy(lines[i][j], L)))
         ctx.stroke()
       }
     }
-    ctx.setLineDash([])
+    // The estimate: a ring split by what was eaten, edged in white.
+    ctx.lineWidth = thick
+    for (const a of arcs) {
+      ctx.strokeStyle = css(pal.tone[a.tone])
+      ring(mid, a.from, a.to)
+    }
+    ctx.strokeStyle = '#fff'
+    ctx.lineWidth = 1.5 * k
+    for (const L of [mid - thick / 2, mid + thick / 2]) ring(L)
   }, [width, key]) // eslint-disable-line react-hooks/exhaustive-deps
-  // Pointing (hover with a mouse, a tap on a phone) reads the ring under it.
+  // Pointing (hover with a mouse, a tap on a phone) reads the ring (or row) under it.
   const point = (e) => {
     const box = e.currentTarget.getBoundingClientRect()
-    const r = Math.hypot(e.clientX - box.left - box.width / 2, e.clientY - box.top - box.height / 2)
-    onPoint(r <= box.width / 2 ? (r / (box.width / 2)) * full : null)
+    const x = e.clientX - box.left
+    const y = e.clientY - box.top
+    const f = square ? 1 - y / box.height : Math.hypot(x - box.width / 2, y - box.height / 2) / (box.width / 2)
+    onPoint(f >= 0 && f <= 1 ? f * full : null)
   }
   return (
-    <div className="pie-box" ref={boxRef}>
+    <div className={`pie-box${square ? ' square' : ''}`} ref={boxRef}>
       <canvas ref={ref} onPointerMove={point} onPointerDown={point} onPointerLeave={(e) => e.pointerType === 'mouse' && onPoint(null)}
-        role="img" aria-label="Calories as the radius, the macros' shares of them by angle" />
+        role="img" aria-label={square ? 'Calories up the side, the macros\' shares of them across' : 'Calories as the radius, the macros\' shares of them by angle'} />
     </div>
   )
 }
@@ -476,7 +512,7 @@ function PieTile({ data }) {
   const kcal = calories(data.total)
   return (
     <div className="pie-tile">
-      <PieCanvas model={model} val={kcal} total={data.total} steps={data.steps} onPoint={setPointed} />
+      <PieCanvas model={model} val={kcal} total={data.total} steps={data.steps} square={data.pieSquare} onPoint={setPointed} />
       {pointed != null && (
         <p className="pie-readout">
           {pointed < kcal.value && data.steps.length > 1

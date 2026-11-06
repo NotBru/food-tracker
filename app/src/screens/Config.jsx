@@ -73,8 +73,10 @@ export default function Config() {
             </div>
           </div>
           <ul className="switch-list">
-            <Switch form={form} setForm={setForm} k="pie" title="Energy pie"
-              about="Calories, protein, fat and carbs in one pie, as the dashboard's first tile." />
+            <Switch form={form} setForm={setForm} k="pie" title="Energy chart"
+              about="Calories, protein, fat and carbs in one chart, as the dashboard's first tile." />
+            <Switch form={form} setForm={setForm} k="pieSquare" title="Energy chart: square"
+              about="Calories up the side, the macros' shares across. Off: round, a pie." />
             <Switch form={form} setForm={setForm} k="onlyTargets" title="Only nutrients with a target"
               about="Off: calories, protein, fat and carbs are always shown, with or without a target." />
             <Switch form={form} setForm={setForm} k="adjGhost" title="Ghost of the uncapped calorie bar"

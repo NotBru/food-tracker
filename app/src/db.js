@@ -308,6 +308,7 @@ export const DEFAULT_CONFIG = {
   dayStart: '05:00',
   dashboard: 'gauges', // 'gauges' (2-column tiles) or 'bars' (one row per nutrient)
   pie: false, // dashboard: the energy pie (calories and macros in one pie, pie.js) as its first tile
+  pieSquare: false, // the energy pie square: calories up, the macros' shares across
   showVersion: false, // homescreen: the app version's build date, YYYYMMDDHHmm
   onlyTargets: false, // dashboard: only the nutrients a target mentions (else calories, protein, fat and carbs always too)
   coverage: 0.9, // share of the probability the error intervals hold
