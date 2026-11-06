@@ -151,3 +151,89 @@ export function ringText(model, kcal) {
   const calories = ring.calories === 'under' ? 'below the calorie min' : ring.calories === 'over' ? 'above the calorie max' : null
   return [calories, ...(parts.length || !calories ? [parts.length ? parts.join(' · ') : 'any split'] : [])].filter(Boolean).join(' · ')
 }
+
+// --- What was eaten, through the window ------------------------------------------------------------------------
+// Inside the eaten ring, each ring is the macros' split once that many kcal had been eaten (dashboard.js
+// eatingSteps), in the eaten ring's places; dashed radial lines carry the split eaten now from the centre to the
+// ring. Outside it, dashed curves carry each edge on to the calorie min along the straight path in grams: the rest
+// of the min eaten at one mix, arriving at the split allowed there nearest to the one eaten now.
+
+const KCAL = { proteins: 4, fat: 9, carbohydrates: 4, alcohol: 7 }
+const gramsOf = (g) => Object.fromEntries(Object.entries(g).map(([k, v]) => [k, { value: v }]))
+const kcalOf = (g) => Object.entries(KCAL).reduce((s, [k, f]) => s + f * (g[k] ?? 0), 0)
+
+/** The macros' grams (as nutrients, for eatenArcs) once `kcal` had been eaten, along `steps`, scaled so the last step
+ * reaches `eaten` (the calories eaten, the ring's radius). Within a consumption, its grams come in evenly. */
+export function eatenAt(steps, eaten, kcal) {
+  const last = steps[steps.length - 1]
+  if (!(last?.kcal > 0) || !(eaten > 0)) return null
+  const k = (Math.max(kcal, 1e-6) / eaten) * last.kcal
+  const i = steps.findIndex((s) => s.kcal >= k)
+  if (i < 0) return gramsOf(last.g)
+  const a = steps[Math.max(0, i - 1)]
+  const b = steps[i]
+  const t = b.kcal > a.kcal ? (k - a.kcal) / (b.kcal - a.kcal) : 1
+  return gramsOf(Object.fromEntries(Object.keys(b.g).map((m) => [m, a.g[m] + t * (b.g[m] - a.g[m])])))
+}
+
+/** The edges between the eaten arcs (eatenArcs), in turns, always in the same order (so a path's edges can be
+ * followed from ring to ring); the alcohol's two only with `alcohol`. */
+export function eatenEdges(model, n, alcohol) {
+  const split = energySplit(n)
+  if (!(split.total > 0)) return []
+  const f = Object.fromEntries(split.macros.map((m) => [m.key, m.kcal / split.total]))
+  const [A, B, C] = model.order
+  const a = f[A.key] ?? 0
+  const b = f[B.key] ?? 0
+  const c = f[C.key] ?? 0
+  return alcohol
+    ? [a / 2, a / 2 + c / 2, 0.5 - b / 2, 0.5 + b / 2, 1 - a / 2 - c / 2, 1 - a / 2]
+    : [a / 2, a / 2 + c / 2, 0.5 + b / 2, 1 - a / 2]
+}
+
+/**
+ * The straight path in grams from what was eaten (`total`, `eaten` kcal) to the calorie min: (kcal) → grams as
+ * nutrients, for eaten ≤ kcal ≤ min; null without a min, with the min reached, or when no split allowed at the min can
+ * be reached (more of a macro already eaten than its max there, or the macros' targets can't fit). At the min, each
+ * macro's share is the one eaten now, moved as little as the targets ask (nearest allowed split); no more alcohol.
+ */
+export function pathToMin(model, total, eaten) {
+  const min = model.energy.min
+  const split = energySplit(total)
+  if (!has(min) || !(eaten > 0) || eaten >= min || !(split.total > 0)) return null
+  const ring = ringShares(model, min)
+  if (ring.out) return null
+  const g0 = Object.fromEntries(Object.keys(KCAL).map((k) => [k, Math.max(0, total[k]?.value || 0)]))
+  const k0 = kcalOf(g0)
+  const budget = 1 - (KCAL.alcohol * g0.alcohol) / min
+  // Shares at the min: within the targets, never less than what's already eaten.
+  const xs = ring.shares.map((x) => {
+    const lo = Math.max(x.lo, (x.m.kcal * g0[x.m.key]) / min)
+    return { key: x.m.key, f: (x.m.kcal * g0[x.m.key]) / k0, lo, hi: Math.max(x.hi, lo) }
+  })
+  const sumAt = (l) => xs.reduce((s, x) => s + Math.min(x.hi, Math.max(x.lo, x.f + l)), 0)
+  if (xs.reduce((s, x) => s + x.lo, 0) > budget + EPS || xs.reduce((s, x) => s + x.hi, 0) < budget - EPS) return null
+  // The nearest split: each share moved by the same amount, clamped to its bounds, so that they add up.
+  let lo = -1
+  let hi = 1
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2
+    if (sumAt(mid) < budget) lo = mid
+    else hi = mid
+  }
+  const g1 = { ...g0, ...Object.fromEntries(xs.map((x) => [x.key, (Math.min(x.hi, Math.max(x.lo, x.f + lo)) * min) / KCAL[x.key]])) }
+  return (kcal) => {
+    const t = Math.min(1, Math.max(0, (kcal - eaten) / (min - eaten)))
+    return gramsOf(Object.fromEntries(Object.keys(g0).map((k) => [k, g0[k] + t * (g1[k] - g0[k])])))
+  }
+}
+
+/** The macros' shares of `n`'s energy as a line: "Protein 30% · Fat 25% · Carbs 45%". */
+export function sharesText(n) {
+  const split = energySplit(n)
+  if (!(split.total > 0)) return ''
+  const label = (key) => PIE_MACROS.find((m) => m.key === key)?.label ?? 'Alcohol'
+  const rank = (key) => (i => (i < 0 ? 9 : i))(PIE_MACROS.findIndex((m) => m.key === key))
+  return split.macros.filter((m) => m.kcal > 0).sort((a, b) => rank(a.key) - rank(b.key))
+    .map((m) => `${label(m.key)} ${pct(m.kcal / split.total)}`).join(' · ')
+}

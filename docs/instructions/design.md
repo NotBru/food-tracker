@@ -29,8 +29,10 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
   min in its colour, centred (first restricted macro on top, second at the bottom), brighter flanks out to its max,
   half each side; overlapping flanks grey; a third restricted macro split on the sides (provisional: see the
   execution log). Above the calorie max: the same, faded (to plan by); below the min: the min's split, faded (radial
-  lines). What was eaten: a white-edged ring at its kcal, split by the macros eaten, the interval as dashed circles.
-  Pointing reads a ring (over the pie).
+  lines). What was eaten: a white-edged ring at its kcal, split by the macros eaten, the interval as dashed circles;
+  inside it, the split as the kcal grew through the window (consumption by consumption); faint dashed radial lines
+  from the centre to the ring at the split eaten now, continued as curves from the ring to the calorie min: the
+  straight path in grams to the nearest split allowed there. Pointing reads a ring (over the pie).
 - Daily calories: the target moves by what the 6 days before missed, so the 7 days average to it, within caps (config). Optionally a grey ghost of the uncapped correction. Δ Budget: what's left to eat (bars: a segment from the range's high end to the max).
 - Tapping a nutrient -> breakdown screen
 - Button: time graphs -> time graphs screen
@@ -158,15 +160,19 @@ shared.
 
 ### Config screen
 
-- Offset for day start. Default, 0500
-- Dashboard style (a dropdown): gauges or bars
-- Dashboard: energy pie (switch)
-- Dashboard: only nutrients with a target (switch; off: calories, protein, fat, carbs always too)
-- Error intervals hold (% of the probability). Default, 90
-- 7-day calorie correction caps: min, max
-- Ghost of the uncapped calorie bar (switch)
-- App version: "v" and its build date, YYYYMMDDHHmm, in its own pill right of the sync status icon on the homescreen (switch, off by default)
-- Reference databases (a switch each)
+- In blocks: General, Dashboard, Food database.
+- General:
+  - Backup (button)
+  - Offset for day start. Default, 0500
+  - Error intervals hold (% of the probability). Default, 90
+  - App version: "v" and its build date, YYYYMMDDHHmm, in its own pill right of the sync status icon on the homescreen (switch, off by default)
+- Dashboard:
+  - Style (a dropdown): gauges or bars
+  - 7-day calorie correction caps: min, max
+  - Energy pie (switch)
+  - Only nutrients with a target (switch; off: calories, protein, fat, carbs always too)
+  - Ghost of the uncapped calorie bar (switch)
+- Food database: reference databases (a switch each)
 - Backup: encrypted on the device, one blob per public key on the server; a invite code to start. The secret moves
   to other devices as a QR link or text, and can be changed (signed by the old key).
   An inbox beside it takes entries pushed from elsewhere; the app merges them in. Claude's log-food skill syncs as

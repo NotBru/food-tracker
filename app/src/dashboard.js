@@ -133,7 +133,27 @@ export async function loadDashboard({ win, day, picked }) {
     user, first, last, count: logs.length, days: logged.length, targets, adj, rows: [...ROWS.filter((r) => !config.onlyTargets || targeted.has(r.key)), ...extra], style: config.dashboard, pie: config.pie, showVersion: config.showVersion,
     failed: results.filter((r) => !r.ok).length,
     total: perDay(sumNutrients(results.map((r) => r.nutrients)), daily ? 1 : Math.max(1, logged.length)),
+    steps: eatingSteps(results, daily ? 1 : Math.max(1, logged.length)),
   }
+}
+
+const STEP_MACROS = ['proteins', 'fat', 'carbohydrates', 'alcohol']
+
+/**
+ * How the window's eating went, consumption by consumption in time order (per day, like the total): the running
+ * calories and macro grams after each, from {kcal: 0} (the energy pie draws the macros' split as the calories grew).
+ */
+export function eatingSteps(results, days) {
+  const num = (v) => (Number.isFinite(v?.value) ? Math.max(0, v.value) : 0)
+  const steps = [{ kcal: 0, g: Object.fromEntries(STEP_MACROS.map((k) => [k, 0])) }]
+  for (const r of results) {
+    const last = steps[steps.length - 1]
+    steps.push({
+      kcal: last.kcal + num(calories(r.nutrients)) / days,
+      g: Object.fromEntries(STEP_MACROS.map((k) => [k, last.g[k] + num(r.nutrients[k]) / days])),
+    })
+  }
+  return steps
 }
 
 /** The export file's name: local date and time to the second; dashes, since ":" isn't allowed in filenames everywhere. */
