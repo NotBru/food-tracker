@@ -31,7 +31,49 @@ data class HomeView(
     val failed: String? = null,
     val consumptions: String,
     val addConsumption: String,
+    /** The energy pie, when on (Config); its picture comes from core.js pieScene. */
+    val pie: PieRef? = null,
 )
+
+@Serializable
+data class PieRef(val id: Int, val square: Boolean)
+
+/**
+ * The energy pie as drawn on n × n px (pie.js pieScene): levels are px from 0 kcal (the radius; the square: the height
+ * from the bottom), angles in turns from the top (the square shows the right half, x = 2 × turns). Colours [r, g, b].
+ */
+@Serializable
+data class PieScene(
+    val id: Int,
+    val n: Int,
+    val k: Double,
+    @kotlinx.serialization.SerialName("S") val top: Double,
+    val square: Boolean,
+    val full: Double,
+    val levels: List<List<PieSeg>>,
+    val lines: List<PieLine> = emptyList(),
+    val curves: List<List<PiePt?>> = emptyList(),
+    val rings: List<Double> = emptyList(),
+    val mid: Double,
+    val thick: Double,
+    val arcs: List<PieArc> = emptyList(),
+    val errs: List<PieErr> = emptyList(),
+    val edges: List<Double> = emptyList(),
+    val range: List<Int>,
+)
+
+@Serializable data class PieSeg(val to: Double, val c: List<Int>)
+@Serializable data class PieLine(val t: Double, @kotlinx.serialization.SerialName("L0") val l0: Double, @kotlinx.serialization.SerialName("L1") val l1: Double)
+@Serializable data class PiePt(val t: Double, @kotlinx.serialization.SerialName("L") val l: Double)
+@Serializable data class PieArc(val from: Double, val to: Double, val c: List<Int>)
+@Serializable
+data class PieErr(
+    @kotlinx.serialization.SerialName("L0") val l0: Double,
+    @kotlinx.serialization.SerialName("L1") val l1: Double,
+    val from: Double, val to: Double, val c: List<Int>, val hatch: List<Int>,
+)
+/** The line under the pie for a ring (pie.js pieReadout). */
+@Serializable data class PieText(val bold: String, val text: String)
 
 @Serializable
 data class DashRow(

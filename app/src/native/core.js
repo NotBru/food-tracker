@@ -22,6 +22,7 @@ import { clearPendingDraft, isBarcode, offDraft, offProductDraft, peekPendingDra
 import { ROWS } from '../dashboard'
 import { exploreDbs, exploreFoods } from '../explore'
 import * as bd from '../breakdown'
+import { pieModel, piePalette, pieReadout as readPie, pieScene as scenePie, rgbOf } from '../pie'
 import * as gr from '../graphs'
 import { barFor, barNotes, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
 import * as bk from '../backup'
@@ -32,6 +33,10 @@ import { TABLE_NAMES, rowLabel, shownValue, statusText } from '../screens/Backup
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`
 const finite = (x) => (Number.isFinite(x) ? x : null)
+
+// The energy pie of the last homescreen view (its `pie.id`): pieScene and pieReadout draw and read that one.
+let lastPie = null
+let pieSeq = 0
 
 /** The homescreen (screens/Home.jsx): `query` is its route's (`win`, `day`). */
 export async function home(query = {}) {
@@ -78,7 +83,9 @@ export async function home(query = {}) {
       open: `/breakdown/${r.key}?from=${data.first}&to=${data.last}&win=${win}`,
     }
   })
+  lastPie = data.pie ? { model: pieModel(data.targets), val: calories(data.total), total: data.total, steps: data.steps, square: !!data.pieSquare, id: ++pieSeq } : null
   return {
+    pie: lastPie && { id: lastPie.id, square: lastPie.square },
     win, winName: WINDOW_NAMES[win], title: windowTitle(win, data.first, data.last, back), dots: WINDOWS.map((w) => w === win),
     daily: win === 'daily',
     prevWin: view(WINDOWS[(winIdx + WINDOWS.length - 1) % WINDOWS.length], picked),
@@ -96,6 +103,20 @@ export async function home(query = {}) {
     addConsumption: `/consumptions?${otherDay ? `day=${otherDay}&` : ''}new`,
   }
 }
+
+/**
+ * The last view's energy pie (pie.js pieScene) on `n` × `n` px, `k` px a dp; null when it's off. `full`: the kcal at
+ * the edge, to read a tap with pieReadout.
+ */
+export function pieScene(n, k) {
+  if (!lastPie) return null
+  const style = getComputedStyle(document.documentElement)
+  const pal = piePalette((name) => rgbOf(style.getPropertyValue(`--${name}`)))
+  return { id: lastPie.id, ...scenePie({ ...lastPie, n, k, pal }) }
+}
+
+/** The line under the pie for the ring at `kcal`: {bold, text}. */
+export const pieReadout = (kcal) => (lastPie ? readPie(lastPie.model, lastPie.total, lastPie.steps, kcal) : null)
 
 /** The sync icon (screens/Backup.jsx SyncStatus): its state (colour), what it means, and whether "Merge conflict" shows. */
 export function syncStatus() {

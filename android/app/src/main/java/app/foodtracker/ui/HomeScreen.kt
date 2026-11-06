@@ -4,6 +4,14 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.runtime.LaunchedEffect
+import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,6 +74,9 @@ import androidx.compose.ui.unit.sp
 import app.foodtracker.Bar
 import app.foodtracker.DashRow
 import app.foodtracker.HomeView
+import app.foodtracker.PieRef
+import app.foodtracker.PieScene
+import app.foodtracker.PieText
 import app.foodtracker.Span
 import app.foodtracker.SyncStatus
 import kotlinx.coroutines.launch
@@ -86,6 +97,10 @@ interface HomeActions {
     fun pickImport()
     suspend fun importFile(text: String, merge: Boolean)
     suspend fun backupOn(): Boolean
+    /** The energy pie of the last view on n × n px, k px a dp (core.js pieScene). */
+    suspend fun pieScene(n: Int, k: Float): PieScene? = null
+    /** The line under the pie for the ring at `kcal` (core.js pieReadout). */
+    suspend fun pieReadout(kcal: Double): PieText? = null
 }
 
 /** A picked file for Import databases. */
@@ -235,6 +250,9 @@ private fun Dashboard(view: HomeView, actions: HomeActions, modifier: Modifier) 
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        // The energy pie (Config): the first tile, as wide as the dashboard (Home.jsx useFitPie puts it on top when
+        // no tile fits beside it, as on a phone).
+        view.pie?.let { PieTile(it, actions) }
         if (view.style == "bars") {
             for (r in view.rows) BarRow(r, view) { actions.go(r.open) }
         } else {
@@ -512,6 +530,173 @@ private fun DrawScope.hatchArc(p0: Float, p1: Float, color: Color) {
         drawLine(color, gpt(s / len, GR - GW / 2), gpt((s + HATCH_SLANT) / len, GR + GW / 2), strokeWidth = 1.1f)
         s += HATCH_STEP
     }
+}
+
+// --- Energy pie (Home.jsx PieTile, PieCanvas): pie.js pieScene says what goes where; this draws it. ---
+
+// The last pie drawn, kept while the app runs: shown at once when the homescreen comes back, until the fresh one.
+private var lastScene: PieScene? = null
+
+@Composable
+private fun PieTile(pie: PieRef, actions: HomeActions) {
+    val k = LocalDensity.current.density
+    var widthPx by remember { mutableStateOf(0) }
+    var scene by remember { mutableStateOf(lastScene?.takeIf { it.square == pie.square }) }
+    var pointed by remember { mutableStateOf<Double?>(null) }
+    var readout by remember { mutableStateOf<PieText?>(null) }
+    LaunchedEffect(pie.id, widthPx) {
+        if (widthPx > 0) actions.pieScene(widthPx, k)?.let { scene = it; lastScene = it }
+    }
+    LaunchedEffect(pointed, scene?.id) { readout = pointed?.let { actions.pieReadout(it) } }
+    val image = remember(scene) { scene?.let(::pieImage) }
+    // Pointing (a tap, or sliding sideways) reads the ring (or row) under it, as the web's pointer events.
+    fun point(p: Offset) {
+        val sc = scene ?: return
+        val w = widthPx.toFloat().takeIf { it > 0 } ?: return
+        val f = if (sc.square) 1 - p.y / w else kotlin.math.hypot(p.x - w / 2, p.y - w / 2) / (w / 2)
+        pointed = if (f in 0f..1f) f * sc.full else null
+    }
+    Box(Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(20.dp)).background(C.panel2)) {
+        Canvas(
+            Modifier.padding(12.dp).fillMaxSize()
+                .onSizeChanged { widthPx = it.width }
+                .clip(if (pie.square) RoundedCornerShape(10.dp) else RectangleShape)
+                .pointerInput(Unit) { detectTapGestures(onPress = { point(it) }) }
+                .pointerInput(Unit) { detectHorizontalDragGestures { change, _ -> point(change.position) } }
+                .semantics { contentDescription = if (pie.square) "Calories up the side, the macros' shares of them across" else "Calories as the radius, the macros' shares of them by angle" },
+        ) {
+            val sc = scene ?: return@Canvas
+            val img = image ?: return@Canvas
+            scale(size.width / sc.n, pivot = Offset.Zero) { drawPie(sc, img) }
+        }
+        readout?.let {
+            Text(
+                buildAnnotatedString {
+                    withStyle(SpanStyle(color = C.text, fontWeight = FontWeight.SemiBold)) { append(it.bold) }
+                    append(it.text)
+                },
+                Modifier.align(Alignment.BottomCenter).padding(8.dp).fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp)).background(Color.Black.copy(alpha = 0.7f)).padding(horizontal = 8.dp, vertical = 4.dp),
+                color = C.muted, fontSize = 13.sp, textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+
+/** The rings' (or rows') colours, pixel by pixel; the round pie's edge anti-aliased. */
+private fun pieImage(sc: PieScene): ImageBitmap {
+    val n = sc.n
+    val tos = sc.levels.map { segs -> DoubleArray(segs.size) { segs[it].to } }
+    val rgbs = sc.levels.map { segs -> IntArray(segs.size) { segs[it].c.let { c -> (c[0] shl 16) or (c[1] shl 8) or c[2] } } }
+    val px = IntArray(n * n)
+    val r = n / 2.0
+    for (y in 0 until n) for (x in 0 until n) {
+        val l: Double
+        var t: Double
+        if (sc.square) {
+            l = n - (y + 0.5)
+            t = (x + 0.5) / (2.0 * n)
+        } else {
+            val dx = x + 0.5 - r
+            val dy = y + 0.5 - r
+            l = kotlin.math.hypot(dx, dy)
+            t = kotlin.math.atan2(dx, -dy) / (2 * PI)
+            if (t < 0) t += 1
+        }
+        if (l > sc.top || l < 0) continue
+        val i = kotlin.math.floor(l).toInt().coerceAtMost(tos.size - 1)
+        val to = tos[i]
+        var j = 0
+        while (j < to.size - 1 && t >= to[j]) j++
+        val a = if (sc.square) 255 else (kotlin.math.min(1.0, sc.top - l) * 255).roundToInt()
+        px[y * n + x] = (a shl 24) or rgbs[i][j]
+    }
+    return android.graphics.Bitmap.createBitmap(px, n, n, android.graphics.Bitmap.Config.ARGB_8888).asImageBitmap()
+}
+
+private fun rgb(c: List<Int>, alpha: Float = 1f) = Color(c[0], c[1], c[2], (alpha * 255).roundToInt())
+
+/** The scene's shape (Home.jsx shapeOf): a level and turns to a point; arcs and bands as paths. */
+private class PieShape(val square: Boolean, val n: Float) {
+    val r = n / 2
+    fun xy(t: Double, l: Double): Offset =
+        if (square) Offset((2 * t * n).toFloat(), (n - l).toFloat())
+        else Offset((r + l * sin(t * 2 * PI)).toFloat(), (r - l * cos(t * 2 * PI)).toFloat())
+    private fun circle(l: Double) = Rect(Offset(r, r), l.toFloat())
+    /** A ring's arc as a stroke; the square: a row's segment, in the right half. */
+    fun arc(l: Double, from: Double, to: Double): Path? {
+        val p = Path()
+        if (square) {
+            val a = maxOf(0.0, from)
+            val b = minOf(0.5, to)
+            if (b <= a) return null
+            p.moveTo((2 * a * n).toFloat(), (n - l).toFloat())
+            p.lineTo((2 * b * n).toFloat(), (n - l).toFloat())
+        } else {
+            if (l <= 0) return null
+            if (to - from >= 1) p.addOval(circle(l))
+            else p.arcTo(circle(l), (from * 360 - 90).toFloat(), ((to - from) * 360).toFloat(), true)
+        }
+        return p
+    }
+    /** The band between two levels over an arc. */
+    fun band(l0: Double, l1: Double, from: Double, to: Double): Path? {
+        val p = Path()
+        if (square) {
+            val a = maxOf(0.0, from)
+            val b = minOf(0.5, to)
+            if (b <= a) return null
+            p.addRect(Rect((2 * a * n).toFloat(), (n - l1).toFloat(), (2 * b * n).toFloat(), (n - l0).toFloat()))
+        } else {
+            val start = (from * 360 - 90).toFloat()
+            val sweep = ((to - from) * 360).toFloat()
+            p.arcTo(circle(l1), start, sweep, true)
+            p.arcTo(circle(maxOf(0.0, l0)), start + sweep, -sweep, false)
+            p.close()
+        }
+        return p
+    }
+}
+
+private fun DrawScope.drawPie(sc: PieScene, img: ImageBitmap) {
+    val k = sc.k.toFloat()
+    val n = sc.n.toFloat()
+    val sh = PieShape(sc.square, n)
+    drawImage(img)
+    // The macros' targets: dashed lines up to the calorie target's lowest ring, then as curves up the zone eaten past.
+    val targetStroke = Stroke(1.2f * k, pathEffect = PathEffect.dashPathEffect(floatArrayOf(5 * k, 4 * k)))
+    val targetColour = Color.White.copy(alpha = 0.55f)
+    for (ln in sc.lines) drawPath(Path().apply { sh.xy(ln.t, ln.l0).let { moveTo(it.x, it.y) }; sh.xy(ln.t, ln.l1).let { lineTo(it.x, it.y) } }, targetColour, style = targetStroke)
+    for (curve in sc.curves) {
+        val p = Path()
+        var on = false
+        for (pt in curve) {
+            if (pt == null) { on = false; continue }
+            val o = sh.xy(pt.t, pt.l)
+            if (on) p.lineTo(o.x, o.y) else p.moveTo(o.x, o.y)
+            on = true
+        }
+        drawPath(p, targetColour, style = targetStroke)
+    }
+    // The calories' interval: two thin dashed rings.
+    val ringStroke = Stroke(1.5f * k, pathEffect = PathEffect.dashPathEffect(floatArrayOf(4 * k, 3 * k)))
+    for (l in sc.rings) sh.arc(l, 0.0, 1.0)?.let { drawPath(it, rgb(sc.range), style = ringStroke) }
+    // The estimate: a ring split by what was eaten.
+    for (a in sc.arcs) sh.arc(sc.mid, a.from, a.to)?.let { drawPath(it, rgb(a.c), style = Stroke(sc.thick.toFloat())) }
+    // Each macro's share range on it: see-through, hatched at 110° as the bars' error range.
+    for (e in sc.errs) {
+        val band = sh.band(e.l0, e.l1, e.from, e.to) ?: continue
+        clipPath(band) {
+            drawRect(rgb(e.c, 0.4f), size = Size(n, n))
+            val slant = n * kotlin.math.tan(PI / 9).toFloat()
+            var x = -n
+            while (x < n) {
+                drawLine(rgb(e.hatch), Offset(x, n), Offset(x + slant, 0f), strokeWidth = 1.5f * k)
+                x += 5 * k
+            }
+        }
+    }
+    for (l in sc.edges) sh.arc(l, 0.0, 1.0)?.let { drawPath(it, Color.White, style = Stroke(1.5f * k)) }
 }
 
 @Composable

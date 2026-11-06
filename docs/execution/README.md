@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-06 | [Android port: energy pie, Config blocks, …](2026-11-06-android-port-pie.md) | accepted |
 | 2026-11-06 | [Food Info: a printer button makes a nutrition label image](2026-11-06-nutrition-label.md) | accepted |
 | 2026-11-06 | [Every unit but a measure defaults to an exact count](2026-11-06-count-units.md) | accepted |
 | 2026-11-06 | [Energy pie: under the history, bars at the calorie min and max; the targets' curves between; error bars on the eaten split](2026-11-06-pie-past-min.md) | accepted |

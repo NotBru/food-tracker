@@ -12,7 +12,7 @@ Design: `../docs/instructions/design.md` · Decisions: `../docs/execution/2026-1
 
 | Route | Screen | Ports (layout) | Its data (shared with the web) |
 |-------|--------|----------------|--------------------------------|
-| `/` | `ui/HomeScreen.kt` | `app/src/screens/Home.jsx` | `app/src/dashboard.js`, `app/src/native/core.js` `home` |
+| `/` | `ui/HomeScreen.kt` | `app/src/screens/Home.jsx` | `app/src/dashboard.js`, `app/src/pie.js`, `app/src/native/core.js` `home`, `pieScene`, `pieReadout` |
 | `/consumptions` | `ui/ConsumptionsScreen.kt` | `app/src/screens/Consumptions.jsx` | `app/src/consumptionForm.js`, core.js `consumptions`, `consumptionEditor` |
 | `/foods` | `ui/FoodsScreen.kt` `FoodsScreen` | `app/src/screens/Foods.jsx` FoodList | `search.js foodListMatches`, core.js `foods` |
 | `/foods/external` | `ui/ExternalScreen.kt` | `app/src/screens/External.jsx` | `app/src/external.js`, core.js `offSearch`, `offPick` |

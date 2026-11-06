@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -132,6 +133,10 @@ private fun HomeRoute(activity: MainActivity, r: Route) {
             override fun pickImport() = activity.pickImport()
             override suspend fun importFile(text: String, merge: Boolean) { engine.call("importFile", JsonPrimitive(text), JsonPrimitive(merge)) }
             override suspend fun backupOn() = (engine.call("backupOn") as? JsonPrimitive)?.content == "true"
+            override suspend fun pieScene(n: Int, k: Float) =
+                runCatching { engine.get(PieScene.serializer().nullable, "pieScene", JsonPrimitive(n), JsonPrimitive(k)) }.getOrNull()
+            override suspend fun pieReadout(kcal: Double) =
+                runCatching { engine.get(PieText.serializer().nullable, "pieReadout", JsonPrimitive(kcal)) }.getOrNull()
         }
     }
     HomeScreen(view, sync, actions, importing) { activity.importing.value = null }

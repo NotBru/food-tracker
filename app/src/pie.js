@@ -3,6 +3,7 @@
 // kcal = 4·protein + 9·fat + 4·carbs, so a target of grams is a share that shrinks as the ring grows (4·min / kcal).
 // Angles are in turns, clockwise from the top. Kept free of the DOM so the Android app can port it.
 import { energySplit } from './energy'
+import { calories, fmt } from './nutrients'
 import { bounds } from './stats'
 
 export const PIE_MACROS = [
@@ -308,4 +309,142 @@ export function sharesText(n) {
   const rank = (key) => (i => (i < 0 ? 9 : i))(PIE_MACROS.findIndex((m) => m.key === key))
   return split.macros.filter((m) => m.kcal > 0).sort((a, b) => rank(a.key) - rank(b.key))
     .map((m) => `${label(m.key)} ${pct(m.kcal / split.total)}`).join(' · ')
+}
+
+// --- The picture -------------------------------------------------------------------------------------------------
+// What the pie shows, in pixels, for whoever draws it (Home.jsx PieCanvas on a canvas, the Android app's HomeScreen.kt
+// through native/core.js): the colour of every ring (or row) and the lines and rings over them. Drawn one ring per
+// pixel of radius (the shares' edges curve: a share of grams shrinks as the ring grows), then what was eaten on top:
+// a white-edged ring at the calories eaten, split by the macros' shares; the calories' interval as two dashed
+// circles (a ring as thick as the interval hid the targets under it).
+
+const mix = (a, b, t) => a.map((x, i) => Math.round(x * t + b[i] * (1 - t)))
+const WHITE = [255, 255, 255]
+
+/** "#rrggbb" → [r, g, b]. */
+export const rgbOf = (s) => {
+  const h = s.trim().replace('#', '')
+  return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16))
+}
+
+/** The pie's colours from the app's colour variables (`v(name)` → [r, g, b]), mixed with the tile's background. */
+export function piePalette(v) {
+  const bg = v('panel-2')
+  const tones = Object.fromEntries(['prot', 'fat', 'carb', 'muted'].map((t) => [t, v(t)]))
+  const pal = {
+    // Where the macros' targets can't fit: deep blue, plain. Outside the calorie target: the same split, faded.
+    // Where no macro target applies: a lighter blue within the calorie target, the same deep blue outside it.
+    out: rgbOf('#000421'),
+    free: rgbOf('#1e3a78'), shared: mix(v('muted'), bg, 0.6),
+    core: Object.fromEntries(PIE_MACROS.map((m) => [m.key, tones[m.tone]])),
+    flank: Object.fromEntries(PIE_MACROS.map((m) => [m.key, mix(tones[m.tone], WHITE, 0.5)])),
+    tone: tones, range: v('range'), bg,
+  }
+  const fadeAll = (x) => (Array.isArray(x) ? fade(x, bg) : Object.fromEntries(Object.entries(x).map(([k, c]) => [k, fade(c, bg)])))
+  pal.faded = Object.fromEntries(['free', 'shared', 'core', 'flank'].map((k) => [k, fadeAll(pal[k])]))
+  pal.faded.free = pal.out
+  return pal
+}
+/** A colour faded for the rings outside the calorie target: most of its saturation gone (`sat` left), a little
+ * darker (`keep` of it over the background). */
+const fade = (c, bg, sat = 0.4, keep = 0.42) => {
+  const grey = 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2]
+  return mix(mix(c, [grey, grey, grey], sat), bg, keep)
+}
+/** The bars of the target zone under the eaten history: faded less than the rings outside the calorie target. */
+const barColour = (pal, s) => fade(segColour(pal, { ...s, dim: false }), pal.bg, 0.6, 0.6)
+const segColour = (pal, s) => {
+  const p = s.dim ? pal.faded : pal
+  return s.kind === 'core' || s.kind === 'flank' ? p[s.kind][s.key] : p[s.kind]
+}
+
+export const PIE_RING = 9 // CSS px: the eaten ring's thickness
+
+/** Arcs (eatenArcs) as segments of the turn, 0–1 in order, each with its colour from `colour(tone)`. */
+const arcSegs = (arcs, colour) =>
+  arcs.flatMap((a) => (a.from < 0 ? [{ ...a, from: a.from + 1, to: 1 }, { ...a, from: 0 }] : [a]))
+    .sort((a, b) => a.from - b.from).map((a) => ({ to: a.to, c: colour(a.tone) }))
+
+/**
+ * The pie as drawn on `n` × `n` pixels, `k` pixels a CSS px (line widths, the eaten ring). In "levels" (px from
+ * 0 kcal: the radius, or for the square the height from the bottom) and turns (angles; the square shows the right
+ * half, x = 2 × turns):
+ * - S: the top level (n / 2 round, n square); full: the kcal there;
+ * - levels[i]: level i's colours, [{to, c}] (c [r, g, b] from turn `to`'s predecessor up to `to`);
+ * - lines: dashed radial lines {t, L0, L1} (the macros' targets up to the calorie target's lowest ring);
+ * - curves: dashed curves, [[{t, L} | null]] (those edges as they curve up the zone the history went past);
+ * - rings: the calories' interval, dashed (levels); mid, thick: the eaten ring; arcs: its parts {from, to, c};
+ * - errs: the macros' share ranges on it {L0, L1, from, to, c, hatch} (see-through c, hatched in `hatch`);
+ * - edges: the eaten ring's white edges (levels).
+ */
+export function pieScene({ model, val, total, steps, square, n, k, pal }) {
+  const full = pieFull(model, val)
+  const [lo, hi] = bounds(val)
+  const arcs = eatenArcs(model, total)
+  const errs = eatenErrorBars(model, total)
+  const S = square ? n : n / 2
+  const at = (kcal) => (kcal / full) * S
+  const thick = PIE_RING * k
+  const mid = Math.min(S - thick / 2, Math.max(thick / 2, at(val.value)))
+  // Inside the eaten ring: the split as the calories grew (eatenAt), in the eaten ring's colours, darker.
+  const inner = arcs.length && steps?.length > 1 ? mid - thick / 2 : 0
+  const hist = Object.fromEntries(Object.entries(pal.tone).map(([t, c]) => [t, mix(c, pal.bg, 0.55)]))
+  // From the eaten ring to the calorie min: the macros' room fanning out to their targets there (guideToMin).
+  const guide = guideToMin(model, total, val.value)
+  // Where the history covers the calorie target, two thin bars stay in place and show as the eaten ring goes past
+  // them (only under the history): right below the min, its split all through; right below the max, the zone as it
+  // is there, ring by ring. Between them (or up to the ring), the macros' targets' edges as dashed curves (below),
+  // meeting the bars' inner edges. Each bar a band of levels [from, to).
+  const { min: cMin, max: cMax } = model.energy
+  const bar = thick / 2
+  const zone = has(cMin) && cMin > 0 && inner > 0
+  const minBar = zone && inner > at(cMin) - bar ? [at(cMin) - bar, at(cMin)] : null
+  const maxBar = minBar && has(cMax) && cMax > cMin && inner > at(cMax) - bar ? [at(cMax) - bar, at(cMax)] : null
+  const inBar = (b, i) => b && i + 1 > b[0] && i < b[1] && i + 1 <= inner
+  const minSegs = minBar && ringSegments(model, cMin).map((sg) => ({ to: sg.to, c: barColour(pal, sg) }))
+  const levels = []
+  for (let i = 0; i <= Math.floor(S); i++) {
+    const kcal = ((i + 0.5) / S) * full
+    levels.push(inBar(maxBar, i) ? ringSegments(model, kcal).map((sg) => ({ to: sg.to, c: barColour(pal, sg) }))
+      : inBar(minBar, i) ? minSegs
+      : i + 1 <= inner
+      ? arcSegs(eatenArcs(model, eatenAt(steps, val.value, kcal)), (tone) => hist[tone])
+      : ringSegments(model, kcal, guide && kcal >= val.value && kcal < cMin ? guide(kcal) : undefined)
+        .map((sg) => ({ to: sg.to, c: segColour(pal, sg) })))
+  }
+  const shown = (t) => !square || t <= 0.5 + 1e-9
+  // The macros' targets at the calorie target's lowest ring (its min, else its max): dashed lines from 0 kcal up
+  // to it (or to the bar below the min) at each one's min and max there (those splits, eaten in proportion).
+  const target = targetEdges(model)
+  const lines = target.edges.filter(shown).map((t) => ({ t, L0: 0, L1: Math.min(S, at(target.kcal), minBar ? minBar[0] : Infinity) }))
+  // Between the bars: each target edge as it curves up the zone (a share of grams shrinks as the calories grow).
+  const curveTop = Math.min(inner, maxBar ? maxBar[0] : Infinity)
+  const curves = minBar && curveTop > minBar[1]
+    ? targetCurves(model, cMin, (curveTop / S) * full).map((c) => c.map((pt) => (pt && shown(pt.t) ? { t: pt.t, L: at(pt.kcal) } : null)))
+    : []
+  const scene = { n, k, S, square, full, levels, lines, curves, rings: [], mid, thick, arcs: [], errs: [], edges: [], range: pal.range }
+  if (!arcs.length) return scene
+  // The calories' interval: two thin dashed rings at its ends.
+  if (hi > lo) scene.rings = [at(lo), at(hi)]
+  scene.arcs = arcs.map((a) => ({ from: a.from, to: a.to, c: pal.tone[a.tone] }))
+  // Each macro's share range (from its least to its most likely amount, the others at their means), at its arc's
+  // moving edge: as the bars' error range, its colour see-through, hatched with slanted lines of a lighter shade.
+  // Where two overlap, each takes half the ring's width (lane).
+  scene.errs = errs.flatMap((e) => {
+    const tone = PIE_MACROS.find((m) => m.key === e.key)?.tone
+    if (!tone) return []
+    const c = pal.tone[tone]
+    return [{ L0: e.lane > 0 ? mid : mid - thick / 2, L1: e.lane < 0 ? mid : mid + thick / 2, from: e.from, to: e.to, c, hatch: mix(c, WHITE, 0.6) }]
+  })
+  scene.edges = [mid - thick / 2, mid + thick / 2]
+  return scene
+}
+
+/** The line under the pie for the ring at `pointed` kcal: {bold: "1866 kcal", text: ": below the calorie min · …"}. */
+export function pieReadout(model, total, steps, pointed) {
+  const kcal = calories(total)
+  const bold = `${fmt(pointed, 0)} kcal`
+  if (pointed < kcal.value && steps.length > 1) return { bold, text: ` eaten: ${sharesText(eatenAt(steps, kcal.value, pointed))}` }
+  const guide = guideToMin(model, total, kcal.value)
+  return { bold, text: `: ${ringText(model, pointed, guide && pointed < model.energy.min ? guide(pointed) : undefined)}` }
 }
