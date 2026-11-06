@@ -96,14 +96,14 @@ import java.util.Calendar
 
 /** components.jsx Screen: ‹, the title (and subtitle) centred, something on the right; under it the screen's content. */
 @Composable
-fun TopBar(title: String, subtitle: String? = null, onBack: (() -> Unit)?, right: (@Composable () -> Unit)? = null) {
+fun TopBar(title: String, subtitle: String? = null, onBack: (() -> Unit)?, right: (@Composable () -> Unit)? = null, side: Dp = 48.dp) {
     Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.width(48.dp)) { if (onBack != null) RoundIconButton("Back", onBack) { Chevron() } }
+        Box(Modifier.width(side)) { if (onBack != null) RoundIconButton("Back", onBack) { Chevron() } }
         Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(title, color = C.text, fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, maxLines = 2)
             if (subtitle != null) Text(subtitle, color = C.muted, fontSize = 13.sp, textAlign = TextAlign.Center, maxLines = 1)
         }
-        Box(Modifier.width(48.dp), contentAlignment = Alignment.CenterEnd) { right?.invoke() }
+        Box(Modifier.width(side), contentAlignment = Alignment.CenterEnd) { right?.invoke() }
     }
 }
 
@@ -115,10 +115,12 @@ fun ScreenFrame(
     onBack: (() -> Unit)?,
     right: (@Composable () -> Unit)? = null,
     gap: Dp = 8.dp,
+    /** The top bar's side columns: 48 dp, 88 dp for two buttons on the right (`.topbar-actions`). */
+    side: Dp = 48.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(Modifier.fillMaxSize().background(C.bg)) {
-        TopBar(title, subtitle, onBack, right)
+        TopBar(title, subtitle, onBack, right, side)
         Column(
             Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(gap),

@@ -140,7 +140,7 @@ object FoodStash {
  * `nested` ("in"): the new food is a component of the form stashed at that depth; `name`: what was typed for it.
  */
 @Composable
-fun FoodScreen(core: Core, id: String, route: String, info: Boolean, nutrient: String?, nested: Int?, name: String?) {
+fun FoodScreen(core: Core, id: String, route: String, info: Boolean, nutrient: String?, nested: Int?, name: String?, log: String? = null) {
     val isNew = id == "new"
     val parent = nested?.let { FoodStash.parents.getOrNull(it - 1) }
     var reply by remember(id, nested) { mutableStateOf<FoodEditorReply?>(null) }
@@ -148,6 +148,10 @@ fun FoodScreen(core: Core, id: String, route: String, info: Boolean, nutrient: S
     var extraShown by remember(id, nested) { mutableStateOf(listOf<String>()) }
     var ask by remember { mutableStateOf<Asking?>(null) }
     var focusNutrient by remember { mutableStateOf<String?>(null) }
+    // The Info tab's 🖨: its nutrition label, starting at the consumption `log` (if opened from one), else at the
+    // tab's amount (`infoAmount`).
+    var printing by remember { mutableStateOf(false) }
+    var infoAmount by remember(id) { mutableStateOf("" to "") }
     val scope = rememberCoroutineScope()
     val ser = FoodEditorReply.serializer()
     val base = js("id" to id, "name" to name)
@@ -195,11 +199,12 @@ fun FoodScreen(core: Core, id: String, route: String, info: Boolean, nutrient: S
     val subtitle = parent?.let { if (it.name.isNotEmpty()) "for “${it.name}”" else "for the new food" }
     val context = LocalContext.current
     Box(Modifier.fillMaxSize()) {
-        ScreenFrame(title, subtitle, onBack = core::back, gap = 12.dp) {
+        ScreenFrame(title, subtitle, onBack = core::back, gap = 12.dp, right = if (info && v?.missing == false) ({ PrinterButton { printing = true } }) else null) {
             if (v == null) return@ScreenFrame
             if (v.missing) { Muted("Food not found (deleted?).", size = 16.sp); return@ScreenFrame }
             if (!isNew) Segmented(listOf("Edit", "Info"), if (info) 1 else 0, { i ->
-                core.replace("/foods/$id" + listOfNotNull(if (i == 1) "tab=info" else null, nutrient?.let { "nutrient=$it" }).joinToString("&").let { if (it.isEmpty()) "" else "?$it" })
+                core.replace("/foods/$id" + listOfNotNull(if (i == 1) "tab=info" else null, nutrient?.let { "nutrient=$it" }, log?.let { "log=${Uri.encode(it)}" })
+                    .joinToString("&").let { if (it.isEmpty()) "" else "?$it" })
             })
             v.sameId?.let { ids ->
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -207,7 +212,7 @@ fun FoodScreen(core: Core, id: String, route: String, info: Boolean, nutrient: S
                 }
                 ids.forEach { o -> LinkButton("#$o", { core.go("/foods/$o") }) }
             }
-            if (info) { FoodInfoTab(core, id, nutrient); return@ScreenFrame }
+            if (info) { FoodInfoTab(core, id, nutrient) { per, unit -> infoAmount = per to unit }; return@ScreenFrame }
             val f = form ?: return@ScreenFrame
             fun set(key: String, value: Any?) { form = f.with(key, value) }
             val search: suspend (String) -> List<FoodLabel> = { q -> core.get(ListSerializer(FoodLabel.serializer()), "foodSearch", JsonPrimitive(q), v.search) }
@@ -332,13 +337,14 @@ fun FoodScreen(core: Core, id: String, route: String, info: Boolean, nutrient: S
                 PillButton("Save", { save() }, Modifier.weight(1f))
             }
         }
+        if (printing && info) LabelSheet(core, id, log, infoAmount.first, infoAmount.second) { printing = false }
     }
     ask?.Show { ask = null }
 }
 
 /** FoodInfo.jsx: the nutrients for any amount (picked on top), the energy by macro, every amount with its error. */
 @Composable
-private fun FoodInfoTab(core: Core, id: String, nutrient: String?) {
+private fun FoodInfoTab(core: Core, id: String, nutrient: String?, onAmount: (String, String) -> Unit) {
     var per by remember(id) { mutableStateOf<String?>(null) }
     var unit by remember(id) { mutableStateOf<String?>(null) }
     val view by produceState<FoodInfoView?>(null, id, per, unit, nutrient) {
@@ -346,6 +352,7 @@ private fun FoodInfoTab(core: Core, id: String, nutrient: String?) {
     }
     val v = view ?: return
     if (v.missing) return
+    LaunchedEffect(per ?: v.per, unit ?: v.unit) { onAmount(per ?: v.per, unit ?: v.unit) }
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Muted("per", size = 16.sp)
         TextBox(per ?: v.per, { per = it }, Modifier.weight(0.45f), decimal = true)

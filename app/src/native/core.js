@@ -22,6 +22,7 @@ import { clearPendingDraft, isBarcode, offDraft, offProductDraft, peekPendingDra
 import { ROWS } from '../dashboard'
 import { exploreDbs, exploreFoods } from '../explore'
 import * as bd from '../breakdown'
+import { drawLabel, labelChoices, labelFileName, labelFor } from '../label'
 import { pieModel, piePalette, pieReadout as readPie, pieScene as scenePie, rgbOf } from '../pie'
 import * as gr from '../graphs'
 import { barFor, barNotes, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
@@ -382,10 +383,11 @@ export async function consumptionInfo(id, nutrient) {
   }
   if (item) {
     list.push({ label: 'Food', text: [{ t: itemLabel(item) }], tag: madeText(item) || null, more: '· info ›',
-      link: `/foods/${item.id}?tab=info${nutrient ? `&nutrient=${nutrient}` : ''}` })
+      link: `/foods/${item.id}?tab=info${nutrient ? `&nutrient=${nutrient}` : ''}&log=${encodeURIComponent(log.id)}` })
   }
   return {
     found: true,
+    itemId: item?.id ?? null, // its nutrition label (🖨)
     title: item ? itemLabel(item) : '(deleted item)',
     subtitle: formatDateTime(log.datetime),
     list,
@@ -394,6 +396,33 @@ export async function consumptionInfo(id, nutrient) {
     energy: energyChart(res.nutrients),
     table: nutrientTable(res.nutrients),
   }
+}
+
+// --- Nutrition label (screens/LabelSheet.jsx: label.js labelChoices, labelFor, drawLabel) ------------------------
+
+async function labelData(itemId, logId) {
+  const ctx = await loadContext()
+  const item = resolve(ctx, itemId) ?? (await db.items.get(itemId))
+  const log = logId ? await db.logs.get(logId) : null
+  return { ctx, item, log }
+}
+
+/** The label sheet of food `itemId`: its choices, where it starts and the food's units. `logId`: the consumption it
+ * was opened from (null if none); `perText`, `perUnit`: the Info tab's amount. */
+export async function labelSheet(itemId, logId, perText, perUnit) {
+  const { ctx, item, log } = await labelData(itemId, logId)
+  if (!item) return null
+  const { presets, start } = labelChoices(item, log, { text: perText, unit: perUnit })
+  return { presets, start, units: unitsFor(ctx, item.id) }
+}
+
+/** The label for `pick` ({key, text, unit}) as a PNG (base64) and its file name; null without an amount. */
+export async function labelImage(itemId, logId, pick) {
+  const { ctx, item, log } = await labelData(itemId, logId)
+  if (!item) return null
+  const label = labelFor(ctx, item, labelChoices(item, log, pick).eaten, pick)
+  if (!label) return null
+  return { png: drawLabel(label).toDataURL('image/png').split(',')[1], name: labelFileName(item.name || 'label', label.per) }
 }
 
 // --- Temp notes ---------------------------------------------------------------------------------------------

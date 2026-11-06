@@ -86,7 +86,7 @@ fun App(activity: MainActivity) {
             }
             parts == listOf("foods", "external") -> ExternalScreen(engine, r.query["q"] ?: "")
             parts.size == 2 && parts[0] == "foods" -> FoodScreen(
-                engine, parts[1], route, r.query["tab"] == "info", r.query["nutrient"], r.query["in"]?.toIntOrNull(), r.query["name"],
+                engine, parts[1], route, r.query["tab"] == "info", r.query["nutrient"], r.query["in"]?.toIntOrNull(), r.query["name"], r.query["log"],
             )
             parts.size == 2 && parts[0] == "consumptions" -> {
                 val view = watchView(activity, "consumptionInfo", listOf(JsonPrimitive(parts[1]), jsOf(r.query["nutrient"])), ConsumptionInfoView.serializer())

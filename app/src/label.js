@@ -1,6 +1,9 @@
-import { calories, fmt, NUTRIENTS, pmText } from './nutrients'
+import { calories, fmt, isCountUnit, normalizeNumber, NUTRIENTS, pmText } from './nutrients'
 import { addScaled, getCoverage, sdOf, zero } from './stats'
 import { energySplit } from './energy'
+import { baseAmount, consumptionNutrients, nutrientsFor, unitFactorSpan } from './calc'
+import { itemLabel, madeText } from './db'
+import { formatDateTime } from './time'
 
 // A food's nutrition label as an image: one fixed layout (a package's table, in the app's dark colours), whatever
 // the food or the screen: its energy by macro (the Info tab's donut, EnergyChart.jsx), then every nutrient. Values
@@ -215,8 +218,60 @@ export function drawLabel({ title, made, per, perNote, nutrients, ok = true }) {
   return canvas
 }
 
+/** The label's file name, after the food and the amount: "milanesa-150-g.png". */
+export function labelFileName(title, per) {
+  const slug = `${title}-${per}`.normalize('NFKD').replace(/[^\w.]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase()
+  return `${slug || 'label'}.png`
+}
+
 /** The label as a PNG file named after the food and the amount. */
 export function labelFile(canvas, title, per) {
-  const slug = `${title}-${per}`.normalize('NFKD').replace(/[^\w.]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase()
-  return new Promise((ok) => canvas.toBlob((b) => ok(new File([b], `${slug || 'label'}.png`, { type: 'image/png' })), 'image/png'))
+  return new Promise((ok) => canvas.toBlob((b) => ok(new File([b], labelFileName(title, per), { type: 'image/png' })), 'image/png'))
+}
+
+// --- The label sheet's choices (screens/LabelSheet.jsx; the Android app's through native/core.js) ----------------
+// It starts at what was eaten when the food was opened from a consumption (`log`), else at the Info tab's "per"
+// amount; the other choices are a tap away. The eaten amount counts as the consumption does (its ±Δ and entry
+// error), so the label matches its info screen; any other amount is taken as exact, as in the Info tab.
+
+const amountLabel = (amount, delta, unit) => `${fmt(amount, 2)}${delta > 0 ? ` ±${fmt(delta, 2)}` : ''} ${unit}`
+
+/** "≈ 75 ±5 g" for an amount in a counted unit (slice, u…), when the food converts it to grams (or ml). */
+function measureNote(item, amount, unit) {
+  if (!isCountUnit(unit)) return ''
+  for (const to of ['g', 'ml']) {
+    const [f, lo, hi] = unitFactorSpan(unit, to, item.units)
+    if (Number.isFinite(f)) {
+      const d = Math.max(hi - f, f - lo) * amount
+      return `≈ ${amountLabel(f * amount, d, to)}`
+    }
+  }
+  return ''
+}
+
+/**
+ * The sheet's choices: {eaten (the consumption, if it's of this food), presets: [{key, text, unit, label}], start}.
+ * `per`: the Info tab's amount, {text, unit}.
+ */
+export function labelChoices(item, log, per) {
+  const [baseAmt, baseUnit] = baseAmount(item)
+  const eaten = log && log.itemId === item.id ? log : null
+  const presets = [
+    eaten && { key: 'eaten', text: String(eaten.amount), unit: eaten.unit, label: `Eaten: ${amountLabel(eaten.amount, eaten.amountDelta, eaten.unit)}` },
+    { key: 'base', text: String(baseAmt), unit: baseUnit, label: `Food's amount: ${fmt(baseAmt, 2)} ${baseUnit}` },
+  ].filter(Boolean)
+  return { eaten, presets, start: eaten ? presets[0] : { key: 'per', text: per.text, unit: per.unit } }
+}
+
+/** What the label shows for the pick ({key, text, unit}; key 'custom' once typed in): drawLabel's input, or null
+ * without an amount. */
+export function labelFor(ctx, item, eaten, pick) {
+  const head = { title: itemLabel(item), made: madeText(item) }
+  if (pick.key === 'eaten' && eaten) {
+    const note = [`eaten ${formatDateTime(eaten.datetime)}`, measureNote(item, eaten.amount, eaten.unit)].filter(Boolean).join(' · ')
+    return { ...head, per: amountLabel(eaten.amount, eaten.amountDelta, eaten.unit), perNote: note, ...consumptionNutrients(ctx, eaten) }
+  }
+  const amount = Number(normalizeNumber(pick.text))
+  if (!(amount > 0)) return null
+  return { ...head, per: `${fmt(amount, 2)} ${pick.unit}`, perNote: measureNote(item, amount, pick.unit), ...nutrientsFor(ctx, item.id, amount, pick.unit, 0) }
 }

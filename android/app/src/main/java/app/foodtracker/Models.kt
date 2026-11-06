@@ -251,6 +251,8 @@ data class NutrientTableRow(val label: String, val missing: Boolean, val value: 
 @Serializable
 data class ConsumptionInfoView(
     val found: Boolean,
+    /** Its food, for the nutrition label (null: deleted). */
+    val itemId: String? = null,
     val title: String = "",
     val subtitle: String = "",
     val list: List<InfoItem> = emptyList(),
@@ -259,6 +261,19 @@ data class ConsumptionInfoView(
     val energy: EnergyChartView? = null,
     val table: NutrientTableView? = null,
 )
+
+// --- Nutrition label (core.js labelSheet, labelImage) ---
+
+/** A label sheet's choice: {key, text, unit}; `label` on the presets ("Eaten: 2 u"). */
+@Serializable
+data class LabelPick(val key: String, val text: String, val unit: String, val label: String = "")
+
+@Serializable
+data class LabelSheetView(val presets: List<LabelPick>, val start: LabelPick, val units: List<String>)
+
+/** The label as a PNG (base64) and its file name. */
+@Serializable
+data class LabelImage(val png: String, val name: String)
 
 // --- Temp notes ---
 

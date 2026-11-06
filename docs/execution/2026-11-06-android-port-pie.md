@@ -1,4 +1,4 @@
-# Android port (2026-11-06): energy pie, Config blocks, slider stops, text boxes, …
+# Android port (2026-11-06): energy pie, Config blocks, slider stops, text boxes, nutrition label
 
 - **Date:** 2026-11-06
 - **Status:** accepted
@@ -47,6 +47,22 @@ its text, wherever the tap was (to delete leftwards); taps once inside place it 
 with its selection and, for 0.6 s after gaining focus, moves a tap's cursor to the end. Attributes' key and value
 boxes aren't capitalized. Checked on the emulator (a new food, not saved): "abcdef", tap in the middle from another
 box, type → "abcdefX"; tap in the middle again → "abYcdefX"; the attribute boxes' keyboard without caps.
+
+### Nutrition label (🖨)
+
+The sheet's choices and what each shows moved from `LabelSheet.jsx` into `label.js` (`labelChoices`, `labelFor`,
+`labelFileName`); checked in a browser: the same PNGs before and after (eaten, the food's amount, a typed amount, the
+Info tab's). core.js `labelSheet` gives the native sheet its choices, `labelImage` the PNG (label.js draws it in the
+WebView, so it's the web's image byte for byte) and its file name. `ui/LabelSheet.kt`: presets, amount and unit,
+the preview, Save image. On a consumption's info screen 🖨 sits left of ✎ (the top bar's sides 88 dp, as the web's
+`.topbar-actions`); a food's Info tab has it when opened, and the consumption link carries `log` so it starts at what
+was eaten, kept across the Edit/Info tabs.
+
+Save image: Android's save picker (as the native Export), not the share sheet the web uses on a phone.
+
+Checked on the emulator: from a consumption (Eaten: 227 ±1 g; Food's amount), saved to Downloads (the file is the
+label, then deleted); from its food's Info tab (starts at the eaten amount, also after Edit → Info); from a food in
+the list with the Info tab at 3 g (starts at 3 g, only the food's amount as a preset).
 
 ## Consequences
 

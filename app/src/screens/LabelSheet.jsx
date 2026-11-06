@@ -1,54 +1,19 @@
 import { useMemo, useState } from 'react'
-import { baseAmount, consumptionNutrients, nutrientsFor, unitFactorSpan, unitsFor } from '../calc'
-import { itemLabel, madeText } from '../db'
+import { unitsFor } from '../calc'
 import { Select, saveFile } from '../components'
-import { fmt, isCountUnit, normalizeNumber } from '../nutrients'
-import { formatDateTime } from '../time'
-import { drawLabel, labelFile } from '../label'
+import { drawLabel, labelChoices, labelFile, labelFor } from '../label'
 
-// The food Info tab's 🖨: a nutrition label as an image (label.js), for the amount picked here. It starts at what
-// was eaten when the food was opened from a consumption (`log`), else at the Info tab's "per" amount; the other
-// choices are a tap away. The eaten amount counts as the consumption does (its ±Δ and entry error), so the label
-// matches its info screen; any other amount is taken as exact, as in the Info tab.
-
-const amountLabel = (amount, delta, unit) => `${fmt(amount, 2)}${delta > 0 ? ` ±${fmt(delta, 2)}` : ''} ${unit}`
-
-/** "≈ 75 ±5 g" for an amount in a counted unit (slice, u…), when the food converts it to grams (or ml). */
-function measureNote(item, amount, unit) {
-  if (!isCountUnit(unit)) return ''
-  for (const to of ['g', 'ml']) {
-    const [f, lo, hi] = unitFactorSpan(unit, to, item.units)
-    if (Number.isFinite(f)) {
-      const d = Math.max(hi - f, f - lo) * amount
-      return `≈ ${amountLabel(f * amount, d, to)}`
-    }
-  }
-  return ''
-}
+// The food Info tab's 🖨: a nutrition label as an image (label.js), for the amount picked here. Its choices and
+// what each shows: label.js labelChoices, labelFor (the Android app's sheet uses them too).
 
 export default function LabelSheet({ ctx, item, log, per, onClose }) {
   const units = unitsFor(ctx, item.id)
-  const [baseAmt, baseUnit] = baseAmount(item)
-  const eaten = log && log.itemId === item.id ? log : null
-  const presets = [
-    eaten && { key: 'eaten', text: String(eaten.amount), unit: eaten.unit, label: `Eaten: ${amountLabel(eaten.amount, eaten.amountDelta, eaten.unit)}` },
-    { key: 'base', text: String(baseAmt), unit: baseUnit, label: `Food's amount: ${fmt(baseAmt, 2)} ${baseUnit}` },
-  ].filter(Boolean)
-  const start = eaten ? presets[0] : { key: 'per', text: per.text, unit: per.unit }
+  const { eaten, presets, start } = labelChoices(item, log, per)
   const [pick, setPick] = useState(start) // { key, text, unit }; key 'custom' once typed in
   const set = (patch) => setPick((p) => ({ ...p, ...patch, key: 'custom' }))
 
-  const amount = Number(normalizeNumber(pick.text))
-  const label = useMemo(() => {
-    if (pick.key === 'eaten') {
-      const note = [`eaten ${formatDateTime(eaten.datetime)}`, measureNote(item, eaten.amount, eaten.unit)].filter(Boolean).join(' · ')
-      const res = consumptionNutrients(ctx, eaten)
-      return { per: amountLabel(eaten.amount, eaten.amountDelta, eaten.unit), perNote: note, ...res }
-    }
-    if (!(amount > 0)) return null
-    return { per: `${fmt(amount, 2)} ${pick.unit}`, perNote: measureNote(item, amount, pick.unit), ...nutrientsFor(ctx, item.id, amount, pick.unit, 0) }
-  }, [ctx, item, eaten, pick, amount])
-  const canvas = useMemo(() => label && drawLabel({ title: itemLabel(item), made: madeText(item), ...label }), [label, item])
+  const label = useMemo(() => labelFor(ctx, item, eaten, pick), [ctx, item, eaten, pick])
+  const canvas = useMemo(() => label && drawLabel(label), [label])
   const src = useMemo(() => canvas?.toDataURL('image/png'), [canvas])
 
   async function save() {

@@ -1,6 +1,8 @@
 package app.foodtracker.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,18 +18,23 @@ import app.foodtracker.Core
 import app.foodtracker.js
 
 // A consumption's info screen, native: a port of app/src/screens/ConsumptionInfo.jsx (data: core.js consumptionInfo).
-// ✎ opens the usual editor sheet over it; deleting it there goes back.
+// 🖨 opens its food's nutrition label at the amount eaten (LabelSheet.kt); ✎ opens the usual editor sheet over it;
+// deleting it there goes back.
 
 @Composable
 fun ConsumptionInfoScreen(id: String, view: ConsumptionInfoView?, core: Core) {
     var editing by remember { mutableStateOf(false) }
+    var printing by remember { mutableStateOf(false) }
     Box(Modifier.fillMaxSize()) {
         if (view != null && !view.found) {
             ScreenFrame("Consumption", onBack = core::back) { Muted("Consumption not found (deleted?).", size = 16.sp) }
             return@Box
         }
-        ScreenFrame(view?.title ?: "", view?.subtitle, onBack = core::back, gap = 6.dp, right = {
-            RoundIconButton("Edit", { editing = true }) { Text("✎", color = C.text, fontSize = 20.sp) }
+        ScreenFrame(view?.title ?: "", view?.subtitle, onBack = core::back, gap = 6.dp, side = 88.dp, right = {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (view?.itemId != null) PrinterButton { printing = true }
+                RoundIconButton("Edit", { editing = true }) { Text("✎", color = C.text, fontSize = 20.sp) }
+            }
         }) {
             if (view == null) return@ScreenFrame
             InfoList(view.list, core::go)
@@ -39,6 +46,7 @@ fun ConsumptionInfoScreen(id: String, view: ConsumptionInfoView?, core: Core) {
             H3("Nutrients")
             view.table?.let { NutrientTable(it) }
         }
+        view?.itemId?.let { item -> if (printing) LabelSheet(core, item, id, "", "") { printing = false } }
         if (editing) ConsumptionEditorSheet(core, js("id" to id), onClose = { editing = false }, onDeleted = { editing = false; core.back() })
     }
 }
