@@ -25,6 +25,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | Date | Entry | Status |
 |------|-------|--------|
 | 2026-11-06 | [Every unit but a measure defaults to an exact count](2026-11-06-count-units.md) | accepted |
+| 2026-11-06 | [Energy pie: under the history, bars at the calorie min and max; the targets' curves between; error bars on the eaten split](2026-11-06-pie-past-min.md) | accepted |
 | 2026-11-06 | [log-food skill: the "Claude estimate" tag a suggestion, not added by the tool](2026-11-06-log-food-estimate-tag.md) | accepted |
 | 2026-11-06 | [Energy pie: no green; where no macro target applies, blue](2026-11-06-pie-blue-free.md) | accepted |
 | 2026-11-06 | [Energy pie: the guide to the min straight (shares linear in kcal)](2026-11-06-pie-guide-straight.md) | accepted |

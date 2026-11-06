@@ -74,10 +74,11 @@ const covers = (iv, t) => iv.b - iv.a >= 1 - EPS || mod1(t - iv.a) < iv.b - iv.a
  * first macro on top, the second at the bottom, the third, when all three have targets, halfway between the other
  * two's cores, half on each side.
  */
-function ringIntervals(shares) {
+function ringIntervals(shares, keepEmpty = false) {
   const [A, B, C] = shares
   const iv = []
-  const put = (c, w, x, core) => w > EPS && iv.push({ a: c - w / 2, b: c + w / 2, key: x.m.key, core })
+  // keepEmpty: zero-width ones too, so the list is the same on every ring (targetCurves follows each one's edges).
+  const put = (c, w, x, core) => (keepEmpty || w > EPS) && iv.push({ a: c - w / 2, b: c + w / 2, key: x.m.key, core })
   const place = (x, centres, part) => {
     if (!x?.restricted) return
     for (const c of centres) {
@@ -138,6 +139,77 @@ export function targetEdges(model) {
   if (ring.out) return { kcal, edges: [] }
   const edges = [...new Set(ringIntervals(ring.shares).flatMap((x) => [mod1(x.a), mod1(x.b)]))]
   return { kcal, edges }
+}
+
+/**
+ * The edges of the macros' targets (each restricted macro's min and max, as on ringSegments) from the ring at `k0` up
+ * to the one at `k1`, as curves: [[{kcal, t} | null]], one per edge, t in turns; null where the edge isn't there (no
+ * split fits, or that min or max is 0 wide). Drawn dashed over the eaten history, from the calorie min up to the
+ * calories eaten (or the max): the target zone the eaten ring has gone past.
+ */
+export function targetCurves(model, k0, k1, n = 64) {
+  if (!(k1 > k0)) return []
+  const curves = []
+  for (let j = 0; j <= n; j++) {
+    const kcal = k0 + ((k1 - k0) * j) / n
+    const ring = ringShares(model, kcal)
+    const iv = ring.out ? [] : ringIntervals(ring.shares, true)
+    iv.forEach((x, i) => {
+      const wide = x.b - x.a > EPS
+      for (const [e, t] of [[2 * i, x.a], [2 * i + 1, x.b]]) (curves[e] ??= Array(j).fill(null)).push(wide ? { kcal, t: mod1(t) } : null)
+    })
+    for (const c of curves) if (c.length < j + 1) c.push(null)
+  }
+  return curves
+}
+
+/**
+ * Each macro's share of the energy eaten from its least to its most likely amount (the ends of its grams' interval),
+ * the other macros kept at their means: {key: [lo, hi]}. Shares as eatenArcs' (of the macros' summed kcal).
+ */
+export function eatenShareRanges(total) {
+  const split = energySplit(total)
+  if (!(split.total > 0)) return {}
+  return Object.fromEntries(split.macros.map((m) => {
+    const rest = split.total - m.kcal
+    const share = (k) => (k + rest > 0 ? k / (k + rest) : 0)
+    const [lo, hi] = bounds(m.kcalN)
+    return [m.key, [share(lo), share(hi)]]
+  }))
+}
+
+/**
+ * Error bars of the eaten split, in the eaten arcs' places: [{from, to, key}] in turns, each macro's share range
+ * (eatenShareRanges) at its arc's moving edge(s): the first and second macros' both edges (they grow from their
+ * centres, top and bottom), the third's edge away from the first (it grows from the first's edge, on each side).
+ * `lane`: which part of the ring's width (below).
+ */
+export function eatenErrorBars(model, total) {
+  const split = energySplit(total)
+  if (!(split.total > 0)) return []
+  const ranges = eatenShareRanges(total)
+  const [A, B, C] = model.order
+  const a = (split.macros.find((m) => m.key === A.key)?.kcal ?? 0) / split.total
+  const out = []
+  const both = (key, c, sign) => {
+    const r = ranges[key]
+    if (!r || r[1] - r[0] < 1e-3) return
+    out.push({ from: c + (sign * r[0]) / 2, to: c + (sign * r[1]) / 2, key }, { from: c - (sign * r[1]) / 2, to: c - (sign * r[0]) / 2, key })
+  }
+  both(A.key, 0, 1)
+  both(B.key, 0.5, 1)
+  const r = ranges[C.key]
+  if (r && r[1] - r[0] >= 1e-3) out.push({ from: a / 2 + r[0] / 2, to: a / 2 + r[1] / 2, key: C.key }, { from: 1 - a / 2 - r[1] / 2, to: 1 - a / 2 - r[0] / 2, key: C.key })
+  // Lanes across the ring's width: 0 all of it; where the third macro's bar overlaps another's (it shares an edge
+  // with the second when there's no alcohol), the third takes the outer half (1) and the other the inner one (−1).
+  const bars = out.map((x) => ({ ...(x.from > x.to ? { ...x, from: x.to, to: x.from } : x), lane: 0 }))
+  for (const c of bars.filter((x) => x.key === C.key)) {
+    for (const o of bars.filter((x) => x.key !== C.key && x.from < c.to && c.from < x.to)) {
+      o.lane = -1
+      c.lane = 1
+    }
+  }
+  return bars
 }
 
 /**
