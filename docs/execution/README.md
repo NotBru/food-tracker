@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-06 | [Energy pie: below the calorie min, deep blue with the macros' zones lighter](2026-11-06-pie-guide-blue.md) | accepted |
 | 2026-11-06 | [Energy pie: the guide to the min straight (shares linear in kcal)](2026-11-06-pie-guide-straight.md) | accepted |
 | 2026-11-06 | [Energy pie: dashed lines at the targets; the room fans out from the eaten ring to the min](2026-11-06-pie-guide.md) | accepted; "linear" superseded by [pie-guide-straight](2026-11-06-pie-guide-straight.md) |
 | 2026-11-06 | [Energy pie: dashed lines to the target, the path solid; a square shape](2026-11-06-pie-square.md) | accepted; lines superseded by [pie-guide](2026-11-06-pie-guide.md) |

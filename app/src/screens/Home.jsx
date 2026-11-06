@@ -322,7 +322,8 @@ function piePalette() {
   const tones = Object.fromEntries(['prot', 'fat', 'carb', 'muted'].map((t) => [t, v(t)]))
   const pal = {
     // Where the macros' targets can't fit: deep blue, plain. Outside the calorie target: the same split, faded.
-    out: rgb('#000421'),
+    // Below the calorie min, a macro's target zone (where its edge belongs): a lighter blue on that deep blue.
+    out: rgb('#000421'), want: rgb('#1e3a78'),
     free: mix(v('kcal'), bg, 0.4), shared: mix(v('muted'), bg, 0.6),
     core: Object.fromEntries(PIE_MACROS.map((m) => [m.key, tones[m.tone]])),
     flank: Object.fromEntries(PIE_MACROS.map((m) => [m.key, mix(tones[m.tone], [255, 255, 255], 0.5)])),

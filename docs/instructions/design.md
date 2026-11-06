@@ -28,8 +28,8 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
   carbs targets allow: deep blue (#000421) where the macros can't fit; green where no macro target applies; a macro's
   min in its colour, centred (first restricted macro on top, second at the bottom), brighter flanks out to its max,
   half each side; overlapping flanks grey; a third restricted macro split on the sides (provisional: see the
-  execution log). Above the calorie max: the same, faded (to plan by); below the min: the min's split, faded (radial
-  lines). What was eaten: a white-edged ring at its kcal, split by the macros eaten, the interval as dashed circles;
+  execution log). Above the calorie max: the same, faded (to plan by); below the min, with macro targets: deep blue,
+  each macro's zone (between its min and max) a lighter blue (radial lines). What was eaten: a white-edged ring at its kcal, split by the macros eaten, the interval as dashed circles;
   inside it, the split as the kcal grew through the window (consumption by consumption); faint dashed radial lines
   at each macro target's min and max share at the calorie min, from the centre to it; from the eaten ring to the
   calorie min, each macro's room from its share eaten to its min and max there, the shares linear in kcal. Pointing reads a
