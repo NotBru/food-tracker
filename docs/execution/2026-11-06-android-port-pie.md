@@ -1,4 +1,4 @@
-# Android port (2026-11-06): energy pie, Config blocks, …
+# Android port (2026-11-06): energy pie, Config blocks, slider stops, …
 
 - **Date:** 2026-11-06
 - **Status:** accepted
@@ -32,6 +32,13 @@ graphs' slider stops, the nutrition label, text boxes. User, in chat: "Now port"
 
 In blocks (General, Dashboard, Food database) with their uppercase names; the dashboard style a dropdown; the energy
 chart switches. `SwitchPanel` and `SelectBox` take a background (`panel-2` inside a block, as the web's).
+
+### Time graphs: the slider's stops
+
+core.js sends the stops (graphs.js `SLIDER_STOPS`) as days ending on the window's last day, and the one the span is
+at (`stopIndex`); the native slider steps through them (no tick marks, as the web's range input) and sets the
+stop's days when let go. `MAX_SLIDER` (1–180 days, the native slider until now) is gone. Checked on the emulator:
+11 months → 335 days, 10 → 304, the right end → 1 day.
 
 ## Consequences
 

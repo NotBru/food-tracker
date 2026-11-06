@@ -928,7 +928,9 @@ export async function graphs(query = {}) {
   }
   return {
     subtitle: `${list[0]} → ${list.at(-1)} · daily`,
-    span, last, today: day, defaultDays: gr.DEFAULT_DAYS, maxSlider: gr.MAX_SLIDER, maxDays: gr.MAX_DAYS,
+    span, last, today: day, defaultDays: gr.DEFAULT_DAYS, maxDays: gr.MAX_DAYS,
+    // The slider's stops (graphs.js SLIDER_STOPS), 12 months on the left to 1 day on the right, as days ending on `last`.
+    stops: gr.SLIDER_STOPS.map((st) => ({ days: gr.stopDays(st, last), label: st.label })), stop: gr.stopIndex(span, last),
     list,
     xLabels: [...new Set([0, Math.floor((n - 1) / 2), n - 1])].map((i) => ({ at: (i + 0.5) / n, text: list[i].slice(5) })),
     charts: data.rows.flatMap((r) => [nutrient(r), ...(r.key === 'energy' ? data.measures.map(measure) : [])]),

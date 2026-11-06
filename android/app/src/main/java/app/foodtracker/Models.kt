@@ -510,14 +510,18 @@ data class BdQuintile(val name: String, val keys: List<String>, val info: String
 // --- Time graphs ---
 
 @Serializable
+data class SliderStop(val days: Int, val label: String)
+
+@Serializable
 data class GraphsView(
     val subtitle: String,
     val span: Int,
     val last: String,
     val today: String,
     val defaultDays: Int,
-    val maxSlider: Int,
     val maxDays: Int,
+    val stops: List<SliderStop>,
+    val stop: Int,
     val list: List<String>,
     val xLabels: List<GraphLabel>,
     val charts: List<GraphChart>,

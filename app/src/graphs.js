@@ -11,7 +11,6 @@ import { ROWS, fillPieces } from './dashboard'
 
 // Days shown: the slider's stops (SLIDER_STOPS) or any number up to MAX_DAYS in the box.
 export const DEFAULT_DAYS = 30
-export const MAX_SLIDER = 180 // the Android app's slider, until it has the stops (android/README.md Next port)
 export const MAX_DAYS = 730
 
 /** The slider's stops, left to right: 12 months, 11, …, 1 month, 3 weeks, 2 weeks, 13 days, …, 1 day. */

@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -92,15 +94,18 @@ fun GraphsScreen(view: GraphsView?, core: Core, query: JsonObject) {
     }
 }
 
-/** `.tg-days`: a slider and a box for how many days, and Today. */
+/** `.tg-days`: a slider (its stops: 12 months … 1 day) and a box for how many days, and Today. */
 @Composable
 private fun DaysRow(v: GraphsView, onSpan: (Int) -> Unit, onToday: () -> Unit) {
     var text by remember(v.span) { mutableStateOf(v.span.toString()) }
-    var slide by remember(v.span) { mutableFloatStateOf(minOf(v.span, v.maxSlider).toFloat()) }
+    var slide by remember(v.span, v.stop) { mutableFloatStateOf(v.stop.toFloat()) }
+    val stopAt = { x: Float -> v.stops[x.roundToInt().coerceIn(0, v.stops.size - 1)] }
     Row(Modifier.padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        Slider(slide, { slide = it; text = it.roundToInt().toString() }, Modifier.weight(1f), valueRange = 1f..v.maxSlider.toFloat(),
-            onValueChangeFinished = { onSpan(slide.roundToInt()) },
-            colors = SliderDefaults.colors(thumbColor = C.accent, activeTrackColor = C.accent, inactiveTrackColor = C.line))
+        Slider(slide, { slide = it; text = stopAt(it).days.toString() },
+            Modifier.weight(1f).semantics { stateDescription = stopAt(slide).label }, valueRange = 0f..(v.stops.size - 1).toFloat(), steps = v.stops.size - 2,
+            onValueChangeFinished = { onSpan(stopAt(slide).days) },
+            colors = SliderDefaults.colors(thumbColor = C.accent, activeTrackColor = C.accent, inactiveTrackColor = C.line,
+                activeTickColor = Color.Transparent, inactiveTickColor = Color.Transparent))
         TextBox(text, { t ->
             text = t
             t.toIntOrNull()?.takeIf { it in 1..v.maxDays }?.let(onSpan)
