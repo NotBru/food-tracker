@@ -49,7 +49,8 @@ it in the middle, as on the web.
 the gallery's files are served to it at an address of its own origin (`/__native/file/…`, Engine.serve), it fetches
 and shrinks them as on the web and keeps them waiting until the note is saved; the native screen gets each picture
 back once, as base64 JPEG, and keeps it decoded (downsampled for thumbnails). A picture not synced yet shows "…"
-until the list says it's here.
+until the list says it's here. The text box's Enter is a newline, as the web's textarea (multi-line `TextBox`es no
+longer take the single-line "Next" key; 2026-11-06, the user: "I want to be able to use newlines").
 
 ### Foods
 

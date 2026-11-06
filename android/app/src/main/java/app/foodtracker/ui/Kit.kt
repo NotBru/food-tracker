@@ -285,7 +285,7 @@ fun Field(label: String, modifier: Modifier = Modifier, content: @Composable Col
 
 /**
  * The web's `input`: a pill, panel-coloured, an accent border while focused (red if `invalid`). `leading`: a muted
- * mark inside on the left ("±"). `decimal`: the number keyboard.
+ * mark inside on the left ("±"). `decimal`: the number keyboard. Multi-line (`singleLine = false`): Enter is a newline.
  */
 @Composable
 fun TextBox(
@@ -303,7 +303,7 @@ fun TextBox(
     capitalize: Boolean = true,
     focusRequester: FocusRequester? = null,
     onFocus: (Boolean) -> Unit = {},
-    imeAction: ImeAction = ImeAction.Next,
+    imeAction: ImeAction? = null, // single-line: Next; multi-line: the keyboard's Enter, a newline
     onDone: (() -> Unit)? = null,
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
     textStyle: TextStyle = TextStyle(color = C.text, fontSize = 16.sp),
@@ -323,7 +323,7 @@ fun TextBox(
         keyboardOptions = KeyboardOptions(
             capitalization = if (capitalize && !decimal && !numeric) KeyboardCapitalization.Sentences else KeyboardCapitalization.None,
             keyboardType = when { decimal -> KeyboardType.Decimal; numeric -> KeyboardType.Number; else -> KeyboardType.Text },
-            imeAction = if (onDone != null) ImeAction.Done else imeAction,
+            imeAction = when { onDone != null -> ImeAction.Done; imeAction != null -> imeAction; singleLine -> ImeAction.Next; else -> ImeAction.Default },
         ),
         keyboardActions = KeyboardActions(onDone = { onDone?.invoke() ?: focus.clearFocus() }),
         decorationBox = { inner ->
