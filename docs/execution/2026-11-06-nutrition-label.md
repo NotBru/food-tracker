@@ -51,3 +51,14 @@ Headless Chromium (390 and 1400 px), Granola per 100 ±1 g (470 kcal, P 10, F 20
 - Without a log, a food with no registered energy at "per 3 u": the sheet starts at 3 u, energy "~549 kcal" with the
   estimate note; a long name wraps.
 - Save image downloads `granola-2-bowl.png`. No console errors.
+
+## Revision: energy by macro, dark
+
+User: "Make it include the energy-by-macro graph, and have it be dark themed."
+
+- Under "Per …": **Energy by macro**, the Info tab's donut redrawn on the canvas (`energySplit`, same slices, shades
+  and 2 px gaps; the macros' total ± in the middle), its legend at the right (each macro, then its kinds: kcal, %),
+  and the "from the grams" note. Then the table as before.
+- The app's dark colours (`styles.css` `:root`): background, text, muted; thick rules in the text colour, row lines
+  in the line colour. The preview in the sheet gets an outline, as it now matches the sheet's background.
+- Size unchanged: 1200 px wide, height by content (the Gula burger: 1200 × 3584).

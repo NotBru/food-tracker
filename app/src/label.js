@@ -1,15 +1,28 @@
 import { calories, fmt, NUTRIENTS, pmText } from './nutrients'
 import { addScaled, getCoverage, sdOf, zero } from './stats'
+import { energySplit } from './energy'
 
-// A food's nutrition label as an image: one fixed layout (black on white, like a package's table), whatever the
-// food or the screen. Values and their ± as in the Info tab's table (FoodInfo.jsx), from the same nutrientsFor.
+// A food's nutrition label as an image: one fixed layout (a package's table, in the app's dark colours), whatever
+// the food or the screen: its energy by macro (the Info tab's donut, EnergyChart.jsx), then every nutrient. Values
+// and their ± as in the Info tab's table (FoodInfo.jsx), from the same nutrientsFor.
 
 const W = 600 // CSS px; drawn at SCALE for a sharp PNG
 const SCALE = 2
 const PAD = 24
 const FONT = '"Helvetica Neue", Helvetica, Arial, sans-serif'
-const INK = '#000'
-const SOFT = '#555'
+// The app's colours (styles.css :root).
+const BG = '#111418'
+const INK = '#e6edf3'
+const SOFT = '#8b949e'
+const HAIR = '#2b323c' // row lines
+const TONES = { fat: '#d2a8ff', prot: '#ff7b72', carb: '#ffa657', muted: SOFT }
+
+/** A tone at `shade`, mixed with the background (EnergyChart.jsx's colorOf). */
+function colorOf({ tone, shade }) {
+  const hex = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16))
+  const [a, b] = [hex(TONES[tone]), hex(BG)]
+  return `rgb(${a.map((x, i) => Math.round(x * shade + b[i] * (1 - shade))).join(',')})`
+}
 
 // Label order (EU and US tables): energy, fat and its kinds, cholesterol, carbs and sugars, fibre, protein, salt,
 // sodium, alcohol; a rule; then the rest in the app's order. [key, indent]
@@ -71,10 +84,17 @@ export function drawLabel({ title, made, per, perNote, nutrients, ok = true }) {
   measure.font = `13px ${FONT}`
   const noteLines = notes.flatMap((n) => wrap(measure, n, W - 2 * PAD))
 
+  // Energy by macro: the donut at the left, its legend (each macro, then its kinds) at the right.
+  const split = energySplit(nutrients)
+  const legend = split.macros.flatMap((m) => [{ ...m, macroRow: true }, ...(m.slices.length > 1 ? m.slices : [])])
+  const DONUT = 200
+  const chartH = split.total > 0 ? 30 + Math.max(DONUT, legend.length * 20 + 6) + 30 + 14 : 0 // title, chart, note, rule
+
   // Heights, top to bottom (each block's lines and rules), so the canvas fits exactly.
   const ROW = 30
   const H = PAD + 40 + titleLines.length * 26 + (made ? 22 : 0) + 18 // heading, title, made, thick rule
     + 34 + 10 // per, rule
+    + chartH
     + 50 // energy (kcal and kJ)
     + list.filter((r) => r.key !== 'energy').length * ROW
     + (list.some((r) => !r.main) ? 10 : 0) // rule between the main block and the rest
@@ -85,11 +105,11 @@ export function drawLabel({ title, made, per, perNote, nutrients, ok = true }) {
   canvas.height = H * SCALE
   const g = canvas.getContext('2d')
   g.scale(SCALE, SCALE)
-  g.fillStyle = '#fff'
+  g.fillStyle = BG
   g.fillRect(0, 0, W, H)
   g.fillStyle = INK
   g.textBaseline = 'alphabetic'
-  const line = (x, y, h) => { g.fillStyle = INK; g.fillRect(x, y, W - PAD - x, h) }
+  const line = (x, y, h) => { g.fillStyle = h > 1 ? INK : HAIR; g.fillRect(x, y, W - PAD - x, h) }
   const rule = (y, h) => line(PAD, y, h)
   const VAL_X = W - PAD - 110 // value column's right edge; the ± column ends at the margin
   const text = (s, x, y, font, align = 'left', color = INK) => {
@@ -113,6 +133,55 @@ export function drawLabel({ title, made, per, perNote, nutrients, ok = true }) {
   if (perNote) text(perNote, W - PAD, y - 10, '15px', 'right', SOFT)
   rule(y, 4)
   y += 10
+
+  if (chartH) {
+    text('Energy by macro', PAD, y + 22, '700 18px')
+    y += 30
+    const top = y
+    const pct = (x) => `${fmt((x / split.total) * 100, 0)}%`
+    // Donut: slices clockwise from the top, 2 px gaps, the total in the middle.
+    const cx = PAD + DONUT / 2
+    const cy = top + Math.max(DONUT, legend.length * 20 + 6) / 2
+    const R = 80
+    const slices = split.macros.flatMap((m) => m.slices.filter((sl) => sl.kcal > 0))
+    const gap = slices.length > 1 ? 2 / R : 0
+    let a = -Math.PI / 2
+    g.lineWidth = 30
+    g.strokeStyle = '#1b2027'
+    g.beginPath()
+    g.arc(cx, cy, R, 0, 2 * Math.PI)
+    g.stroke()
+    for (const sl of slices) {
+      const len = (sl.kcal / split.total) * 2 * Math.PI
+      g.strokeStyle = colorOf(sl)
+      g.beginPath()
+      g.arc(cx, cy, R, a, a + Math.max(0.005, len - gap))
+      g.stroke()
+      a += len
+    }
+    text(fmt(split.total, 0), cx, cy + 6, '800 32px', 'center')
+    text(`${pmText(split.totalN, 0)} kcal`, cx, cy + 26, '13px', 'center', SOFT)
+    // Legend: swatch, name, kcal, share.
+    const lx = PAD + DONUT + 30
+    let ly = top + (Math.max(DONUT, legend.length * 20 + 6) - legend.length * 20) / 2
+    for (const r of legend) {
+      const kind = !r.macroRow
+      g.fillStyle = colorOf(kind ? r : { tone: r.tone, shade: 1 })
+      g.fillRect(lx + (kind ? 14 : 0), ly + 5, 10, 10)
+      const font = kind ? '13px' : '700 15px'
+      const color = kind ? SOFT : INK
+      text(r.label, lx + (kind ? 32 : 18), ly + 15, font, 'left', color)
+      text(`${fmt(r.kcal, 0)} kcal`, W - PAD - 50, ly + 15, font, 'right', color)
+      text(pct(r.kcal), W - PAD, ly + 15, font, 'right', color)
+      ly += 20
+    }
+    y = top + Math.max(DONUT, legend.length * 20 + 6)
+    const alcohol = split.macros.some((m) => m.key === 'alcohol') ? ', 7 alcohol' : ''
+    text(`From the grams: 9 kcal/g fat, 4 proteins and carbohydrates${alcohol}.`, PAD, y + 20, '13px', 'left', SOFT)
+    y += 30
+    rule(y, 4)
+    y += 14
+  }
 
   const energy = list.find((r) => r.key === 'energy')
   text('Energy', PAD, y + 26, '800 24px')

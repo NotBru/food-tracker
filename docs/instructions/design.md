@@ -100,8 +100,8 @@ Fields:
 - Category (for the error model; foods without components)
 - Nutrients
 
-Clicking on any lets you edit them (Edit | Info tabs). Info: a printer button makes a standard nutrition label image for an amount
-picked (as eaten, when opened from a consumption; else the Info tab's amount). Attributes are `key, value` pairs with any fields, and they
+Clicking on any lets you edit them (Edit | Info tabs). Info: a printer button makes a standard nutrition label image (dark; energy by macro, then the
+nutrients) for an amount picked (as eaten, when opened from a consumption; else the Info tab's amount). Attributes are `key, value` pairs with any fields, and they
 change the ID of the product.
 
 Clicking on nutrients shows a scrollable list of known `key, value` pairs, where keys can be:
