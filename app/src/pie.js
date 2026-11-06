@@ -69,18 +69,13 @@ const mod1 = (x) => ((x % 1) + 1) % 1
 const covers = (iv, t) => iv.b - iv.a >= 1 - EPS || mod1(t - iv.a) < iv.b - iv.a
 
 /**
- * The ring at `kcal`, as arcs covering the whole turn: [{from, to, kind, key, dim}], from < to, in turns from the top.
- * `dim`: the ring is outside the calorie target (drawn faded: the macros' split still shows, to plan by).
- * kind: 'out' (deep blue: no split fits the macros' targets), 'free' (green: no macro target says anything
- * here), 'core' (a macro's minimum: its colour), 'flank' (from its minimum out to its maximum, half on each side:
- * brighter), 'shared' (two macros' flanks overlap: grey). A minimum always wins over another macro's flank (that
- * macro can't reach it). The third macro, when all three have targets, sits halfway between the other two's cores.
+ * The macros' places on a ring with these shares (ringShares' `shares`): [{a, b, key, core}] in turns (a may be < 0,
+ * across the top). Each restricted macro's min (`core`), and its max when it has one, centred on its place: the
+ * first macro on top, the second at the bottom, the third, when all three have targets, halfway between the other
+ * two's cores, half on each side.
  */
-export function ringSegments(model, kcal) {
-  const ring = ringShares(model, kcal)
-  if (ring.out) return [{ from: 0, to: 1, kind: 'out', key: null, dim: false }]
-  const dim = !!ring.calories
-  const [A, B, C] = ring.shares
+function ringIntervals(shares) {
+  const [A, B, C] = shares
   const iv = []
   const put = (c, w, x, core) => w > EPS && iv.push({ a: c - w / 2, b: c + w / 2, key: x.m.key, core })
   const place = (x, centres, part) => {
@@ -96,6 +91,22 @@ export function ringSegments(model, kcal) {
     const m = (A.lo / 2 + 0.5 - B.lo / 2) / 2
     place(C, [m, 1 - m], 0.5)
   }
+  return iv
+}
+
+/**
+ * The ring at `kcal`, as arcs covering the whole turn: [{from, to, kind, key, dim}], from < to, in turns from the top.
+ * `ring`: its shares (ringShares, or guideToMin's between the eaten ring and the calorie min).
+ * `dim`: the ring is outside the calorie target (drawn faded: the macros' split still shows, to plan by).
+ * kind: 'out' (deep blue: no split fits the macros' targets), 'free' (green: no macro target says anything
+ * here), 'core' (a macro's minimum: its colour), 'flank' (from its minimum out to its maximum, half on each side:
+ * brighter), 'shared' (two macros' flanks overlap: grey). A minimum always wins over another macro's flank (that
+ * macro can't reach it).
+ */
+export function ringSegments(model, kcal, ring = ringShares(model, kcal)) {
+  if (ring.out) return [{ from: 0, to: 1, kind: 'out', key: null, dim: false }]
+  const dim = !!ring.calories
+  const iv = ringIntervals(ring.shares)
   const cuts = [...new Set([0, ...iv.flatMap((x) => [mod1(x.a), mod1(x.b)])])].sort((a, b) => a - b)
   const out = []
   for (let i = 0; i < cuts.length; i++) {
@@ -112,6 +123,21 @@ export function ringSegments(model, kcal) {
     else out.push({ from, to, ...seg, dim })
   }
   return out
+}
+
+/**
+ * The edges of the macros' targets on the calorie target's lowest ring (its min, else its max), in turns: each
+ * restricted macro's min and max there (two per macro on the pie, mirrored). Drawn as dashed radial lines from 0 kcal
+ * up to that ring: those splits, eaten in proportion. [] without a calorie target or when the macros can't fit there.
+ */
+export function targetEdges(model) {
+  const { min, max } = model.energy
+  const kcal = has(min) && min > 0 ? min : has(max) && max > 0 ? max : NaN
+  if (!has(kcal)) return { kcal, edges: [] }
+  const ring = ringShares(model, kcal)
+  if (ring.out) return { kcal, edges: [] }
+  const edges = [...new Set(ringIntervals(ring.shares).flatMap((x) => [mod1(x.a), mod1(x.b)]))]
+  return { kcal, edges }
 }
 
 /**
@@ -143,8 +169,7 @@ export function eatenArcs(model, total) {
 const pct = (x) => `${Math.round(x * 100)}%`
 
 /** One line on the ring at `kcal`: "Protein 19–29% · Fat 20–35%", or why no split is allowed there. */
-export function ringText(model, kcal) {
-  const ring = ringShares(model, kcal)
+export function ringText(model, kcal, ring = ringShares(model, kcal)) {
   if (ring.out) return "the macros' targets can't all be met"
   const span = (x) => (x.hi - x.lo < 0.005 ? pct(x.lo) : x.lo < 0.005 ? `≤ ${pct(x.hi)}` : x.hi > 0.995 ? `≥ ${pct(x.lo)}` : `${pct(x.lo)}–${pct(x.hi)}`)
   const parts = ring.shares.filter((x) => x.restricted).map((x) => `${x.m.label} ${span(x)}`)
@@ -154,13 +179,10 @@ export function ringText(model, kcal) {
 
 // --- What was eaten, through the window ------------------------------------------------------------------------
 // Inside the eaten ring, each ring is the macros' split once that many kcal had been eaten (dashboard.js
-// eatingSteps), in the eaten ring's places; dashed radial lines carry the split eaten now from the centre to the
-// ring. Outside it, dashed curves carry each edge on to the calorie min along the straight path in grams: the rest
-// of the min eaten at one mix, arriving at the split allowed there nearest to the one eaten now.
+// eatingSteps), in the eaten ring's places. Outside it up to the calorie min, each restricted macro's room fans out
+// from its share eaten now to its min and max at the min (guideToMin).
 
-const KCAL = { proteins: 4, fat: 9, carbohydrates: 4, alcohol: 7 }
 const gramsOf = (g) => Object.fromEntries(Object.entries(g).map(([k, v]) => [k, { value: v }]))
-const kcalOf = (g) => Object.entries(KCAL).reduce((s, [k, f]) => s + f * (g[k] ?? 0), 0)
 
 /** The macros' grams (as nutrients, for eatenArcs) once `kcal` had been eaten, along `steps`, scaled so the last step
  * reaches `eaten` (the calories eaten, the ring's radius). Within a consumption, its grams come in evenly. */
@@ -176,55 +198,33 @@ export function eatenAt(steps, eaten, kcal) {
   return gramsOf(Object.fromEntries(Object.keys(b.g).map((m) => [m, a.g[m] + t * (b.g[m] - a.g[m])])))
 }
 
-/** The edges between the eaten arcs (eatenArcs), in turns, always in the same order (so a path's edges can be
- * followed from ring to ring); the alcohol's two only with `alcohol`. */
-export function eatenEdges(model, n, alcohol) {
-  const split = energySplit(n)
-  if (!(split.total > 0)) return []
-  const f = Object.fromEntries(split.macros.map((m) => [m.key, m.kcal / split.total]))
-  const [A, B, C] = model.order
-  const a = f[A.key] ?? 0
-  const b = f[B.key] ?? 0
-  const c = f[C.key] ?? 0
-  return alcohol
-    ? [a / 2, a / 2 + c / 2, 0.5 - b / 2, 0.5 + b / 2, 1 - a / 2 - c / 2, 1 - a / 2]
-    : [a / 2, a / 2 + c / 2, 0.5 + b / 2, 1 - a / 2]
-}
-
 /**
- * The straight path in grams from what was eaten (`total`, `eaten` kcal) to the calorie min: (kcal) → grams as
- * nutrients, for eaten ≤ kcal ≤ min; null without a min, with the min reached, or when no split allowed at the min can
- * be reached (more of a macro already eaten than its max there, or the macros' targets can't fit). At the min, each
- * macro's share is the one eaten now, moved as little as the targets ask (nearest allowed split); no more alcohol.
+ * Between the eaten ring and the calorie min, each restricted macro's room as a guide to the min: from its share eaten
+ * now (at the eaten ring) out to its min and its max allowed at the min, each straight in grams (eating the rest at
+ * one mix, its share of the energy from then on fixed). (kcal) → ringShares-like {calories: 'under', shares}, for
+ * eaten ≤ kcal < min; null without a min, past it, with nothing eaten, or when the macros can't fit at the min. A
+ * macro already past its min (or max) at the min stays at what it is (nothing eaten can be taken back).
  */
-export function pathToMin(model, total, eaten) {
+export function guideToMin(model, total, eaten) {
   const min = model.energy.min
   const split = energySplit(total)
   if (!has(min) || !(eaten > 0) || eaten >= min || !(split.total > 0)) return null
-  const ring = ringShares(model, min)
-  if (ring.out) return null
-  const g0 = Object.fromEntries(Object.keys(KCAL).map((k) => [k, Math.max(0, total[k]?.value || 0)]))
-  const k0 = kcalOf(g0)
-  const budget = 1 - (KCAL.alcohol * g0.alcohol) / min
-  // Shares at the min: within the targets, never less than what's already eaten.
-  const xs = ring.shares.map((x) => {
-    const lo = Math.max(x.lo, (x.m.kcal * g0[x.m.key]) / min)
-    return { key: x.m.key, f: (x.m.kcal * g0[x.m.key]) / k0, lo, hi: Math.max(x.hi, lo) }
+  const atMin = ringShares(model, min)
+  if (atMin.out) return null
+  // In kcal of each macro, scaled to the ring's calories (registered energy can differ from the macros' sum).
+  const now = Object.fromEntries(split.macros.map((m) => [m.key, (m.kcal / split.total) * eaten]))
+  const ends = atMin.shares.map((x) => {
+    const e0 = now[x.m.key] ?? 0
+    return { e0, lo: Math.max(e0, x.lo * min), hi: Math.max(e0, x.hi * min) }
   })
-  const sumAt = (l) => xs.reduce((s, x) => s + Math.min(x.hi, Math.max(x.lo, x.f + l)), 0)
-  if (xs.reduce((s, x) => s + x.lo, 0) > budget + EPS || xs.reduce((s, x) => s + x.hi, 0) < budget - EPS) return null
-  // The nearest split: each share moved by the same amount, clamped to its bounds, so that they add up.
-  let lo = -1
-  let hi = 1
-  for (let i = 0; i < 60; i++) {
-    const mid = (lo + hi) / 2
-    if (sumAt(mid) < budget) lo = mid
-    else hi = mid
-  }
-  const g1 = { ...g0, ...Object.fromEntries(xs.map((x) => [x.key, (Math.min(x.hi, Math.max(x.lo, x.f + lo)) * min) / KCAL[x.key]])) }
   return (kcal) => {
-    const t = Math.min(1, Math.max(0, (kcal - eaten) / (min - eaten)))
-    return gramsOf(Object.fromEntries(Object.keys(g0).map((k) => [k, g0[k] + t * (g1[k] - g0[k])])))
+    const k = Math.min(min, Math.max(eaten, kcal))
+    const t = (k - eaten) / (min - eaten)
+    const share = (e0, e1) => Math.min(1, (e0 + t * (e1 - e0)) / k)
+    return {
+      calories: 'under',
+      shares: atMin.shares.map((x, i) => ({ ...x, lo: share(ends[i].e0, ends[i].lo), hi: share(ends[i].e0, ends[i].hi) })),
+    }
   }
 }
 

@@ -6,7 +6,7 @@ import { calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf, zero } from '../stats'
 import { WINDOWS, WINDOW_NAMES, addDays, daysBetween, versionStamp } from '../time'
 import { ROWS, barFor, barNotes, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
-import { PIE_MACROS, eatenArcs, eatenAt, eatenEdges, pathToMin, pieFull, pieModel, ringSegments, ringText, sharesText } from '../pie'
+import { PIE_MACROS, eatenArcs, eatenAt, guideToMin, pieFull, pieModel, ringSegments, ringText, sharesText, targetEdges } from '../pie'
 import { Chevron, go, replace, useToday } from '../components'
 import { getState } from '../backup'
 import { SyncStatus } from './Backup'
@@ -416,6 +416,8 @@ function PieCanvas({ model, val, total, steps, square, onPoint }) {
     // Inside the eaten ring: the split as the calories grew (eatenAt), in the eaten ring's colours, darker.
     const inner = arcs.length && steps?.length > 1 ? mid - thick / 2 : 0
     const hist = Object.fromEntries(Object.entries(pal.tone).map(([t, c]) => [t, mix(c, pal.bg, 0.55)]))
+    // From the eaten ring to the calorie min: the macros' room fanning out to their targets there (guideToMin).
+    const guide = guideToMin(model, total, val.value)
     const img = ctx.createImageData(n, n)
     const levels = []
     for (let y = 0; y < n; y++) {
@@ -426,7 +428,8 @@ function PieCanvas({ model, val, total, steps, square, onPoint }) {
         const kcal = ((i + 0.5) / S) * full
         const segs = (levels[i] ??= i + 1 <= inner
           ? arcSegs(eatenArcs(model, eatenAt(steps, val.value, kcal)), (tone) => hist[tone])
-          : ringSegments(model, kcal).map((sg) => ({ to: sg.to, c: segColour(pal, sg) })))
+          : ringSegments(model, kcal, guide && kcal >= val.value && kcal < model.energy.min ? guide(kcal) : undefined)
+            .map((sg) => ({ to: sg.to, c: segColour(pal, sg) })))
         const c = (segs.find((sg) => t < sg.to) ?? segs[segs.length - 1]).c
         const o = (y * n + x) * 4
         img.data[o] = c[0]
@@ -436,6 +439,20 @@ function PieCanvas({ model, val, total, steps, square, onPoint }) {
       }
     }
     ctx.putImageData(img, 0, 0)
+    // The macros' targets at the calorie target's lowest ring (its min, else its max): dashed lines from 0 kcal up
+    // to it at each one's min and max there (those splits, eaten in proportion).
+    const target = targetEdges(model)
+    ctx.lineWidth = 1.2 * k
+    ctx.strokeStyle = 'rgb(255 255 255 / .55)'
+    ctx.setLineDash([5 * k, 4 * k])
+    for (const e of target.edges) {
+      if (!sh.shown(e)) continue
+      ctx.beginPath()
+      ctx.moveTo(...sh.xy(e, 0))
+      ctx.lineTo(...sh.xy(e, Math.min(S, at(target.kcal))))
+      ctx.stroke()
+    }
+    ctx.setLineDash([])
     if (!arcs.length) return
     const ring = (L, from = 0, to = 1) => {
       ctx.beginPath()
@@ -446,36 +463,6 @@ function PieCanvas({ model, val, total, steps, square, onPoint }) {
     ctx.lineWidth = 1.5 * k
     ctx.strokeStyle = css(pal.range)
     if (hi > lo) for (const kcal of [lo, hi]) ring(at(kcal))
-    // The split eaten now, kept: dashed lines from 0 kcal out to the calorie target (its min, else its max).
-    const alcohol = (total.alcohol?.value || 0) > 0
-    const { min, max } = model.energy
-    const goal = Math.min(S, Number.isFinite(min) ? at(min) : Number.isFinite(max) ? at(max) : mid)
-    ctx.lineWidth = 1.2 * k
-    ctx.strokeStyle = 'rgb(255 255 255 / .55)'
-    ctx.setLineDash([5 * k, 4 * k])
-    for (const e of eatenEdges(model, total, alcohol)) {
-      if (!sh.shown(e)) continue
-      ctx.beginPath()
-      ctx.moveTo(...sh.xy(e, 0))
-      ctx.lineTo(...sh.xy(e, goal))
-      ctx.stroke()
-    }
-    // The path to the calorie min (pathToMin), solid: from the eaten ring's outer edge to the min.
-    ctx.setLineDash([])
-    const path = pathToMin(model, total, val.value)
-    if (path) {
-      const L0 = mid + thick / 2
-      const Ls = []
-      for (let L = L0; L < goal; L += 2 * k) Ls.push(L)
-      Ls.push(goal)
-      const lines = Ls.map((L) => eatenEdges(model, path(Math.max(val.value, (L / S) * full)), alcohol))
-      for (let j = 0; j < (lines[0]?.length ?? 0); j++) {
-        if (!sh.shown(lines[0][j])) continue
-        ctx.beginPath()
-        Ls.forEach((L, i) => ctx[i ? 'lineTo' : 'moveTo'](...sh.xy(lines[i][j], L)))
-        ctx.stroke()
-      }
-    }
     // The estimate: a ring split by what was eaten, edged in white.
     ctx.lineWidth = thick
     for (const a of arcs) {
@@ -510,6 +497,7 @@ function PieTile({ data }) {
   const [pointed, setPointed] = useState(null)
   const model = pieModel(data.targets)
   const kcal = calories(data.total)
+  const guide = guideToMin(model, data.total, kcal.value)
   return (
     <div className="pie-tile">
       <PieCanvas model={model} val={kcal} total={data.total} steps={data.steps} square={data.pieSquare} onPoint={setPointed} />
@@ -517,7 +505,7 @@ function PieTile({ data }) {
         <p className="pie-readout">
           {pointed < kcal.value && data.steps.length > 1
             ? <><b>{fmt(pointed, 0)} kcal</b> eaten: {sharesText(eatenAt(data.steps, kcal.value, pointed))}</>
-            : <><b>{fmt(pointed, 0)} kcal</b>: {ringText(model, pointed)}</>}
+            : <><b>{fmt(pointed, 0)} kcal</b>: {ringText(model, pointed, guide && pointed < model.energy.min ? guide(pointed) : undefined)}</>}
         </p>
       )}
     </div>

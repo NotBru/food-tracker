@@ -24,7 +24,8 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
-| 2026-11-06 | [Energy pie: dashed lines to the target, the path solid; a square shape](2026-11-06-pie-square.md) | accepted |
+| 2026-11-06 | [Energy pie: dashed lines at the targets; the room fans out from the eaten ring to the min](2026-11-06-pie-guide.md) | accepted |
+| 2026-11-06 | [Energy pie: dashed lines to the target, the path solid; a square shape](2026-11-06-pie-square.md) | accepted; lines superseded by [pie-guide](2026-11-06-pie-guide.md) |
 | 2026-11-06 | [Config in blocks: General, Dashboard, Food database](2026-11-06-config-blocks.md) | accepted |
 | 2026-11-06 | [Energy pie: the day's eating inside the eaten ring; the path to the calorie min](2026-11-06-pie-history-path.md) | accepted; lines superseded by [pie-square](2026-11-06-pie-square.md) |
 | 2026-11-05 | [Energy pie: the tiles beside it fill its height](2026-11-05-pie-fit.md) | accepted |

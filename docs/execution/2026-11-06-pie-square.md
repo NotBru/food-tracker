@@ -1,7 +1,7 @@
 # Energy pie: dashed lines to the target, the path solid; a square shape
 
 - **Date:** 2026-11-06
-- **Status:** accepted
+- **Status:** accepted; the lines superseded by [pie-guide](2026-11-06-pie-guide.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (Homescreen: energy pie; Config screen)
 
 ## Context
