@@ -7,7 +7,7 @@ import { amountText } from '../nutrients'
 import { DEFAULT_ENTRY_ERROR } from '../errors'
 import { CATEGORY_OPTIONS, CORE, DELETE_QUESTION, autoAmount as fillAuto, componentUnits, editorState, initialForm, newComponent, newUnit, nutrientRowsShown, pickComponent, round, sameIdAs, save as saveFood, saveProblem, withCreated } from '../foodForm'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
-import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, Screen, Select, pressable, UnitCombo, UnitInput, enterSaves, enterTo, go, replace } from '../components'
+import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, PrinterIcon, Screen, Select, pressable, UnitCombo, UnitInput, enterSaves, enterTo, go, replace } from '../components'
 import FoodInfo from './FoodInfo'
 
 // A food is anything you can eat: an ingredient, a recipe (has components) or a concoction (has a made-at time).
@@ -54,8 +54,10 @@ export function FoodList() {
 const parents = [] // [{ hash, name, form, extraShown, index, created }]
 
 /** An existing food has two tabs, Edit and Info (`?tab=info`); a new one only the form. `nutrient` (from a breakdown)
- * ranks the Info tab's components by that nutrient, and is kept across tab switches. */
-export function FoodEditor({ id, tab, nutrient, nested, name }) {
+ * ranks the Info tab's components by that nutrient; `log` (from a consumption's info) is the consumption the Info
+ * tab's nutrition label (🖨) starts at. Both are kept across tab switches. */
+export function FoodEditor({ id, tab, nutrient, log, nested, name }) {
+  const [printing, setPrinting] = useState(false)
   const isNew = id === 'new'
   const data = useLiveQuery(async () => {
     const ctx = await loadContext()
@@ -67,14 +69,19 @@ export function FoodEditor({ id, tab, nutrient, nested, name }) {
   if (!isNew && !data.rec) return <Screen title="Edit food"><p className="muted">Food not found (deleted?).</p></Screen>
   const info = !isNew && tab === 'info'
   const parent = nested && parents[Number(nested) - 1]
+  const tabUrl = (v) => {
+    const qs = new URLSearchParams({ ...(v === 'info' && { tab: 'info' }), ...(nutrient && { nutrient }), ...(log && { log }) }).toString()
+    return `/foods/${id}${qs ? `?${qs}` : ''}`
+  }
   return (
     // A new component looks like any new food, so its title says what it is for.
-    <Screen title={parent ? 'New component' : isNew ? 'New food' : data.rec.name || 'Food'} subtitle={parent && `for ${parent.name ? `“${parent.name}”` : 'the new food'}`}>
+    <Screen title={parent ? 'New component' : isNew ? 'New food' : data.rec.name || 'Food'} subtitle={parent && `for ${parent.name ? `“${parent.name}”` : 'the new food'}`}
+      right={info ? <button className="icon" onClick={() => setPrinting(true)} aria-label="Nutrition label"><PrinterIcon /></button> : undefined}>
       {!isNew && (
         <div className="segmented food-tabs" role="tablist" aria-label="Food">
           {[['edit', 'Edit'], ['info', 'Info']].map(([v, label]) => (
             <button key={v} role="tab" aria-selected={(v === 'info') === info} className={(v === 'info') === info ? 'on' : ''}
-              onClick={() => replace(`/foods/${id}${v === 'info' ? '?tab=info' : ''}${nutrient ? `${v === 'info' ? '&' : '?'}nutrient=${nutrient}` : ''}`)}>{label}</button>
+              onClick={() => replace(tabUrl(v))}>{label}</button>
           ))}
         </div>
       )}
@@ -87,7 +94,7 @@ export function FoodEditor({ id, tab, nutrient, nested, name }) {
           nested={!!parent} name={name} />
       </div>
       {!isNew && <SameIdWarning ctx={data.ctx} item={data.rec} />}
-      {info && <FoodInfo ctx={data.ctx} item={data.rec} nutrient={nutrient} />}
+      {info && <FoodInfo ctx={data.ctx} item={data.rec} nutrient={nutrient} log={log} printing={printing} onPrintClose={() => setPrinting(false)} />}
     </Screen>
   )
 }

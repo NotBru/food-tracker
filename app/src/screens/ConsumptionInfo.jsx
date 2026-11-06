@@ -45,7 +45,7 @@ export default function ConsumptionInfo({ id, nutrient }) {
           </li>
         )}
         {item && (
-          <li className="info-link" onClick={() => go(`/foods/${item.id}?tab=info${nutrient ? `&nutrient=${nutrient}` : ''}`)}>
+          <li className="info-link" onClick={() => go(`/foods/${item.id}?tab=info${nutrient ? `&nutrient=${nutrient}` : ''}&log=${encodeURIComponent(log.id)}`)}>
             <span>Food</span>
             <span>{itemLabel(item)} <MadeTag item={item} /> <span className="muted">· info ›</span></span>
           </li>

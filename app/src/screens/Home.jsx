@@ -7,7 +7,7 @@ import { bounds, sdOf, zero } from '../stats'
 import { WINDOWS, WINDOW_NAMES, addDays, daysBetween, versionStamp } from '../time'
 import { ROWS, barFor, barNotes, exportFileName, fillEnd, fillPieces, ghostFor, hasMean, loadDashboard, statusMark, windowTitle } from '../dashboard'
 import { PIE_MACROS, eatenArcs, eatenAt, eatenErrorBars, guideToMin, pieFull, pieModel, ringSegments, ringText, sharesText, targetCurves, targetEdges } from '../pie'
-import { Chevron, go, replace, useToday } from '../components'
+import { Chevron, go, replace, saveFile, useToday } from '../components'
 import { getState } from '../backup'
 import { SyncStatus } from './Backup'
 
@@ -706,13 +706,7 @@ export default function Home({ query = {} }) {
   async function doExport() {
     const text = await exportAll()
     const name = exportFileName()
-    const file = new File([text], name, { type: 'application/json' })
-    if (navigator.canShare?.({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: name }); return } catch { /* fall back to download */ }
-    }
-    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(file), download: name })
-    a.click()
-    URL.revokeObjectURL(a.href)
+    await saveFile(new File([text], name, { type: 'application/json' }))
   }
 
   function pickImport(e) {

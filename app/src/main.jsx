@@ -43,7 +43,7 @@ function App() {
   if (a === 'explore') return <Explore nutrient={b} />
   if (a === 'breakdown') return <Breakdown key={`${b} ${query.from} ${query.to}`} nutrient={b} from={query.from} to={query.to} win={query.win} per={query.per} />
   if (a === 'foods' && b === 'external') return <External initialQuery={query.q} />
-  if (a === 'foods') return b ? <FoodEditor id={b} tab={query.tab} nutrient={query.nutrient} nested={query.in} name={query.name} /> : <FoodList />
+  if (a === 'foods') return b ? <FoodEditor id={b} tab={query.tab} nutrient={query.nutrient} log={query.log} nested={query.in} name={query.name} /> : <FoodList />
   return <Home query={query} />
 }
 

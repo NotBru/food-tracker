@@ -71,6 +71,25 @@ export function TrashIcon() {
   )
 }
 
+/** Printer, for the food Info tab's nutrition label; an SVG for the same reason as Chevron. */
+export function PrinterIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" className="chevron">
+      <path d="M7 9V4h10v5M7 17H5.5A1.5 1.5 0 0 1 4 15.5v-5A1.5 1.5 0 0 1 5.5 9h13a1.5 1.5 0 0 1 1.5 1.5v5a1.5 1.5 0 0 1-1.5 1.5H17M7 14h10v6H7z" />
+    </svg>
+  )
+}
+
+/** Hands a file to the phone's share sheet where it can take files, else downloads it. */
+export async function saveFile(file) {
+  if (navigator.canShare?.({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: file.name }); return } catch { /* fall back to download */ }
+  }
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(file), download: file.name })
+  a.click()
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000)
+}
+
 export function Screen({ title, subtitle, back = true, right, className = '', children }) {
   return (
     <div className={`screen ${className}`.trim()}>

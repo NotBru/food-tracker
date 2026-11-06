@@ -1,18 +1,21 @@
 import { useState } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { baseAmount, nutrientsFor, resolve, span, unitFactorSpan, unitsFor } from '../calc'
-import { itemLabel } from '../db'
+import { db, itemLabel } from '../db'
 import { MadeTag, Select } from '../components'
 import { MACROS, NUTRIENTS, calories, fmt, normalizeNumber, pmText, rangeText } from '../nutrients'
 import { getCoverage, sdOf } from '../stats'
 import { DEFAULT_ENTRY_ERROR, categoryName } from '../errors'
 import { ROWS } from '../dashboard'
 import EnergyChart from './EnergyChart'
+import LabelSheet from './LabelSheet'
 
 // Info tab of a food: the nutrients for any amount (picked on top), computed with the same error maths as
 // consumptions (calc.js), so what's shown here is exactly what a consumption would get: its energy by macro
 // (EnergyChart.jsx, as on a consumption's info screen), every nutrient, then every amount with its error.
 // Opened from a nutrient's breakdown (`nutrient`), the components are ranked by how much of it each brings, shown
-// at their left.
+// at their left. The screen's 🖨 (`printing`) opens its nutrition label (LabelSheet.jsx), starting at the consumption
+// `log` when opened from one.
 
 // Energy and the macros first, then the rest in the usual order.
 const FIRST = ['energy', ...MACROS]
@@ -32,11 +35,12 @@ export function Amount({ value, lo, hi, unit, delta }) {
   )
 }
 
-export default function FoodInfo({ ctx, item, nutrient }) {
+export default function FoodInfo({ ctx, item, nutrient, log, printing, onPrintClose }) {
   const [baseAmt, baseUnit, baseDelta] = baseAmount(item)
   const units = unitsFor(ctx, item.id)
   const [perText, setPerText] = useState(String(baseAmt))
   const [perUnit, setPerUnit] = useState(units[0] ?? baseUnit)
+  const consumption = useLiveQuery(() => (log ? db.logs.get(log) : null), [log])
   const per = Number(normalizeNumber(perText))
   const res = per > 0 ? nutrientsFor(ctx, item.id, per, perUnit, 0) : null
   // The nutrient the components are ranked by (Calories/Protein/… as on the dashboard); unknown keys are ignored.
@@ -116,6 +120,8 @@ export default function FoodInfo({ ctx, item, nutrient }) {
           )
         })}
       </ul>
+      {/* Waits for the consumption, if any, so the sheet starts at it. */}
+      {printing && (!log || consumption !== undefined) && <LabelSheet ctx={ctx} item={item} log={consumption} per={{ text: perText, unit: perUnit }} onClose={onPrintClose} />}
     </div>
   )
 }
