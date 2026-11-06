@@ -61,7 +61,8 @@ of both off this laptop. Without them the release APK comes out unsigned. With a
 update, and the app has to be uninstalled first (its data goes; the backup brings it back). Up to 0.2.0 the APKs
 were signed with the container's debug key; 0.2.1 needs that one uninstall.
 
-**F-Droid** (updates without copying APKs): after the build, `scripts/publish.sh` puts the APK in `fdroid/repo/` and
+**F-Droid** (updates without copying APKs): after the build, `scripts/publish.sh` (in the dev container, which has
+fdroidserver) puts the APK in `fdroid/repo/` and
 signs the repo's index (key `fdroid-repo`, in the same `.secrets` keystore); the next push to master uploads it
 (`../deploy/hooks/reference-transaction`). On the phone, once: F-Droid → Settings → Repositories → + →
 `https://track-shit.notbru.xyz/fdroid/repo?fingerprint=D5C18F739E4235B30707B8DD8351F3C68BEA1B2512A32E13E9F5D3B12F0957E2`.
