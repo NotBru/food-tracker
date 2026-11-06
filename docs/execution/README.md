@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-06 | [Every unit but a measure defaults to an exact count](2026-11-06-count-units.md) | accepted |
 | 2026-11-06 | [log-food skill: the "Claude estimate" tag a suggestion, not added by the tool](2026-11-06-log-food-estimate-tag.md) | accepted |
 | 2026-11-06 | [Energy pie: no green; where no macro target applies, blue](2026-11-06-pie-blue-free.md) | accepted |
 | 2026-11-06 | [Energy pie: the guide to the min straight (shares linear in kcal)](2026-11-06-pie-guide-straight.md) | accepted |
@@ -146,7 +147,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 | 2026-10-16 | [Serve script: reach the app from outside the container](2026-10-16-serve-script.md) | accepted |
 | 2026-10-16 | [Error maths audit](2026-10-16-error-math-audit.md) | accepted |
 | 2026-10-16 | [Food screen: Edit and Info tabs](2026-10-16-food-info.md) | accepted |
-| 2026-10-16 | [Amounts in "u" default to an exact count](2026-10-16-count-unit-exact.md) | accepted |
+| 2026-10-16 | [Amounts in "u" default to an exact count](2026-10-16-count-unit-exact.md) | accepted; "only `u`" superseded by [count-units](2026-11-06-count-units.md) |
 | 2026-10-16 | [Nutrient breakdown, error ranges on the dashboard, view in the URL](2026-10-16-breakdown.md) | accepted |
 | 2026-10-16 | [Daily dashboard: day arrows; centred chevrons](2026-10-16-day-arrows.md) | accepted |
 | 2026-10-16 | [Daily dashboard: day slider](2026-10-16-day-slider.md) | superseded by day-arrows |

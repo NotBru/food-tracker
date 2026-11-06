@@ -124,7 +124,7 @@ Fields not written have their values stored as `NaN` for later inference or what
 
 A scrollable list of unit conversions for this food, where each entry is `amount, units`, and
 `amount, units` again. For instance, 1 slice = 30 g. Standard mass and volume units convert by
-themselves. "u" amounts default to an exact count.
+themselves. Amounts in any unit but a measure (g, ml, cup…) default to an exact count.
 
 #### Components (recipes)
 

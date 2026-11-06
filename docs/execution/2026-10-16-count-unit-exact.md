@@ -1,7 +1,7 @@
 # Amounts in "u" default to an exact count
 
 - **Date:** 2026-10-16
-- **Status:** accepted
+- **Status:** superseded by [count-units](2026-11-06-count-units.md) ("only `u`")
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) ("Every value should also have a corresponding error")
 
 ## Context

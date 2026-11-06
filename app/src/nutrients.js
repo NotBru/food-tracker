@@ -73,8 +73,21 @@ export function deltaFromInput(text) {
   return Number((10 ** -decimals).toFixed(decimals))
 }
 
-/** Counted units ("u"): a count is exact, so its default error is 0. */
-export const isCountUnit = (unit) => String(unit ?? '').trim().toLowerCase() === 'u'
+// Built-in conversions to a base unit per dimension: the measures (calc.js converts with them).
+export const BUILTIN_UNITS = {
+  g: ['mass', 1], kg: ['mass', 1000], mg: ['mass', 0.001], oz: ['mass', 28.349523125], lb: ['mass', 453.59237],
+  ml: ['volume', 1], l: ['volume', 1000], cl: ['volume', 10], dl: ['volume', 100],
+  tsp: ['volume', 4.92892], tbsp: ['volume', 14.7868], cup: ['volume', 236.588], 'fl oz': ['volume', 29.5735],
+}
+
+/**
+ * Counted units: any unit but a measure ("u", "portion", "potesito", "slice": what a food defines itself). A count
+ * is exact, so its default error is 0; a typed Δ overrides it ("1 ± 0.5 slice").
+ */
+export const isCountUnit = (unit) => {
+  const u = String(unit ?? '').trim().toLowerCase()
+  return u !== '' && !Object.hasOwn(BUILTIN_UNITS, u)
+}
 
 /** Default error of an amount typed as `text` in `unit`: 0 for counted units, otherwise from the digits. */
 export function autoAmountDelta(text, unit) {

@@ -1,19 +1,17 @@
 import Dexie from 'dexie'
 import { db, getConfig, getCurrentUser } from './db'
 import { addDays, dayBounds } from './time'
-import { NUTRIENTS, calories, deltaFromInput } from './nutrients'
+import { BUILTIN_UNITS, NUTRIENTS, calories, deltaFromInput } from './nutrients'
 import { DEFAULT_ENTRY_ERROR, sampling } from './errors'
 import { ciqualFoods, fdcFoods } from './external'
 import { addProduct, addScaled, bounds, zero } from './stats'
 
-// Built-in conversions to a base unit per dimension.
-const BUILTIN = {
-  g: ['mass', 1], kg: ['mass', 1000], mg: ['mass', 0.001], oz: ['mass', 28.349523125], lb: ['mass', 453.59237],
-  ml: ['volume', 1], l: ['volume', 1000], cl: ['volume', 10], dl: ['volume', 100],
-  tsp: ['volume', 4.92892], tbsp: ['volume', 14.7868], cup: ['volume', 236.588], 'fl oz': ['volume', 29.5735],
-}
-
 const norm = (u) => String(u ?? '').trim().toLowerCase()
+/** Factor between two built-in units of the same dimension, or NaN. */
+const builtin = (a, b) => {
+  const [x, y] = [BUILTIN_UNITS[a], BUILTIN_UNITS[b]]
+  return x && y && x[0] === y[0] ? x[1] / y[1] : NaN
+}
 
 // --- Amount intervals ----------------------------------------------------------
 // Every amount may carry an error (amount ± Δ). For showing amounts as typed (and adding up a recipe's amount), they
@@ -41,7 +39,6 @@ export function unitFactorSpan(fromUnit, toUnit, units = []) {
   const from = norm(fromUnit)
   const to = norm(toUnit)
   if (from === to) return EXACT(1)
-  const builtin = (a, b) => (BUILTIN[a] && BUILTIN[b] && BUILTIN[a][0] === BUILTIN[b][0] ? BUILTIN[a][1] / BUILTIN[b][1] : NaN)
   const direct = builtin(from, to)
   if (Number.isFinite(direct)) return EXACT(direct)
 
@@ -76,7 +73,6 @@ export function unitFactorStat(fromUnit, toUnit, units = []) {
   const from = norm(fromUnit)
   const to = norm(toUnit)
   if (from === to) return [1, 0]
-  const builtin = (a, b) => (BUILTIN[a] && BUILTIN[b] && BUILTIN[a][0] === BUILTIN[b][0] ? BUILTIN[a][1] / BUILTIN[b][1] : NaN)
   const direct = builtin(from, to)
   if (Number.isFinite(direct)) return [direct, 0]
   const hop = (a, b) => (a === b ? 1 : builtin(a, b))
@@ -187,7 +183,7 @@ export function unitsFor(ctx, itemId) {
   const item = resolve(ctx, itemId)
   if (!item) return []
   const base = norm(baseAmount(item)[1])
-  const candidates = new Set([...Object.keys(BUILTIN), 'portion'])
+  const candidates = new Set([...Object.keys(BUILTIN_UNITS), 'portion'])
   for (const c of item.units ?? []) candidates.add(norm(c.fromUnit)).add(norm(c.toUnit))
   candidates.delete(base)
   candidates.delete('')

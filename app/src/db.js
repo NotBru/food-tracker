@@ -151,7 +151,7 @@ db.version(11).stores({}).upgrade(async (tx) => {
   await tx.table('logs').toCollection().modify(countUnitDeltas)
 })
 
-/** Zero the automatic Δ of every amount in "u" (an item's amount, units and components, or a log). Idempotent. */
+/** Zero the automatic Δ of every amount in a counted unit (an item's amount, units and components, or a log). Idempotent. */
 export function countUnitDeltas(row) {
   const zero = (o, unit, delta, auto) => { if (o && o[auto] && isCountUnit(o[unit])) o[delta] = 0 }
   zero(row, 'unit', 'amountDelta', 'amountDeltaAuto')
@@ -209,6 +209,13 @@ db.version(16).stores({ sync: 'key' }).upgrade(async (tx) => {
 // docs/execution/2026-11-02-temp-notes.md, 2026-11-02-note-picture-names.md and 2026-11-03-note-done.md). Their pictures are in `files` ({ id, blob, uploaded }), which stays on
 // this device: the backup syncs them as files of their own (backup.js), not in its data.
 db.version(17).stores({ notes: 'id, [userId+datetime], datetime', files: 'id' })
+
+// v18: every unit but a measure (g, ml, cup…) counts, not only "u" ("1 potesito"): its automatic Δ becomes 0 too
+// (see docs/execution/2026-11-06-count-units.md). Explicit Δs stay.
+db.version(18).stores({}).upgrade(async (tx) => {
+  await tx.table('items').toCollection().modify(countUnitDeltas)
+  await tx.table('logs').toCollection().modify(countUnitDeltas)
+})
 
 // The synced tables: exported, backed up, merged.
 export const TABLES = [...V16_TABLES, 'notes']
