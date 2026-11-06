@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.lifecycle.runtime.compose)
     implementation(libs.serialization.json)
     implementation(libs.coroutines.android)
+    implementation(libs.zxing.embedded)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
 

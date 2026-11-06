@@ -6,6 +6,23 @@
   and android, a barcode scanner for OFF", "a `.sh` that runs the two commands required to bootstrap the emulator for
   you", "The graphs in “Time graphs” should update live as you move the slider"
 
+## Barcode scanner
+
+A barcode button between the search box and Search, on both apps; a code read goes into the box and is looked up at
+once (the box's own barcode lookup, `searchOff`). EAN-13, EAN-8, UPC-A, UPC-E only: what's printed on packs.
+
+- **Web** (`ScanSheet.jsx`): the back camera in a sheet with a line to aim with; `@zxing/browser` decodes it.
+  Chosen over the browser's `BarcodeDetector`, which Firefox and desktop browsers lack: one path everywhere. It's
+  imported when the sheet opens, as its own ~480 kB chunk; the main bundle grew 4 kB. Camera errors (not allowed, none,
+  no https) show in the sheet. Checked in headless Chromium with a fake camera drawing Nutella's EAN-13: read,
+  looked up, Nutella listed.
+- **Android**: zxing-android-embedded 4.3.0 (Apache 2.0, zxing core, no Play Services, so fine for F-Droid) and its
+  scanner screen, which asks for the camera itself; rotation unlocked in the manifest. Not ML Kit: proprietary, Play
+  Services. Not a Compose camera of our own (CameraX plus zxing core): more code for a screen that only has to read one
+  code. Checked on the emulator: the camera permission prompt, the scanner, back to the search; its emulated camera
+  shows no barcode, so reading one was checked on the web only. The web's zxing chunk also ends up in the APK's web
+  assets, unused there.
+
 ## Time graphs: live slider
 
 The web's range input already set the window at each step while held (checked: holding the mouse and moving left

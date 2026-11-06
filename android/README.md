@@ -15,7 +15,7 @@ Design: `../docs/instructions/design.md` · Decisions: `../docs/execution/2026-1
 | `/` | `ui/HomeScreen.kt` | `app/src/screens/Home.jsx` | `app/src/dashboard.js`, `app/src/pie.js`, `app/src/native/core.js` `home`, `pieScene`, `pieReadout` |
 | `/consumptions` | `ui/ConsumptionsScreen.kt` | `app/src/screens/Consumptions.jsx` | `app/src/consumptionForm.js`, core.js `consumptions`, `consumptionEditor` |
 | `/foods` | `ui/FoodsScreen.kt` `FoodsScreen` | `app/src/screens/Foods.jsx` FoodList | `search.js foodListMatches`, core.js `foods` |
-| `/foods/external` | `ui/ExternalScreen.kt` | `app/src/screens/External.jsx` | `app/src/external.js`, core.js `offSearch`, `offPick` |
+| `/foods/external` | `ui/ExternalScreen.kt` | `app/src/screens/External.jsx`, `ScanSheet.jsx` | `app/src/external.js`, core.js `offSearch`, `offPick`; the scanner: zxing-android-embedded |
 | `/foods/:id` | `ui/FoodsScreen.kt` `FoodScreen` | `Foods.jsx` FoodEditor, FoodForm; `FoodInfo.jsx` (Info tab); `LabelSheet.jsx` (🖨, `ui/LabelSheet.kt`) | `app/src/foodForm.js`, `app/src/label.js`, core.js `foodEditor`, `foodInfo`, `labelSheet`, `labelImage` |
 | `/notes` | `ui/NotesScreen.kt` | `app/src/screens/Notes.jsx` | `app/src/notes.js`, core.js `notes`, `notePick`, `notePicture`, `saveNote` |
 | `/targets` | `ui/TargetsScreen.kt` | `app/src/screens/Targets.jsx` | `app/src/forms.js`, core.js `targets`, `targetEditor`, `saveTarget` |

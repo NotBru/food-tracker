@@ -123,7 +123,7 @@ Fields not written have their values stored as `NaN` for later inference or what
 
 - [x] V2: Some way of automatically fetch products from cool databases: reference databases (CIQUAL, USDA
   FoodData Central) listed with your own foods, read-only, editing makes a copy; "search external" on a new food
-  over Open Food Facts (products, by name or barcode; from our copy on the server, OFF itself as fallback). Imports get a `database` attribute.
+  over Open Food Facts (products, by name or barcode, typed or scanned with the camera; from our copy on the server, OFF itself as fallback). Imports get a `database` attribute.
 
 #### Units
 
