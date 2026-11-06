@@ -16,3 +16,11 @@ finger and moving it: 1, 2, 3, 5, 6, 7 months as it went.
 A request to make sliding the graphs move the window without changing its width was dropped: both apps already pan
 without changing it (checked: a touch drag on the web, a swipe on the emulator, 30 days before and after), and the
 user said never mind.
+
+## Emulator script
+
+`android/scripts/host-emulator.sh`, run on the laptop: the two commands given in chat until now. The emulator is
+started detached (`setsid`) unless already running, inside `systemd-run --user --scope` with `MemoryMax=4G`,
+`MemorySwapMax=0` (the user: it kept "tilting" the machine from startup; capped, it ran fine), `-memory 2048 -cores 2
+-no-snapshot`; then `adb kill-server` and `adb -a nodaemon server start` in the foreground. Not run here (it's for
+the host); syntax checked.
