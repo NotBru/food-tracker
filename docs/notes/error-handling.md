@@ -80,7 +80,7 @@ distribution at the end.
 For one atomic entry (i.e., not the composition of many ingredients):
 - $w_\alpha = w \hat{q}_\alpha$ is the mean
 - $\delta s_\alpha = w \hat{\delta q}_\alpha$ is the sample's deviation
-- ${\delta e_\alpha}^2 = {\hat{q}_\alpha}^2 {\delta w}^2 + {\delta w}^2 {\hat{\delta q}_\alpha}^2 + \varepsilon_e^2 w^2 {\hat{q}_\alpha}^2$
+- $`{\delta e_\alpha}^2 = {\hat{q}_\alpha}^2 {\delta w}^2 + {\delta w}^2 {\hat{\delta q}_\alpha}^2 + \varepsilon_e^2 w^2 {\hat{q}_\alpha}^2`$
   is the entry's own variance, $\delta w$ being the scale's error
 - ${\delta w_\alpha}^2 = {\delta s_\alpha}^2 + {\delta e_\alpha}^2$
 
