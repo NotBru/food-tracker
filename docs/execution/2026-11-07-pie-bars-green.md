@@ -11,7 +11,12 @@ slight green shading and a little more brightness.
 
 ## Decision
 
-- "Inner lines" read as each bar's edge towards 0 kcal: only the outer edge (`L1`) is drawn, a circle in the round
-  pie, a row in the square (no sides, which would dangle without the lower edge).
+- "Inner lines" first read as each bar's edge towards 0 kcal (wrong, see below); no sides in the square.
 - `barColour`: 86% over the background (was 78%), then 15% of the line's green mixed in.
 - Checked in headless Chromium (the same seeded day, round and square); the Android app compiles.
+
+## Correction
+
+The inner lines meant the ones facing the zone between the bars: the min bar's upper edge and the max bar's lower
+one. Now the lines are below the min bar and above the max bar (`pieScene` `barEdges`: levels; the max bar's as far
+as it's drawn), and the bars brighter still: 90% of their saturation, 94% over the background, before the green.

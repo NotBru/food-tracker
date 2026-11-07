@@ -53,7 +53,7 @@ data class PieScene(
     val levels: List<List<PieSeg>>,
     val lines: List<PieLine> = emptyList(),
     val curves: List<List<PiePt?>> = emptyList(),
-    val bars: List<PieBand> = emptyList(),
+    val barEdges: List<Double> = emptyList(),
     val barLine: List<Int> = listOf(126, 231, 135),
     val rings: List<Double> = emptyList(),
     val mid: Double,
@@ -66,7 +66,6 @@ data class PieScene(
 
 @Serializable data class PieSeg(val to: Double, val c: List<Int>)
 @Serializable data class PieLine(val t: Double, @kotlinx.serialization.SerialName("L0") val l0: Double, @kotlinx.serialization.SerialName("L1") val l1: Double)
-@Serializable data class PieBand(@kotlinx.serialization.SerialName("L0") val l0: Double, @kotlinx.serialization.SerialName("L1") val l1: Double)
 @Serializable data class PiePt(val t: Double, @kotlinx.serialization.SerialName("L") val l: Double)
 @Serializable data class PieArc(val from: Double, val to: Double, val c: List<Int>)
 @Serializable

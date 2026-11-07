@@ -24,7 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
-| 2026-11-07 | [Energy pie: the min and max bars shaded green, only their outer edge lined](2026-11-07-pie-bars-green.md) | accepted |
+| 2026-11-07 | [Energy pie: the min and max bars shaded green, lined below the min's and above the max's](2026-11-07-pie-bars-green.md) | accepted |
 | 2026-11-07 | [Energy pie: the min and max bars brighter, outlined in green](2026-11-07-pie-bars-outline.md) | accepted; outline and colour superseded by [pie-bars-green](2026-11-07-pie-bars-green.md) |
 | 2026-11-06 | [Barcode scanner for OFF, live graphs slider, emulator script](2026-11-06-scanner-live-graphs.md) | accepted |
 | 2026-11-06 | [Android port: energy pie, Config blocks, slider stops, text boxes, nutrition label](2026-11-06-android-port-pie.md) | accepted |
