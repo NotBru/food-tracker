@@ -36,7 +36,7 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
   calorie min, each macro's room from its share eaten to its min and max there, the shares linear in kcal. Where that
   history covers the calorie target: thin bars (half the eaten ring), right below the min (its split) and the max
   (the rings there), showing as the eaten ring goes past them, between the history and the eaten ring in brightness,
-  outlined in a thin solid green; between
+  shaded slightly green, their outer edge a thin solid green line; between
   them (or up to the eaten ring) the macros' min and max edges as dashed curves, meeting the bars. The eaten split's
   error bars: each macro's share range (its interval's low to high end, the others at their means) on the eaten
   ring, as the bars' error range: its colour see-through, hatched lighter. Pointing reads a ring (over the pie). Square (switch): the pie's right half unrolled, calories up, the macros' shares across.

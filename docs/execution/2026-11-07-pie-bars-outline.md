@@ -1,7 +1,7 @@
 # Energy pie: the min and max bars brighter, outlined in green
 
 - **Date:** 2026-11-07
-- **Status:** accepted
+- **Status:** accepted; outline and colour superseded by [pie-bars-green](2026-11-07-pie-bars-green.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (Homescreen: energy pie)
 
 ## Context

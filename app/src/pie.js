@@ -352,8 +352,8 @@ const fade = (c, bg, sat = 0.4, keep = 0.42) => {
   return mix(mix(c, [grey, grey, grey], sat), bg, keep)
 }
 /** The bars of the target zone under the eaten history: between the history (55% over the background) and the eaten
- * ring (full) in brightness, most of their saturation kept. */
-const barColour = (pal, s) => fade(segColour(pal, { ...s, dim: false }), pal.bg, 0.85, 0.78)
+ * ring (full) in brightness, most of their saturation kept, shaded slightly green (their outline's colour). */
+const barColour = (pal, s) => mix(fade(segColour(pal, { ...s, dim: false }), pal.bg, 0.85, 0.86), pal.barLine, 0.85)
 const segColour = (pal, s) => {
   const p = s.dim ? pal.faded : pal
   return s.kind === 'core' || s.kind === 'flank' ? p[s.kind][s.key] : p[s.kind]
@@ -374,7 +374,7 @@ const arcSegs = (arcs, colour) =>
  * - levels[i]: level i's colours, [{to, c}] (c [r, g, b] from turn `to`'s predecessor up to `to`);
  * - lines: dashed radial lines {t, L0, L1} (the macros' targets up to the calorie target's lowest ring);
  * - curves: dashed curves, [[{t, L} | null]] (those edges as they curve up the zone the history went past);
- * - bars: the bars at the calorie min and max as far as drawn, {L0, L1}, outlined in a thin solid `barLine`;
+ * - bars: the bars at the calorie min and max as far as drawn, {L0, L1}, their outer edge (L1) a thin solid `barLine`;
  * - rings: the calories' interval, dashed (levels); mid, thick: the eaten ring; arcs: its parts {from, to, c};
  * - errs: the macros' share ranges on it {L0, L1, from, to, c, hatch} (see-through c, hatched in `hatch`);
  * - edges: the eaten ring's white edges (levels).
