@@ -351,9 +351,9 @@ const fade = (c, bg, sat = 0.4, keep = 0.42) => {
   const grey = 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2]
   return mix(mix(c, [grey, grey, grey], sat), bg, keep)
 }
-/** The bars of the target zone under the eaten history: between the history (55% over the background) and the eaten
- * ring (full) in brightness, most of their saturation kept, shaded slightly green (their outline's colour). */
-const barColour = (pal, s) => mix(fade(segColour(pal, { ...s, dim: false }), pal.bg, 0.9, 0.94), pal.barLine, 0.85)
+/** The bars of the target zone under the eaten history: the zone's own colours, full, shaded slightly green (their
+ * lines' colour). */
+const barColour = (pal, s) => mix(segColour(pal, { ...s, dim: false }), pal.barLine, 0.85)
 const segColour = (pal, s) => {
   const p = s.dim ? pal.faded : pal
   return s.kind === 'core' || s.kind === 'flank' ? p[s.kind][s.key] : p[s.kind]
