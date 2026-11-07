@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { itemLabel } from '../db'
 import { amountText, fmt, pmText, rangeText } from '../nutrients'
 import { bounds } from '../stats'
-import { formatDateTime, prettyDay, toLocalInput } from '../time'
+import { ROLLING, formatDateTime, prettyDay, toLocalInput } from '../time'
 import { MadeTag, Screen, go, replace } from '../components'
 import { breakdownMeta, breakdownState, loadBreakdown, makeGroup as groupPicked, quintiles, renameGroup, sum, ungroup as ungroupAll } from '../breakdown'
 
@@ -14,7 +14,7 @@ import { breakdownMeta, breakdownState, loadBreakdown, makeGroup as groupPicked,
 // Consumptions can be ticked and grouped: a group is one row (and one unit for the quintiles), in every breakdown.
 // The group lives on the consumptions themselves (`log.groupId`, and its optional name in `log.groupName`), so it
 // only ever covers those log entries.
-// From the "last 7 days" dashboard, a "Days" view comes first: one row per day, largest first; a day opens its own
+// From the "last 7 days" and "last 30 days" dashboards, a "Days" view comes first: one row per day, largest first; a day opens its own
 // breakdown, as from the daily dashboard.
 // "per 100 kcal" shows every row as its nutrient over its own calories instead (the header: over the window's calories,
 // from every consumption). The logic: breakdown.js.
@@ -33,7 +33,7 @@ function Bar({ r, scale, cls }) {
 }
 
 export default function Breakdown({ nutrient, from, to, win, per }) {
-  const byDay = win === 'last7' && from !== to
+  const byDay = !!ROLLING[win] && from !== to
   const perKcal = per === 'kcal' && nutrient !== 'energy'
   const [view, setView] = useState(byDay ? 'days' : 'ranked')
   const [picked, setPicked] = useState(() => new Set()) // entry keys

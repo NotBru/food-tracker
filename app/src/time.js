@@ -60,17 +60,19 @@ export function dayBounds(dayStr, dayStart) {
   return [start, end]
 }
 
-export const WINDOWS = ['daily', 'last7', 'weekly', 'monthly']
-export const WINDOW_NAMES = { daily: 'daily', last7: 'last 7 days', weekly: 'weekly', monthly: 'monthly' }
+export const WINDOWS = ['daily', 'last7', 'last30', 'weekly', 'monthly']
+export const WINDOW_NAMES = { daily: 'daily', last7: 'last 7 days', last30: 'last 30 days', weekly: 'weekly', monthly: 'monthly' }
+/** Rolling windows: they end on the day given (today) and start N − 1 days before it. */
+export const ROLLING = { last7: 7, last30: 30 }
 
 /**
- * Logical days [firstDay, lastDay] of the window containing `dayStr`. Weeks start on Monday. last7 is rolling: the
- * 6 days before `dayStr` and `dayStr` itself, the days the weekly calorie correction looks at.
+ * Logical days [firstDay, lastDay] of the window containing `dayStr`. Weeks start on Monday. last7 and last30 are rolling:
+ * `dayStr` and the 6 (29) days before it; last7's are the days the weekly calorie correction looks at.
  */
 export function windowDays(win, dayStr) {
   const d = parseDay(dayStr)
   if (win === 'daily') return [dayStr, dayStr]
-  if (win === 'last7') return [addDays(dayStr, -6), dayStr]
+  if (ROLLING[win]) return [addDays(dayStr, 1 - ROLLING[win]), dayStr]
   if (win === 'weekly') {
     const first = addDays(dayStr, -((d.getDay() + 6) % 7))
     return [first, addDays(first, 6)]

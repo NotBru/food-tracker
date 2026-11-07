@@ -22,7 +22,7 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
   icon with hover text: grey off, green synced, yellow checking or syncing (from opening until the backup answers),
   waiting, or out of reach (two checks in a row), red failing, violet merge conflict (labelled, unless
   turned off).
-- Dashboard first, showing in colorful plain text how much has been eaten in the selected time window. Time windows are changed by swiping left/right on a header for the dashboard, which shows the selected time window. Options: daily, last 7 days, weekly, monthly. Daily has day arrows and a "Today" button, up to tomorrow. Longer windows show per-day averages. If set up, show whether the target is being reached: a gauge or progress bar per nutrient, tinted below min, within range and above max. The error range is a hatched band, and a target only counts as reached if the whole range is within it. Hovering a bar shows the amount under the cursor. Bars: slim rows; every number is a note at its place on the bar: the value and its range's ends above, the target's min and max below, each lane on one line, the notes a minimum distance apart (never overlapping); without a target, a grey bar on the same scale.
+- Dashboard first, showing in colorful plain text how much has been eaten in the selected time window. Time windows are changed by swiping left/right on a header for the dashboard, which shows the selected time window. Options: daily, last 7 days, last 30 days, weekly, monthly. Daily has day arrows and a "Today" button, up to tomorrow. Longer windows show per-day averages. If set up, show whether the target is being reached: a gauge or progress bar per nutrient, tinted below min, within range and above max. The error range is a hatched band, and a target only counts as reached if the whole range is within it. Hovering a bar shows the amount under the cursor. Bars: slim rows; every number is a note at its place on the bar: the value and its range's ends above, the target's min and max below, each lane on one line, the notes a minimum distance apart (never overlapping); without a target, a grey bar on the same scale.
 - Energy pie (switch): the dashboard's first tile, only the pie, square, as wide as a bar (or a whole number of
   gauges); the tiles beside it fill its height, all tiles one height, never shrunk; one column: the pie on top. Radius = kcal; each ring split by the share of its energy (4/9/4 kcal/g) the protein, fat and
   carbs targets allow: deep blue (#000421) where the macros can't fit; where no macro target applies, a lighter blue (#1e3a78)
@@ -70,8 +70,8 @@ Every consumption should also list the macros and calories: prot., carbs., fat, 
 
 ### Breakdown screen
 
-One nutrient over the dashboard's window: consumptions ranked, or in quintiles; total or per 100 kcal. Last 7 days
-starts with a days view. Consumptions can be ticked and grouped to count as one (named).
+One nutrient over the dashboard's window: consumptions ranked, or in quintiles; total or per 100 kcal. Last 7 and
+30 days start with a days view. Consumptions can be ticked and grouped to count as one (named).
 
 🔍 -> explore screen: foods ranked by the nutrient's share of their energy, filtered by database and "logged only".
 

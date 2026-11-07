@@ -215,7 +215,7 @@ private fun WindowHeader(view: HomeView?, actions: HomeActions) {
             Text(view?.winName?.replaceFirstChar { it.uppercase() } ?: "", color = C.text, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)
             Text(view?.title ?: "…", color = C.muted, fontSize = 14.sp, textAlign = TextAlign.Center)
             Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                for (on in view?.dots ?: List(4) { false }) {
+                for (on in view?.dots ?: List(5) { false }) {
                     Box(Modifier.height(7.dp).width(if (on) 20.dp else 7.dp).clip(Pill).background(if (on) C.text else C.line))
                 }
             }

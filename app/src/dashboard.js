@@ -4,7 +4,7 @@ import { db, getConfig, getCurrentUser } from './db'
 import { averageTargets, barScale, consumptionNutrients, loadContext, perDay, sumNutrients, targetBar, weeklyCorrection } from './calc'
 import { NUTRIENTS, calories, fmt } from './nutrients'
 import { bounds } from './stats'
-import { addDays, dayBounds, logicalDay, prettyDay, toDateStr, toLocalInput, today, windowDays } from './time'
+import { ROLLING, addDays, dayBounds, logicalDay, prettyDay, toDateStr, toLocalInput, today, windowDays } from './time'
 
 // Always shown (unless Config's "only nutrients with a target" is on); any other nutrient gets a row when a target covers it.
 export const ROWS = [
@@ -57,7 +57,7 @@ export function barNotes(row, val, range = {}) {
 
 export function windowTitle(win, first, last, back = 0) {
   if (win === 'daily') return `${back === 0 ? 'Today' : back === 1 ? 'Yesterday' : back === -1 ? 'Tomorrow' : `${back} days ago`} · ${prettyDay(first)}`
-  if (win === 'last7') return `Last 7 days · ${first} → ${last}`
+  if (ROLLING[win]) return `Last ${ROLLING[win]} days · ${first} → ${last}`
   if (win === 'weekly') return `This week · ${first} → ${last}`
   return `This month · ${first.slice(0, 7)}`
 }

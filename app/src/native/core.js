@@ -5,7 +5,7 @@ import { liveQuery } from 'dexie'
 import { DEFAULT_EXPIRY_DAYS, NOTE_DAYS, conflictingFoods, db, expiresAt, exportAll, makeId, getConfig, getCurrentUser, importAll, itemLabel, kindOf, madeText } from '../db'
 import { NUTRIENTS, amountText, autoAmountDelta, calories, fmt, normalizeNumber, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, getCoverage, sdOf, setCoverage, zero } from '../stats'
-import { WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, formatDateTime, prettyDay, toLocalInput, today, versionStamp } from '../time'
+import { ROLLING, WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, formatDateTime, prettyDay, toLocalInput, today, versionStamp } from '../time'
 import { energySplit } from '../energy'
 import { nutrientRows } from '../screens/FoodInfo'
 import { baseAmount, concoctionsLeft, consumptionNutrients, loadContext, nutrientsFor, resolve, span, targetBar, unitFactorSpan, unitsFor, usedUp } from '../calc'
@@ -835,7 +835,7 @@ export async function breakdown(nutrient, query = {}) {
   const meta = bd.breakdownMeta(nutrient)
   const when = from === to ? prettyDay(from) : `${from} → ${to}`
   if (!meta?.label) return { unknown: true, title: 'Breakdown', subtitle: when }
-  const byDay = win === 'last7' && from !== to
+  const byDay = !!ROLLING[win] && from !== to
   const perKcal = per === 'kcal' && nutrient !== 'energy'
   const data = await bd.loadBreakdown(nutrient, from, to)
   const st = bd.breakdownState(data, perKcal)
