@@ -405,13 +405,16 @@ export function pieScene({ model, val, total, steps, square, n, k, pal }) {
   const maxBar = minBar && has(cMax) && cMax > cMin && inner > at(cMax) - bar ? [at(cMax) - bar, at(cMax)] : null
   const inBar = (b, i) => b && i + 1 > b[0] && i < b[1] && i + 1 <= inner
   const minSegs = minBar && ringSegments(model, cMin).map((sg) => ({ to: sg.to, c: barColour(pal, sg) }))
+  // The history from the min bar up to the max bar (or the history's top): brighter, shaded slightly green.
+  const zoneHist = Object.fromEntries(Object.entries(pal.tone).map(([t, c]) => [t, mix(mix(c, pal.bg, 0.8), pal.barLine, 0.85)]))
+  const inZone = (i) => minBar && i + 1 > minBar[0] && (!maxBar || i < maxBar[1])
   const levels = []
   for (let i = 0; i <= Math.floor(S); i++) {
     const kcal = ((i + 0.5) / S) * full
     levels.push(inBar(maxBar, i) ? ringSegments(model, kcal).map((sg) => ({ to: sg.to, c: barColour(pal, sg) }))
       : inBar(minBar, i) ? minSegs
       : i + 1 <= inner
-      ? arcSegs(eatenArcs(model, eatenAt(steps, val.value, kcal)), (tone) => hist[tone])
+      ? arcSegs(eatenArcs(model, eatenAt(steps, val.value, kcal)), (tone) => (inZone(i) ? zoneHist : hist)[tone])
       : ringSegments(model, kcal, guide && kcal >= val.value && kcal < cMin ? guide(kcal) : undefined)
         .map((sg) => ({ to: sg.to, c: segColour(pal, sg) })))
   }

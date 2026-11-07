@@ -23,3 +23,8 @@ as it's drawn), and the bars brighter still: 90% of their saturation, 94% over t
 
 Then "brighter still": the zone's own colours, unfaded (`segColour`), with the same 15% of green. The part where no
 macro target applies stays its own deep blue (`free`), darker than the rest.
+
+The user had meant the whole region to be brighter, not only the bars. The history between the green lines (from
+the min bar up to the max bar, or the history's top) is now `zoneHist`: each macro's colour 80% over the background
+(the rest of the history 55%), with the same 15% green. The bars keep the zone's full colours, so they still read at
+its edges.
