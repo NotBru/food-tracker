@@ -418,6 +418,15 @@ function PieCanvas({ model, val, total, steps, square, onPoint }) {
       ctx.beginPath()
       if (sh.arc(ctx, L, from, to)) ctx.stroke()
     }
+    // The bars at the calorie min and max: a thin solid outline (in the square, its sides inside the canvas).
+    ctx.lineWidth = k
+    ctx.strokeStyle = css(sc.barLine)
+    for (const b of sc.bars) {
+      ctx.beginPath()
+      if (square) ctx.rect(k / 2, n - b.L1, n - k, b.L1 - b.L0)
+      else { sh.arc(ctx, b.L0, 0, 1); sh.arc(ctx, b.L1, 0, 1) }
+      ctx.stroke()
+    }
     ctx.setLineDash([4 * k, 3 * k])
     ctx.lineWidth = 1.5 * k
     ctx.strokeStyle = css(sc.range)

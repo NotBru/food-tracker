@@ -678,6 +678,12 @@ private fun DrawScope.drawPie(sc: PieScene, img: ImageBitmap) {
         }
         drawPath(p, targetColour, style = targetStroke)
     }
+    // The bars at the calorie min and max: a thin solid outline (in the square, its sides inside the canvas).
+    for (b in sc.bars) {
+        val outline = if (sc.square) Path().apply { addRect(Rect(k / 2, (n - b.l1).toFloat(), n - k / 2, (n - b.l0).toFloat())) }
+        else Path().apply { sh.arc(b.l0, 0.0, 1.0)?.let { addPath(it) }; sh.arc(b.l1, 0.0, 1.0)?.let { addPath(it) } }
+        drawPath(outline, rgb(sc.barLine), style = Stroke(k))
+    }
     // The calories' interval: two thin dashed rings.
     val ringStroke = Stroke(1.5f * k, pathEffect = PathEffect.dashPathEffect(floatArrayOf(4 * k, 3 * k)))
     for (l in sc.rings) sh.arc(l, 0.0, 1.0)?.let { drawPath(it, rgb(sc.range), style = ringStroke) }

@@ -338,7 +338,7 @@ export function piePalette(v) {
     free: rgbOf('#1e3a78'), shared: mix(v('muted'), bg, 0.6),
     core: Object.fromEntries(PIE_MACROS.map((m) => [m.key, tones[m.tone]])),
     flank: Object.fromEntries(PIE_MACROS.map((m) => [m.key, mix(tones[m.tone], WHITE, 0.5)])),
-    tone: tones, range: v('range'), bg,
+    tone: tones, range: v('range'), barLine: v('kcal'), bg,
   }
   const fadeAll = (x) => (Array.isArray(x) ? fade(x, bg) : Object.fromEntries(Object.entries(x).map(([k, c]) => [k, fade(c, bg)])))
   pal.faded = Object.fromEntries(['free', 'shared', 'core', 'flank'].map((k) => [k, fadeAll(pal[k])]))
@@ -351,8 +351,9 @@ const fade = (c, bg, sat = 0.4, keep = 0.42) => {
   const grey = 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2]
   return mix(mix(c, [grey, grey, grey], sat), bg, keep)
 }
-/** The bars of the target zone under the eaten history: faded less than the rings outside the calorie target. */
-const barColour = (pal, s) => fade(segColour(pal, { ...s, dim: false }), pal.bg, 0.6, 0.6)
+/** The bars of the target zone under the eaten history: between the history (55% over the background) and the eaten
+ * ring (full) in brightness, most of their saturation kept. */
+const barColour = (pal, s) => fade(segColour(pal, { ...s, dim: false }), pal.bg, 0.85, 0.78)
 const segColour = (pal, s) => {
   const p = s.dim ? pal.faded : pal
   return s.kind === 'core' || s.kind === 'flank' ? p[s.kind][s.key] : p[s.kind]
@@ -373,6 +374,7 @@ const arcSegs = (arcs, colour) =>
  * - levels[i]: level i's colours, [{to, c}] (c [r, g, b] from turn `to`'s predecessor up to `to`);
  * - lines: dashed radial lines {t, L0, L1} (the macros' targets up to the calorie target's lowest ring);
  * - curves: dashed curves, [[{t, L} | null]] (those edges as they curve up the zone the history went past);
+ * - bars: the bars at the calorie min and max as far as drawn, {L0, L1}, outlined in a thin solid `barLine`;
  * - rings: the calories' interval, dashed (levels); mid, thick: the eaten ring; arcs: its parts {from, to, c};
  * - errs: the macros' share ranges on it {L0, L1, from, to, c, hatch} (see-through c, hatched in `hatch`);
  * - edges: the eaten ring's white edges (levels).
@@ -422,7 +424,10 @@ export function pieScene({ model, val, total, steps, square, n, k, pal }) {
   const curves = minBar && curveTop > minBar[1]
     ? targetCurves(model, cMin, (curveTop / S) * full).map((c) => c.map((pt) => (pt && shown(pt.t) ? { t: pt.t, L: at(pt.kcal) } : null)))
     : []
-  const scene = { n, k, S, square, full, levels, lines, curves, rings: [], mid, thick, arcs: [], errs: [], edges: [], range: pal.range }
+  // Each bar's outline: the levels it's drawn on (whole ones, up to the history's top).
+  const bars = [minBar, maxBar].filter(Boolean).map((b) => ({ L0: Math.floor(b[0]), L1: Math.min(Math.ceil(b[1]), Math.floor(inner)) }))
+    .filter((b) => b.L1 > b.L0)
+  const scene = { n, k, S, square, full, levels, lines, curves, bars, barLine: pal.barLine, rings: [], mid, thick, arcs: [], errs: [], edges: [], range: pal.range }
   if (!arcs.length) return scene
   // The calories' interval: two thin dashed rings at its ends.
   if (hi > lo) scene.rings = [at(lo), at(hi)]
