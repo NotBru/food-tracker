@@ -64,6 +64,18 @@ OMEGA3 = {
     42263: 'DHA',  # FA 22:6 (n-3)
 }
 KEYS = list(dict.fromkeys([*CONST.values(), 'omega3']))
+# CIQUAL has no caffeine, so its caffeinated drinks would count 0 mg: left out, USDA's have it
+# (docs/execution/2026-11-08-ciqual-no-caffeinated-drinks.md). Decaffeinated and caffeine-free ones stay.
+EXCLUDE = {
+    # coffee
+    18003, 18004, 18005, 18071, 18073, 18151, 18160, 18163, 19116, 19117, 18150, 18153, 18162,
+    # tea, tea soft drinks, kombucha
+    18020, 18154, 18155, 18076, 18015, 18062, 18064, 18065, 18075, 18025,
+    # cola, energy drinks
+    18018, 18037, 18060, 18063, 18324, 18352, 18353, 18354,
+    # cocoa and chocolate drinks
+    18100, 18101, 18102, 18104, 18106, 18167, 18168, 19118, 19119,
+}
 
 
 def rows(path, tag):
@@ -129,6 +141,8 @@ def main(src, version):
     foods = {}
     alim = next(p for p in glob.glob(os.path.join(src, 'alim_*.xml')) if 'alim_grp' not in p)
     for a in rows(alim, 'ALIM'):
+        if int(a['alim_code']) in EXCLUDE:
+            continue
         foods[a['alim_code']] = [int(a['alim_code']), a['alim_nom_eng'], a['alim_nom_fr'], a['alim_ssgrp_code'], [''] * len(KEYS)]
     compo = [c for c in rows(one('compo_*.xml'), 'COMPO') if (int(c['const_code']) in CONST or int(c['const_code']) in OMEGA3) and c['alim_code'] in foods]
     # Most common "< x" limit per nutrient: the Δ for "traces" and zeros (half of it, like "< x" itself).
