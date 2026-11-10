@@ -360,7 +360,8 @@ const segColour = (pal, s) => {
 }
 
 export const PIE_RING = 9 // CSS px: the eaten ring's least thickness (the calories' interval, when wider)
-const OUT_OF_TARGET = 0.2 // the eaten ring outside the calorie target: its colours this much over the background (nearly it)
+const OUT_OF_TARGET = 0.3 // the eaten ring outside the calorie target: its colours this much over the background (nearly it)
+const IN_TARGET = 0.65 // and inside it: between that and the target's own rings (full colours)
 
 /** Arcs (eatenArcs) as segments of the turn, 0–1 in order, each with its colour from `colour(tone)`. */
 const arcSegs = (arcs, colour) =>
@@ -442,7 +443,7 @@ export function pieScene({ model, val, total, steps, square, n, k, pal }) {
   if (maxBar && Math.floor(inner) > Math.floor(maxBar[0])) barEdges.push(Math.min(Math.ceil(maxBar[1]), Math.floor(inner)))
   const scene = { n, k, S, square, full, levels, lines, curves, barEdges, barLine: pal.barLine, mid, thick, arcs: [], dims: [], errs: [], edges: [] }
   if (!arcs.length) return scene
-  scene.arcs = arcs.map((a) => ({ from: a.from, to: a.to, c: pal.tone[a.tone] }))
+  scene.arcs = arcs.map((a) => ({ from: a.from, to: a.to, c: mix(pal.tone[a.tone], pal.bg, IN_TARGET) }))
   // Its parts below the calorie min and above the max: darker (not as dark as the history inside it).
   const tLo = has(cMin) ? at(cMin) : 0
   const tHi = has(cMax) ? at(cMax) : Infinity

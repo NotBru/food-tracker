@@ -24,7 +24,8 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
-| 2026-11-10 | [Energy pie: the eaten ring as wide as the calories' interval, nearly the background outside the target](2026-11-10-pie-interval-band.md) | accepted |
+| 2026-11-10 | [Energy pie: the eaten ring dimmer within the calorie target, brighter outside it](2026-11-10-pie-ring-brightness.md) | accepted |
+| 2026-11-10 | [Energy pie: the eaten ring as wide as the calories' interval, nearly the background outside the target](2026-11-10-pie-interval-band.md) | accepted; brightness superseded by [pie-ring-brightness](2026-11-10-pie-ring-brightness.md) |
 | 2026-11-08 | [CIQUAL without its caffeinated drinks (it has no caffeine)](2026-11-08-ciqual-no-caffeinated-drinks.md) | accepted |
 | 2026-11-07 | [Dashboard: a "last 30 days" window](2026-11-07-last-30-days.md) | accepted |
 | 2026-11-07 | [Energy pie: the min and max bars shaded green, lined below the min's and above the max's](2026-11-07-pie-bars-green.md) | accepted |

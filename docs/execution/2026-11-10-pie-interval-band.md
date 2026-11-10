@@ -1,7 +1,7 @@
 # Energy pie: the eaten ring as wide as the calories' interval, nearly the background outside the target
 
 - **Date:** 2026-11-10
-- **Status:** accepted
+- **Status:** accepted; brightness superseded by [pie-ring-brightness](2026-11-10-pie-ring-brightness.md)
 - **Instructions:** [`docs/instructions/design.md`](../instructions/design.md) (Homescreen: energy pie)
 
 ## Context
