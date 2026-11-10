@@ -30,7 +30,7 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
   min in its colour, centred (first restricted macro on top, second at the bottom), brighter flanks out to its max,
   half each side; overlapping flanks grey; a third restricted macro split on the sides (provisional: see the
   execution log). Above the calorie max: the same, faded (to plan by); below the min: the min's split, faded (radial
-  lines). What was eaten: a white-edged ring at its kcal, split by the macros eaten, the interval as dashed circles;
+  lines). What was eaten: a white-edged ring at its kcal, split by the macros eaten, as wide as the interval (at least 9 px), its full colours within the calorie target, nearly the background outside it;
   inside it, the split as the kcal grew through the window (consumption by consumption); faint dashed radial lines
   at each macro target's min and max share at the calorie min, from the centre to it; from the eaten ring to the
   calorie min, each macro's room from its share eaten to its min and max there, the shares linear in kcal. Where that

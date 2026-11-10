@@ -55,19 +55,24 @@ data class PieScene(
     val curves: List<List<PiePt?>> = emptyList(),
     val barEdges: List<Double> = emptyList(),
     val barLine: List<Int> = listOf(126, 231, 135),
-    val rings: List<Double> = emptyList(),
     val mid: Double,
     val thick: Double,
     val arcs: List<PieArc> = emptyList(),
+    val dims: List<PieBand> = emptyList(),
     val errs: List<PieErr> = emptyList(),
     val edges: List<Double> = emptyList(),
-    val range: List<Int>,
 )
 
 @Serializable data class PieSeg(val to: Double, val c: List<Int>)
 @Serializable data class PieLine(val t: Double, @kotlinx.serialization.SerialName("L0") val l0: Double, @kotlinx.serialization.SerialName("L1") val l1: Double)
 @Serializable data class PiePt(val t: Double, @kotlinx.serialization.SerialName("L") val l: Double)
 @Serializable data class PieArc(val from: Double, val to: Double, val c: List<Int>)
+@Serializable
+data class PieBand(
+    @kotlinx.serialization.SerialName("L0") val l0: Double,
+    @kotlinx.serialization.SerialName("L1") val l1: Double,
+    val from: Double, val to: Double, val c: List<Int>,
+)
 @Serializable
 data class PieErr(
     @kotlinx.serialization.SerialName("L0") val l0: Double,

@@ -680,11 +680,10 @@ private fun DrawScope.drawPie(sc: PieScene, img: ImageBitmap) {
     }
     // The bars at the calorie min and max: their outer edges thin solid lines.
     for (l in sc.barEdges) sh.arc(l, 0.0, 1.0)?.let { drawPath(it, rgb(sc.barLine), style = Stroke(k)) }
-    // The calories' interval: two thin dashed rings.
-    val ringStroke = Stroke(1.5f * k, pathEffect = PathEffect.dashPathEffect(floatArrayOf(4 * k, 3 * k)))
-    for (l in sc.rings) sh.arc(l, 0.0, 1.0)?.let { drawPath(it, rgb(sc.range), style = ringStroke) }
-    // The estimate: a ring split by what was eaten.
+    // The estimate: a ring as wide as the calories' interval, split by what was eaten.
     for (a in sc.arcs) sh.arc(sc.mid, a.from, a.to)?.let { drawPath(it, rgb(a.c), style = Stroke(sc.thick.toFloat())) }
+    // Its parts outside the calorie target, darker.
+    for (d in sc.dims) sh.band(d.l0, d.l1, d.from, d.to)?.let { drawPath(it, rgb(d.c)) }
     // Each macro's share range on it: see-through, hatched at 110° as the bars' error range.
     for (e in sc.errs) {
         val band = sh.band(e.l0, e.l1, e.from, e.to) ?: continue

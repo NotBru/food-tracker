@@ -425,15 +425,17 @@ function PieCanvas({ model, val, total, steps, square, onPoint }) {
       ctx.beginPath()
       if (sh.arc(ctx, L, 0, 1)) ctx.stroke()
     }
-    ctx.setLineDash([4 * k, 3 * k])
-    ctx.lineWidth = 1.5 * k
-    ctx.strokeStyle = css(sc.range)
-    for (const L of sc.rings) ring(L)
-    ctx.setLineDash([])
     ctx.lineWidth = sc.thick
     for (const a of sc.arcs) {
       ctx.strokeStyle = css(a.c)
       ring(sc.mid, a.from, a.to)
+    }
+    // Its parts outside the calorie target, darker.
+    for (const d of sc.dims) {
+      ctx.beginPath()
+      if (!sh.band(ctx, d.L0, d.L1, d.from, d.to)) continue
+      ctx.fillStyle = css(d.c)
+      ctx.fill()
     }
     for (const e of sc.errs) {
       ctx.save()
