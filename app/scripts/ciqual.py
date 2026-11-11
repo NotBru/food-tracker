@@ -52,18 +52,22 @@ CONST = {
     56600: 'vitaminB12',
     55100: 'vitaminC',
     52100: 'vitaminD',
-    53100: 'vitaminE',
+    71010: 'vitaminE',  # alpha-tocopherol, as USDA's (53100 'Vitamin E' is the fallback below)
     54101: 'vitaminK',  # K1 (K2 is rarely given)
     60000: 'alcohol',
     400: 'water',
 }
-# Omega-3: CIQUAL has no total, only its main parts. 'omega3' is their sum, given only when all three are.
-OMEGA3 = {
-    41833: 'ALA',  # FA 18:3 c9,c12,c15 (n-3)
-    42053: 'EPA',  # FA 20:5 (n-3)
-    42263: 'DHA',  # FA 22:6 (n-3)
+# A key's constituents when a food lacks the one in CONST (or for omega-3, which has none): each option is a list of
+# const_codes, summed, used only when all of them are given; the first such option wins.
+FALLBACK = {
+    'vitaminE': [[53100]],  # 'Vitamin E': no food has both it and alpha-tocopherol
+    'vitaminB9': [[56704, 56708]],  # intrinsic folate + folic acid (enrichment) = total folates
+    'vitaminD': [[52300, 52200], [52300]],  # D3 + D2; D3 alone (no food without a total has D2)
+    # Omega-3: CIQUAL has no total, only its main parts. 'omega3' is their sum.
+    'omega3': [[41833, 42053, 42263]],  # ALA 18:3 c9,c12,c15 (n-3), EPA 20:5 (n-3), DHA 22:6 (n-3)
 }
 KEYS = list(dict.fromkeys([*CONST.values(), 'omega3']))
+CODES = set(CONST) | {c for options in FALLBACK.values() for o in options for c in o}
 # CIQUAL has no caffeine, so its caffeinated drinks would count 0 mg: left out, USDA's have it
 # (docs/execution/2026-11-08-ciqual-no-caffeinated-drinks.md). Decaffeinated and caffeine-free ones stay.
 EXCLUDE = {
@@ -144,29 +148,32 @@ def main(src, version):
         if int(a['alim_code']) in EXCLUDE:
             continue
         foods[a['alim_code']] = [int(a['alim_code']), a['alim_nom_eng'], a['alim_nom_fr'], a['alim_ssgrp_code'], [''] * len(KEYS)]
-    compo = [c for c in rows(one('compo_*.xml'), 'COMPO') if (int(c['const_code']) in CONST or int(c['const_code']) in OMEGA3) and c['alim_code'] in foods]
-    # Most common "< x" limit per nutrient: the Δ for "traces" and zeros (half of it, like "< x" itself).
+    compo = [c for c in rows(one('compo_*.xml'), 'COMPO') if int(c['const_code']) in CODES and c['alim_code'] in foods]
+    # Most common "< x" limit per constituent: the Δ for "traces" and zeros (half of it, like "< x" itself).
     seen = {}
     for c in compo:
         m = re.fullmatch(r'<\s*([\d,.]+)', c['teneur'].strip())
         if m:
-            key = CONST.get(int(c['const_code'])) or OMEGA3[int(c['const_code'])]
-            seen.setdefault(key, Counter())[float(num(m[1]))] += 1
+            seen.setdefault(int(c['const_code']), Counter())[float(num(m[1]))] += 1
     limits = {k: n.most_common(1)[0][0] for k, n in seen.items()}
-    n3 = {}  # alim_code -> {part: cell}
+    given = {}  # alim_code -> {const_code: cell}
     for c in compo:
-        key = CONST.get(int(c['const_code'])) or OMEGA3[int(c['const_code'])]
-        food = foods[c['alim_code']]
-        v = cell(c['teneur'], c.get('min', ''), c.get('max', ''), round_sig(limits[key] / 2) if key in limits else None)
-        if v is None:
-            continue
-        if key in OMEGA3.values():
-            n3.setdefault(c['alim_code'], {})[key] = v
-        else:
-            food[4][KEYS.index(key)] = v
-    for code, cells in n3.items():
-        if len(cells) == len(OMEGA3):
-            foods[code][4][KEYS.index('omega3')] = total(cells.values())
+        code = int(c['const_code'])
+        v = cell(c['teneur'], c.get('min', ''), c.get('max', ''), round_sig(limits[code] / 2) if code in limits else None)
+        if v is not None:
+            given.setdefault(c['alim_code'], {})[code] = v
+    for alim, cells in given.items():
+        values = foods[alim][4]
+        for code, key in CONST.items():
+            if code in cells:
+                values[KEYS.index(key)] = cells[code]
+        for key, options in FALLBACK.items():
+            if values[KEYS.index(key)] != '':
+                continue
+            for o in options:
+                if all(code in cells for code in o):
+                    values[KEYS.index(key)] = cells[o[0]] if len(o) == 1 else total(cells[code] for code in o)
+                    break
     out = {
         'source': f'ANSES-CIQUAL {version}',
         'licence': 'Licence Ouverte / Etalab 2.0',
