@@ -41,3 +41,7 @@ started detached (`setsid`) unless already running, inside `systemd-run --user -
 `MemorySwapMax=0` (the user: it kept "tilting" the machine from startup; capped, it ran fine), `-memory 2048 -cores 2
 -no-snapshot`; then `adb kill-server` and `adb -a nodaemon server start` in the foreground. Not run here (it's for
 the host); syntax checked.
+
+2026-11-11: `MemoryMax=6G`. At 4G the cgroup's OOM killer killed it 37 s in, just after "Boot completed" (journal:
+`Failed with result 'oom-kill'`): the guest's 2 GB plus the emulator's own (GPU, window, netsim) went past 4 GB.
+6 GB still leaves the laptop ~9 GB.
