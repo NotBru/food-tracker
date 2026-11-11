@@ -150,7 +150,7 @@ data class MacroPart(val color: String, val text: String, val pm: String? = null
 
 /** A food as pickers list it (core.js foodSearch). */
 @Serializable
-data class FoodLabel(val id: String, val label: String, val recipe: Boolean = false, val made: String? = null)
+data class FoodLabel(val id: String, val label: String, val recipe: Boolean = false, val made: String? = null, val per100: String? = null)
 
 /** A nutrient of "Details" (Consumptions.jsx NutrientDetails). */
 @Serializable

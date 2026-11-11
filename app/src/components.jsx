@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { fold, getConfig, itemLabel, kindOf, madeText } from './db'
 import { foodMatches } from './search'
+import { kcalPer100 } from './calc'
 import { today } from './time'
 import { autoAmountDelta, calories, fmt, pmText } from './nutrients'
 
@@ -319,8 +320,9 @@ export function AttributesEditor({ value = [], onChange }) {
     <div className="attrs">
       {value.map(([k, v], i) => (
         <div className="row" key={i}>
-          <input placeholder="key" value={k} onChange={(e) => set(i, 0, e.target.value)} />
-          <input placeholder="value" value={v} onChange={(e) => set(i, 1, e.target.value)} />
+          {/* Not capitalized: keys and values are mostly lowercase ("size: small"). */}
+          <input placeholder="key" autoCapitalize="none" value={k} onChange={(e) => set(i, 0, e.target.value)} />
+          <input placeholder="value" autoCapitalize="none" value={v} onChange={(e) => set(i, 1, e.target.value)} />
           <button className="icon" onClick={() => onChange(value.filter((_, k2) => k2 !== i))} aria-label="Remove">×</button>
         </div>
       ))}
@@ -402,9 +404,11 @@ export function useListNav(count, onPick, onClose) {
  * `oldBefore` (ISO time): if given, concoctions made before it go last, after every other food.
  * `show(item)`: if given, only foods it accepts are listed.
  * CIQUAL's and USDA's foods (`ctx.generic()`) come after the user's own, once something is typed. */
-export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore, show, enterNext }) {
+export function ItemPicker({ ctx, value, onChange, exclude, onCreate, onRegister, oldBefore, show, enterNext }) {
   const [query, setQuery] = useState(null) // null = closed
   const inputRef = useRef(null)
+  // Each match's energy per 100 g (Config: searchKcal).
+  const perHundred = useLiveQuery(getConfig)?.searchKcal
   const selected = value != null ? ctx.items.get(value) : null
   const matches = foodMatches(ctx, query, { exclude, oldBefore, show })
   const nav = useListNav(matches.length, (i, byEnter) => {
@@ -427,6 +431,10 @@ export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore,
         {/* mousedown kept from blurring the box, so what's typed is still there on click. */}
         {onCreate && <button type="button" className="icon plus" aria-label="New food" onMouseDown={(e) => e.preventDefault()} onClick={() => onCreate((query ?? '').trim())}>+</button>}
       </div>
+      {/* mousedown kept from blurring the box, as the +: what's typed names the new food.
+          Right under the box, above the matches: there when nothing matches. */}
+      {onRegister && <button type="button" className="link register-food" onMouseDown={(e) => e.preventDefault()}
+        onClick={() => onRegister((query ?? '').trim())}>+ register food</button>}
       {/* The box holds text only, so a picked concoction's made-at time sits under it. */}
       {query === null && <MadeTag item={selected} />}
       {query !== null && (
@@ -435,6 +443,7 @@ export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore,
             <li key={it.id} {...nav.itemProps(i)}>
               {label}
               {kindOf(it) === 'recipe' && <small className="muted"> · recipe</small>}
+              {perHundred && <PerHundred ctx={ctx} id={it.id} />}
               <MadeTag item={it} />
             </li>
           ))}
@@ -443,6 +452,12 @@ export function ItemPicker({ ctx, value, onChange, exclude, onCreate, oldBefore,
       )}
     </div>
   )
+}
+
+/** A food's energy per 100 g (or ml) in a search's list. */
+function PerHundred({ ctx, id }) {
+  const text = kcalPer100(ctx, id)
+  return text ? <small className="muted nowrap"> · {text}</small> : null
 }
 
 /** A concoction's made-at time as a tag (nothing for other foods). Kept out of the label, which is name, brand and

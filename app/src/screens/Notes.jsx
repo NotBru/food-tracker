@@ -150,10 +150,11 @@ function NoteEditor({ note, onView, onClose }) {
     }
   }
 
-  async function save() {
+  // Closes at once: the note is saved (and synced) behind it.
+  function save() {
     if (!text.trim() && !pics.length) return alert('Write something or add a picture.')
-    await saveNote(note, text, done, pics)
     onClose()
+    saveNote(note, text, done, pics).catch((e) => alert(`Couldn't save the note: ${e.message}`))
   }
 
   async function remove() {

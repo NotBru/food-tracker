@@ -38,6 +38,11 @@
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
             tools:replace="screenOrientation" />
+        <!-- Holds the app in the background until it's synced (SyncJob.kt). -->
+        <service
+            android:name=".SyncJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="app.foodtracker.files"

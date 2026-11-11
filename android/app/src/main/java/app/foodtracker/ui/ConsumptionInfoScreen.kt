@@ -22,8 +22,9 @@ import app.foodtracker.js
 // deleting it there goes back.
 
 @Composable
-fun ConsumptionInfoScreen(id: String, view: ConsumptionInfoView?, core: Core) {
-    var editing by remember { mutableStateOf(false) }
+fun ConsumptionInfoScreen(id: String, route: String, view: ConsumptionInfoView?, core: Core) {
+    // The editor's opening args; back from "+ register food", as it was.
+    var editing by remember { mutableStateOf(ConsumptionStash.take(route)) }
     var printing by remember { mutableStateOf(false) }
     Box(Modifier.fillMaxSize()) {
         if (view != null && !view.found) {
@@ -33,7 +34,7 @@ fun ConsumptionInfoScreen(id: String, view: ConsumptionInfoView?, core: Core) {
         ScreenFrame(view?.title ?: "", view?.subtitle, onBack = core::back, gap = 6.dp, side = 88.dp, right = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (view?.itemId != null) PrinterButton { printing = true }
-                RoundIconButton("Edit", { editing = true }) { Text("✎", color = C.text, fontSize = 20.sp) }
+                RoundIconButton("Edit", { editing = js("id" to id) }) { Text("✎", color = C.text, fontSize = 20.sp) }
             }
         }) {
             if (view == null) return@ScreenFrame
@@ -47,6 +48,6 @@ fun ConsumptionInfoScreen(id: String, view: ConsumptionInfoView?, core: Core) {
             view.table?.let { NutrientTable(it) }
         }
         view?.itemId?.let { item -> if (printing) LabelSheet(core, item, id, "", "") { printing = false } }
-        if (editing) ConsumptionEditorSheet(core, js("id" to id), onClose = { editing = false }, onDeleted = { editing = false; core.back() })
+        editing?.let { open -> ConsumptionEditorSheet(core, route, open, onClose = { editing = null }, onDeleted = { editing = null; core.back() }) }
     }
 }

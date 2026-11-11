@@ -8,6 +8,7 @@ it was fetched.
 
 Android app: native UI over the web app's own logic (data, calculations, sync), which runs inside it; re-ported from
 the web app about weekly. Screens not ported yet are the web app's own. Updates through an F-Droid repo on the server.
+Left, it stays up until it's synced (a minute at most).
 
 Production: a Docker image serving the build, at https://track-shit.notbru.xyz (final: data is tied to the origin).
 A backup server beside it, holding only ciphertext. A copy of Open Food Facts beside it too, updated daily.
@@ -62,6 +63,7 @@ selection. Each entry has a delete button.
 Clicking on a consumption shows its info (amount, food, energy donut by macro, nutrients); a printer button makes its food's nutrition label (as eaten); ✎ lets you edit its data:
 - Date and time (changing a date shouldn't change the screen you return to)
 - Food (Name, brand, attributes, optionally preparation time). Eaten-up and expired concoctions are hidden; a new concoction can be made and eaten in one go.
+  "+ register food" under the search: a new food (named from what's typed), picked once saved.
 - Amount, with Δ ("Max" for a concoction's leftover)
 - Unit (text, only editable once the food is set; autocompletes the units available for that food)
 - Entry error (%, from the food's last consumption, else 10%)
@@ -85,7 +87,7 @@ interval coloured, hatched, green within the range and red outside it, nothing b
 Ingredients, recipes, and concoctions are all foods, and they are exchangeable: anywhere a food is
 picked, any of them can be picked, from a single search. Searches rank by whole words: "pear" lists "Pears, raw"
 first, not "Spearmint" or baby food with pears. Foods already eaten (also concoctions and components) first, the most
-recently eaten first.
+recently eaten first. Each with its kcal per 100 g (or ml) (config switch, on by default).
 
 Scrollable, searchable list, last element is “add new food”. Concoctions last. Repeated foods are ignored; the same
 ID with different values is flagged.
@@ -103,7 +105,7 @@ Fields:
 - Nutrients
 
 Clicking on any lets you edit them (Edit | Info tabs). Info: a printer button makes a standard nutrition label image (dark; energy by macro, then the
-nutrients) for an amount picked (as eaten, when opened from a consumption; else the Info tab's amount). Attributes are `key, value` pairs with any fields, and they
+nutrients) for an amount picked (as eaten, when opened from a consumption; else the Info tab's amount). Attributes are `key, value` pairs with any fields (not capitalized), and they
 change the ID of the product.
 
 Clicking on nutrients shows a scrollable list of known `key, value` pairs, where keys can be:
@@ -160,7 +162,7 @@ Notes, latest first: text and pictures (one or many, from the camera or the gall
 with when the note was made. Deleted a week after that, automatically. Synced; Claude's log-food skill reads them (the main use).
 A tapped picture fills the screen; left/right keys or a swipe go through the note's other pictures.
 A note can be marked done (taken care of), by hand or by the skill once it has logged it; the skill skips done notes.
-A new note doesn't open the keyboard on a phone.
+A new note doesn't open the keyboard on a phone. Save closes it at once: saving and syncing happen behind.
 
 ### Users screen
 
@@ -182,7 +184,7 @@ shared.
   - Energy chart (switch); square, else round (switch)
   - Only nutrients with a target (switch; off: calories, protein, fat, carbs always too)
   - Ghost of the uncapped calorie bar (switch)
-- Food database: reference databases (a switch each)
+- Food database: reference databases (a switch each); calories in food searches (switch, on by default)
 - Backup: encrypted on the device, one blob per public key on the server; a invite code to start. The secret moves
   to other devices as a QR link or text, and can be changed (signed by the old key).
   An inbox beside it takes entries pushed from elsewhere; the app merges them in. Claude's log-food skill syncs as

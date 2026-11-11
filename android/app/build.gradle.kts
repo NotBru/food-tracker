@@ -16,8 +16,8 @@ android {
         minSdk = 26
         targetSdk = 35
         // Each port: the patch number and versionCode both go up by one (README, Re-porting).
-        versionCode = 5
-        versionName = "0.2.3"
+        versionCode = 6
+        versionName = "0.2.4"
     }
 
     // The release key: ../.secrets/android-release.properties (outside git; keep a copy of it and the .p12 it names).

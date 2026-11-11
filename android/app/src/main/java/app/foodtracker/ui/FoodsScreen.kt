@@ -140,7 +140,7 @@ object FoodStash {
  * `nested` ("in"): the new food is a component of the form stashed at that depth; `name`: what was typed for it.
  */
 @Composable
-fun FoodScreen(core: Core, id: String, route: String, info: Boolean, nutrient: String?, nested: Int?, name: String?, log: String? = null) {
+fun FoodScreen(core: Core, id: String, route: String, info: Boolean, nutrient: String?, nested: Int?, name: String?, log: String? = null, forLog: Boolean = false) {
     val isNew = id == "new"
     val parent = nested?.let { FoodStash.parents.getOrNull(it - 1) }
     var reply by remember(id, nested) { mutableStateOf<FoodEditorReply?>(null) }
@@ -190,13 +190,15 @@ fun FoodScreen(core: Core, id: String, route: String, info: Boolean, nutrient: S
         if (s.alert != null) { ask = Asking(s.alert); return@launch }
         // Made as a component: the parent (next back) picks it up.
         if (isNew && parent != null) FoodStash.parents.lastOrNull()?.created = s.id
+        // Made from a consumption's editor ("+ register food"): it picks it up.
+        if (isNew && forLog) ConsumptionStash.stashed?.created = s.id
         core.back()
     }
 
     val r = reply
     val v = r?.view
     val title = when { parent != null -> "New component"; v == null -> ""; v.missing -> "Edit food"; else -> v.title }
-    val subtitle = parent?.let { if (it.name.isNotEmpty()) "for “${it.name}”" else "for the new food" }
+    val subtitle = parent?.let { if (it.name.isNotEmpty()) "for “${it.name}”" else "for the new food" } ?: if (isNew && forLog) "for the consumption" else null
     val context = LocalContext.current
     Box(Modifier.fillMaxSize()) {
         ScreenFrame(title, subtitle, onBack = core::back, gap = 12.dp, right = if (info && v?.missing == false) ({ PrinterButton { printing = true } }) else null) {

@@ -7,6 +7,7 @@ import { amountText } from '../nutrients'
 import { DEFAULT_ENTRY_ERROR } from '../errors'
 import { CATEGORY_OPTIONS, CORE, DELETE_QUESTION, autoAmount as fillAuto, componentUnits, editorState, initialForm, newComponent, newUnit, nutrientRowsShown, pickComponent, round, sameIdAs, save as saveFood, saveProblem, withCreated } from '../foodForm'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
+import { newFoodSaved } from '../consumptionForm'
 import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, PrinterIcon, Screen, Select, pressable, UnitCombo, UnitInput, enterSaves, enterTo, go, replace } from '../components'
 import FoodInfo from './FoodInfo'
 
@@ -56,7 +57,7 @@ const parents = [] // [{ hash, name, form, extraShown, index, created }]
 /** An existing food has two tabs, Edit and Info (`?tab=info`); a new one only the form. `nutrient` (from a breakdown)
  * ranks the Info tab's components by that nutrient; `log` (from a consumption's info) is the consumption the Info
  * tab's nutrition label (🖨) starts at. Both are kept across tab switches. */
-export function FoodEditor({ id, tab, nutrient, log, nested, name }) {
+export function FoodEditor({ id, tab, nutrient, log, nested, name, forLog }) {
   const [printing, setPrinting] = useState(false)
   const isNew = id === 'new'
   const data = useLiveQuery(async () => {
@@ -75,7 +76,7 @@ export function FoodEditor({ id, tab, nutrient, log, nested, name }) {
   }
   return (
     // A new component looks like any new food, so its title says what it is for.
-    <Screen title={parent ? 'New component' : isNew ? 'New food' : data.rec.name || 'Food'} subtitle={parent && `for ${parent.name ? `“${parent.name}”` : 'the new food'}`}
+    <Screen title={parent ? 'New component' : isNew ? 'New food' : data.rec.name || 'Food'} subtitle={parent ? `for ${parent.name ? `“${parent.name}”` : 'the new food'}` : isNew && forLog ? 'for the consumption' : undefined}
       right={info ? <button className="icon" onClick={() => setPrinting(true)} aria-label="Nutrition label"><PrinterIcon /></button> : undefined}>
       {!isNew && (
         <div className="segmented food-tabs" role="tablist" aria-label="Food">
@@ -91,7 +92,7 @@ export function FoodEditor({ id, tab, nutrient, log, nested, name }) {
         {/* A read-only (CIQUAL, USDA) food prefills a new one: saving makes the copy. */}
         <FoodForm key={`${id}:${nested ?? ''}`} ctx={data.ctx} dayStart={data.dayStart} initial={data.rec?.readOnly ? null : data.rec}
           prefill={isNew ? peekPendingDraft() : data.rec?.readOnly ? data.rec : null} copy={!!data.rec?.readOnly}
-          nested={!!parent} name={name} />
+          nested={!!parent} name={name} forLog={isNew && !!forLog} />
       </div>
       {!isNew && <SameIdWarning ctx={data.ctx} item={data.rec} />}
       {info && <FoodInfo ctx={data.ctx} item={data.rec} nutrient={nutrient} log={log} printing={printing} onPrintClose={() => setPrinting(false)} />}
@@ -113,7 +114,8 @@ function SameIdWarning({ ctx, item }) {
   )
 }
 
-function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
+/** `forLog`: made from a consumption's editor ("+ register food"), which picks it once it's saved. */
+function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name, forLog }) {
   const src = initial ?? prefill
   // Back from a new component: this form's stashed state. Taken off the stack in an effect, since StrictMode runs
   // state initializers twice.
@@ -171,6 +173,7 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name }) {
     const id = await saveFood(ctx, form, initial)
     // Made as a component: the parent (next back) picks it up.
     if (!initial && nested && parents.length) parents.at(-1).created = id
+    if (!initial && forLog) newFoodSaved(id)
     history.back()
   }
   async function remove() {

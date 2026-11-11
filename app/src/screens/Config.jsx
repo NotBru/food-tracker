@@ -91,6 +91,10 @@ export default function Config() {
               {REFERENCE_DBS.map(([key, name, about]) => <Switch key={key} form={form} setForm={setForm} k={key} title={name} about={about} />)}
             </ul>
           </div>
+          <ul className="switch-list">
+            <Switch form={form} setForm={setForm} k="searchKcal" title="Calories in food searches"
+              about="Each food's kcal per 100 g (or 100 ml) beside its name." />
+          </ul>
         </section>
         <div className="row actions"><button onClick={save}>Save</button></div>
       </div>

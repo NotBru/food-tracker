@@ -48,8 +48,12 @@ export async function saveNote(note, text, done, pics) {
     await db.files.bulkPut(fresh)
     await db.notes.put(rec)
   })
+  // Off the server behind it: saving never waits for the network.
   const removed = (note.pictures ?? []).filter((id) => !rec.pictures.includes(id))
-  if (removed.length) await dropUnusedFiles().then(() => deleteFiles(removed))
+  if (removed.length) {
+    await dropUnusedFiles()
+    deleteFiles(removed)
+  }
 }
 
 export async function deleteNote(note) {

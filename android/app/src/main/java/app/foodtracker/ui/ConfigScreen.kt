@@ -106,6 +106,7 @@ fun ConfigScreen(core: Core) {
             Field("Reference databases (their generic foods are listed with yours)") {
                 SwitchPanel(C.panel2) { for (r in s.references) SwitchItem(r.name, r.about, form.bool(r.key)) { set(r.key, it) } }
             }
+            SwitchPanel(C.panel2) { Switch("searchKcal", "Calories in food searches", "Each food's kcal per 100 g (or 100 ml) beside its name.") }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { PillButton("Save", { save() }) }
         ask?.Show { ask = null }

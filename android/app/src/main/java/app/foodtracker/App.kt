@@ -21,6 +21,7 @@ import app.foodtracker.ui.BreakdownScreen
 import app.foodtracker.ui.C
 import app.foodtracker.ui.ConfigScreen
 import app.foodtracker.ui.ConsumptionInfoScreen
+import app.foodtracker.ui.ConsumptionStash
 import app.foodtracker.ui.ConsumptionsScreen
 import app.foodtracker.ui.HomeActions
 import app.foodtracker.ui.ExploreScreen
@@ -59,7 +60,7 @@ fun App(activity: MainActivity) {
         AndroidView({ engine.webView }, Modifier.fillMaxSize())
         when {
             r.path == "/" -> HomeRoute(activity, r)
-            parts == listOf("consumptions") -> ConsumptionsRoute(activity, r)
+            parts == listOf("consumptions") -> ConsumptionsRoute(activity, route, r)
             parts == listOf("notes") -> NotesRoute(activity, r)
             parts == listOf("foods") -> FoodsRoute(activity)
             parts == listOf("targets") -> TargetsRoute(activity, r)
@@ -87,10 +88,11 @@ fun App(activity: MainActivity) {
             parts == listOf("foods", "external") -> ExternalScreen(engine, r.query["q"] ?: "")
             parts.size == 2 && parts[0] == "foods" -> FoodScreen(
                 engine, parts[1], route, r.query["tab"] == "info", r.query["nutrient"], r.query["in"]?.toIntOrNull(), r.query["name"], r.query["log"],
+                forLog = r.query["for"] == "consumption",
             )
             parts.size == 2 && parts[0] == "consumptions" -> {
                 val view = watchView(activity, "consumptionInfo", listOf(JsonPrimitive(parts[1]), jsOf(r.query["nutrient"])), ConsumptionInfoView.serializer())
-                ConsumptionInfoScreen(parts[1], view, engine)
+                ConsumptionInfoScreen(parts[1], route, view, engine)
             }
         }
     }
@@ -143,11 +145,12 @@ private fun HomeRoute(activity: MainActivity, r: Route) {
 }
 
 @Composable
-private fun ConsumptionsRoute(activity: MainActivity, r: Route) {
+private fun ConsumptionsRoute(activity: MainActivity, route: String, r: Route) {
     val engine = activity.engine
     val day = r.query["day"]
     val view = watchView(activity, "consumptions", listOf(js("day" to day)), ConsumptionsView.serializer())
-    var editing by remember { mutableStateOf<JsonObject?>(null) }
+    // Back from "+ register food": the editor as it was.
+    var editing by remember { mutableStateOf(ConsumptionStash.take(route)) }
     // Opened with ?new (the homescreen's +): straight into a new consumption, once; the flag leaves the route so
     // closing the editor or going back doesn't bring it back.
     val adding = "new" in r.query
@@ -156,7 +159,7 @@ private fun ConsumptionsRoute(activity: MainActivity, r: Route) {
         editing = js("day" to day)
         engine.replace("/consumptions${if (day != null) "?day=$day" else ""}")
     }
-    ConsumptionsScreen(view, engine, editing) { editing = it }
+    ConsumptionsScreen(view, engine, route, editing) { editing = it }
 }
 
 @Composable

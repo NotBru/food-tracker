@@ -8,7 +8,7 @@ import { bounds, getCoverage, sdOf, setCoverage, zero } from '../stats'
 import { ROLLING, WINDOWS, WINDOW_NAMES, addDays, dayBounds, daysBetween, formatDateTime, prettyDay, toLocalInput, today, versionStamp } from '../time'
 import { energySplit } from '../energy'
 import { nutrientRows } from '../screens/FoodInfo'
-import { baseAmount, concoctionsLeft, consumptionNutrients, loadContext, nutrientsFor, resolve, span, targetBar, unitFactorSpan, unitsFor, usedUp } from '../calc'
+import { baseAmount, concoctionsLeft, consumptionNutrients, kcalPer100, loadContext, nutrientsFor, resolve, span, targetBar, unitFactorSpan, unitsFor, usedUp } from '../calc'
 import { DEFAULT_ENTRY_ERROR, categoryName } from '../errors'
 import { foodListMatches, foodMatches } from '../search'
 import * as cf from '../consumptionForm'
@@ -191,11 +191,12 @@ const deltaPlaceholder = (amount, unit) => {
 }
 
 /**
- * The food picker's list for what's typed (components.jsx ItemPicker). `opts`: `exclude` (an id), `oldBefore`, and
+ * The food picker's list for what's typed (components.jsx ItemPicker), each with its kcal per 100 g (`per100`) if the
+ * config says so. `opts`: `exclude` (an id), `oldBefore`, and
  * for a consumption's picker `at` (its time) and `skipLog` (its id): concoctions eaten up or expired then are left out.
  */
 export async function foodSearch(query, opts = {}) {
-  const [ctx, logs] = await Promise.all([ctxNow(), logsNow()])
+  const [ctx, logs, config] = await Promise.all([ctxNow(), logsNow(), getConfig()])
   let show
   if (opts.at !== undefined) {
     // As the editors' `show`: concoctions eaten up, or expired at `at`, left out; what the one being edited (a
@@ -205,7 +206,8 @@ export async function foodSearch(query, opts = {}) {
     const atIso = Number.isNaN(at.getTime()) ? new Date().toISOString() : at.toISOString()
     show = (it) => !it.madeAt || (expiresAt(it) > atIso && !usedUp(left.get(it.id)))
   }
-  return foodMatches(ctx, query, { exclude: opts.exclude ?? undefined, oldBefore: opts.oldBefore, show }).map(([it]) => foodLabel(it))
+  return foodMatches(ctx, query, { exclude: opts.exclude ?? undefined, oldBefore: opts.oldBefore, show })
+    .map(([it]) => ({ ...foodLabel(it), per100: config.searchKcal ? kcalPer100(ctx, it.id) : null }))
 }
 
 // --- Consumptions -------------------------------------------------------------------------------------------

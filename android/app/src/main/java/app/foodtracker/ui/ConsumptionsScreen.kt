@@ -1,5 +1,6 @@
 package app.foodtracker.ui
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,7 @@ import app.foodtracker.withAt
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -48,9 +50,25 @@ import kotlinx.serialization.json.JsonPrimitive
 // Consumptions, native: a port of app/src/screens/Consumptions.jsx. The list and the editor's numbers come from the
 // web app (native/core.js consumptions, consumptionEditor; the editor's logic is app/src/consumptionForm.js).
 
+/**
+ * The consumption editor, stashed while "+ register food" makes a new food over it (consumptionForm.js
+ * stashForNewFood): back on `route`, the editor opens again as it was, the new food (`created`, once it's saved) picked.
+ * In memory only.
+ */
+class StashedConsumption(val route: String, val consumption: JsonObject, val form: JsonObject, var created: JsonElement? = null) {
+    /** The editor's opening args (core.js consumptionEditor): the stashed form, with the new food picked. */
+    fun open() = js("consumption" to consumption, "form" to form, "event" to created?.let { listOf("pick", it) })
+}
+
+object ConsumptionStash {
+    var stashed: StashedConsumption? = null
+    /** The editor stashed on `route`, taken off; null if none. */
+    fun take(route: String): JsonObject? = stashed?.takeIf { it.route == route }?.also { stashed = null }?.open()
+}
+
 /** A day's consumptions. `editing`: the editor's opening args (core.js consumptionEditor), or null. */
 @Composable
-fun ConsumptionsScreen(view: ConsumptionsView?, core: Core, editing: JsonObject?, onEdit: (JsonObject?) -> Unit) {
+fun ConsumptionsScreen(view: ConsumptionsView?, core: Core, route: String, editing: JsonObject?, onEdit: (JsonObject?) -> Unit) {
     val context = LocalContext.current
     var ask by remember { mutableStateOf<Asking?>(null) }
     val scope = rememberCoroutineScope()
@@ -75,7 +93,7 @@ fun ConsumptionsScreen(view: ConsumptionsView?, core: Core, editing: JsonObject?
                 }
             }
         }
-        if (editing != null) ConsumptionEditorSheet(core, editing, onClose = { onEdit(null) })
+        if (editing != null) ConsumptionEditorSheet(core, route, editing, onClose = { onEdit(null) })
     }
     ask?.Show { ask = null }
 }
@@ -88,10 +106,11 @@ class Asking(val text: String, val confirm: String? = null, val danger: Boolean 
 
 /**
  * Consumptions.jsx ConsumptionEditor, the add/edit sheet. `open`: core.js consumptionEditor's opening args ({id} or
- * {day}). The form is kept here as typed; the web app says what it adds up to after each change.
+ * {day}, or a stash's [StashedConsumption.open]). The form is kept here as typed; the web app says what it adds up to
+ * after each change. `route`: the screen it's over, for "+ register food" to come back to.
  */
 @Composable
-fun ConsumptionEditorSheet(core: Core, open: JsonObject, onClose: () -> Unit, onDeleted: () -> Unit = onClose) {
+fun ConsumptionEditorSheet(core: Core, route: String, open: JsonObject, onClose: () -> Unit, onDeleted: () -> Unit = onClose) {
     var reply by remember(open) { mutableStateOf<ConsumptionEditorReply?>(null) }
     var form by remember(open) { mutableStateOf<JsonObject?>(null) }
     var ask by remember { mutableStateOf<Asking?>(null) }
@@ -171,7 +190,12 @@ fun ConsumptionEditorSheet(core: Core, open: JsonObject, onClose: () -> Unit, on
             AddRow("+ add component", { event("addComponent") })
             v.total?.let { Muted(it, size = 13.sp) }
         } else {
-            Field("Item") { FoodPicker(v.item, search, { event("pick", it) }) }
+            Field("Item") {
+                FoodPicker(v.item, search, { event("pick", it) }, onRegister = { text ->
+                    ConsumptionStash.stashed = StashedConsumption(route, r.consumption, f)
+                    core.go("/foods/new?for=consumption${if (text.isNotEmpty()) "&name=${Uri.encode(text)}" else ""}")
+                })
+            }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
             Field(v.amountLabel, Modifier.weight(1f)) { TextBox(f.str("amount"), { set("amount", it) }, placeholder = v.amountPlaceholder, decimal = true) }

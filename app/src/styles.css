@@ -249,6 +249,7 @@ button.icon.small { width: 34px; height: 34px; font-size: 18px; }
 .tag.ok { color: var(--kcal); }
 .tag.made { display: inline-block; white-space: nowrap; padding: 0 8px; font-weight: normal; }
 .picker > .tag.made { margin: 6px 0 0 12px; }
+.picker > .register-food { display: block; margin-left: 12px; }
 
 /* Dashboard tiles (n×2 grid) with a semicircle gauge */
 .tile { background: var(--panel-2); border-radius: 20px; padding: 12px 10px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 0; }

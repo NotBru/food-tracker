@@ -60,6 +60,7 @@ import app.foodtracker.get
 import app.foodtracker.js
 import app.foodtracker.jsOf
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
@@ -114,6 +115,9 @@ private fun Picture(core: Core, pic: NotePic, modifier: Modifier = Modifier.size
 @Composable
 fun NotesScreen(view: NotesView?, core: Core, picker: PicturePicker, editing: JsonObject?, onEdit: (JsonObject?) -> Unit) {
     var viewing by remember { mutableStateOf<Pair<List<NotePic>, Int>?>(null) }
+    // Saves outlive the editor (it closes at once): their failures are told here.
+    val saving = rememberCoroutineScope()
+    var failed by remember { mutableStateOf<Asking?>(null) }
     Box(Modifier.fillMaxSize()) {
         ScreenFrame("Temp notes", view?.user, onBack = core::back) {
             if (view == null) return@ScreenFrame
@@ -121,9 +125,11 @@ fun NotesScreen(view: NotesView?, core: Core, picker: PicturePicker, editing: Js
             AddRow("+ add note", { onEdit(js("userId" to view.userId, "text" to "", "pictures" to emptyList<String>(), "pictureNames" to emptyMap<String, String>())) })
             for (row in view.rows) NoteCard(row, core, { onEdit(row.note) }) { i -> viewing = row.pics to i }
         }
-        if (editing != null) NoteEditor(editing, view?.rows?.firstOrNull { it.note["id"] == editing["id"] }, core, picker, { onEdit(null) }) { pics, i -> viewing = pics to i }
+        if (editing != null) NoteEditor(editing, view?.rows?.firstOrNull { it.note["id"] == editing["id"] }, core, picker, saving, { failed = Asking(it) },
+            { onEdit(null) }) { pics, i -> viewing = pics to i }
         viewing?.let { (pics, at) -> Viewer(core, pics, at) { viewing = null } }
     }
+    failed?.Show { failed = null }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -145,10 +151,14 @@ private fun NoteCard(row: NoteRow, core: Core, onOpen: () -> Unit, onView: (Int)
     }
 }
 
-/** A note's text and pictures. A new one is stamped with the time it's saved; an edited one keeps its time. */
+/**
+ * A note's text and pictures. A new one is stamped with the time it's saved; an edited one keeps its time. Save
+ * closes it at once: the note is saved (and synced) behind, in `saving`; a failure is told with `onFailed`.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun NoteEditor(note: JsonObject, row: NoteRow?, core: Core, picker: PicturePicker, onClose: () -> Unit, onView: (List<NotePic>, Int) -> Unit) {
+private fun NoteEditor(note: JsonObject, row: NoteRow?, core: Core, picker: PicturePicker, saving: CoroutineScope, onFailed: (String) -> Unit,
+                       onClose: () -> Unit, onView: (List<NotePic>, Int) -> Unit) {
     val isNew = note["id"] == null
     var text by remember(note) { mutableStateOf((note["text"] as? JsonPrimitive)?.contentOrNull ?: "") }
     var done by remember(note) { mutableStateOf((note["done"] as? JsonPrimitive)?.contentOrNull == "true") }
@@ -166,12 +176,14 @@ private fun NoteEditor(note: JsonObject, row: NoteRow?, core: Core, picker: Pict
             busy = false
         }
     }
-    fun save() = scope.launch {
-        val r = runCatching {
-            core.get(SaveReply.serializer(), "saveNote", note, JsonPrimitive(text), JsonPrimitive(done),
-                bridgeJson.encodeToJsonElement(ListSerializer(NotePic.serializer()), pics))
-        }.getOrElse { SaveReply(alert = "Couldn't save: ${it.message}") }
-        if (r.alert != null) ask = Asking(r.alert) else onClose()
+    fun save() {
+        if (text.isBlank() && pics.isEmpty()) { ask = Asking("Write something or add a picture."); return }
+        val args = arrayOf(note, JsonPrimitive(text), JsonPrimitive(done), bridgeJson.encodeToJsonElement(ListSerializer(NotePic.serializer()), pics))
+        onClose()
+        saving.launch {
+            val r = runCatching { core.get(SaveReply.serializer(), "saveNote", *args) }.getOrElse { SaveReply(alert = "Couldn't save the note: ${it.message}") }
+            r.alert?.let(onFailed)
+        }
     }
     SheetOverlay(onClose) {
         SheetTitle(if (isNew) "New note" else row?.title ?: "Note")

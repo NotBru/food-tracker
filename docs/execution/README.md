@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-11 | [Food searches with kcal per 100 g; "+ register food"; notes saved behind; Android synced before it sleeps](2026-11-11-search-kcal-register-food-notes-sync.md) | accepted |
 | 2026-11-10 | [Energy pie: the eaten ring dimmer within the calorie target, brighter outside it](2026-11-10-pie-ring-brightness.md) | accepted |
 | 2026-11-10 | [Energy pie: the eaten ring as wide as the calories' interval, nearly the background outside the target](2026-11-10-pie-interval-band.md) | accepted; brightness superseded by [pie-ring-brightness](2026-11-10-pie-ring-brightness.md) |
 | 2026-11-08 | [CIQUAL without its caffeinated drinks (it has no caffeine)](2026-11-08-ciqual-no-caffeinated-drinks.md) | accepted |

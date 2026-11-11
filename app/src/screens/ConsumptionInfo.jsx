@@ -7,7 +7,7 @@ import { DEFAULT_ENTRY_ERROR } from '../errors'
 import { formatDateTime } from '../time'
 import { MadeTag, MacroLine, PrinterIcon, Screen, go } from '../components'
 import { Amount, NutrientTable } from './FoodInfo'
-import { ConsumptionEditor } from './Consumptions'
+import { ConsumptionEditor, useRestored } from './Consumptions'
 import EnergyChart from './EnergyChart'
 import LabelSheet from './LabelSheet'
 
@@ -17,7 +17,9 @@ import LabelSheet from './LabelSheet'
 
 /** `nutrient` (opened from a breakdown) is passed on to the food's Info tab, which ranks its components by it. */
 export default function ConsumptionInfo({ id, nutrient }) {
-  const [editing, setEditing] = useState(false)
+  // Back from "+ register food": the editor as it was, until it's closed.
+  const restored = useRestored()
+  const [editing, setEditing] = useState(() => (restored ? 'restored' : false))
   const [printing, setPrinting] = useState(false)
   const data = useLiveQuery(async () => {
     const [log, ctx, config] = await Promise.all([db.logs.get(id), loadContext(), getConfig()])
@@ -70,7 +72,7 @@ export default function ConsumptionInfo({ id, nutrient }) {
 
       {printing && <LabelSheet ctx={ctx} item={item} log={log} per={{ text: String(log.amount), unit: log.unit }} onClose={() => setPrinting(false)} />}
       {editing && (
-        <ConsumptionEditor ctx={ctx} dayStart={data.dayStart} consumption={log}
+        <ConsumptionEditor ctx={ctx} dayStart={data.dayStart} consumption={log} restored={editing === 'restored' ? restored : null}
           onClose={() => setEditing(false)} onDeleted={() => history.back()} />
       )}
     </Screen>

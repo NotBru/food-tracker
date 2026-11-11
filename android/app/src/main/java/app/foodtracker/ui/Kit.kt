@@ -411,8 +411,9 @@ fun PickerRow(active: Boolean, onPick: () -> Unit, content: @Composable () -> Un
 
 /**
  * components.jsx ItemPicker: one search box over every food. Focused, it lists what `search` finds for what's typed
- * (the web app's own ranking, core.js foodSearch); tapping one (or the keyboard's Done, for the first) picks it.
- * `onCreate`: a + beside it, to make a new food from what's typed.
+ * (the web app's own ranking, core.js foodSearch), each with its kcal per 100 g if the config says so; tapping one
+ * (or the keyboard's Done, for the first) picks it. `onCreate`: a + beside it, to make a new food from what's typed.
+ * `onRegister`: "+ register food" right under it (above the matches), likewise.
  */
 @Composable
 fun FoodPicker(
@@ -421,6 +422,7 @@ fun FoodPicker(
     onPick: (String) -> Unit,
     bg: Color = C.panel,
     onCreate: ((String) -> Unit)? = null,
+    onRegister: ((String) -> Unit)? = null,
 ) {
     var query by remember { mutableStateOf<String?>(null) } // null = closed
     var hits by remember { mutableStateOf<List<FoodLabel>>(emptyList()) }
@@ -441,6 +443,8 @@ fun FoodPicker(
                 onFocus = { query = if (it) "" else null }, onDone = { hits.firstOrNull()?.let(::pick) ?: focus.clearFocus() })
             if (onCreate != null) RoundIconButton("New food", { onCreate((query ?: "").trim()) }) { Text("+", color = C.accent, fontSize = 22.sp) }
         }
+        if (onRegister != null) Text("+ register food", Modifier.clickable { onRegister((query ?: "").trim()) }.padding(start = 12.dp, top = 6.dp, bottom = 2.dp),
+            color = C.accent, fontWeight = FontWeight.Medium)
         if (query == null) picked?.made?.let { Box(Modifier.padding(start = 12.dp, top = 6.dp)) { Tag(it) } }
         else PickerList(hits.size, "No match") { i ->
             val f = hits[i]
@@ -448,6 +452,7 @@ fun FoodPicker(
                 Text(buildAnnotatedString {
                     append(f.label)
                     if (f.recipe) withStyle(SpanStyle(color = C.muted, fontSize = 13.sp)) { append(" · recipe") }
+                    if (f.per100 != null) withStyle(SpanStyle(color = C.muted, fontSize = 13.sp)) { append(" · ${f.per100}") }
                 }, color = C.text)
             }
             if (f.made != null) Box(Modifier.padding(start = 14.dp, bottom = 4.dp)) { Tag(f.made) }

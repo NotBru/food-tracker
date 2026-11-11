@@ -5,12 +5,14 @@ import { consumptionNutrients, loadContext, resolve } from '../calc'
 import { addDays, dayBounds, prettyDay, toLocalInput, today } from '../time'
 import { amountText, fmt, pmText } from '../nutrients'
 import { DEFAULT_ENTRY_ERROR } from '../errors'
-import { componentUnits, deleteQuestion, detailRows, editorState, emptyComponent, initialForm, newConsumption as newConsumptionAt, pickComponent, pickItem, save as saveForm, saveProblem, setComponent, takeMax, toggleConcoction, unitsOf } from '../consumptionForm'
+import { componentUnits, deleteQuestion, detailRows, dropStash, editorState, emptyComponent, initialForm, newConsumption as newConsumptionAt, pickComponent, pickItem, restoredForm, save as saveForm, saveProblem, setComponent, stashForNewFood, stashHere, takeMax, toggleConcoction, unitsOf } from '../consumptionForm'
 import { AttributesEditor, Chevron, DateTimeInput, MadeTag, DeltaInput, EntryErrorButton, Field, enterSaves, ItemPicker, MacroLine, Screen, TrashIcon, UnitCombo, go, pressable, replace, useToday } from '../components'
 
 export default function Consumptions({ day: dayParam, add }) {
   const dateRef = useRef(null)
-  const [editing, setEditing] = useState(null) // consumption record, or a blank one for new
+  // Back from "+ register food": the editor as it was (useRestored).
+  const restored = useRestored()
+  const [editing, setEditing] = useState(() => restored?.consumption ?? null) // consumption record, or a blank one for new
   const todayDay = useToday()
 
   const data = useLiveQuery(async () => {
@@ -75,17 +77,43 @@ export default function Consumptions({ day: dayParam, add }) {
         ))}
       </ul>
 
-      {editing && <ConsumptionEditor ctx={ctx} dayStart={data.config.dayStart} consumption={editing} onClose={() => setEditing(null)} />}
+      {editing && <ConsumptionEditor ctx={ctx} dayStart={data.config.dayStart} consumption={editing} restored={editing === restored?.consumption ? restored : null}
+        onClose={() => setEditing(null)} />}
     </Screen>
   )
 }
 
-/** The add/edit sheet. Also opened from a consumption's info screen, which leaves it on `onDeleted`. */
-export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClose, onDeleted = onClose }) {
+/**
+ * The editor stashed on this screen's hash by "+ register food" (consumptionForm.js stashForNewFood), if any: taken
+ * off in an effect, since StrictMode runs state initializers twice.
+ */
+export function useRestored() {
+  const [restored] = useState(stashHere)
+  useEffect(() => { if (restored) dropStash(restored) }, [restored])
+  return restored
+}
+
+/**
+ * The add/edit sheet. Also opened from a consumption's info screen, which leaves it on `onDeleted`. `restored`: the
+ * stash it left for "+ register food" (useRestored), to open as it was.
+ */
+export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, restored, onClose, onDeleted = onClose }) {
   const addComponentRef = useRef(null)
-  const [form, setForm] = useState(() => initialForm(consumption))
+  const [form, setForm] = useState(() => restored?.form ?? initialForm(consumption))
   const logs = useLiveQuery(() => db.logs.toArray(), [])
   const st = editorState(savedCtx, logs ?? [], consumption, form, dayStart)
+  // Back with the new food: picked once the logs are in (its unit and entry error come from them).
+  const picked = useRef(false)
+  useEffect(() => {
+    if (!restored?.created || !logs || picked.current) return
+    picked.current = true
+    setForm(restoredForm(st, restored))
+  }, [logs])
+  // A new food on top, named from what's typed; back here, it's picked.
+  function registerFood(text) {
+    stashForNewFood(consumption, form)
+    go(`/foods/new?for=consumption${text ? `&name=${encodeURIComponent(text)}` : ''}`)
+  }
   const { oldBefore, show, rest, maxText, ctx, itemId, unit, ownFood, preview } = st
   const set = (k) => (v) => setForm((f) => ({ ...f, [k]: v }))
   const setC = (i, patch) => setForm((f) => setComponent(f, i, patch))
@@ -146,7 +174,7 @@ export function ConsumptionEditor({ ctx: savedCtx, dayStart, consumption, onClos
           </>
         ) : (
           <Field label="Item">
-            <ItemPicker ctx={ctx} value={form.itemId} oldBefore={oldBefore} show={show} onChange={(id) => setForm(pickItem(st, id))} enterNext />
+            <ItemPicker ctx={ctx} value={form.itemId} oldBefore={oldBefore} show={show} onChange={(id) => setForm(pickItem(st, id))} onRegister={registerFood} enterNext />
           </Field>
         )}
         <div className="row amount-row">

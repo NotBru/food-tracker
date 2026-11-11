@@ -194,3 +194,18 @@ export const deleteQuestion = (consumption, item) =>
 /** Every nutrient known for a consumption but energy (NutrientDetails): those no food in it has a value for left out. */
 export const detailRows = (nutrients) =>
   NUTRIENTS.filter(({ key }) => key !== 'energy' && nutrients[key] && !(nutrients[key].missing && nutrients[key].value === 0))
+
+// --- New food from the editor ("+ register food" under its search box) -----------------------------------------
+// The editor's consumption and form are stashed with the hash it's on, a new food opens on top
+// (`/foods/new?for=consumption`), and back on that hash the editor opens again as it was, the new food (if it was
+// saved) picked. In memory only, like the foods editor's `parents`: a reload drops it.
+let stash = null // { hash, consumption, form, created }
+
+export const stashForNewFood = (consumption, form) => (stash = { hash: location.hash, consumption, form, created: null })
+/** The new food saved: the stashed editor picks it. */
+export const newFoodSaved = (id) => stash && (stash.created = id)
+/** The stash, if it belongs to this hash (left in place: drop it with dropStash once used). */
+export const stashHere = () => (stash?.hash === location.hash ? stash : null)
+export const dropStash = (s) => stash === s && (stash = null)
+/** The stashed form, with the new food picked if there is one; `st`: the editor's state for the stashed form. */
+export const restoredForm = (st, s) => (s.created != null && st.ctx.items.get(s.created) ? pickItem(st, s.created) : s.form)

@@ -95,6 +95,7 @@ class MainActivity : ComponentActivity() {
         engine.onGone = { recreate() }
         engine.onExit = { finish() }
         engine.load(linkOf(intent) ?: "$ORIGIN/")
+        SyncJob.sync = engine.sync
         // Back goes back through the web app's routes; from the first one, out of the app (Engine.back).
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() = engine.back()
@@ -113,7 +114,15 @@ class MainActivity : ComponentActivity() {
         engine.resume()
     }
 
+    /** Out of sight: the web app syncs; the app stays up until it's done (SyncJob). */
+    override fun onStop() {
+        super.onStop()
+        val state = engine.sync.value?.state
+        if (state != null && state != "off") SyncJob.schedule(this)
+    }
+
     override fun onDestroy() {
+        SyncJob.sync = null
         engine.webView.destroy()
         super.onDestroy()
     }

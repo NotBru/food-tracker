@@ -244,6 +244,21 @@ export function baseAmount(item) {
 }
 
 /**
+ * A food's energy per 100 g ("123 kcal/100 g"), or per 100 ml where it doesn't convert to grams; null if neither
+ * (a food only in its own units) or nothing's known. For food searches (Config: `searchKcal`).
+ */
+export function kcalPer100(ctx, id) {
+  for (const unit of ['g', 'ml']) {
+    const n = nutrientsFor(ctx, id, 100, unit)
+    if (!n.ok) continue
+    const kcal = calories(n.nutrients)
+    if (!Number.isFinite(kcal.value) || (kcal.estimated && !kcal.value)) return null
+    return `${kcal.estimated ? '~' : ''}${Math.round(kcal.value)} kcal/100 ${unit}`
+  }
+  return null
+}
+
+/**
  * Nutrients for `amount ± amountDelta unit` of item `id`. Items with components get them inferred from the
  * components; otherwise their own nutrients are used, with entry error `rel` (a consumption's) or else the default.
  * Returns { nutrients: {key: {value, v, s, missing}}, ok } where ok=false means a unit couldn't be converted
