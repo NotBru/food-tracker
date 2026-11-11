@@ -52,3 +52,7 @@ emulator now uses less instead: `-memory 1536`, `-no-window` by default (`--wind
 its GPU rendering were most of what went past 4 GB), cap back to 4.5G. It refuses to start with under 6 GB
 `MemAvailable`, and runs under `choom -n 1000` so the kernel's global OOM killer takes it first. Not run here (host
 only); syntax checked.
+
+First run of that: the phone booted with 4 GB (`MemTotal` 4007036 kB) despite `-memory 1536`, and was gone ~1 min
+later (adb: "connection terminated"), the laptop fine: the AVD's `hw.ramSize` won over the flag, and the cap killed
+it. The script now sets `hw.ramSize=1536` in the AVD's `config.ini` before each launch.

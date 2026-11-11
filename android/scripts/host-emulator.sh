@@ -32,6 +32,10 @@ else
     echo "== Not starting the emulator: $((avail_kb / 1024)) MB available, it needs 6 GB. Close something first." >&2
     exit 1
   fi
+  # The AVD's own hw.ramSize (4 GB) won over -memory: the phone booted with 4 GB and got killed at the cap.
+  CONFIG="${ANDROID_AVD_HOME:-$HOME/.android/avd}/$AVD.avd/config.ini"
+  if grep -q '^hw.ramSize' "$CONFIG"; then sed -i 's/^hw.ramSize.*/hw.ramSize=1536/' "$CONFIG"
+  else echo 'hw.ramSize=1536' >>"$CONFIG"; fi
   CHOOM=()
   if command -v choom >/dev/null; then CHOOM=(choom -n 1000 --); else echo "== (no choom: not first for the OOM killer)"; fi
   echo "== Starting the emulator (at most $CAP; log: $LOG)"
