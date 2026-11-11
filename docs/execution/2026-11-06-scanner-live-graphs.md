@@ -56,3 +56,9 @@ only); syntax checked.
 First run of that: the phone booted with 4 GB (`MemTotal` 4007036 kB) despite `-memory 1536`, and was gone ~1 min
 later (adb: "connection terminated"), the laptop fine: the AVD's `hw.ramSize` won over the flag, and the cap killed
 it. The script now sets `hw.ramSize=1536` in the AVD's `config.ini` before each launch.
+
+It still booted with 4 GB: its log says "Increasing RAM size to 4096MB" (config.ini did read 1536), so 4 GB is the
+emulator's minimum for this image, and at the 4.5G cap it stalled (adb shell hung). Options given: accept it, an
+older image (needs a Play image for a WebView with Ed25519), a real phone. The user chose accepting it: cap 5.5G,
+`-memory 4096` (stated, not wished), headless by default, start only with 8 GB `MemAvailable`; the config.ini rewrite
+dropped. It's started only when needed and stopped when done.
