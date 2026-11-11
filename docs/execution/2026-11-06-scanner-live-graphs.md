@@ -45,3 +45,10 @@ the host); syntax checked.
 2026-11-11: `MemoryMax=6G`. At 4G the cgroup's OOM killer killed it 37 s in, just after "Boot completed" (journal:
 `Failed with result 'oom-kill'`): the guest's 2 GB plus the emulator's own (GPU, window, netsim) went past 4 GB.
 6 GB still leaves the laptop ~9 GB.
+
+Later on 2026-11-11: the 6G cap tilted the laptop again while the user was working on something else. The cap only
+bounds the emulator; 6 GB of it plus the container (same 15 GB) plus the user's apps ran the laptop out. So the
+emulator now uses less instead: `-memory 1536`, `-no-window` by default (`--window` brings it back; the window and
+its GPU rendering were most of what went past 4 GB), cap back to 4.5G. It refuses to start with under 6 GB
+`MemAvailable`, and runs under `choom -n 1000` so the kernel's global OOM killer takes it first. Not run here (host
+only); syntax checked.
