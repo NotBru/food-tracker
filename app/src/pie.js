@@ -165,24 +165,24 @@ export function targetCurves(model, k0, k1, n = 64) {
 }
 
 /**
- * Each macro's share of the energy eaten from its least to its most likely amount (the ends of its grams' interval),
- * the other macros kept at their means: {key: [lo, hi]}. Shares as eatenArcs' (of the macros' summed kcal).
+ * Each macro's kcal from its least to its most likely amount (the ends of its grams' interval), as shares of the
+ * macros' summed kcal at their means: {key: [lo, hi]}. On a ring of f times fewer kcal than eaten, f × those.
  */
 export function eatenShareRanges(total) {
   const split = energySplit(total)
   if (!(split.total > 0)) return {}
   return Object.fromEntries(split.macros.map((m) => {
-    const rest = split.total - m.kcal
-    const share = (k) => (k + rest > 0 ? k / (k + rest) : 0)
     const [lo, hi] = bounds(m.kcalN)
-    return [m.key, [share(lo), share(hi)]]
+    return [m.key, [lo / split.total, hi / split.total]]
   }))
 }
 
 /**
- * Error bars of the eaten split, in the eaten arcs' places: [{from, to, key}] in turns, each macro's share range
- * (eatenShareRanges) at its arc's moving edge(s): the first and second macros' both edges (they grow from their
+ * Error bars of the eaten split, in the eaten arcs' places: [{key, lane, span, from, to}] in turns, each macro's
+ * range (eatenShareRanges) at its arc's moving edge(s): the first and second macros' both edges (they grow from their
  * centres, top and bottom), the third's edge away from the first (it grows from the first's edge, on each side).
+ * `span(f)`: [from, to] on a ring whose kcal are the eaten ones over f (the same kcal of the macro, its least to its
+ * most likely amount, on every ring: the bar curves as the targets' edges do); from, to: span(1).
  * `lane`: which part of the ring's width (below).
  */
 export function eatenErrorBars(model, total) {
@@ -192,18 +192,25 @@ export function eatenErrorBars(model, total) {
   const [A, B, C] = model.order
   const a = (split.macros.find((m) => m.key === A.key)?.kcal ?? 0) / split.total
   const out = []
-  const both = (key, c, sign) => {
+  const wide = (r) => r && r[1] - r[0] >= 1e-3
+  const both = (key, c) => {
     const r = ranges[key]
-    if (!r || r[1] - r[0] < 1e-3) return
-    out.push({ from: c + (sign * r[0]) / 2, to: c + (sign * r[1]) / 2, key }, { from: c - (sign * r[1]) / 2, to: c - (sign * r[0]) / 2, key })
+    if (!wide(r)) return
+    out.push({ key, span: (f) => [c + (f * r[0]) / 2, c + (f * r[1]) / 2] }, { key, span: (f) => [c - (f * r[1]) / 2, c - (f * r[0]) / 2] })
   }
-  both(A.key, 0, 1)
-  both(B.key, 0.5, 1)
+  both(A.key, 0)
+  both(B.key, 0.5)
   const r = ranges[C.key]
-  if (r && r[1] - r[0] >= 1e-3) out.push({ from: a / 2 + r[0] / 2, to: a / 2 + r[1] / 2, key: C.key }, { from: 1 - a / 2 - r[1] / 2, to: 1 - a / 2 - r[0] / 2, key: C.key })
+  if (wide(r)) {
+    out.push({ key: C.key, span: (f) => [a / 2 + (f * r[0]) / 2, a / 2 + (f * r[1]) / 2] },
+      { key: C.key, span: (f) => [1 - a / 2 - (f * r[1]) / 2, 1 - a / 2 - (f * r[0]) / 2] })
+  }
   // Lanes across the ring's width: 0 all of it; where the third macro's bar overlaps another's (it shares an edge
   // with the second when there's no alcohol), the third takes the outer half (1) and the other the inner one (−1).
-  const bars = out.map((x) => ({ ...(x.from > x.to ? { ...x, from: x.to, to: x.from } : x), lane: 0 }))
+  const bars = out.map((x) => {
+    const [from, to] = x.span(1)
+    return { ...x, from, to, lane: 0 }
+  })
   for (const c of bars.filter((x) => x.key === C.key)) {
     for (const o of bars.filter((x) => x.key !== C.key && x.from < c.to && c.from < x.to)) {
       o.lane = -1
@@ -361,6 +368,7 @@ const segColour = (pal, s) => {
 
 export const PIE_RING = 9 // CSS px: the eaten ring's least thickness (the calories' interval, when wider)
 const OUT_OF_TARGET = 0.3 // the eaten ring outside the calorie target: its colours this much over the background (nearly it)
+const ERR_STEPS = 16 // the eaten error bars' curves: this many straight pieces across the eaten ring
 const IN_TARGET = 0.65 // and inside it: between that and the target's own rings (full colours)
 
 /** Arcs (eatenArcs) as segments of the turn, 0–1 in order, each with its colour from `colour(tone)`. */
@@ -380,7 +388,8 @@ const arcSegs = (arcs, colour) =>
  *   upper one as far as drawn;
  * - mid, thick: the eaten ring (the calories' interval, at least PIE_RING thick); arcs: its parts {from, to, c};
  * - dims: its parts outside the calorie target, darker {L0, L1, from, to, c} (over the arcs);
- * - errs: the macros' share ranges on it {L0, L1, from, to, c, hatch} (see-through c, hatched in `hatch`);
+ * - errs: the macros' share ranges on it {pts: [{L, from, to}] (L0 up to L1), c, hatch} (see-through c, hatched in
+ *   `hatch`): each curved, its macro's kcal the same on every ring;
  * - edges: the eaten ring's white edges (levels).
  */
 export function pieScene({ model, val, total, steps, square, n, k, pal }) {
@@ -428,14 +437,14 @@ export function pieScene({ model, val, total, steps, square, n, k, pal }) {
         .map((sg) => ({ to: sg.to, c: segColour(pal, sg) })))
   }
   const shown = (t) => !square || t <= 0.5 + 1e-9
-  // The macros' targets at the calorie target's lowest ring (its min, else its max): dashed lines from 0 kcal up
-  // to it (or to the bar below the min) at each one's min and max there (those splits, eaten in proportion).
+  // The macros' targets, dashed, from the bottom to the top, drawn over everything: at the calorie target's lowest
+  // ring (its min, else its max), straight lines from 0 kcal up to it at each one's min and max there (those splits,
+  // eaten in proportion); from there up to the top, each edge as it curves (a share of grams shrinks as the calories
+  // grow).
   const target = targetEdges(model)
-  const lines = target.edges.filter(shown).map((t) => ({ t, L0: 0, L1: Math.min(S, at(target.kcal), minBar ? minBar[0] : Infinity) }))
-  // Between the bars: each target edge as it curves up the zone (a share of grams shrinks as the calories grow).
-  const curveTop = Math.min(inner, maxBar ? maxBar[0] : Infinity)
-  const curves = minBar && curveTop > minBar[1]
-    ? targetCurves(model, cMin, (curveTop / S) * full).map((c) => c.map((pt) => (pt && shown(pt.t) ? { t: pt.t, L: at(pt.kcal) } : null)))
+  const lines = target.edges.filter(shown).map((t) => ({ t, L0: 0, L1: Math.min(S, at(target.kcal)) }))
+  const curves = target.edges.length && target.kcal < full
+    ? targetCurves(model, target.kcal, full).map((c) => c.map((pt) => (pt && shown(pt.t) ? { t: pt.t, L: at(pt.kcal) } : null)))
     : []
   // The bars' outer edges, on the whole levels they're drawn on (up to the history's top): below the min bar, above
   // the max bar (the sides facing away from the zone between them).
@@ -449,14 +458,23 @@ export function pieScene({ model, val, total, steps, square, n, k, pal }) {
   const tHi = has(cMax) ? at(cMax) : Infinity
   const outside = [[r0, Math.min(r1, tLo)], [Math.max(r0, tHi), r1]].filter(([a, b]) => b > a)
   scene.dims = outside.flatMap(([L0, L1]) => arcs.map((a) => ({ L0, L1, from: a.from, to: a.to, c: mix(pal.tone[a.tone], pal.bg, OUT_OF_TARGET) })))
-  // Each macro's share range (from its least to its most likely amount, the others at their means), at its arc's
-  // moving edge: as the bars' error range, its colour see-through, hatched with slanted lines of a lighter shade.
-  // Where two overlap, each takes half the ring's width (lane).
+  // Each macro's range (from its least to its most likely amount), at its arc's moving edge: as the bars' error
+  // range, its colour see-through, hatched with slanted lines of a lighter shade. On each ring across the eaten one,
+  // the same kcal of the macro as shares of that ring's: curved, as the targets' edges. Where two overlap, each takes
+  // half the ring's width (lane).
   scene.errs = errs.flatMap((e) => {
     const tone = PIE_MACROS.find((m) => m.key === e.key)?.tone
     if (!tone) return []
     const c = pal.tone[tone]
-    return [{ L0: e.lane > 0 ? mid : r0, L1: e.lane < 0 ? mid : r1, from: e.from, to: e.to, c, hatch: mix(c, WHITE, 0.6) }]
+    const [L0, L1] = [e.lane > 0 ? mid : r0, e.lane < 0 ? mid : r1]
+    const pts = []
+    for (let j = 0; j <= ERR_STEPS; j++) {
+      const L = L0 + ((L1 - L0) * j) / ERR_STEPS
+      const kcal = (L / S) * full
+      const [from, to] = e.span(kcal > 0 ? val.value / kcal : 1)
+      pts.push({ L, from, to })
+    }
+    return [{ pts, c, hatch: mix(c, WHITE, 0.6) }]
   })
   scene.edges = [r0, r1]
   return scene

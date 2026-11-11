@@ -335,6 +335,12 @@ function shapeOf(square, n) {
         ctx.rect(2 * a * n, n - L1, 2 * (b - a) * n, L1 - L0)
         return true
       },
+      // A band whose edges curve, [{L, from, to}] from its lower level up (as a path): up its `from` edge, down its `to`.
+      curvedBand: (ctx, pts) => {
+        pts.forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo'](2 * p.from * n, n - p.L))
+        for (const p of [...pts].reverse()) ctx.lineTo(2 * p.to * n, n - p.L)
+        ctx.closePath()
+      },
     }
   }
   const R = n / 2
@@ -358,6 +364,16 @@ function shapeOf(square, n) {
       ctx.arc(R, R, Math.max(0, L0), b, a, true)
       ctx.closePath()
       return true
+    },
+    curvedBand: (ctx, pts) => {
+      const ang = (t) => t * 2 * Math.PI - Math.PI / 2
+      const top = pts[pts.length - 1]
+      const bottom = pts[0]
+      pts.forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo'](R + p.L * Math.sin(p.from * 2 * Math.PI), R - p.L * Math.cos(p.from * 2 * Math.PI)))
+      ctx.arc(R, R, top.L, ang(top.from), ang(top.to))
+      for (const p of [...pts].reverse()) ctx.lineTo(R + p.L * Math.sin(p.to * 2 * Math.PI), R - p.L * Math.cos(p.to * 2 * Math.PI))
+      ctx.arc(R, R, Math.max(0, bottom.L), ang(bottom.to), ang(bottom.from), true)
+      ctx.closePath()
     },
   }
 }
@@ -394,26 +410,6 @@ function PieCanvas({ model, val, total, steps, square, onPoint }) {
       }
     }
     ctx.putImageData(img, 0, 0)
-    ctx.lineWidth = 1.2 * k
-    ctx.strokeStyle = 'rgb(255 255 255 / .55)'
-    ctx.setLineDash([5 * k, 4 * k])
-    for (const ln of sc.lines) {
-      ctx.beginPath()
-      ctx.moveTo(...sh.xy(ln.t, ln.L0))
-      ctx.lineTo(...sh.xy(ln.t, ln.L1))
-      ctx.stroke()
-    }
-    for (const curve of sc.curves) {
-      ctx.beginPath()
-      let on = false
-      for (const pt of curve) {
-        if (!pt) { on = false; continue }
-        ctx[on ? 'lineTo' : 'moveTo'](...sh.xy(pt.t, pt.L))
-        on = true
-      }
-      ctx.stroke()
-    }
-    ctx.setLineDash([])
     const ring = (L, from = 0, to = 1) => {
       ctx.beginPath()
       if (sh.arc(ctx, L, from, to)) ctx.stroke()
@@ -440,7 +436,7 @@ function PieCanvas({ model, val, total, steps, square, onPoint }) {
     for (const e of sc.errs) {
       ctx.save()
       ctx.beginPath()
-      if (!sh.band(ctx, e.L0, e.L1, e.from, e.to)) { ctx.restore(); continue }
+      sh.curvedBand(ctx, e.pts)
       ctx.clip()
       ctx.fillStyle = `rgb(${e.c.join(' ')} / .4)`
       ctx.fillRect(0, 0, n, n)
@@ -458,6 +454,27 @@ function PieCanvas({ model, val, total, steps, square, onPoint }) {
     ctx.strokeStyle = '#fff'
     ctx.lineWidth = 1.5 * k
     for (const L of sc.edges) ring(L)
+    // The macros' targets' edges, dashed, over everything.
+    ctx.lineWidth = 1.2 * k
+    ctx.strokeStyle = 'rgb(255 255 255 / .55)'
+    ctx.setLineDash([5 * k, 4 * k])
+    for (const ln of sc.lines) {
+      ctx.beginPath()
+      ctx.moveTo(...sh.xy(ln.t, ln.L0))
+      ctx.lineTo(...sh.xy(ln.t, ln.L1))
+      ctx.stroke()
+    }
+    for (const curve of sc.curves) {
+      ctx.beginPath()
+      let on = false
+      for (const pt of curve) {
+        if (!pt) { on = false; continue }
+        ctx[on ? 'lineTo' : 'moveTo'](...sh.xy(pt.t, pt.L))
+        on = true
+      }
+      ctx.stroke()
+    }
+    ctx.setLineDash([])
   }, [width, key]) // eslint-disable-line react-hooks/exhaustive-deps
   // Pointing (hover with a mouse, a tap on a phone) reads the ring (or row) under it.
   const point = (e) => {

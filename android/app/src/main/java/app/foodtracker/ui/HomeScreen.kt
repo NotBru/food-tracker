@@ -74,6 +74,7 @@ import androidx.compose.ui.unit.sp
 import app.foodtracker.Bar
 import app.foodtracker.DashRow
 import app.foodtracker.HomeView
+import app.foodtracker.PieErrPt
 import app.foodtracker.PieRef
 import app.foodtracker.PieScene
 import app.foodtracker.PieText
@@ -656,6 +657,18 @@ private class PieShape(val square: Boolean, val n: Float) {
         }
         return p
     }
+    /** A band whose edges curve (pts from its lower level up): up its `from` edge, across, down its `to` edge. */
+    fun curvedBand(pts: List<PieErrPt>): Path {
+        val p = Path()
+        pts.forEachIndexed { i, pt -> xy(pt.from, pt.l).let { if (i == 0) p.moveTo(it.x, it.y) else p.lineTo(it.x, it.y) } }
+        val top = pts.last()
+        val bottom = pts.first()
+        if (!square) p.arcTo(circle(top.l), (top.from * 360 - 90).toFloat(), ((top.to - top.from) * 360).toFloat(), false)
+        for (pt in pts.asReversed()) xy(pt.to, pt.l).let { p.lineTo(it.x, it.y) }
+        if (!square) p.arcTo(circle(maxOf(0.0, bottom.l)), (bottom.to * 360 - 90).toFloat(), ((bottom.from - bottom.to) * 360).toFloat(), false)
+        p.close()
+        return p
+    }
 }
 
 private fun DrawScope.drawPie(sc: PieScene, img: ImageBitmap) {
@@ -663,7 +676,27 @@ private fun DrawScope.drawPie(sc: PieScene, img: ImageBitmap) {
     val n = sc.n.toFloat()
     val sh = PieShape(sc.square, n)
     drawImage(img)
-    // The macros' targets: dashed lines up to the calorie target's lowest ring, then as curves up the zone eaten past.
+    // The bars at the calorie min and max: their outer edges thin solid lines.
+    for (l in sc.barEdges) sh.arc(l, 0.0, 1.0)?.let { drawPath(it, rgb(sc.barLine), style = Stroke(k)) }
+    // The estimate: a ring as wide as the calories' interval, split by what was eaten.
+    for (a in sc.arcs) sh.arc(sc.mid, a.from, a.to)?.let { drawPath(it, rgb(a.c), style = Stroke(sc.thick.toFloat())) }
+    // Its parts outside the calorie target, darker.
+    for (d in sc.dims) sh.band(d.l0, d.l1, d.from, d.to)?.let { drawPath(it, rgb(d.c)) }
+    // Each macro's range on it (curved: its kcal the same on every ring): see-through, hatched at 110° as the bars' error range.
+    for (e in sc.errs) {
+        if (e.pts.size < 2) continue
+        clipPath(sh.curvedBand(e.pts)) {
+            drawRect(rgb(e.c, 0.4f), size = Size(n, n))
+            val slant = n * kotlin.math.tan(PI / 9).toFloat()
+            var x = -n
+            while (x < n) {
+                drawLine(rgb(e.hatch), Offset(x, n), Offset(x + slant, 0f), strokeWidth = 1.5f * k)
+                x += 5 * k
+            }
+        }
+    }
+    for (l in sc.edges) sh.arc(l, 0.0, 1.0)?.let { drawPath(it, Color.White, style = Stroke(1.5f * k)) }
+    // The macros' targets, over everything: dashed lines up to the calorie target's lowest ring, then curves to the top.
     val targetStroke = Stroke(1.2f * k, pathEffect = PathEffect.dashPathEffect(floatArrayOf(5 * k, 4 * k)))
     val targetColour = Color.White.copy(alpha = 0.55f)
     for (ln in sc.lines) drawPath(Path().apply { sh.xy(ln.t, ln.l0).let { moveTo(it.x, it.y) }; sh.xy(ln.t, ln.l1).let { lineTo(it.x, it.y) } }, targetColour, style = targetStroke)
@@ -678,26 +711,6 @@ private fun DrawScope.drawPie(sc: PieScene, img: ImageBitmap) {
         }
         drawPath(p, targetColour, style = targetStroke)
     }
-    // The bars at the calorie min and max: their outer edges thin solid lines.
-    for (l in sc.barEdges) sh.arc(l, 0.0, 1.0)?.let { drawPath(it, rgb(sc.barLine), style = Stroke(k)) }
-    // The estimate: a ring as wide as the calories' interval, split by what was eaten.
-    for (a in sc.arcs) sh.arc(sc.mid, a.from, a.to)?.let { drawPath(it, rgb(a.c), style = Stroke(sc.thick.toFloat())) }
-    // Its parts outside the calorie target, darker.
-    for (d in sc.dims) sh.band(d.l0, d.l1, d.from, d.to)?.let { drawPath(it, rgb(d.c)) }
-    // Each macro's share range on it: see-through, hatched at 110° as the bars' error range.
-    for (e in sc.errs) {
-        val band = sh.band(e.l0, e.l1, e.from, e.to) ?: continue
-        clipPath(band) {
-            drawRect(rgb(e.c, 0.4f), size = Size(n, n))
-            val slant = n * kotlin.math.tan(PI / 9).toFloat()
-            var x = -n
-            while (x < n) {
-                drawLine(rgb(e.hatch), Offset(x, n), Offset(x + slant, 0f), strokeWidth = 1.5f * k)
-                x += 5 * k
-            }
-        }
-    }
-    for (l in sc.edges) sh.arc(l, 0.0, 1.0)?.let { drawPath(it, Color.White, style = Stroke(1.5f * k)) }
 }
 
 @Composable

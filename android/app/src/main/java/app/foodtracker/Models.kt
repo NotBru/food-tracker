@@ -73,12 +73,10 @@ data class PieBand(
     @kotlinx.serialization.SerialName("L1") val l1: Double,
     val from: Double, val to: Double, val c: List<Int>,
 )
+/** An error bar on the eaten ring: its edges from its lower level up, curved (the macro's kcal the same on every ring). */
 @Serializable
-data class PieErr(
-    @kotlinx.serialization.SerialName("L0") val l0: Double,
-    @kotlinx.serialization.SerialName("L1") val l1: Double,
-    val from: Double, val to: Double, val c: List<Int>, val hatch: List<Int>,
-)
+data class PieErr(val pts: List<PieErrPt>, val c: List<Int>, val hatch: List<Int>)
+@Serializable data class PieErrPt(@kotlinx.serialization.SerialName("L") val l: Double, val from: Double, val to: Double)
 /** The line under the pie for a ring (pie.js pieReadout). */
 @Serializable data class PieText(val bold: String, val text: String)
 

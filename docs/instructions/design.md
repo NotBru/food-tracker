@@ -33,15 +33,15 @@ Everything dated is listed newest first. Dates are YYYY-MM-DD.
   execution log). Above the calorie max: the same, faded (to plan by); below the min: the min's split, faded (radial
   lines). What was eaten: a white-edged ring at its kcal, split by the macros eaten, as wide as the interval (at least 9 px), nearly the background outside the calorie target, between that and the target's colours within it;
   inside it, the split as the kcal grew through the window (consumption by consumption); faint dashed radial lines
-  at each macro target's min and max share at the calorie min, from the centre to it; from the eaten ring to the
+  at each macro target's min and max share at the calorie min, from the centre to it, then curving with those edges up
+  to the top, over everything; from the eaten ring to the
   calorie min, each macro's room from its share eaten to its min and max there, the shares linear in kcal. Where that
   history covers the calorie target: thin bars (half the eaten ring), right below the min (its split) and the max
   (the rings there), showing as the eaten ring goes past them, in the zone's full colours,
   shaded slightly green, a thin solid green line below the min's and above the max's; the history between those
-  lines brighter, shaded slightly green too; between
-  them (or up to the eaten ring) the macros' min and max edges as dashed curves, meeting the bars. The eaten split's
-  error bars: each macro's share range (its interval's low to high end, the others at their means) on the eaten
-  ring, as the bars' error range: its colour see-through, hatched lighter. Pointing reads a ring (over the pie). Square (switch): the pie's right half unrolled, calories up, the macros' shares across.
+  lines brighter, shaded slightly green too. The eaten split's
+  error bars: each macro's range (its interval's low to high end, the same kcal on every ring across the eaten
+  ring, so curved like the targets' edges) on it, as the bars' error range: its colour see-through, hatched lighter. Pointing reads a ring (over the pie). Square (switch): the pie's right half unrolled, calories up, the macros' shares across.
 - Daily calories: the target moves by what the 6 days before missed, so the 7 days average to it, within caps (config). Optionally a grey ghost of the uncapped correction. Δ Budget: what's left to eat (bars: a segment from the range's high end to the max).
 - Tapping a nutrient -> breakdown screen
 - Button: time graphs -> time graphs screen
