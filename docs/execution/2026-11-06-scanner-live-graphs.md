@@ -62,3 +62,6 @@ emulator's minimum for this image, and at the 4.5G cap it stalled (adb shell hun
 older image (needs a Play image for a WebView with Ed25519), a real phone. The user chose accepting it: cap 5.5G,
 `-memory 4096` (stated, not wished), headless by default, start only with 8 GB `MemAvailable`; the config.ini rewrite
 dropped. It's started only when needed and stopped when done.
+
+At 5.5G it booted but `adb shell` hung (laptop 8.7 GB available, 6.6 GB of it cache: likely the guest RAM counted
+as file cache against the cap; not confirmed). The user: cap 8G. The 8 GB-free check stays.

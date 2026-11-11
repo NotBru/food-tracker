@@ -76,7 +76,7 @@ web app's `core.home` returns them (e.g. recorded from a browser), for checking 
 ## Emulator
 
 On the laptop (not in the container): `scripts/host-emulator.sh` starts it with no window (`--window` for one),
-capped at 5.5 GB and only with 8 GB free (Android 17's emulator froze the 15 GB laptop uncapped, and windowed at a
+capped at 8 GB and only with 8 GB free (Android 17's emulator froze the 15 GB laptop uncapped, and windowed at a
 6 GB cap), and opens adb to the container: there,
 `ADB_SERVER_SOCKET=tcp:172.17.0.1:5037 adb devices`. In a container with KVM: `scripts/emulator.sh`; the old notes in
 `../docs/execution/2026-10-15-android-port.md` (Container).

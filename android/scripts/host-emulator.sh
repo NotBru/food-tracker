@@ -5,7 +5,7 @@
 #   android/scripts/host-emulator.sh --window   # with its window (more memory: may hit the cap)
 #
 # 1. The emulator (AVD food-tracker), unless it's already running, detached (it outlives this terminal), in a
-#    memory cgroup: at most 5.5 GB and no swap, so the kernel kills it instead of freezing the laptop. It refuses to
+#    memory cgroup: at most 8 GB and no swap, so the kernel kills it instead of freezing the laptop. It refuses to
 #    start with under 8 GB available, and it's first in line for the kernel's OOM killer if the laptop runs out.
 #    4 GB for the phone (the emulator's minimum for this Android 17 image: it raises any less to that), 2 cores, a
 #    cold boot (no saved RAM image). Its log: /tmp/food-tracker-emulator.log. Start it only when needed and stop it
@@ -20,7 +20,7 @@ source "$HERE/env.sh"
 AVD=food-tracker
 LOG=/tmp/food-tracker-emulator.log
 
-CAP=5500M
+CAP=8G
 NEED_KB=$((8 * 1024 * 1024))
 WINDOW=(-no-window)
 [ "${1:-}" = --window ] && WINDOW=()
