@@ -66,11 +66,11 @@ main { padding: 0 16px 32px; }
 .screen.home > .window-header { padding-top: 4px; }
 .sync-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px; }
 .sync-btn svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
-.config-btn { margin-left: auto; }
+.lang-btn { margin-left: auto; padding: 6px 10px; }
 /* On a narrow phone the "Merge conflict" label gives way first, then the user's name; the version and Config don't. */
 .sync-btn { min-width: 38px; flex-shrink: 100; } /* the cloud stays */
 .sync-btn > span { overflow: hidden; text-overflow: ellipsis; }
-.config-btn { flex-shrink: 0; }
+.config-btn, .lang-btn { flex-shrink: 0; }
 .app-version {
   background: var(--panel); color: var(--muted); border-radius: 999px; padding: 0 9px; font-size: 12px;
   display: inline-flex; align-items: center; flex: none;

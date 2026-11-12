@@ -1,33 +1,13 @@
 import { useEffect, useState } from 'react'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { DEFAULT_CONFIG, getConfig, setLanguage } from '../db'
+import { DEFAULT_CONFIG, getConfig } from '../db'
 import { REFERENCE_DBS, configForm, pct, saveConfigForm } from '../forms'
 import { Field, Screen, Select, enterSaves, go } from '../components'
-import { LANGS, getLang, t, translated } from '../i18n'
+import { t, translated } from '../i18n'
 
 const DASHBOARD_STYLES = translated([
   { value: 'gauges', label: 'Gauges' },
   { value: 'bars', label: 'Bars' },
 ])
-
-/**
- * The app's language, this device's own: EN | ES, applied at once (not on Save), so the screen itself switches. Its
- * label is in both languages, to be found in either.
- */
-function Language() {
-  const current = useLiveQuery(getConfig)?.language ?? getLang()
-  return (
-    <div className="field">
-      <span>Language · Idioma</span>
-      <div className="segmented" role="group" aria-label="Language · Idioma">
-        {LANGS.map((l) => (
-          <button key={l} type="button" className={l === current ? 'on' : 'secondary'} aria-pressed={l === current}
-            onClick={() => setLanguage(l)}>{l.toUpperCase()}</button>
-        ))}
-      </div>
-    </div>
-  )
-}
 
 /** A switch row of a `.switch-list`, for the form's boolean `k`. */
 function Switch({ form, setForm, k, title, about }) {
@@ -59,7 +39,6 @@ export default function Config() {
       <div className="form" onKeyDown={enterSaves(save)}>
         <section className="config-block">
           <h2>{t('General')}</h2>
-          <Language />
           <div className="field">
             <span>{t('Encrypted backup to the server')}</span>
             <div className="row"><button className="secondary" onClick={() => go('/backup')}>{t('Backup')}</button></div>

@@ -1,6 +1,6 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { exportAll, importAll } from '../db'
+import { exportAll, importAll, setLanguage } from '../db'
 import { barScale, targetBar } from '../calc'
 import { calories, fmt, pmText, rangeLabel, rangeText } from '../nutrients'
 import { bounds, sdOf, zero } from '../stats'
@@ -10,7 +10,7 @@ import { pieFull, pieModel, pieReadout, piePalette, pieScene, rgbOf } from '../p
 import { Chevron, go, replace, saveFile, useToday } from '../components'
 import { getState } from '../backup'
 import { SyncStatus } from './Backup'
-import { plural, t } from '../i18n'
+import { LANGS, getLang, plural, t } from '../i18n'
 
 // What the dashboard loads and its bars' layout are in dashboard.js (shared with the Android app's native screen).
 
@@ -638,6 +638,11 @@ export default function Home({ query = {} }) {
       <div className="home-top">
         <SyncStatus />
         {data?.showVersion && <span className="app-version" title={t('App version (when it was built)')}>v{versionStamp(__BUILT_AT__)}</span>}
+        {/* The language (this device's own): shows the current one, a tap switches to the next. */}
+        <button className="user-btn lang-btn" aria-label="Language · Idioma"
+          onClick={() => setLanguage(LANGS[(LANGS.indexOf(getLang()) + 1) % LANGS.length])}>
+          {getLang().toUpperCase()}
+        </button>
         <button className="user-btn config-btn" onClick={() => go('/config')}>
           <span aria-hidden="true">⚙️</span> {t('Config')}
         </button>
