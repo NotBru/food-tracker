@@ -10,6 +10,7 @@ import { loadContext } from '../calc'
 import { itemLabel } from '../db'
 import { formatDateTime } from '../time'
 import { Field, Screen, go, replace } from '../components'
+import { plural, t } from '../i18n'
 
 /** Black on white whatever the theme, with a quiet zone: what camera apps read best. */
 function Qr({ text }) {
@@ -23,7 +24,7 @@ function Qr({ text }) {
     return { d, size: n + 8 }
   }, [text])
   return (
-    <svg viewBox={`0 0 ${path.size} ${path.size}`} width="240" height="240" role="img" aria-label="QR code of the backup link"
+    <svg viewBox={`0 0 ${path.size} ${path.size}`} width="240" height="240" role="img" aria-label={t('QR code of the backup link')}
       style={{ background: '#fff', borderRadius: 12, alignSelf: 'center' }} shapeRendering="crispEdges">
       <path d={path.d} fill="#000" />
     </svg>
@@ -36,19 +37,17 @@ function useBackupState() {
   return s
 }
 
-const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`
-
 /** What the sync icon's colour means, in words (its hover text, and the Backup screen's status line). */
 export function statusText(s) {
-  const last = s?.at ? ` Last synced ${formatDateTime(s.at)}.` : ''
+  const last = s?.at ? ` ${t('Last synced {when}.', { when: formatDateTime(s.at) })}` : ''
   switch (status(s)) {
-    case 'off': return 'Backup is off.'
-    case 'conflict': return `Merge conflict: ${plural(s.conflicts, 'entry')} changed differently on two devices.`
-    case 'syncing': return `Syncing…${last}`
-    case 'error': return `Sync failed: ${s.error}${last}`
-    case 'unreachable': return `Can't reach the backup server; trying again every 5 s.${last}`
-    case 'waiting': return s.at ? `Changes here are waiting to sync.${last}` : 'Not synced yet.'
-    default: return `Synced.${last}`
+    case 'off': return t('Backup is off.')
+    case 'conflict': return plural(s.conflicts, 'Merge conflict: {n} entry changed differently on two devices.', 'Merge conflict: {n} entries changed differently on two devices.')
+    case 'syncing': return `${t('Syncing…')}${last}`
+    case 'error': return `${t('Sync failed: {error}', { error: t(s.error) })}${last}`
+    case 'unreachable': return `${t("Can't reach the backup server; trying again every 5 s.")}${last}`
+    case 'waiting': return s.at ? `${t('Changes here are waiting to sync.')}${last}` : t('Not synced yet.')
+    default: return `${t('Synced.')}${last}`
   }
 }
 
@@ -70,26 +69,28 @@ export function SyncStatus() {
   const [label, setLabel] = useState(conflictLabelShown)
   useEffect(() => onState(() => setLabel(conflictLabelShown())), [])
   const st = status(s)
-  const text = `${statusText(s)} Tap to ${{ off: 'set it up', conflict: 'pick which to keep' }[st] ?? 'open Backup'}.`
+  const text = `${statusText(s)} ${{ off: t('Tap to set it up.'), conflict: t('Tap to pick which to keep.') }[st] ?? t('Tap to open Backup.')}`
   return (
     <button className={`user-btn sync-btn sync-${st}`} onClick={() => go('/backup')} title={text} aria-label={text}>
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
         <path d="M6.5 19a4.5 4.5 0 0 1-.6-8.96 6.5 6.5 0 0 1 12.4-1A5 5 0 0 1 17.5 19Z" />
         <path d={GLYPHS[st]} />
       </svg>
-      {st === 'conflict' && label && <span>Merge conflict</span>}
+      {st === 'conflict' && label && <span>{t('Merge conflict')}</span>}
     </button>
   )
 }
 
-export const TABLE_NAMES = { users: 'User', items: 'Food', logs: 'Consumption', targets: 'Target', weights: 'Body measurements', config: 'Settings' }
+const TABLES_EN = { users: 'User', items: 'Food', logs: 'Consumption', targets: 'Target', weights: 'Body measurements', config: 'Settings' }
+/** A table's name, in the app's language. */
+export const TABLE_NAMES = new Proxy(TABLES_EN, { get: (o, k) => (k in o ? t(o[k]) : undefined) })
 
-export function rowLabel(t, row, ctx) {
-  if (t === 'users') return row.name
-  if (t === 'items') return itemLabel(row)
-  if (t === 'logs') return `${itemLabel(ctx?.items.get(row.itemId))}, ${row.amountText ?? row.amount} ${row.unit} · ${formatDateTime(row.datetime)}`
-  if (t === 'targets') return `from ${formatDateTime(row.validFrom)}`
-  if (t === 'weights') return formatDateTime(row.datetime)
+export function rowLabel(table, row, ctx) {
+  if (table === 'users') return row.name
+  if (table === 'items') return itemLabel(row)
+  if (table === 'logs') return `${itemLabel(ctx?.items.get(row.itemId))}, ${row.amountText ?? row.amount} ${row.unit} · ${formatDateTime(row.datetime)}`
+  if (table === 'targets') return t('from {when}', { when: formatDateTime(row.validFrom) })
+  if (table === 'weights') return formatDateTime(row.datetime)
   return ''
 }
 
@@ -116,10 +117,9 @@ function Conflicts({ count }) {
   }
   return (
     <div className="field">
-      <span className="conflict-title">Merge conflicts</span>
+      <span className="conflict-title">{t('Merge conflicts')}</span>
       <small className="muted">
-        Changed differently on this device and another one since they last synced. Pick which to keep; syncing waits
-        until all are picked.
+        {t('Changed differently on this device and another one since they last synced. Pick which to keep; syncing waits until all are picked.')}
       </small>
       <ul className="conflicts">
         {list.map((c, i) => (
@@ -128,15 +128,15 @@ function Conflicts({ count }) {
             {c.local && c.cloud ? (
               <ul className="small">
                 {differingFields(c.local, c.cloud).map((f) => (
-                  <li key={f}><span className="muted">{f}:</span> here {shownValue(c.local[f])} · other device {shownValue(c.cloud[f])}</li>
+                  <li key={f}><span className="muted">{f}:</span> {t('here')} {shownValue(c.local[f])} · {t('other device')} {shownValue(c.cloud[f])}</li>
                 ))}
               </ul>
             ) : (
-              <p className="small muted">{c.local ? 'Deleted on the other device, changed here.' : 'Deleted here, changed on the other device.'}</p>
+              <p className="small muted">{c.local ? t('Deleted on the other device, changed here.') : t('Deleted here, changed on the other device.')}</p>
             )}
             <div className="row">
-              <button className="secondary" disabled={busy} onClick={() => pick(i, 'local')}>Keep this device's</button>
-              <button className="secondary" disabled={busy} onClick={() => pick(i, 'cloud')}>Keep the other device's</button>
+              <button className="secondary" disabled={busy} onClick={() => pick(i, 'local')}>{t("Keep this device's")}</button>
+              <button className="secondary" disabled={busy} onClick={() => pick(i, 'cloud')}>{t("Keep the other device's")}</button>
             </div>
           </li>
         ))}
@@ -145,8 +145,8 @@ function Conflicts({ count }) {
         <li>
           <label>
             <span>
-              <strong>"Merge conflict" beside the sync icon</strong>
-              <small className="muted">Off, a merge conflict shows only as the sync icon turning violet (on the homescreen); tap it to come here.</small>
+              <strong>{t('“Merge conflict” beside the sync icon')}</strong>
+              <small className="muted">{t('Off, a merge conflict shows only as the sync icon turning violet (on the homescreen); tap it to come here.')}</small>
             </span>
             <input type="checkbox" role="switch" className="switch" checked={label}
               onChange={(e) => { showConflictLabel(e.target.checked); setLabel(e.target.checked) }} />
@@ -174,7 +174,7 @@ export default function Backup({ secret: linked }) {
     try {
       await f()
     } catch (e) {
-      if (e.status !== 409) alert(e.message)
+      if (e.status !== 409) alert(t(e.message)) // backup.js's and backup-crypto.js's messages are in es.js
     } finally {
       setBusy(false)
     }
@@ -187,50 +187,47 @@ export default function Backup({ secret: linked }) {
 
   async function doRestore(secret) {
     const fetched = await fetchBackup(secret)
-    if (!confirm(`Restoring REPLACES all data on this device with the backup from ${formatDateTime(fetched.updated)}; `
-      + "changes here that haven't synced are lost. Continue?")) return
+    if (!confirm(t("Restoring REPLACES all data on this device with the backup from {when}; changes here that haven't synced are lost. Continue?", { when: formatDateTime(fetched.updated) }))) return
     await restore(secret, fetched)
     setPasted('')
-    alert('Restored.')
+    alert(t('Restored.'))
   }
 
   const restorePasted = () => act(async () => {
     const secret = parseSecret(pasted)
-    if (!secret) throw new Error("That isn't a backup secret or link.")
+    if (!secret) throw new Error(t("That isn't a backup secret or link."))
     if (state && secret !== state.secret &&
-      !confirm("This device is backed up under another secret. It will switch to this one (the old backup stays on the server). Continue?")) return
+      !confirm(t('This device is backed up under another secret. It will switch to this one (the old backup stays on the server). Continue?'))) return
     await doRestore(secret)
   })
 
   const restoreSection = (
     <div className="field">
-      <span>{state ? 'Restore a backup from another secret' : 'Restore a backup from another device'}</span>
+      <span>{state ? t('Restore a backup from another secret') : t('Restore a backup from another device')}</span>
       <small className="muted">
-        On the other device, open Backup and show its secret. Scan the QR with this phone's camera, or paste the
-        secret or link here.
+        {t("On the other device, open Backup and show its secret. Scan the QR with this phone's camera, or paste the secret or link here.")}
       </small>
       <div className="row">
-        <input value={pasted} onChange={(e) => setPasted(e.target.value)} placeholder="Secret or link" style={{ flex: 1 }}
+        <input value={pasted} onChange={(e) => setPasted(e.target.value)} placeholder={t('Secret or link')} style={{ flex: 1 }}
           autoComplete="off" spellCheck={false} />
-        <button className="secondary" disabled={busy || !pasted.trim()} onClick={restorePasted}>Restore</button>
+        <button className="secondary" disabled={busy || !pasted.trim()} onClick={restorePasted}>{t('Restore')}</button>
       </div>
     </div>
   )
 
   if (!state) {
     return (
-      <Screen title="Backup">
+      <Screen title={t('Backup')}>
         <div className="form">
           <p className="muted small">
-            The data is encrypted on this device before it's sent, so the server can't read it. The secret that unlocks
-            it stays on your devices only: lose them all without a copy of the secret and the backup is lost too.
+            {t("The data is encrypted on this device before it's sent, so the server can't read it. The secret that unlocks it stays on your devices only: lose them all without a copy of the secret and the backup is lost too.")}
           </p>
           <div className="field">
-            <span>Back up this device (a invite code lets you start)</span>
+            <span>{t('Back up this device (an invite code lets you start)')}</span>
             <div className="row">
-              <input value={invite} onChange={(e) => setInvite(e.target.value)} placeholder="Invite code" style={{ flex: 1 }}
+              <input value={invite} onChange={(e) => setInvite(e.target.value)} placeholder={t('Invite code')} style={{ flex: 1 }}
                 autoComplete="off" spellCheck={false} />
-              <button disabled={busy || !invite.trim()} onClick={doStart}>Start</button>
+              <button disabled={busy || !invite.trim()} onClick={doStart}>{t('Start')}</button>
             </div>
           </div>
           {restoreSection}
@@ -241,69 +238,66 @@ export default function Backup({ secret: linked }) {
 
   const link = backupLink(state.secret)
   return (
-    <Screen title="Backup">
+    <Screen title={t('Backup')}>
       <div className="form">
         <p className="small">
           <span className={status(state) === 'synced' ? '' : 'warn'}>{statusText(state)}</span>{' '}
           <span className="muted">
-            It syncs by itself with the other devices on this secret while the app is open: a few seconds after a
-            change, every 15 minutes, and when you come back to the app.
+            {t('It syncs by itself with the other devices on this secret while the app is open: a few seconds after a change, every 15 minutes, and when you come back to the app.')}
           </span>
         </p>
         {state.inbox && (
-          <p className="small muted">Took in {plural(state.inbox.entries, 'consumption')} from the inbox {formatDateTime(state.inbox.at)}.</p>
+          <p className="small muted">{plural(state.inbox.entries, 'Took in {n} consumption from the inbox {when}.', 'Took in {n} consumptions from the inbox {when}.', { when: formatDateTime(state.inbox.at) })}</p>
         )}
         <Conflicts count={state.conflicts} />
         <div className="row">
-          <button disabled={busy || !!state.conflicts} onClick={() => act(sync)}>Sync now</button>
-          <button className="secondary" disabled={busy} onClick={() => act(() => doRestore(state.secret))}>Restore</button>
+          <button disabled={busy || !!state.conflicts} onClick={() => act(sync)}>{t('Sync now')}</button>
+          <button className="secondary" disabled={busy} onClick={() => act(() => doRestore(state.secret))}>{t('Restore')}</button>
         </div>
 
         <div className="field">
-          <span>Secret</span>
+          <span>{t('Secret')}</span>
           <small className="muted">
-            Anyone with it can read and replace this backup. Keep a copy somewhere safe, and use it to restore on another
-            device.
+            {t('Anyone with it can read and replace this backup. Keep a copy somewhere safe, and use it to restore on another device.')}
           </small>
           {shown ? (
             <>
               <Qr text={link} />
               <code style={{ wordBreak: 'break-all', color: 'var(--text)' }}>{state.secret}</code>
               <div className="row">
-                <button className="secondary" onClick={() => navigator.clipboard.writeText(state.secret).then(() => alert('Copied.'), () => alert("Couldn't copy; select the text instead."))}>Copy</button>
-                <button className="secondary" onClick={() => setShown(false)}>Hide</button>
+                <button className="secondary" onClick={() => navigator.clipboard.writeText(state.secret).then(() => alert(t('Copied.')), () => alert(t("Couldn't copy; select the text instead.")))}>{t('Copy')}</button>
+                <button className="secondary" onClick={() => setShown(false)}>{t('Hide')}</button>
               </div>
             </>
           ) : (
-            <div className="row"><button className="secondary" onClick={() => setShown(true)}>Show secret</button></div>
+            <div className="row"><button className="secondary" onClick={() => setShown(true)}>{t('Show secret')}</button></div>
           )}
         </div>
 
         <div className="field">
-          <span>Change the secret (if it got out)</span>
+          <span>{t('Change the secret (if it got out)')}</span>
           <small className="muted">
-            Moves the backup to a new secret, with this device's data. The old one stops working on every device; show
-            the new one to your other devices.
+            {t("Moves the backup to a new secret, with this device's data. The old one stops working on every device; show the new one to your other devices.")}
           </small>
           <div className="row">
             <button className="secondary" disabled={busy} onClick={() => {
-              if (confirm('Change the secret? The old one stops working on every device that has it.')) act(async () => {
+              if (confirm(t('Change the secret? The old one stops working on every device that has it.'))) act(async () => {
                 await changeSecret()
                 setShown(true)
               })
-            }}>Change the secret</button>
+            }}>{t('Change the secret')}</button>
           </div>
         </div>
 
         {restoreSection}
 
         <div className="field">
-          <span>Stop backing up this device</span>
-          <small className="muted">Forgets the secret here; the backup stays on the server.</small>
+          <span>{t('Stop backing up this device')}</span>
+          <small className="muted">{t('Forgets the secret here; the backup stays on the server.')}</small>
           <div className="row">
             <button className="secondary" disabled={busy} onClick={() => {
-              if (confirm("Forget the secret on this device? Without a copy of it, the backup can't be restored.")) act(forget)
-            }}>Forget the secret</button>
+              if (confirm(t("Forget the secret on this device? Without a copy of it, the backup can't be restored."))) act(forget)
+            }}>{t('Forget the secret')}</button>
           </div>
         </div>
       </div>

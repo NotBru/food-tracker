@@ -127,7 +127,7 @@ Fields not written have their values stored as `NaN` for later inference or what
 
 - [x] V2: Some way of automatically fetch products from cool databases: reference databases (CIQUAL, USDA
   FoodData Central) listed with your own foods, read-only, editing makes a copy (CIQUAL without its caffeinated
-  drinks: it has no caffeine); "search external" on a new food
+  drinks: it has no caffeine; names in Spanish too, searched in every language); "search external" on a new food
   over Open Food Facts (products, by name or barcode, typed or scanned with the camera; from our copy on the server, OFF itself as fallback). Imports get a `database` attribute.
 
 #### Units
@@ -174,6 +174,7 @@ shared.
 
 - In blocks: General, Dashboard, Food database.
 - General:
+  - Language: EN | ES (this device's own, not synced)
   - Backup (button)
   - Offset for day start. Default, 0500
   - Error intervals hold (% of the probability). Default, 90
@@ -190,7 +191,7 @@ shared.
   An inbox beside it takes entries pushed from elsewhere; the app merges them in. Claude's log-food skill syncs as
   one more device: it adds, changes and deletes consumptions, foods, recipes and body measurements, and reads temp
   notes. Temp notes' pictures are encrypted files of their own beside the backup, deleted by the server after 10 days.
-  Devices on one secret sync (same users, same config but the selected user): each keeps the last synced backup and
+  Devices on one secret sync (same users, same config but the selected user and language): each keeps the last synced backup and
   merges in what changed there since, then uploads (compare-and-swap; first sync: like an import's Merge). On opening and
   reopening, soon after a change, every 15 minutes, and within 5 s of another device's upload while shown (a check
   by the backup's hash). A row changed differently on two devices is a merge conflict: the

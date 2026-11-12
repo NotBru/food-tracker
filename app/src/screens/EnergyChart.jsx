@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { calories, fmt, pmText } from '../nutrients'
 import { energySplit } from '../energy'
+import { t } from '../i18n'
 
 // Energy of an amount of food, computed from the grams of each macro (Atwater 9/4/4, 7 for alcohol), not the
 // energy registered for it: a donut with the total in the middle, fat and carbohydrates split into their kinds, and
@@ -26,7 +27,7 @@ function Donut({ split: { macros, total, totalN } }) {
   const pct = (x) => (total > 0 ? fmt((x / total) * 100, 0) : 0)
   return (
     <div className="donut-wrap">
-      <svg viewBox="0 0 200 200" className="donut" role="img" aria-label={`${fmt(total, 0)} kcal from macros`}>
+      <svg viewBox="0 0 200 200" className="donut" role="img" aria-label={t('{kcal} kcal from macros', { kcal: fmt(total, 0) })}>
         <circle cx="100" cy="100" r={R} className="donut-track" />
         {slices.map((s, i) => {
           const len = (s.kcal / total) * C
@@ -96,8 +97,8 @@ export default function EnergyChart({ nutrients }) {
       <Donut split={energy} />
       <EnergyLegend split={energy} />
       <p className="muted small energy-note">
-        From the grams: 9 kcal/g fat, 4 proteins and carbohydrates{energy.macros.some((m) => m.key === 'alcohol') && ', 7 alcohol'}.
-        {!registered.estimated && <> Registered energy: {fmt(registered.value, 0)} {pmText(registered, 0)} kcal.</>}
+        {energy.macros.some((m) => m.key === 'alcohol') ? t('From the grams: 9 kcal/g fat, 4 proteins and carbohydrates, 7 alcohol.') : t('From the grams: 9 kcal/g fat, 4 proteins and carbohydrates.')}
+        {!registered.estimated && <> {t('Registered energy: {kcal} kcal.', { kcal: `${fmt(registered.value, 0)} ${pmText(registered, 0)}` })}</>}
       </p>
     </>
   )

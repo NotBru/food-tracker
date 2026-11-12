@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
+import { t } from '../i18n'
 
 // The barcode button of "Search Open Food Facts" (External.jsx): the back camera in a sheet; the first EAN/UPC code
 // it reads goes back to the search, which looks it up. zxing (@zxing/browser) loads only when the sheet opens, so the
 // app's own bundle doesn't carry it.
 
 const cameraError = (e) =>
-  !navigator.mediaDevices?.getUserMedia ? 'This browser gives no camera here (it needs the app over https).'
-    : e?.name === 'NotAllowedError' ? 'The camera isn’t allowed: allow it in the browser’s settings for this site.'
-      : e?.name === 'NotFoundError' || e?.name === 'OverconstrainedError' ? 'No camera found.'
-        : `Couldn’t start the camera${e?.message ? `: ${e.message}` : '.'}`
+  !navigator.mediaDevices?.getUserMedia ? t('This browser gives no camera here (it needs the app over https).')
+    : e?.name === 'NotAllowedError' ? t('The camera isn’t allowed: allow it in the browser’s settings for this site.')
+      : e?.name === 'NotFoundError' || e?.name === 'OverconstrainedError' ? t('No camera found.')
+        : e?.message ? t('Couldn’t start the camera: {error}', { error: e.message }) : t('Couldn’t start the camera.')
 
 export default function ScanSheet({ onCode, onClose }) {
   const video = useRef(null)
@@ -42,16 +43,16 @@ export default function ScanSheet({ onCode, onClose }) {
   return (
     <div className="modal" onClick={onClose}>
       <div className="sheet scan-sheet" onClick={(e) => e.stopPropagation()}>
-        <h2>Scan a barcode</h2>
+        <h2>{t('Scan a barcode')}</h2>
         {error ? <p className="warn">{error}</p> : (
           <div className="scan-view">
-            <video ref={video} muted playsInline aria-label="Camera" />
+            <video ref={video} muted playsInline aria-label={t('Camera')} />
             <span className="scan-line" aria-hidden="true" />
           </div>
         )}
-        <p className="muted small">Hold the bars across the line; it looks the code up once it reads it.</p>
+        <p className="muted small">{t('Hold the bars across the line; it looks the code up once it reads it.')}</p>
         <div className="row actions">
-          <button className="secondary" onClick={onClose}>Cancel</button>
+          <button className="secondary" onClick={onClose}>{t('Cancel')}</button>
         </div>
       </div>
     </div>

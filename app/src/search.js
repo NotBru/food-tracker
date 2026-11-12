@@ -4,8 +4,8 @@ import { fold, itemLabel, searchText } from './db'
 // "Pears, raw" first, before "Babyfood, fruit, pears, junior" and "Spearmint".
 //
 // A typed word matches a food if it's a word of its name (plurals aside: "pears" finds "Pear"), the start of one
-// ("roast" finds "roasted") or a longer form of one ("tomatoes", "tomato"), in its name and brand or (CIQUAL) its
-// French name; else if it's anywhere in its text (inside a word, or in an attribute or made-at time), as all searches
+// ("roast" finds "roasted") or a longer form of one ("tomatoes", "tomato"), in its name and brand or (CIQUAL, USDA) its
+// names in the other languages (English, French, Spanish); else if it's anywhere in its text (inside a word, or in an attribute or made-at time), as all searches
 // matched before. A food matches if every typed word does. Better matches first:
 //   1. fewer words found only inside other words or outside the name ("pear" in "spearmint");
 //   2. fewer words matching only part of a word ("pear" in "pearl");
@@ -22,13 +22,13 @@ const wordsOf = (s) => fold(s ?? '').split(/[^\p{L}\p{N}]+/u).filter(Boolean).ma
 /** The typed text as folded words. */
 export const queryWords = (q) => fold(q ?? '').split(/\s+/).filter(Boolean)
 
-/** A food's names as words: name and brand, and CIQUAL's French name. Kept for read-only foods (~11k, unchanging). */
+/** A food's names as words: name and brand, and a reference food's other names. Kept for read-only foods (~11k, unchanging). */
 const namesCache = new WeakMap()
 function namesOf(item) {
   let n = item.readOnly && namesCache.get(item)
   if (n) return n
   n = [wordsOf(`${item.name ?? ''} ${item.brand ?? ''}`)]
-  if (item.nameFr) n.push(wordsOf(item.nameFr))
+  for (const other of item.otherNames ?? []) n.push(wordsOf(other))
   if (item.readOnly) namesCache.set(item, n)
   return n
 }
@@ -40,7 +40,7 @@ function wordMatch(q, w) {
 }
 
 // Words of a name that don't make it a different food.
-const PLAIN = new Set(['raw', 'cru', 'crue'])
+const PLAIN = new Set(['raw', 'cru', 'crue', 'crudo', 'cruda', 'crudos', 'crudas'])
 
 const less = (a, b) => {
   for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] < b[i]

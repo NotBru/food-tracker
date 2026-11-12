@@ -5,11 +5,12 @@ import { foodListMatches } from '../search'
 import { baseAmount, loadContext, nutrientsFor } from '../calc'
 import { amountText } from '../nutrients'
 import { DEFAULT_ENTRY_ERROR } from '../errors'
-import { CATEGORY_OPTIONS, CORE, DELETE_QUESTION, autoAmount as fillAuto, componentUnits, editorState, initialForm, newComponent, newUnit, nutrientRowsShown, pickComponent, round, sameIdAs, save as saveFood, saveProblem, withCreated } from '../foodForm'
+import { CATEGORY_OPTIONS, CORE, deleteQuestion, autoAmount as fillAuto, componentUnits, editorState, initialForm, newComponent, newUnit, nutrientRowsShown, pickComponent, round, sameIdAs, save as saveFood, saveProblem, withCreated } from '../foodForm'
 import { clearPendingDraft, peekPendingDraft, sourceLabel } from '../external'
 import { newFoodSaved } from '../consumptionForm'
 import { AttributesEditor, DateTimeInput, DeltaInput, EntryErrorButton, Field, ItemPicker, MadeTag, MacroLine, NutrientAdder, PrinterIcon, Screen, Select, pressable, UnitCombo, UnitInput, enterSaves, enterTo, go, replace } from '../components'
 import FoodInfo from './FoodInfo'
+import { t } from '../i18n'
 
 // A food is anything you can eat: an ingredient, a recipe (has components) or a concoction (has a made-at time).
 // One list, one editor; what kind a food is follows from its fields. CIQUAL's and USDA's foods are listed too (while searching,
@@ -22,10 +23,10 @@ export function FoodList() {
   const conflicts = conflictingFoods(ctx.list)
   const rows = foodListMatches(ctx, query)
   return (
-    <Screen title="Foods">
-      <input className="search" type="search" placeholder="Search foods…" value={query} onChange={(e) => setQuery(e.target.value)} />
+    <Screen title={t('Foods')}>
+      <input className="search" type="search" placeholder={t('Search foods…')} value={query} onChange={(e) => setQuery(e.target.value)} />
       <ul className="list">
-        <li className="add" onClick={() => go('/foods/new')}>+ add new food</li>
+        <li className="add" onClick={() => go('/foods/new')}>{t('+ add new food')}</li>
         {rows.map(([r, label]) => {
           const [amt, unit] = baseAmount(r)
           const n = nutrientsFor(ctx, r.id, amt, unit)
@@ -33,10 +34,10 @@ export function FoodList() {
             <li key={r.id} onClick={() => go(`/foods/${r.id}`)}>
               <div className="list-main">
                 <span>
-                  {label}{kindOf(r) === 'recipe' && <small className="muted"> · recipe</small>} <MadeTag item={r} />
-                  {conflicts.has(r.id) && <small className="warn" title="Another food has the same ID with different values"> · ⚠ same ID</small>}
+                  {label}{kindOf(r) === 'recipe' && <small className="muted"> · {t('recipe')}</small>} <MadeTag item={r} />
+                  {conflicts.has(r.id) && <small className="warn" title={t('Another food has the same ID with different values')}> · ⚠ {t('same ID')}</small>}
                 </span>
-                <span className="muted">per {r.amount > 0 ? amountText(amt, r.amountText) : amt}{r.amountDeltaAuto === false && r.amountDelta > 0 && ` ±${r.amountDelta}`} {unit}</span>
+                <span className="muted">{t('per')} {r.amount > 0 ? amountText(amt, r.amountText) : amt}{r.amountDeltaAuto === false && r.amountDelta > 0 && ` ±${r.amountDelta}`} {unit}</span>
               </div>
               <MacroLine nutrients={n.nutrients} ok={n.ok} />
             </li>
@@ -67,7 +68,7 @@ export function FoodEditor({ id, tab, nutrient, log, nested, name, forLog }) {
   }, [id])
   // useLiveQuery keeps the previous result while a new id loads; don't build the form from another food's data.
   if (!data || data.id !== id) return null
-  if (!isNew && !data.rec) return <Screen title="Edit food"><p className="muted">Food not found (deleted?).</p></Screen>
+  if (!isNew && !data.rec) return <Screen title={t('Edit food')}><p className="muted">{t('Food not found (deleted?).')}</p></Screen>
   const info = !isNew && tab === 'info'
   const parent = nested && parents[Number(nested) - 1]
   const tabUrl = (v) => {
@@ -76,13 +77,13 @@ export function FoodEditor({ id, tab, nutrient, log, nested, name, forLog }) {
   }
   return (
     // A new component looks like any new food, so its title says what it is for.
-    <Screen title={parent ? 'New component' : isNew ? 'New food' : data.rec.name || 'Food'} subtitle={parent ? `for ${parent.name ? `“${parent.name}”` : 'the new food'}` : isNew && forLog ? 'for the consumption' : undefined}
-      right={info ? <button className="icon" onClick={() => setPrinting(true)} aria-label="Nutrition label"><PrinterIcon /></button> : undefined}>
+    <Screen title={parent ? t('New component') : isNew ? t('New food') : data.rec.name || t('Food')} subtitle={parent ? (parent.name ? t('for “{name}”', { name: parent.name }) : t('for the new food')) : isNew && forLog ? t('for the consumption') : undefined}
+      right={info ? <button className="icon" onClick={() => setPrinting(true)} aria-label={t('Nutrition label')}><PrinterIcon /></button> : undefined}>
       {!isNew && (
-        <div className="segmented food-tabs" role="tablist" aria-label="Food">
+        <div className="segmented food-tabs" role="tablist" aria-label={t('Food')}>
           {[['edit', 'Edit'], ['info', 'Info']].map(([v, label]) => (
             <button key={v} role="tab" aria-selected={(v === 'info') === info} className={(v === 'info') === info ? 'on' : ''}
-              onClick={() => replace(tabUrl(v))}>{label}</button>
+              onClick={() => replace(tabUrl(v))}>{t(label)}</button>
           ))}
         </div>
       )}
@@ -106,7 +107,7 @@ function SameIdWarning({ ctx, item }) {
   if (!others) return null
   return (
     <p className="small warn">
-      ⚠ Same ID as {others.length > 1 ? `${others.length} other foods` : 'another food'} with different values:{' '}
+      ⚠ {others.length > 1 ? t('Same ID as {n} other foods with different values:', { n: others.length }) : t('Same ID as another food with different values:')}{' '}
       {others.map((id, i) => (
         <span key={id}>{i > 0 && ', '}<button className="link" onClick={() => go(`/foods/${id}`)}>#{id}</button></span>
       ))}
@@ -177,7 +178,7 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name, forLog 
     history.back()
   }
   async function remove() {
-    if (confirm(DELETE_QUESTION)) {
+    if (confirm(deleteQuestion())) {
       await db.items.delete(initial.id)
       history.back()
     }
@@ -186,29 +187,29 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name, forLog 
   // Into a new component and back: the form slides in (from the right / left), so the switch is seen.
   return (
       <div className={`form ${nested && !restored ? 'slide-in' : restored ? 'slide-back' : ''}`} onKeyDown={enterSaves(save)}>
-        {copy && <p className="muted small">A {prefill.source?.db === 'fdc' ? 'USDA' : 'CIQUAL'} food, read-only: saving makes it a food of your own.</p>}
+        {copy && <p className="muted small">{t('A {db} food, read-only: saving makes it a food of your own.', { db: prefill.source?.db === 'fdc' ? 'USDA' : 'CIQUAL' })}</p>}
         {!initial && !copy && (
           // Save also sits up here, smaller, so a prefilled draft can be saved without scrolling.
           <div className="row ext-row">
             <button className="secondary" onClick={() => go(`/foods/external${form.name.trim() ? `?q=${encodeURIComponent(form.name.trim())}` : ''}`)}>
-              Search external databases…
+              {t('Search external databases…')}
             </button>
-            <button className="save-top" onClick={save}>Save</button>
+            <button className="save-top" onClick={save}>{t('Save')}</button>
           </div>
         )}
         {(() => {
           const s = sourceLabel(form.source)
           return s && (
             <p className="muted small">
-              From <a href={s.href} target="_blank" rel="noreferrer">{s.text}</a>
-              {' '}<button className="link" onClick={() => set('source')(null)}>unlink</button>
+              {t('From {source}', { source: <a key="a" href={s.href} target="_blank" rel="noreferrer">{s.text}</a> })}
+              {' '}<button className="link" onClick={() => set('source')(null)}>{t('unlink')}</button>
             </p>
           )
         })()}
-        <Field label="Name"><input value={form.name} onChange={(e) => set('name')(e.target.value)} /></Field>
-        <Field label="Brand"><input value={form.brand} onChange={(e) => set('brand')(e.target.value)} /></Field>
-        <Field label="Attributes"><AttributesEditor value={form.attributes} onChange={set('attributes')} /></Field>
-        <h3>Units</h3>
+        <Field label={t('Name')}><input value={form.name} onChange={(e) => set('name')(e.target.value)} /></Field>
+        <Field label={t('Brand')}><input value={form.brand} onChange={(e) => set('brand')(e.target.value)} /></Field>
+        <Field label={t('Attributes')}><AttributesEditor value={form.attributes} onChange={set('attributes')} /></Field>
+        <h3>{t('Units')}</h3>
         <ul className="list compact">
           {form.units.map((u, i) => (
             <li key={i} className="component">
@@ -217,8 +218,8 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name, forLog 
                 <span className="conv-eq" />
                 <input inputMode="decimal" value={u.fromAmount} onChange={(e) => setU(i, { fromAmount: e.target.value })} />
                 <DeltaInput value={u.fromDelta} amount={u.fromAmount} unit={u.fromUnit} onChange={(v) => setU(i, { fromDelta: v })} />
-                <UnitInput value={u.fromUnit} placeholder="slice" onChange={(v) => setU(i, { fromUnit: v })} />
-                <button className="icon" onClick={() => setForm((f) => ({ ...f, units: f.units.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
+                <UnitInput value={u.fromUnit} placeholder={t('slice')} onChange={(v) => setU(i, { fromUnit: v })} />
+                <button className="icon" onClick={() => setForm((f) => ({ ...f, units: f.units.filter((_, j) => j !== i) }))} aria-label={t('Remove')}>×</button>
               </div>
               <div className="row conv">
                 <span className="conv-eq">=</span>
@@ -229,24 +230,24 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name, forLog 
               </div>
             </li>
           ))}
-          <li className="add" {...pressable(() => setForm((f) => ({ ...f, units: [...f.units, newUnit(f)] })))}>+ add unit</li>
+          <li className="add" {...pressable(() => setForm((f) => ({ ...f, units: [...f.units, newUnit(f)] })))}>{t('+ add unit')}</li>
         </ul>
-        <p className="muted small">g/kg/mg/oz/lb and ml/l/cl/dl/tsp/tbsp/cup convert automatically.</p>
+        <p className="muted small">{t('g/kg/mg/oz/lb and ml/l/cl/dl/tsp/tbsp/cup convert automatically.')}</p>
 
         <label className="check">
           <input type="checkbox" checked={form.isMade} onChange={(e) => set('isMade')(e.target.checked)} />
-          <span>Made at a specific time (concoction)</span>
+          <span>{t('Made at a specific time (concoction)')}</span>
         </label>
         {form.isMade && (
           <>
-            <Field label="Made at"><DateTimeInput value={form.madeAt} onChange={set('madeAt')} /></Field>
-            <Field label="Expires after (days)">
+            <Field label={t('Made at')}><DateTimeInput value={form.madeAt} onChange={set('madeAt')} /></Field>
+            <Field label={t('Expires after (days)')}>
               <input inputMode="decimal" value={form.expiresAfterDays} placeholder={String(DEFAULT_EXPIRY_DAYS)} onChange={(e) => set('expiresAfterDays')(e.target.value)} />
             </Field>
           </>
         )}
 
-        <h3>Components</h3>
+        <h3>{t('Components')}</h3>
         <ul className="list compact">
           {form.components.map((c, i) => (
             <li key={i} className="component">
@@ -254,45 +255,45 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name, forLog 
                 onChange={(itemId) => setForm(pickComponent(st, i, itemId))} />
               {/* Enter in any of its boxes (a unit picked, ε set) goes on to "+ add component": amount, Enter, next. */}
               <div className="row" onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); addComponentRef.current?.focus() } }}>
-                <input ref={(el) => (componentAmountRefs.current[i] = el)} inputMode="decimal" placeholder="amount" value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
+                <input ref={(el) => (componentAmountRefs.current[i] = el)} inputMode="decimal" placeholder={t('amount')} value={c.amount} onChange={(e) => setC(i, { amount: e.target.value })} />
                 <DeltaInput value={c.amountDelta} amount={c.amount} unit={c.unit} onChange={(v) => setC(i, { amountDelta: v })} />
                 <UnitCombo units={componentUnits(ctx, c)} value={c.unit} onChange={(u) => setC(i, { unit: u })} />
                 <EntryErrorButton value={c.entryError ?? DEFAULT_ENTRY_ERROR} onChange={(x) => setC(i, { entryError: x })} />
-                <button className="icon" onClick={() => setForm((f) => ({ ...f, components: f.components.filter((_, j) => j !== i) }))} aria-label="Remove">×</button>
+                <button className="icon" onClick={() => setForm((f) => ({ ...f, components: f.components.filter((_, j) => j !== i) }))} aria-label={t('Remove')}>×</button>
               </div>
               {/* What this component brings in, live, once it has a food and an amount. */}
               {st.componentNutrients[i] && <MacroLine nutrients={st.componentNutrients[i].nutrients} ok={st.componentNutrients[i].ok} deltas />}
             </li>
           ))}
-          <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, newComponent()] })), { focusOnClick: true, scrollUp: true })}>+ add component</li>
+          <li className="add" ref={addComponentRef} {...pressable(() => setForm((f) => ({ ...f, components: [...f.components, newComponent()] })), { focusOnClick: true, scrollUp: true })}>{t('+ add component')}</li>
         </ul>
 
         <div className="row amount-row">
-          <Field label="Per amount">
+          <Field label={t('Per amount')}>
             <input inputMode="decimal" value={form.amount} placeholder="1" onChange={(e) => set('amount')(e.target.value)} />
           </Field>
           <Field label="± Δ">
             <DeltaInput value={form.amountDelta} amount={form.amount} unit={form.unit} onChange={set('amountDelta')} />
           </Field>
-          <Field label="Unit"><UnitInput value={form.unit} placeholder="portion" onChange={set('unit')} /></Field>
+          <Field label={t('Unit')}><UnitInput value={form.unit} placeholder={t('portion')} onChange={set('unit')} /></Field>
         </div>
         {hasComponents && (
           <p className="small">
             {total.problem
-              ? <span className="muted">Can't add up the components: {total.problem}</span>
-              : <><button className="link" onClick={autoAmount}>Auto</button>{' '}
-                <span className="muted">sum of components: {round(total.value, 6)} ± {round(total.delta, 3)} {totalUnit}</span></>}
+              ? <span className="muted">{t("Can't add up the components: {problem}", { problem: total.problem })}</span>
+              : <><button className="link" onClick={autoAmount}>{t('Auto')}</button>{' '}
+                <span className="muted">{t('sum of components:')} {round(total.value, 6)} ± {round(total.delta, 3)} {totalUnit}</span></>}
           </p>
         )}
-        <p>Per {amt} {unit}: <MacroLine nutrients={preview.nutrients} ok={preview.ok} deltas /></p>
+        <p>{t('Per {amount} {unit}:', { amount: amt, unit })} <MacroLine nutrients={preview.nutrients} ok={preview.ok} deltas /></p>
 
         {hasComponents ? (
-          <p className="muted">Nutrients are inferred from the components.</p>
+          <p className="muted">{t('Nutrients are inferred from the components.')}</p>
         ) : (
           <>
-            <h3>Nutrients</h3>
+            <h3>{t('Nutrients')}</h3>
             <div className="nutrients">
-              <div className="n-row one-value n-head"><span /><span>value</span><span /></div>
+              <div className="n-row one-value n-head"><span /><span>{t('value')}</span><span /></div>
               {nutrientRowsShown(form, extraShown).shown.map((n) => {
                 const f = form.nutrients[n.key]
                 return (
@@ -300,7 +301,7 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name, forLog 
                     <span>{n.label} <small className="muted">{n.unit}</small></span>
                     <input ref={(el) => (valueRefs.current[n.key] = el)} inputMode="decimal" value={f.text} placeholder={n.default === 0 ? '0' : 'NaN'} enterKeyHint="next" onKeyDown={enterTo(adderRef)} onChange={(e) => setN(n.key, 'text', e.target.value)} />
                     {CORE.includes(n.key) ? <span /> : (
-                      <button className="icon small" aria-label={`Remove ${n.label}`} onClick={() => removeNutrient(n.key)}>×</button>
+                      <button className="icon small" aria-label={t('Remove {name}', { name: n.label })} onClick={() => removeNutrient(n.key)}>×</button>
                     )}
                   </div>
                 )
@@ -315,14 +316,14 @@ function FoodForm({ ctx, dayStart, initial, prefill, copy, nested, name, forLog 
 
         {/* Last: it only matters once the food is known to be a nutrients entry, not components. */}
         {!hasComponents && (
-          <Field label="Category (how much its values vary)">
+          <Field label={t('Category (how much its values vary)')}>
             <Select value={form.category} options={CATEGORY_OPTIONS} onChange={set('category')} enterNext />
           </Field>
         )}
 
         <div className="row actions">
-          {initial && <button className="danger" onClick={remove}>Delete</button>}
-          <button onClick={save}>Save</button>
+          {initial && <button className="danger" onClick={remove}>{t('Delete')}</button>}
+          <button onClick={save}>{t('Save')}</button>
         </div>
       </div>
   )

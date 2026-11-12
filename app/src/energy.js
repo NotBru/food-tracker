@@ -2,6 +2,7 @@
 // chart through native/core.js). Colours are named by tone (fat, prot, carb, muted: the app's colour variables) and
 // a slice's `shade`, its share of that colour mixed with the background.
 import { addScaled, zero } from './stats'
+import { t } from './i18n'
 
 const KCAL_PER_G = { fat: 9, proteins: 4, carbohydrates: 4, alcohol: 7 }
 
@@ -34,12 +35,12 @@ function grams(n, key) {
  */
 function split(n, node, g) {
   const parts = (node.kinds ?? []).map((k) => [k, grams(n, k.key)]).filter(([, v]) => v > 0)
-  if (!parts.length) return [{ label: node.label, g }]
+  if (!parts.length) return [{ label: t(node.label), g }]
   const sum = parts.reduce((s, [, v]) => s + v, 0)
   const scale = sum > g ? g / sum : 1
   const out = parts.flatMap(([k, v]) => split(n, k, v * scale))
   const rest = g - sum * scale
-  if (rest > 1e-9) out.push({ label: node.rest, g: rest })
+  if (rest > 1e-9) out.push({ label: t(node.rest), g: rest })
   return out
 }
 
@@ -56,7 +57,7 @@ export function energySplit(n) {
       shade: leaves.length > 1 ? 1 - (i * 0.55) / (leaves.length - 1) : 1, tone: m.tone,
     }))
     const gN = grams(n, m.key) != null ? n[m.key] : zero()
-    return { ...m, g, n: gN, kcal: g * f, kcalN: addScaled(zero(), gN, f), slices }
+    return { ...m, label: t(m.label), g, n: gN, kcal: g * f, kcalN: addScaled(zero(), gN, f), slices }
   }).filter((m) => !m.optional || m.g > 0)
   return {
     macros,

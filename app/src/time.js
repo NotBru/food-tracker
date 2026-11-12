@@ -1,5 +1,7 @@
 // "Logical day": with dayStart = 05:00, a meal at 02:00 on the 16th belongs to the 15th.
 
+import { locale } from './i18n'
+
 const pad = (n) => String(n).padStart(2, '0')
 
 export function offsetMinutes(dayStart = '05:00') {
@@ -84,7 +86,7 @@ export function windowDays(win, dayStr) {
 
 /** "Fri 2026-10-16": dates are always shown as YYYY-MM-DD; the weekday helps when browsing days. */
 export function prettyDay(dayStr) {
-  return `${parseDay(dayStr).toLocaleDateString(undefined, { weekday: 'short' })} ${dayStr}`
+  return `${parseDay(dayStr).toLocaleDateString(locale(), { weekday: 'short' })} ${dayStr}`
 }
 
 /** "202610161430" (local time): the app version's build date (Config → "App version"). */

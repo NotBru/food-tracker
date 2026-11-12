@@ -158,5 +158,6 @@ what was decided, the alternatives, and how it was checked. See [`CLAUDE.md`](CL
   Credit "ANSES-CIQUAL".
 - **USDA FoodData Central**: Foundation Foods and SR Legacy, U.S. Department of Agriculture, public domain
   ([CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)). Credit "USDA FoodData Central".
+- **Spanish names** of CIQUAL's and USDA's foods: machine-translated (Claude), `app/scripts/es/`.
 - **Open Food Facts**: community-made, [ODbL](https://opendatacommons.org/licenses/odbl/). Queried live; values
   are as printed on the labels, so check them against the pack.

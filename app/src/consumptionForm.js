@@ -5,6 +5,7 @@ import { componentsTotal, concoctionsLeft, consumptionNutrients, keepUnit, lastE
 import { addDays, dayBounds, toLocalInput, today } from './time'
 import { NUTRIENTS, amountText, deltaText, emptyNutrients, measure, normalizeNumber } from './nutrients'
 import { DEFAULT_ENTRY_ERROR } from './errors'
+import { t } from './i18n'
 
 // --- New concoction from the consumption sheet --------------------------------------------------------------
 // Ticking "New concoction" on a new consumption swaps the food picker for a name and components. Saving adds the
@@ -54,7 +55,7 @@ function concoctionDraft(ctx, form) {
         entryError: Number.isFinite(c.entryError) ? c.entryError : undefined,
       }
     })
-  if (!components.length) return { problem: 'add a component' }
+  if (!components.length) return { problem: t('add a component') }
   // In g if everything converts to it, else ml, else the first component's unit (e.g. eggs counted in u).
   const sum = sumAs(ctx, components, ['g', 'ml', components[0].unit || 'portion'])
   if (sum.problem) return { problem: sum.problem }
@@ -110,8 +111,8 @@ export function editorState(savedCtx, logs, consumption, form, dayStart) {
     if (c.itemId == null || !(cm.value >= 0)) return null
     return nutrientsFor(savedCtx, c.itemId, cm.value, c.unit.trim(), cm.delta, undefined, c.entryError)
   }) : []
-  const total = !draft ? null : draft.problem ? `Total: ${draft.problem}`
-    : `Total: ${draft.sum.problem ?? `${draft.sum.amountText} ± ${draft.sum.amountDelta} ${draft.sum.unit}`}`
+  const total = !draft ? null : draft.problem ? `${t('Total:')} ${draft.problem}`
+    : `${t('Total:')} ${draft.sum.problem ?? `${draft.sum.amountText} ± ${draft.sum.amountDelta} ${draft.sum.unit}`}`
   return {
     savedCtx, logs, consumption, form, oldBefore, left, show, rest, maxText, draft, ctx, itemId, m, unit, amount,
     picked, ownFood, logError, preview, componentNutrients, total,
@@ -149,19 +150,19 @@ export const componentUnits = (st, c) => (c.itemId != null ? unitsFor(st.savedCt
 export function saveProblem(st, confirmed = false) {
   const { form, amount, unit, draft, ctx } = st
   if (form.concoction) {
-    if (!form.name.trim()) return { alert: 'The concoction needs a name.' }
-    if (draft.problem) return { alert: `Can't add up the components: ${draft.problem}.` }
+    if (!form.name.trim()) return { alert: t('The concoction needs a name.') }
+    if (draft.problem) return { alert: `${t("Can't add up the components: {problem}", { problem: draft.problem })}.` }
     if (form.components.some((c) => c.itemId != null && !(measure(c.amount, c.amountDelta, c.unit).value >= 0))) {
-      return { alert: 'Every component needs an amount.' }
+      return { alert: t('Every component needs an amount.') }
     }
-    if (!(amount > 0) || !unit.trim()) return { alert: 'Amount eaten must be above 0 (leave it blank for all of it).' }
-    if (!unitsFor(ctx, DRAFT_ID).includes(unit.trim().toLowerCase())) return { alert: `“${unit.trim()}” doesn't convert to ${draft.unit}.` }
+    if (!(amount > 0) || !unit.trim()) return { alert: t('Amount eaten must be above 0 (leave it blank for all of it).') }
+    if (!unitsFor(ctx, DRAFT_ID).includes(unit.trim().toLowerCase())) return { alert: t("“{unit}” doesn't convert to {to}.", { unit: unit.trim(), to: draft.unit }) }
     return null
   }
-  if (form.itemId == null || !(amount > 0) || !form.unit.trim()) return { alert: 'Item, amount and unit are required.' }
+  if (form.itemId == null || !(amount > 0) || !form.unit.trim()) return { alert: t('Item, amount and unit are required.') }
   const u = form.unit.trim()
   if (!confirmed && !unitsFor(ctx, form.itemId).includes(u.toLowerCase())) {
-    return { confirm: `“${u}” doesn't convert for this food, so its nutrients can't be computed (add it under the food's Units). Save anyway?` }
+    return { confirm: t("“{unit}” doesn't convert for this food, so its nutrients can't be computed (add it under the food's Units). Save anyway?", { unit: u }) }
   }
   return null
 }
@@ -189,7 +190,7 @@ export async function save(st) {
 
 /** "Delete “Oats” at 08:30?" for a consumption of `item`. */
 export const deleteQuestion = (consumption, item) =>
-  `Delete ${item ? `“${itemLabel(item)}”` : 'this entry'} at ${toLocalInput(new Date(consumption.datetime)).slice(11)}?`
+  t(item ? 'Delete “{food}” at {time}?' : 'Delete this entry at {time}?', { food: item && itemLabel(item), time: toLocalInput(new Date(consumption.datetime)).slice(11) })
 
 /** Every nutrient known for a consumption but energy (NutrientDetails): those no food in it has a value for left out. */
 export const detailRows = (nutrients) =>

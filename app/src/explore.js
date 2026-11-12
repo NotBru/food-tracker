@@ -2,6 +2,7 @@ import { baseAmount, nutrientsFor } from './calc'
 import { calories, fmt } from './nutrients'
 import { bounds } from './stats'
 import { energySplit } from './energy'
+import { t } from './i18n'
 
 // Explore's ranking (screens/Explore.jsx; the Android app's native screen too): one nutrient across the food
 // databases, the foods ranked by the share of their energy the nutrient's low end reaches.
@@ -35,16 +36,16 @@ const MAIN = ['proteins', 'fat', 'carbohydrates']
 
 function rank(key, n, energy, per, unit, nutrients) {
   const lo = bounds(n)[0]
-  if (key === 'energy') return [lo, `≥ ${fmt(lo, 0)} kcal per ${fmt(per[0], 2)} ${per[1]}`]
-  if (!(energy > 0)) return [-Infinity, 'no energy']
+  if (key === 'energy') return [lo, `≥ ${t('{kcal} kcal per {amount}', { kcal: fmt(lo, 0), amount: `${fmt(per[0], 2)} ${per[1]}` })}`]
+  if (!(energy > 0)) return [-Infinity, t('no energy')]
   const f = KCAL_PER_G[key]
   if (f) {
     // Unlisted macros would count as 0 and push the share to 100% (CIQUAL's leek has no carbohydrates): last.
-    if (!MAIN.every((k) => listed(nutrients[k]))) return [-Infinity, 'macros incomplete']
+    if (!MAIN.every((k) => listed(nutrients[k]))) return [-Infinity, t('macros incomplete')]
     const share = (lo * f) / (energy - n.value * f + lo * f)
-    return [share, `≥ ${fmt(share * 100, 0)}% of energy`]
+    return [share, `≥ ${t('{pct}% of energy', { pct: fmt(share * 100, 0) })}`]
   }
-  return [lo / energy, `≥ ${fmt((lo * 100) / energy, 2)} ${unit} per 100 kcal`]
+  return [lo / energy, `≥ ${fmt((lo * 100) / energy, 2)} ${unit} ${t('per 100 kcal')}`]
 }
 
 /**

@@ -5,12 +5,13 @@
 import { energySplit } from './energy'
 import { calories, fmt } from './nutrients'
 import { bounds } from './stats'
+import { t, translated } from './i18n'
 
-export const PIE_MACROS = [
+export const PIE_MACROS = translated([
   { key: 'proteins', label: 'Protein', tone: 'prot', kcal: 4 },
   { key: 'fat', label: 'Fat', tone: 'fat', kcal: 9 },
   { key: 'carbohydrates', label: 'Carbs', tone: 'carb', kcal: 4 },
-]
+])
 const has = Number.isFinite
 const EPS = 1e-9
 
@@ -250,11 +251,11 @@ const pct = (x) => `${Math.round(x * 100)}%`
 
 /** One line on the ring at `kcal`: "Protein 19–29% · Fat 20–35%", or why no split is allowed there. */
 export function ringText(model, kcal, ring = ringShares(model, kcal)) {
-  if (ring.out) return "the macros' targets can't all be met"
+  if (ring.out) return t("the macros' targets can't all be met")
   const span = (x) => (x.hi - x.lo < 0.005 ? pct(x.lo) : x.lo < 0.005 ? `≤ ${pct(x.hi)}` : x.hi > 0.995 ? `≥ ${pct(x.lo)}` : `${pct(x.lo)}–${pct(x.hi)}`)
   const parts = ring.shares.filter((x) => x.restricted).map((x) => `${x.m.label} ${span(x)}`)
-  const calories = ring.calories === 'under' ? 'below the calorie min' : ring.calories === 'over' ? 'above the calorie max' : null
-  return [calories, ...(parts.length || !calories ? [parts.length ? parts.join(' · ') : 'any split'] : [])].filter(Boolean).join(' · ')
+  const calories = ring.calories === 'under' ? t('below the calorie min') : ring.calories === 'over' ? t('above the calorie max') : null
+  return [calories, ...(parts.length || !calories ? [parts.length ? parts.join(' · ') : t('any split')] : [])].filter(Boolean).join(' · ')
 }
 
 // --- What was eaten, through the window ------------------------------------------------------------------------
@@ -312,7 +313,7 @@ export function guideToMin(model, total, eaten) {
 export function sharesText(n) {
   const split = energySplit(n)
   if (!(split.total > 0)) return ''
-  const label = (key) => PIE_MACROS.find((m) => m.key === key)?.label ?? 'Alcohol'
+  const label = (key) => PIE_MACROS.find((m) => m.key === key)?.label ?? t('Alcohol')
   const rank = (key) => (i => (i < 0 ? 9 : i))(PIE_MACROS.findIndex((m) => m.key === key))
   return split.macros.filter((m) => m.kcal > 0).sort((a, b) => rank(a.key) - rank(b.key))
     .map((m) => `${label(m.key)} ${pct(m.kcal / split.total)}`).join(' · ')
@@ -484,7 +485,7 @@ export function pieScene({ model, val, total, steps, square, n, k, pal }) {
 export function pieReadout(model, total, steps, pointed) {
   const kcal = calories(total)
   const bold = `${fmt(pointed, 0)} kcal`
-  if (pointed < kcal.value && steps.length > 1) return { bold, text: ` eaten: ${sharesText(eatenAt(steps, kcal.value, pointed))}` }
+  if (pointed < kcal.value && steps.length > 1) return { bold, text: ` ${t('eaten:')} ${sharesText(eatenAt(steps, kcal.value, pointed))}` }
   const guide = guideToMin(model, total, kcal.value)
   return { bold, text: `: ${ringText(model, pointed, guide && pointed < model.energy.min ? guide(pointed) : undefined)}` }
 }

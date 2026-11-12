@@ -5,14 +5,15 @@ import { averageTargets, barScale, consumptionNutrients, loadContext, perDay, su
 import { NUTRIENTS, calories, fmt } from './nutrients'
 import { bounds } from './stats'
 import { ROLLING, addDays, dayBounds, logicalDay, prettyDay, toDateStr, toLocalInput, today, windowDays } from './time'
+import { t, translated } from './i18n'
 
 // Always shown (unless Config's "only nutrients with a target" is on); any other nutrient gets a row when a target covers it.
-export const ROWS = [
+export const ROWS = translated([
   { key: 'energy', label: 'Calories', unit: 'kcal', cls: 'c-kcal' },
   { key: 'proteins', label: 'Protein', unit: 'g', cls: 'c-prot' },
   { key: 'fat', label: 'Fat', unit: 'g', cls: 'c-fat' },
   { key: 'carbohydrates', label: 'Carbs', unit: 'g', cls: 'c-carb' },
-]
+])
 
 // Mandatory rows without a target still get a neutral, full bar/gauge (no regions, markers or label).
 const DUMMY = { fill: 100, minAt: null, maxAt: null, status: 'none', dummy: true }
@@ -56,10 +57,10 @@ export function barNotes(row, val, range = {}) {
 }
 
 export function windowTitle(win, first, last, back = 0) {
-  if (win === 'daily') return `${back === 0 ? 'Today' : back === 1 ? 'Yesterday' : back === -1 ? 'Tomorrow' : `${back} days ago`} · ${prettyDay(first)}`
-  if (ROLLING[win]) return `Last ${ROLLING[win]} days · ${first} → ${last}`
-  if (win === 'weekly') return `This week · ${first} → ${last}`
-  return `This month · ${first.slice(0, 7)}`
+  if (win === 'daily') return `${back === 0 ? t('Today') : back === 1 ? t('Yesterday') : back === -1 ? t('Tomorrow') : t('{n} days ago', { n: back })} · ${prettyDay(first)}`
+  if (ROLLING[win]) return `${t('Last {n} days', { n: ROLLING[win] })} · ${first} → ${last}`
+  if (win === 'weekly') return `${t('This week')} · ${first} → ${last}`
+  return `${t('This month')} · ${first.slice(0, 7)}`
 }
 
 // --- Fill pieces ---------------------------------------------------------------

@@ -2,6 +2,7 @@
 // to keep, saving and deleting a note.
 import { db, dropUnusedFiles, noteExpiry } from './db'
 import { deleteFiles } from './backup'
+import { t } from './i18n'
 
 // Pictures are shrunk to this many pixels on their long side, as JPEG: plenty to read a plate or a label, and a few
 // hundred KB instead of a phone camera's several MB.
@@ -14,7 +15,7 @@ export async function shrink(file) {
   try {
     bmp = await createImageBitmap(file, { imageOrientation: 'from-image' })
   } catch {
-    throw new Error(`Couldn't read “${file.name ?? 'it'}” as a picture.`)
+    throw new Error(file.name ? t("Couldn't read “{name}” as a picture.", { name: file.name }) : t("Couldn't read it as a picture."))
   }
   const k = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height))
   const canvas = Object.assign(document.createElement('canvas'), { width: Math.round(bmp.width * k), height: Math.round(bmp.height * k) })

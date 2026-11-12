@@ -7,6 +7,7 @@ import { addDays, prettyDay } from '../time'
 import { Screen, go, replace, useToday } from '../components'
 import { statusMark } from '../dashboard'
 import { DEFAULT_DAYS, MAX_DAYS, SLIDER_STOPS, columnShapes, loadGraphs, measureScale, nutrientScale, spanOf, stopDays, stopIndex, weekPoints } from '../graphs'
+import { t } from '../i18n'
 
 // Time graphs: per nutrient on the dashboard, one column per day, back to back. Each column: the day's target range
 // in light green; the day's interval hatched, green within the range and red outside it (nothing below it); a white
@@ -50,16 +51,16 @@ export default function Graphs({ days: daysParam, end: endParam }) {
 
   const shown = sel && data?.list.includes(sel) ? sel : data?.list.at(-1)
   return (
-    <Screen className="graphs" title="Time graphs" subtitle={data ? `${data.list[0]} → ${data.list.at(-1)} · daily` : ''}>
+    <Screen className="graphs" title={t('Time graphs')} subtitle={data ? `${data.list[0]} → ${data.list.at(-1)} · ${t('daily')}` : ''}>
       <div className="tg-days">
         {/* Stops (graphs.js SLIDER_STOPS): 12 months on the left, down to 1 day on the right. */}
-        <input type="range" min="0" max={SLIDER_STOPS.length - 1} value={stop} aria-label="Days"
-          aria-valuetext={SLIDER_STOPS[stop].label} disabled={!last}
+        <input type="range" min="0" max={SLIDER_STOPS.length - 1} value={stop} aria-label={t('Days')}
+          aria-valuetext={t(SLIDER_STOPS[stop].label)} disabled={!last}
           onChange={(e) => { const n = stopDays(SLIDER_STOPS[Number(e.target.value)], last); setText(String(n)); setSpan(n) }} />
-        <input inputMode="numeric" value={text} aria-label="Days" onChange={(e) => onType(e.target.value)}
+        <input inputMode="numeric" value={text} aria-label={t('Days')} onChange={(e) => onType(e.target.value)}
           onBlur={() => setText(String(span))} />
-        <span className="muted">days</span>
-        <button className="secondary tg-today" onClick={() => setView(span)} disabled={last === day}>Today</button>
+        <span className="muted">{t('days')}</span>
+        <button className="secondary tg-today" onClick={() => setView(span)} disabled={last === day}>{t('Today')}</button>
       </div>
       {data?.rows.map((r) => (
         <Fragment key={r.key}>
@@ -120,13 +121,13 @@ function MeasureChart({ list, measure, shown, onPick, onPan }) {
     <section className="tg">
       <h3>
         {label} <small className="muted">{unit}</small>
-        <span className="tg-key"><svg viewBox="0 0 16 10" aria-hidden="true"><rect x="0" y="1" width="16" height="8" /><path d="M0 1 H16 M0 9 H16" /></svg>7-day average</span>
+        <span className="tg-key"><svg viewBox="0 0 16 10" aria-hidden="true"><rect x="0" y="1" width="16" height="8" /><path d="M0 1 H16 M0 9 H16" /></svg>{t('7-day average')}</span>
       </h3>
       <div className="tg-chart">
         <div className="tg-y" aria-hidden="true">
           {grid.map((t) => <span key={t} style={{ bottom: `${pos(t)}%` }}>{fmt(t, digits)}</span>)}
         </div>
-        <div className="tg-plot" role="img" aria-label={`${label} per day`} {...pointer}>
+        <div className="tg-plot" role="img" aria-label={t('{name} per day', { name: label })} {...pointer}>
           {list.map((d) => (
             <div key={d} className={`tg-col ${d === shown ? 'picked' : ''}`}>
               {daily[d] && <Dot val={daily[d]} pos={pos} />}
@@ -147,14 +148,14 @@ function MeasureChart({ list, measure, shown, onPick, onPan }) {
           <>
             <b>{fmt(x.value, 2)}</b> {unit} {x.v > 0 && <>{pmText(x, 2)} <span className="err-range">({rangeText(x, 1)})</span></>}
           </>
-        ) : <span className="muted">not measured</span>}
+        ) : <span className="muted">{t('not measured')}</span>}
         <br />
-        <span className="muted">7-day average · </span>
+        <span className="muted">{t('7-day average')} · </span>
         {avg ? (
           <>
             <b className="tg-avg">{fmt(avg.value, 2)}</b> {unit} {avg.v > 0 && <>{pmText(avg, 2)} <span className="err-range">({rangeText(avg, 1)})</span></>}
           </>
-        ) : <span className="muted">none</span>}
+        ) : <span className="muted">{t('none')}</span>}
       </p>
     </section>
   )
@@ -187,13 +188,13 @@ function TimeChart({ row, data, shown, onPick, onPan }) {
     <section className="tg">
       <h3>
         {row.label} <small className="muted">{row.unit}</small>
-        <span className="tg-key"><svg viewBox="0 0 16 10" aria-hidden="true"><rect x="0" y="1" width="16" height="8" /><path d="M0 1 H16 M0 9 H16" /></svg>7-day average</span>
+        <span className="tg-key"><svg viewBox="0 0 16 10" aria-hidden="true"><rect x="0" y="1" width="16" height="8" /><path d="M0 1 H16 M0 9 H16" /></svg>{t('7-day average')}</span>
       </h3>
       <div className="tg-chart">
         <div className="tg-y" aria-hidden="true">
           {grid.map((t) => <span key={t} style={{ bottom: `${pos(t)}%` }}>{fmt(t, digits)}</span>)}
         </div>
-        <div className="tg-plot" role="img" aria-label={`${row.label} per day`} {...pointer}>
+        <div className="tg-plot" role="img" aria-label={t('{name} per day', { name: row.label })} {...pointer}>
           {list.map((d) => <Column key={d} val={valueOf(d)} range={targets[d][row.key]} pos={pos} picked={d === shown} />)}
           {grid.map((t) => <div key={t} className="tg-grid" style={{ bottom: `${pos(t)}%` }} />)}
           <WeekOverlay list={list} avgOf={avgOf} pos={pos} />
@@ -211,18 +212,18 @@ function TimeChart({ row, data, shown, onPick, onPan }) {
             <b className={row.cls}>{v.estimated ? '~' : ''}{fmt(v.value, 0)}</b> {row.unit} {pmText(v)}
             {sdOf(v) > 0 && <span className="err-range"> ({rangeText(v)})</span>}
           </>
-        ) : <span className="muted">no consumptions</span>}
+        ) : <span className="muted">{t('no consumptions')}</span>}
         {range && (Number.isFinite(range.min) || Number.isFinite(range.max)) && (
           <span className={`bar-label ${bar?.status ?? ''}`}> · {rangeLabel(range)} {bar ? statusMark(bar.status) : ''}</span>
         )}
         <br />
-        <span className="muted">7-day average · </span>
+        <span className="muted">{t('7-day average')} · </span>
         {avg ? (
           <>
             <b className="tg-avg">{avg.estimated ? '~' : ''}{fmt(avg.value, 0)}</b> {row.unit} {pmText(avg)}
             {sdOf(avg) > 0 && <span className="err-range"> ({rangeText(avg)})</span>}
           </>
-        ) : <span className="muted">no consumptions</span>}
+        ) : <span className="muted">{t('no consumptions')}</span>}
       </p>
     </section>
   )

@@ -9,6 +9,7 @@ import { DEFAULT_ENTRY_ERROR, categoryName } from '../errors'
 import { ROWS } from '../dashboard'
 import EnergyChart from './EnergyChart'
 import LabelSheet from './LabelSheet'
+import { t } from '../i18n'
 
 // Info tab of a food: the nutrients for any amount (picked on top), computed with the same error maths as
 // consumptions (calc.js), so what's shown here is exactly what a consumption would get: its energy by macro
@@ -29,7 +30,7 @@ export function Amount({ value, lo, hi, unit, delta }) {
   const d = delta ?? Math.max(hi - value, value - lo)
   return (
     <>
-      <b>{fmt(value, 2)}</b>{d > 0 ? <> ±{fmt(d, 2)}</> : ' (exact)'} {unit}
+      <b>{fmt(value, 2)}</b>{d > 0 ? <> ±{fmt(d, 2)}</> : ` ${t('(exact)')}`} {unit}
       {d > 0 && <span className="muted"> · {fmt(lo, 2)}–{fmt(hi, 2)} (±{fmt((d / value) * 100, 1)}%)</span>}
     </>
   )
@@ -56,34 +57,35 @@ export default function FoodInfo({ ctx, item, nutrient, log, printing, onPrintCl
   return (
     <div className="food-info">
       <div className="row info-per">
-        <span className="muted">per</span>
-        <input inputMode="decimal" value={perText} onChange={(e) => setPerText(e.target.value)} aria-label="Amount" />
-        <Select value={perUnit} options={units.map((u) => ({ value: u, label: u }))} onChange={setPerUnit} aria-label="Unit" />
+        <span className="muted">{t('per')}</span>
+        <input inputMode="decimal" value={perText} onChange={(e) => setPerText(e.target.value)} aria-label={t('Amount')} />
+        <Select value={perUnit} options={units.map((u) => ({ value: u, label: u }))} onChange={setPerUnit} aria-label={t('Unit')} />
       </div>
       {res && res.ok && (
         <>
-          <h3>Energy by macro</h3>
+          <h3>{t('Energy by macro')}</h3>
           <EnergyChart nutrients={res.nutrients} />
         </>
       )}
-      <h3>Nutrients</h3>
+      <h3>{t('Nutrients')}</h3>
       <p className="muted small">
-        Taken as exact; each range holds {fmt(getCoverage() * 100)}% of the probability. It includes how much a sample of
-        {item.components?.length ? ' each component' : ' this food'} varies (by category), how far the entry may be from
-        what's eaten ({fmt(DEFAULT_ENTRY_ERROR * 100)}%, set per consumption), the digits of its values and the error of every amount (under Amounts).
+        {t(item.components?.length
+          ? "Taken as exact; each range holds {pct}% of the probability. It includes how much a sample of each component varies (by category), how far the entry may be from what's eaten ({entry}%, set per consumption), the digits of its values and the error of every amount (under Amounts)."
+          : "Taken as exact; each range holds {pct}% of the probability. It includes how much a sample of this food varies (by category), how far the entry may be from what's eaten ({entry}%, set per consumption), the digits of its values and the error of every amount (under Amounts).",
+        { pct: fmt(getCoverage() * 100), entry: fmt(DEFAULT_ENTRY_ERROR * 100) })}
       </p>
-      {res && !res.ok && <p className="warn small">Some of it can't be computed (missing food or unit conversion).</p>}
+      {res && !res.ok && <p className="warn small">{t("Some of it can't be computed (missing food or unit conversion).")}</p>}
       {res && <NutrientTable nutrients={res.nutrients} />}
-      <h3 className="info-amounts">Amounts</h3>
+      <h3 className="info-amounts">{t('Amounts')}</h3>
       <ul className="info-list">
         {!item.components?.length && (
           <li>
-            <span>Category</span>
+            <span>{t('Category')}</span>
             <span>{categoryName(item.category)}</span>
           </li>
         )}
         <li>
-          <span>Nutrients are per</span>
+          <span>{t('Nutrients are per')}</span>
           <span><Amount value={baseAmt} lo={span(baseAmt, baseDelta)[1]} hi={span(baseAmt, baseDelta)[2]} unit={baseUnit} delta={baseDelta} /></span>
         </li>
         {(item.units ?? []).map((u, i) => {
@@ -99,7 +101,7 @@ export default function FoodInfo({ ctx, item, nutrient, log, printing, onPrintCl
             </li>
           )
         })}
-        {lead && components.length > 0 && <li className="info-note muted small">Components by {lead.label.toLowerCase()}, largest first</li>}
+        {lead && components.length > 0 && <li className="info-note muted small">{t('Components by {nutrient}, largest first', { nutrient: lead.label.toLowerCase() })}</li>}
         {components.map(({ c, i, sub, v }) => {
           const kcal = calories(sub.nutrients)
           const [, lo, hi] = span(c.amount, c.amountDelta)
@@ -111,10 +113,10 @@ export default function FoodInfo({ ctx, item, nutrient, log, printing, onPrintCl
                   {v ? <>{v.estimated ? '~' : ''}{fmt(v.value)}<small>{pmText(v)} {lead.unit}</small></> : <>–<small>{lead.unit}</small></>}
                 </b>
               )}
-              <span>{child ? <>{itemLabel(child)} <MadeTag item={child} /></> : '(missing item)'}</span>
+              <span>{child ? <>{itemLabel(child)} <MadeTag item={child} /></> : t('(missing item)')}</span>
               <span>
                 <Amount value={c.amount} lo={lo} hi={hi} unit={c.unit} delta={c.amountDelta || 0} />
-                <span className="muted"> → {sub.ok ? <>{fmt(kcal.value, 0)} {pmText(kcal, 0)} kcal</> : "can't compute"}</span>
+                <span className="muted"> → {sub.ok ? <>{fmt(kcal.value, 0)} {pmText(kcal, 0)} kcal</> : t("can't compute")}</span>
               </span>
             </li>
           )
@@ -148,7 +150,7 @@ export function NutrientTable({ nutrients }) {
           ))}
         </tbody>
       </table>
-      {rows.some(([, v]) => v.missing) && <p className="muted small"><span className="warn">*</span> some components don't have this value.</p>}
+      {rows.some(([, v]) => v.missing) && <p className="muted small"><span className="warn">*</span> {t("some components don't have this value.")}</p>}
     </>
   )
 }

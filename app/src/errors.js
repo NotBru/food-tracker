@@ -7,6 +7,8 @@
 // otherwise SR28's SE·√n / mean × 1.05, the median ratio of the two where both exist. Biases are 0 but for
 // supplements. Categories are CIQUAL's subgroups; each falls in a class that sets its CVs.
 
+import { t } from './i18n'
+
 // Nutrients that share a CV.
 const KIND = {
   water: 'water', proteins: 'protein', carbohydrates: 'carbs', sugars: 'sugars', addedSugars: 'sugars', fibers: 'fibre',
@@ -165,7 +167,7 @@ export const CATEGORY_GROUPS = [
 ]
 
 const CLASS_OF = new Map(CATEGORY_GROUPS.flatMap(([, , subs]) => subs.map(([code, , cls]) => [code, cls])))
-export const categoryName = (code) => CATEGORY_GROUPS.flatMap(([, , s]) => s).find(([c]) => c === code)?.[1] ?? 'unknown'
+export const categoryName = (code) => t(CATEGORY_GROUPS.flatMap(([, , s]) => s).find(([c]) => c === code)?.[1] ?? 'unknown')
 
 // Entry error: how far the food logged may be from what was eaten (a generic or approximate entry, brand, cut,
 // recipe), set per consumption (0 for a product read off its own label); recipe components and anything without one

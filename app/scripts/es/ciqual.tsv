@@ -1,0 +1,3444 @@
+1000	Pastis (aguardiente con sabor a anís)
+1001	Aguardiente de frutas
+1002	Gin
+1003	Licor
+1004	Ron
+1005	Whisky
+1006	Vino dulce
+1007	Aperitivo a base de vino
+1008	Vodka
+1010	Licor de anís, diluido (1+5)
+1011	Pastis, sin alcohol, para diluir
+1012	Cóctel a base de ron
+1013	Cóctel a base de whisky
+1014	Alcohol puro
+1015	Vino Marsala
+1016	Marsala con huevos
+1017	Sangría
+1018	Kir (vino blanco con licor de grosella negra)
+1019	Kir royal (champagne con licor de grosella negra)
+1021	Licor de grosella negra
+1022	Cóctel, tipo ponche, 16% de alcohol, envasado
+1023	Brandy, tipo Armagnac o Cognac
+1024	Aguardiente de manzana, tipo Calvados
+1026	Sake o vino de arroz
+1027	Untable vegetal tipo queso, con soja, envasado
+1028	Queso vegetal, con castañas de cajú, envasado
+1029	Queso vegetal, sin soja, envasado
+1030	Jamón vegetal, envasado
+1031	Paté vegetal, envasado
+1032	Hamburguesa de carne vacuna y soja, envasada
+1033	Nuggets de pollo (con soja), croquetas empanadas, envasados
+1034	Salchicha de ave (con soja), envasada
+2000	Jugo de ananá, de concentrado
+2002	Jugo multifrutas, jugo puro, multivitamínico
+2004	Jugo de fruta (promedio)
+2006	Jugo de zanahoria, jugo puro
+2007	Jugo de limón, casero
+2008	Cóctel sin alcohol (cóctel a base de jugos y almíbar)
+2009	Néctar multifrutas, base de manzana, estándar
+2010	Néctar multifrutas, base de manzana, multivitamínico
+2011	Jugo multifrutas, base de naranja, multivitamínico
+2012	Jugo de naranja, de concentrado
+2013	Jugo de naranja, fresco
+2014	Jugo de manzana, de concentrado
+2015	Jugo de pomelo, de concentrado
+2016	Jugo de uva, jugo puro
+2017	Jugo de granada, jugo puro
+2018	Jugo de ciruela pasa
+2019	Jugo de uva, de concentrado
+2022	Néctar de frutilla
+2023	Jugo de mango, fresco
+2024	Jugo de maracuyá, fresco
+2025	Jugo de pomelo, fresco
+2026	Jugo de tomate, jugo puro, 3 g de sal/L
+2027	Jugo de pomelo, jugo puro
+2028	Jugo de limón, jugo puro
+2030	Jugo de lima, fresco
+2031	Jugo de lima, jugo puro
+2032	Jugo de tomate, jugo puro, 6 g de sal/L
+2033	Jugo multifrutas, jugo y puré de frutas
+2034	Jugo de mandarina o clementina, jugo puro
+2035	Jugo multifrutas, jugo puro, estándar
+2036	Jugo multifrutas, base de uva, estándar
+2038	Jugo multifrutas, base de naranja, estándar
+2039	Jugo de granada, fresco
+2040	Jugo de acerola, fresco
+2043	Néctar de damasco
+2045	Néctar de papaya
+2048	Jugo multifrutas, base de manzana, estándar
+2050	Jugo multifrutas, base de manzana, multivitamínico
+2052	Jugo de frutas y verduras, jugo puro
+2053	Jugo de tomate, jugo puro (promedio)
+2054	Néctar de pera
+2060	Néctar multifrutas, multivitamínico
+2061	Néctar multifrutas, estándar
+2062	Néctar multifrutas, base de naranja, multivitamínico
+2063	Néctar multifrutas, base de naranja, estándar
+2064	Néctar de fruta, con edulcorante(s), reducido en azúcar
+2069	Jugo multifrutas, de concentrado, estándar
+2070	Jugo de naranja, jugo puro
+2071	Jugo multifrutas, de concentrado, multivitamínico
+2072	Jugo de fruta, jugo puro (promedio)
+2073	Jugo de ananá, jugo puro
+2074	Jugo de manzana, jugo puro
+2075	Jugo de verduras, jugo puro (promedio)
+2076	Néctar de manzana
+2077	Jugo de fruta, de concentrado (promedio)
+2365	Néctar de maracuyá
+2366	Néctar de banana
+2367	Néctar de guayaba
+2370	Néctar de mango
+2371	Néctar de durazno
+2374	Néctar de ananá
+2375	Néctar de naranja
+2377	Jugo de naranja sanguina, jugo puro
+2381	Jugo de arándano rojo
+2500	Licuado de frutas (smoothie), sin precisión sobre el contenido de fruta y otros ingredientes
+3000	Leche para bebés, fórmula de inicio, en polvo
+3002	Leche para bebés, fórmula de continuación, en polvo
+4000	Tapioca, cruda
+4002	Papa, pelada, asada/al horno
+4003	Papa, hervida/cocida en agua
+4004	Papa, papas fritas de paquete, simples o saborizadas, estándar
+4007	Papa nueva, hervida/cocida en agua
+4008	Papa, pelada, cruda
+4011	Papa, enlatada, escurrida
+4013	Papas noisette, congeladas, crudas
+4014	Papa, al vapor, envasada al vacío
+4015	Papa, salteada en sartén con grasa
+4016	Copos de papa, deshidratados, con leche o crema
+4017	Puré de papas, hecho con copos, reconstituido con leche entera, con grasa agregada
+4018	Puré de papas, preparado con leche y manteca, sin sal agregada
+4019	Puré de papas, hecho con copos, reconstituido con leche semidescremada y agua, sin sal agregada
+4020	Papas duquesa, congeladas, crudas
+4021	Papas duquesa, congeladas, cocidas
+4022	Copos de papa, deshidratados, simples
+4023	Papa nueva, cruda
+4025	Papas gajo, condimentadas, congeladas, cocidas
+4026	Papa, asada/al horno
+4027	Papa, salteada en sartén, prefrita, congelada, cocida
+4028	Papa de consumo, pelada, hervida/cocida en agua
+4029	Papa temprana, pelada, hervida/cocida en agua
+4030	Papas fritas (bastones), congeladas, al horno
+4032	Papas fritas (bastones), congeladas, fritas por inmersión
+4034	Papas duquesa, congeladas, cocidas
+4035	Papas noisette, congeladas, cocidas
+4036	Papa, salteada en sartén con grasa de ganso
+4037	Papas fritas de paquete, simples o saborizadas, estilo tradicional
+4038	Papas fritas de paquete y similares, simples o saborizadas, reducidas en grasa
+4039	Rösti
+4040	Puré de papas, preparado con leche y manteca, salado
+4041	Puré de papas con queso tome fresco, envasado
+4042	Papas duquesa, congeladas, crudas
+4043	Papa, salteada en sartén, prefrita, congelada, cruda
+4044	Papas fritas (bastones), congeladas, prefritas, crudas, para cocinar al horno
+4045	Papas fritas (bastones), congeladas, prefritas, crudas, para microondas
+4046	Papas fritas (bastones), congeladas, prefritas, crudas, para freír por inmersión
+4047	Puré de papas (promedio)
+4048	Papa, cocida (alimento promedio)
+4049	Papa, croqueta, congelada, cruda
+4050	Papa, papas fritas de paquete, simples o saborizadas, sin sal agregada
+4051	Papa, estilo sarladaise (grasa de ganso, ajo y perejil), congelada, cruda
+4052	Papas gajo, condimentadas, congeladas, crudas
+4053	Papa, grenaille, prefrita, congelada, cruda
+4090	Almidón de papa (fécula)
+4101	Batata, cruda
+4102	Batata, cocida
+4103	Batata, puré, cocido con crema
+5000	Cerveza, negra
+5001	Cerveza, común (4-5° de alcohol)
+5002	Cerveza, fuerte (>8° de alcohol)
+5003	Sidra (promedio)
+5004	Shandy (cerveza + limonada)
+5005	Shandy, envasado (<1° de alcohol), saborizado o natural
+5006	Sidra, seca
+5007	Sidra, dulce
+5008	Cerveza, de bajo contenido de alcohol (3° de alcohol)
+5009	Cerveza, de trigo
+5010	Cerveza, especial (5-6° de alcohol)
+5011	Cerveza, de abadía o de cervecería artesanal (contenido de alcohol variable)
+5020	Sidra, tradicional
+5021	Sidra, semiseca
+5022	Sidra, saborizada con frutas
+5029	Cerveza, sin alcohol, endulzada, con sabor o con jugo de fruta
+5030	Cerveza, sin alcohol (<1,2° de alcohol), sin azúcares agregados, con o sin sabor
+5100	Vino de fruta espumante
+5201	Vino blanco espumante
+5207	Champán
+5209	Vino blanco espumante, saborizado
+5210	Vino (promedio)
+5214	Vino tinto
+5215	Vino blanco seco
+5216	Vino rosado
+5217	Vino, cocido (alcohol evaporado)
+5219	Ron, cocido (alcohol evaporado)
+6001	Carne vacuna, costilla, cruda
+6002	Carne vacuna, paleta, cruda
+6003	Carne vacuna, bife de paleta, crudo
+6100	Carne vacuna, bife de costilla, magro, a la parrilla/salteado en sartén
+6101	Carne vacuna, braseada
+6102	Carne vacuna, nalga, cruda
+6103	Carne vacuna, bife de costilla, crudo
+6104	Carne vacuna, nalga, cocida
+6105	Carne vacuna, bife de lomo, asado/al horno
+6106	Carne vacuna, peceto, crudo
+6110	Carne vacuna, bife de lomo, a la parrilla/salteado en sartén
+6111	Carne vacuna, bife de lomo, crudo
+6116	Carne vacuna, lomo, crudo
+6122	Carne vacuna, tira de asado, cruda
+6123	Carne vacuna, tira de asado, braseada o hervida
+6130	Carne vacuna, falda, cruda
+6131	Carne vacuna, falda, a la parrilla/salteada en sartén
+6140	Carne vacuna, cachete, crudo
+6141	Carne vacuna, cachete, braseado o hervido
+6150	Carne vacuna, garrón, crudo
+6151	Carne vacuna, garrón, hervido/cocido en agua
+6160	Carne vacuna, cuadrada, cruda
+6161	Carne vacuna, cuadrada, a la parrilla/salteada en sartén
+6162	Carne vacuna, cuadrada, asada/al horno
+6200	Carne vacuna, bife o steak, a la parrilla/salteado en sartén
+6201	Carne vacuna, bife o steak, crudo
+6202	Carne vacuna, bolar-blade, cruda
+6204	Carne vacuna, entraña, cruda
+6205	Carne vacuna, entraña, a la parrilla/salteada en sartén
+6206	Carne vacuna, bife de cuadril, crudo
+6207	Carne vacuna, bife de cuadril, a la parrilla/salteado en sartén
+6208	Carne vacuna, bolar-blade, a la parrilla/salteada en sartén
+6210	Carne vacuna, rosbif, asado/al horno
+6211	Carne vacuna, bife de vacío, a la parrilla/salteado en sartén
+6212	Carne vacuna, bife de vacío, crudo
+6214	Carne vacuna, bolar-blade, asada/al horno
+6230	Carne vacuna, carne para guisar, cocida
+6231	Carne vacuna, carne para guisar, cruda
+6240	Carne vacuna, cogote, crudo
+6241	Carne vacuna, cogote, braseado
+6250	Carne vacuna, carne picada, 5% de grasa, cruda
+6251	Carne vacuna, carne picada, 5% de grasa, cocida
+6252	Carne vacuna, carne picada, 10% de grasa, cruda
+6253	Carne vacuna, carne picada, 10% de grasa, cocida
+6254	Carne vacuna, carne picada, 15% de grasa, cruda
+6255	Carne vacuna, carne picada, 15% de grasa, cocida
+6256	Carne vacuna, carne picada, 20% de grasa, cruda
+6257	Carne vacuna, carne picada, 20% de grasa, cocida
+6259	Carne vacuna, picada, cocida (promedio)
+6270	Carne vacuna, paleta, cruda
+6271	Carne vacuna, paleta, braseada o hervida
+6310	Carne vacuna, cola, hervida/cocida en agua
+6311	Carne vacuna, cola, cruda
+6510	Ternera, chuleta, cruda
+6511	Ternera, chuleta, a la plancha/salteada en sartén
+6512	Ternera, lomo, a la plancha/salteado en sartén
+6513	Ternera, lomo, crudo
+6520	Ternera, escalope, cocido
+6521	Ternera, escalope, crudo
+6522	Ternera, solomillo, crudo
+6523	Ternera, solomillo, a la plancha/salteado en sartén
+6524	Ternera, solomillo, asado/al horno
+6530	Filete de ternera, crudo
+6531	Filete de ternera, asado/al horno
+6535	Ternera, carne picada, 20% de grasa, cruda
+6536	Ternera, carne picada, 15% de grasa, cruda
+6540	Ternera, pecho, cruda
+6550	Ternera, asado, crudo
+6551	Ternera, asado, cocido
+6560	Ternera, paleta, cruda
+6562	Ternera, paleta, a la plancha/salteada en sartén
+6563	Ternera, paleta, braseada o hervida
+6564	Ternera, carne, cocida (promedio)
+6580	Ternera, pata, cruda
+6581	Ternera, osobuco o jarrete, braseado o hervido
+6582	Ternera, cabeza, hervida/cocida en agua
+6583	Ternera, osobuco o jarrete, crudo
+6584	Carne blanca, cocida (promedio)
+6585	Carne roja, cocida (promedio)
+6590	Ternera, cuello, crudo
+6591	Ternera, cuello, braseado o hervido
+6900	Caballo, carne, cruda
+6901	Caballo, bife, crudo
+6902	Caballo, carne, asada/al horno
+6903	Caballo, cuadrada, cruda
+6904	Caballo, bife de lomo, crudo
+6905	Caballo, bife de costilla, crudo
+6906	Caballo, cuadrada, a la parrilla/salteada en sartén
+6907	Caballo, bife de lomo, a la parrilla/salteado en sartén
+6908	Caballo, bife de costilla, a la parrilla/salteado en sartén
+6909	Caballo, bife de lomo, asado/al horno
+6910	Caballo, cuadrada, asada/al horno
+6999	Carne, cocida (promedio)
+7000	Pan (promedio)
+7001	Pan, baguette francés
+7002	Pan, francés, con levadura
+7004	Pan, francés, tostado
+7007	Pan, baguette tradición francés
+7009	Pan, francés, precocido, para terminar de cocinar, envasado
+7010	Pan francés integral, con harina tipo 80 o 110
+7013	Pan, francés, sin gluten, precocido, para terminar de cocinar, envasado
+7098	Pan de campo, pan francés, multigrano y/o con semillas, envasado
+7099	Pan, francés, envasado
+7100	Pan francés, de campo
+7106	Pan de centeno, integral, envasado
+7107	Pan, con semillas, sin gluten, envasado
+7109	Pan lactal, integral, sin corteza, envasado
+7110	Pan, francés, integral (hecho con harina tipo 150)
+7111	Pan lactal, integral, envasado
+7113	Pan lactal, multicereales y/o con semillas, envasado
+7114	Pan, sin levadura, envasado
+7115	Pan, con salvado en grano
+7116	Pan lactal, sin gluten, envasado
+7117	Pan lactal, sin azúcares agregados, envasado
+7125	Pan de centeno y trigo
+7130	Pan, francés, sin gluten, envasado
+7160	Pan, baguette francés, sin sal agregada
+7170	Pan, panini
+7180	Pan, pita
+7200	Pan lactal, envasado
+7201	Pan lactal, sin corteza, envasado
+7210	Pan de brioche para sándwich, envasado
+7225	Brioche o pan vienés, de panadería
+7255	Pan, multigrano y/o con semillas
+7256	English muffin, harina de trigo integral, envasado
+7257	English muffin, envasado
+7258	Pan, bagel
+7259	Pan para hamburguesa/pancho (buns), envasado
+7260	Pan, francés, casero, con harina para pan casero
+7261	Pan, francés, casero (con harina para panificadora)
+7262	Pan para hamburguesa/pancho (buns), integral, envasado
+7263	Pretzel, pan fresco
+7300	Tostadas (biscottes)
+7301	Tostadas de brioche
+7302	Tostadas (biscottes), con germen de trigo
+7310	Tostadas (biscottes), sin sal agregada
+7330	Tostadas (biscottes), multicereales
+7340	Tostadas (biscottes), integrales
+7347	Galletitas de trigo, con semillas
+7348	Galletitas de trigo, con queso y semillas
+7349	Galletitas de trigo, integrales
+7351	Galletitas de trigo
+7352	Pan crocante de arroz inflado, integral
+7353	Pan crocante de cereales inflados
+7354	Pan crocante de maíz inflado
+7355	Pan crocante de arroz inflado, con cobertura de chocolate
+7356	Pan crocante de maíz inflado, con cobertura de chocolate
+7357	Pan crocante de cereales inflados, con semillas
+7359	Tostadas crocantes, con salvado, fuente de fibra o ricas en fibra
+7399	Tostadas de brioche con pasas de uva, en rodajas, envasadas
+7400	Tostadas (biscottes), en rebanadas, de trigo, envasadas
+7402	Tostadas (biscottes), en rebanadas, de trigo integral, envasadas
+7403	Tostadas de brioche, en rodajas, envasadas
+7407	Pan tostado sueco, de trigo
+7409	Pan tostado sueco, con granos y semillas
+7410	Tostadas crocantes, extruidas y grilladas, simples
+7412	Tostadas crocantes, extruidas y grilladas, relleno de chocolate
+7413	Tostadas crocantes, extruidas y grilladas, relleno de fruta
+7414	Tostadas crocantes, extruidas y grilladas, fuente de fibra o ricas en fibra
+7419	Pan tostado sueco, integral, sin azúcares agregados
+7420	Pan tostado sueco, integral
+7421	Pan tostado sueco, con frutas
+7422	Pan tostado sueco con huevos
+7425	Tostadas (biscottes), en rebanadas, multicereales, envasadas
+7431	Crutones, para untar, envasados
+7432	Crutones, simples, envasados
+7500	Pan rallado
+7525	Grissini o palitos de pan, simples (sin sésamo)
+7600	Factura vienesa (promedio)
+7603	Medialuna (croissant) (promedio)
+7615	Medialuna (croissant) común, de panadería
+7616	Medialuna (croissant) común, envasada
+7619	Medialuna (croissant) de manteca pura (promedio)
+7620	Medialuna (croissant) de manteca pura, de panadería
+7621	Medialuna (croissant) de manteca pura, envasada
+7650	Medialuna (croissant) con almendras, de panadería
+7710	Pan de leche, de panadería
+7711	Pan de leche, envasado
+7712	Pan de leche relleno con chips de chocolate, envasado
+7719	Brioche (masa italiana rellena de pasas de uva y cáscara de naranja confitada), envasado
+7720	Hojaldre con pasas de uva (facturas vienesas), de panadería
+7730	Medialuna de chocolate (croissant), de panadería
+7733	Medialuna de chocolate (croissant), envasada
+7735	Brioche con chips de chocolate o relleno de chocolate, envasado
+7738	Brioche relleno de frutas, envasado
+7739	Brioche relleno de crema pastelera (tipo brioche chino), envasado
+7740	Brioche, simple, envasado
+7742	Brioche, simple, de panadería
+7744	Brioche navideño con frutas confitadas, envasado
+7745	Brioche, de manteca pura, simple, envasado
+7746	Brioche (promedio)
+7811	Focaccia, rellena
+7812	Fougasse, rellena
+7813	Wrap de tortilla de maíz, para rellenar
+7814	Torta salada (con queso, verduras, carne, pescado, aves, etc.), envasada
+7815	Wrap de tortilla de trigo, para rellenar
+8000	Rillettes de cerdo
+8001	Rillettes de cerdo puro
+8002	Rillettes de cerdo, calidad superior
+8010	Rillettes de Tours
+8015	Rillettes de Le Mans
+8025	Rillettes de ganso puro
+8026	Rillettes de pato
+8030	Rillettes de ganso
+8040	Rillettes de aves
+8059	Rillettes de cangrejo, envasadas
+8080	Rillettes de pescado, envasadas
+8081	Rillettes de salmón, envasadas
+8082	Rillettes de atún, envasadas
+8083	Rillettes de caballa, envasadas
+8109	Confit de pato (conservado en su grasa), carne (muslo) sin piel, enlatado, recalentado
+8110	Confit de pato (conservado en su grasa), enlatado
+8111	Filete de pechuga de pato, ahumado
+8120	Hígado de cerdo en conserva
+8125	Hígado de ave en conserva
+8201	Paté con pimienta verde
+8206	Paté de jamón
+8211	Paté o terrina de campo
+8212	Paté o terrina de campo, bajo en sal
+8214	Paté bretón
+8232	Terrina de pato
+8240	Paté de conejo
+8242	Terrina de conejo
+8245	Paté de caza
+8250	Paté con hongos
+8290	Taramasalata, con salmón ahumado, envasada
+8291	Terrina de pescado, envasada
+8292	Terrina de mariscos, con o sin pescado, envasada
+8293	Taramasalata, con huevas de bacalao, envasada
+8296	Terrina o mousse de verduras, envasada
+8297	Flan de verduras con huevos
+8300	Paté de hígado de cerdo, calidad superior
+8305	Paté de hígado de cerdo
+8312	Mousse de hígado de cerdo, calidad superior
+8313	Mousse de hígado de cerdo
+8315	Mousse de pato
+8316	Paté de hígado de aves
+8321	Foie gras, de pato, entero, cocido
+8323	Foie gras en bloque, de pato, sin trozos
+8324	Foie gras en bloque, de pato, 30% de trozos
+8325	Foie gras en bloque, de pato, 50% de trozos
+8326	Paté de hígado de ganso
+8328	Foie gras, de pato, crudo
+8331	Foie gras, de pato, en bloque (promedio)
+8332	Paté (promedio)
+8350	Galantina
+8373	Escalope de cerdo enrollado con pistacho
+8380	Huevo en gelatina, con jamón
+8391	Paté en croûte
+8395	Jamón en croûte (en masa)
+8400	Queso de cerdo (fiambre de cabeza de cerdo)
+8406	Ensalada de hocico de cerdo, con salsa, envasada
+8407	Ensalada de cervelat, con salsa, envasada
+8429	Jamón de cerdo con perejil y gelatina
+8450	Hocico de vaca
+8500	Andouille (embutido de tripas)
+8501	Andouille de Guéméné
+8504	Andouille, recalentada en sartén
+8512	Andouille de Vire
+8550	Andouille, para cocinar
+8551	Andouille, a la parrilla/salteada en sartén
+8552	Andouille de Troyes, para cocinar
+8601	Mondongo al estilo de Caen, envasado
+8612	Mondongo a la provenzal (con tomate), envasado
+8703	Morcilla, para cocinar
+8704	Morcilla, a la parrilla/salteada en sartén
+8705	Morcilla o botifarra blanca, a la parrilla/salteada en sartén (promedio)
+8742	Morcilla caribeña, para cocinar
+8800	Morcilla blanca, a la plancha/salteada en sartén
+8801	Morcilla blanca, para cocinar
+8803	Morcilla blanca, con trufa, para cocinar
+8903	Quenelle de ternera, con salsa, en lata
+8910	Quenelle de ave, cruda
+8912	Quenelle de ave, con salsa, enlatada
+8932	Quenelle de pescado, con salsa, enlatada
+8933	Quenelle de pescado, cruda
+8937	Quenelle, simple, cruda
+9001	Espelta, cruda
+9003	Trigo khorasan, crudo
+9060	Trigo duro, integral, crudo
+9080	Trigo integral, precocido, crudo
+9081	Trigo duro precocido, grano entero, cocido, sin sal agregada
+9082	Trigo duro precocido, condimentado, cocido, en bolsa para microondas
+9085	Fideos asiáticos, condimentados (carne vacuna, pollo, verduras), cocidos
+9100	Arroz blanco, crudo
+9101	Arroz blanco, parboilizado, crudo
+9102	Arroz integral, crudo
+9103	Arroz integral, cocido, sin sal agregada
+9104	Arroz blanco, cocido, sin sal agregada
+9105	Arroz blanco, parboilizado, cocido, sin sal agregada
+9107	Arroz blanco, precocido o instantáneo, cocido, sin sal agregada
+9108	Arroz salvaje, crudo
+9109	Arroz rojo, crudo
+9110	Arroz rojo, cocido, sin sal agregada
+9111	Arroz salvaje, cocido, sin sal agregada
+9113	Arroz semiintegral, cocido, sin sal agregada
+9119	Arroz basmati, crudo
+9121	Arroz, mezcla de variedades (blanco, integral, salvaje, rojo, etc.), crudo
+9124	Arroz tailandés, cocido, sin sal agregada
+9125	Arroz basmati, cocido, sin sal agregada
+9230	Pochoclo o maíz inflado, con aceite, salado
+9231	Pochoclo o maíz inflado con aire, sin aceite, sin sal
+9232	Pochoclo o maíz inflado, con caramelo
+9310	Avena, cruda
+9313	Copos de avena, hervidos/cocidos en agua
+9320	Cebada, grano entero, cruda
+9321	Cebada perlada, cruda
+9322	Cebada perlada, hervida/cocida en agua, sin sal agregada
+9330	Mijo, grano entero, crudo
+9331	Mijo, cocido, sin sal agregada
+9340	Quinoa, cruda
+9341	Quinoa, hervida/cocida en agua, sin sal agregada
+9345	Amaranto, crudo
+9360	Sorgo, grano entero, crudo
+9380	Trigo sarraceno, grano entero, crudo
+9390	Centeno, grano entero, crudo
+9410	Harina de trigo, tipo 110
+9415	Harina de trigo, tipo 150
+9435	Harina de trigo, tipo 65
+9436	Harina de trigo, tipo 55 (para pan)
+9437	Harina de trigo leudante
+9440	Harina de trigo, tipo 45 (para repostería)
+9445	Harina de trigo, tipo 80
+9480	Harina de espelta
+9510	Almidón de maíz
+9520	Harina de arroz
+9530	Harina de centeno, tipo 170
+9532	Harina de centeno, tipo 85
+9533	Harina de centeno, tipo 130
+9540	Harina de trigo sarraceno
+9545	Harina de maíz
+9550	Harina de cebada
+9555	Harina de mijo
+9570	Harina de castañas
+9580	Harina de garbanzos
+9610	Sémola de trigo duro, cruda
+9612	Mezcla de cereales y legumbres, cruda
+9614	Polenta o sémola de maíz, precocida, cruda
+9615	Polenta o sémola de maíz, cocida, sin sal agregada
+9621	Salvado de trigo
+9640	Salvado de avena
+9641	Salvado de maíz
+9643	Salvado de arroz
+9660	Germen de trigo
+9681	Cuscús (sémola de trigo duro precocida), crudo
+9683	Cuscús, grano, cocido, sin sal agregada
+9685	Cuscús, grano, integral, cocido, sin sal agregada
+9686	Cuscús, grano, semiintegral, cocido, sin sal agregada
+9690	Trigo, bulgur, crudo
+9691	Bulgur de trigo, cocido, sin sal agregada
+9810	Pasta, seca, común, cruda
+9811	Pasta, seca, común, cocida, sin sal agregada
+9815	Pasta, fresca, con huevo, cruda
+9816	Pasta, fresca, con huevo, cocida, sin sal agregada
+9821	Pasta, seca, con huevo, cruda
+9822	Pasta, seca, con huevo, cocida, sin sal agregada
+9824	Pasta, seca, sin gluten, cocida, sin sal agregada
+9863	Fideos asiáticos, secos, con trigo y huevo, simples, crudos
+9870	Pasta, seca, integral, cruda
+9871	Pasta, seca, integral, cocida, sin sal agregada
+9874	Pasta, seca, sin gluten, cruda
+9875	Pasta, seca, sin gluten (de arroz y maíz), cocida, sin sal agregada
+9876	Pasta, seca, sin gluten (de lentejas rojas), cocida, sin sal agregada
+9877	Pasta, seca, semiintegral, cocida, sin sal agregada
+9900	Fideos de arroz, secos, crudos
+9901	Fideos de arroz, secos, cocidos, sin sal agregada
+9902	Fideos de soja, secos, crudos
+9903	Fideos de soja, secos, cocidos, sin sal agregada
+10000	Bígaro (caracol marino), cocido
+10001	Calamar, crudo
+10002	Rabas a la romana, envasadas
+10003	Vieira, con coral, cruda
+10004	Vieira, con coral, cocida
+10005	Cangrejo desmenuzado y/o patas de cangrejo descascaradas, enlatado, escurrido
+10006	Camarón gris, hervido
+10007	Camarones o langostinos, hervidos
+10008	Caracol, crudo
+10009	Langosta, hervida/cocida en agua
+10010	Langosta, cruda
+10011	Ostra, cruda
+10012	Cigala o langostino noruego, empanada, frita
+10013	Mejillón, hervido/cocido en agua
+10014	Mejillón, común, crudo
+10015	Langosta espinosa, cruda
+10016	Sepia, cruda
+10017	Almeja, cruda
+10018	Pulpo común, crudo
+10019	Caracol de mar (buccino), crudo
+10020	Caracol de mar (buccino), cocido
+10021	Camarones o langostinos, crudos
+10022	Langosta espinosa, hervida/cocida en agua
+10023	Buñuelos de camarones
+10024	Cigala o langostino noruego, cruda
+10025	Cangrejo, hervido/cocido en agua
+10026	Mejillón mediterráneo, crudo
+10027	Almeja, hervida/cocida en agua
+10028	Mejillón, enlatado en salmuera, escurrido
+10030	Cangrejo de río, crudo
+10031	Cangrejo de río, cocido
+10033	Camarón "bouquet", salvaje, hervido
+10034	Berberecho, cocido
+10035	Ostra del Pacífico, cruda
+10036	Ostra europea, cruda
+10037	Calamar, hervido/cocido en agua
+10038	Camarones o langostinos, congelados, crudos
+10039	Cangrejo, crudo
+10041	Abulón u orejas de mar, crudo
+10042	Caracoles con manteca de perejil, envasados, cocidos
+10043	Crustáceo o molusco (promedio)
+10044	Cigala o langostino noruego, hervida/cocida en agua
+10045	Vieira, sin coral, cruda
+10048	Vieira americana o canadiense, sin coral, cruda
+10049	Vieira del Perú, sin coral, cruda
+10057	Centolla, hervida/cocida en agua
+10061	Camarón blanco o camarón tropical (rosado), hervido
+10062	Langostino tigre tropical, hervido
+10064	Camarón rosado, hervido
+10074	Bígaro (caracol marino), crudo
+10079	Pulpo común, cocido
+10080	Mariscos, cocidos, congelados
+10081	Mejillones, en salsa o escabeche estilo catalán (tomates), enlatados, escurridos
+10082	Mejillones, en caldo de cebolla y vino blanco, envasados
+10083	Mejillones, rellenos (grasa, perejil y ajo…), envasados, crudos
+10084	Calamar, frito o salteado en sartén, con grasa
+10086	Camarones o langostinos, pelados, hervidos, refrigerados, envasados
+10088	Cangrejo de río, pelado, cocido, refrigerado, envasado
+10089	Camarón gris, pelado, hervido, refrigerado, envasado
+10099	Caracol, sin grasa agregada, cocido
+10100	Camarones o langostinos, salvajes, hervidos
+10101	Camarones o langostinos, de criadero, hervidos (promedio)
+10999	Perifollo, seco
+11000	Ajo, crudo
+11001	Caldo, de carne vacuna, deshidratado
+11002	Perifollo, crudo
+11003	Cebollín o cebolla de verdeo, fresco
+11004	Pepinillos, en vinagre
+11005	Curry, en polvo
+11006	Jengibre, en polvo
+11007	Gelatina sin sabor, en polvo
+11008	Kétchup, envasado
+11009	Levadura, en copos
+11010	Levadura de panadería, fresca
+11013	Mostaza
+11014	Perejil, fresco
+11015	Pimienta negra, en polvo
+11016	Rábano picante, crudo
+11017	Sal blanca (de mar, ígnea o de roca), sin fortificar
+11018	Vinagre
+11019	Pimienta blanca, en polvo
+11021	Mostaza, en granos
+11023	Ajo, deshidratado, en polvo
+11024	Perejil, seco
+11025	Canela, en polvo
+11026	Cilantro, semillas
+11027	Menta, fresca
+11029	Menta, seca
+11032	Albahaca, seca
+11033	Albahaca, fresca
+11034	Mejorana, seca
+11035	Orégano, seco
+11036	Romero, seco
+11037	Salvia, seca
+11038	Tomillo, seco
+11039	Azafrán
+11040	Alcaparras, en vinagre
+11041	Caldo, de verduras, deshidratado
+11042	Comino, semillas
+11043	Tapenade (puré de alcaparras, aceitunas negras, anchoas y hierbas)
+11044	Sal con apio
+11045	Levadura de panadería, deshidratada
+11046	Polvo de hornear o leudante
+11048	Nuez moscada
+11049	Pimentón, en polvo
+11050	Estragón, seco
+11051	Salsa tártara, envasada
+11052	Clavo de olor
+11053	Laurel, hojas
+11054	Mayonesa (70% de grasa mín.), envasada
+11055	Cebolla, en escabeche de vinagre
+11056	Mezcla de 4 especias, en polvo
+11057	Vainilla, vaina
+11058	Sal blanca (de mar, ígnea o de roca), con yodo agregado, sin flúor agregado
+11060	Hierbas provenzales, secas
+11061	Amapola, semilla
+11062	Ajedrea, seca
+11063	Eneldo, seco
+11064	Comino de prado (alcaravea), semillas
+11065	Vainilla, extracto alcohólico
+11066	Hinojo, semillas
+11068	Romero, fresco
+11069	Salvia, fresca
+11070	Tomillo, fresco
+11073	Kétchup, reducido en azúcares, envasado
+11074	Jengibre, crudo
+11075	Cardamomo, en polvo
+11077	Fenogreco, semillas
+11079	Mayonesa, reducida en grasa o light, envasada
+11080	Hierbas, frescas (promedio)
+11081	Especia (promedio)
+11082	Sal, sal de mar pura, sin fortificar
+11083	Sal, sal de mar gris, sin fortificar
+11084	Alga agar, cruda
+11085	Alga agar, seca
+11086	Espirulina (spirulina sp.), seca o deshidratada
+11088	Pimienta de cayena, en polvo
+11089	Cúrcuma, en polvo
+11090	Vinagre de manzana
+11091	Vinagre balsámico
+11092	Estragón, fresco
+11093	Eneldo, fresco
+11094	Cilantro, fresco
+11095	Cebollín, seco
+11096	Sal blanca (de mar, ígnea o de roca), con yodo agregado, con flúor agregado 25 mg/100 g
+11097	Pepinillos, en salsa agridulce
+11098	Vainilla, extracto acuoso
+11100	Salsa barbacoa, envasada
+11101	Salsa bechamel, envasada
+11102	Salsa bearnesa, envasada
+11104	Salsa de soja, envasada
+11105	Salsa holandesa, envasada
+11107	Salsa de tomate con cebollas, envasada
+11108	Aderezo para ensaladas, aceite de oliva (50-75% de grasa), envasado
+11109	Aderezo para ensaladas, reducido en grasa (25-50% de aceite), envasado
+11110	Aderezo para ensaladas, (50-75% de aceite), envasado
+11111	Salsa estilo armoricano, envasada
+11112	Harissa (salsa picante), envasada
+11114	Salsa boloñesa o salsa de tomate con carne, envasada
+11115	Salsa de pimienta verde, envasada
+11120	Salsa a la borgoñona, envasada
+11121	Salsa de vino de Madeira, envasada
+11122	Salsa de crema con chalotes, envasada
+11128	Salsa carbonara (salsa de crema con panceta en tiras), envasada
+11129	Salsa cazadora (salsa de vino blanco con champiñones, chalotes y tomates), envasada
+11132	Salsa de curry, caliente, envasada
+11140	Salsa beurre blanc, envasada
+11143	Salsa bechamel, con manteca, casera
+11157	Salsa de mostaza, envasada
+11158	Salsa de manteca, envasada
+11159	Salsa de crema
+11160	Salsa de hongos, envasada
+11161	Salsa de crema con especias
+11162	Salsa de crema con hierbas
+11163	Salsa agridulce, envasada
+11164	Salsa de vino tinto, casera
+11166	Salsa de yogur, casera
+11167	Salsa estilo americano, envasada
+11168	Salsa alioli (mayonesa de ajo y aceite de oliva), envasada
+11169	Caldo de ternera para salsas y cocción, deshidratado
+11170	Salsa estilo vasco o salsa de tomate con morrones, envasada
+11171	Caldo de ave para salsas y cocción, deshidratado
+11172	Caldo aromático en cubito, para pescado, deshidratado
+11174	Caldo, de pollo, deshidratado
+11175	Gelatina de vino de Madeira, deshidratada
+11176	Gelatina de vino de Madeira
+11177	Salsa de tomate con hongos, envasada
+11178	Salsa de tomate con aceitunas, envasada
+11179	Salsa pesto, envasada
+11182	Salsa de pimienta, caliente, envasada
+11184	Salsa (promedio)
+11187	Aderezo para ensaladas, envasado
+11189	Salsa de queso para risotto o pasta, envasada
+11191	Salsa Roquefort, envasada
+11192	Salsa de crema con champiñones, envasada
+11194	Salsa nuoc mam o salsa de pescado, envasada
+11196	Salsa para hamburguesas, envasada
+11198	Aderezo para ensaladas, reducido en grasa, envasado
+11199	Salsa Grand Veneur (reducción de vino tinto con ajo, chalotes y jalea de grosella roja), envasada
+11202	Salsa estilo hindú, tipo tandoori o garam masala, envasada
+11203	Salsa kebab, envasada
+11205	Salsa rouille (mayonesa con ajo, ají y caldo de pescado), envasada
+11207	Salsa de tomate con verduras, envasada
+11208	Salsa de tomate con queso, envasada
+11210	Salsa pesto rosso, envasada
+11212	Salsa de pimienta, condimento, fría, envasada
+11213	Salsa, fría (promedio)
+11214	"Crema" de soja
+11215	Caviar de tomate (puré de tomate condimentado)
+11216	Salsa de soja, con azúcar(es), envasada
+11217	Salsa para arrollados primavera fritos, a base de nuoc mam, envasada
+11218	Salsa, caliente (promedio)
+11219	Salsa vegetariana tipo boloñesa, con proteínas de soja, envasada
+11220	Vinagre de vino tinto
+11221	Extracto de levadura para untar
+11222	Ktipiti, dip de queso fresco y morrón rojo, envasado
+11223	Salsa de ostras, envasada
+11240	Salsa estilo argelino, envasada
+11243	Salsa estilo andaluz, envasada
+11244	Salsa estilo cóctel, envasada
+11245	Salsa para papas fritas, envasada
+11246	Salsa estilo samurái, envasada
+11247	Salsa de curry, fría, envasada
+11248	Aderezo para ensaladas, tipo Caesar, envasado
+11299	Salsa de ciruelas pasas, envasada
+11300	Salsa de chocolate, envasada
+11301	Salsa teriyaki, envasada
+11302	Salsa de acedera, envasada
+11303	Caldo de pescado, listo para consumir, envasado
+11304	Caldo de ternera, envasado
+11306	Ajo, asado/al horno
+11307	Ajo, a la plancha/salteado, sin grasa
+11506	Edulcorante aspartamo, en comprimidos
+11507	Bicarbonato de sodio
+11509	Aspartamo, en polvo
+11510	Grana multicolor (rainbow sprinkles)
+12001	Queso Camembert, de leche de vaca
+12003	Queso de pasta blanda con corteza florida (tipo Camembert), de leche de vaca
+12004	Queso de pasta blanda con corteza florida, reducido en grasa (tipo Camembert), de leche de vaca
+12006	Queso Camembert, de leche de vaca, de leche cruda o termizada
+12007	Queso Camembert, de leche de vaca, de leche pasteurizada
+12008	Queso de pasta blanda, doble crema, alrededor de 30% de grasa, con corteza florida, de leche de vaca
+12010	Queso Coulommiers, de leche de vaca
+12015	Queso de pasta blanda con corteza florida, cuadrado o en ladrillo, de leche de vaca
+12020	Queso Brie, de leche de vaca
+12021	Queso Brie de Meaux, de leche de vaca
+12022	Queso Brie de Melun, de leche de vaca
+12025	Queso Carré de l'Est, de leche de vaca
+12028	Queso Chaource, de leche de vaca
+12029	Queso Maroilles "laitier" (leche recolectada en varias granjas), de leche de vaca
+12030	Queso Maroilles "fermier" (leche recolectada en una sola granja), de leche de vaca
+12031	Queso Neufchâtel, de leche de vaca
+12033	Queso de pasta blanda, triple crema, alrededor de 3840% de grasa, de leche de vaca
+12034	Queso de pasta blanda, corteza lavada (promedio)
+12035	Queso de pasta blanda, corteza lavada, reducido en grasa, de leche de vaca
+12036	Queso Maroilles, de leche de vaca
+12037	Queso Livarot, de leche de vaca
+12038	Queso Époisses, de leche de vaca
+12039	Queso Munster, de leche de vaca
+12040	Queso Langres, de leche de vaca
+12041	Queso de pasta blanda, corteza lavada, de leche de vaca
+12042	Queso Pont l'Évêque, de leche de vaca
+12045	Queso Reblochon, de leche de vaca
+12049	Queso Saint-Marcellin, de leche de vaca
+12050	Queso de pasta blanda, corteza lavada, florida y coloreada, de leche de vaca
+12051	Queso Vacherin o Mont d'or, de leche de vaca
+12052	Queso Saint-Félicien, de leche de vaca
+12053	Queso para tartiflette, blando de corteza mixta, de leche de vaca
+12054	Queso fresco untable, en envase tipo cáscara, fortificado con vitaminas, de leche de vaca
+12059	Queso Brocciu de suero de cabra o de oveja
+12060	Queso tipo feta, 100% de leche de vaca
+12061	Queso feta o tipo feta, 100% de leche de oveja
+12063	Queso tipo feta, 100% de leche de vaca, en aceite y especias
+12064	Queso Boulette d'Avesnes de leche de vaca
+12065	Queso para picar de leche de vaca, relleno o recubierto
+12066	Queso feta, mín. 70% de leche de oveja, mín. 30% de leche de cabra
+12067	Queso tipo feta, 100% de leche de vaca, en aceite y especias, escurrido
+12068	Queso fresco untable, natural, en bandeja, de leche de vaca
+12069	Queso fresco untable, natural, en bandeja, reducido en grasa, de leche de vaca
+12070	Queso fresco untable, saborizado con ajo y hierbas, de leche de vaca
+12071	Brousse (queso fresco de leche de oveja)
+12072	Burrata, de leche de vaca
+12073	Queso fresco untable, saborizado, aceitunas o higo y nueces (distinto de ajo y hierbas), de leche de vaca
+12099	Queso Emmental, de leche de vaca, de Saboya
+12100	Queso duro (promedio)
+12105	Queso Beaufort, de leche de vaca
+12109	Queso Cantal, sin madurar, de leche de vaca
+12110	Queso Comté, de leche de vaca
+12111	Queso fundido, para desenrollar o rallar, de leche de vaca
+12112	Queso Abondance, de leche de vaca
+12113	Queso Gruyère, Francia, Indicación Geográfica Protegida, de leche de vaca
+12114	Queso Gruyère, de leche de vaca
+12115	Queso Emmental, de leche de vaca
+12116	Queso duro, tipo Emmental, reducido en grasa, de leche de vaca
+12118	Queso Emmental, rallado, de leche de vaca
+12119	Queso Ossau-Iraty, de leche de oveja
+12120	Queso parmesano, de leche de vaca
+12121	Queso Fontina, de leche de vaca
+12122	Queso pecorino, de leche de oveja
+12123	Queso Grana Padano, de leche de vaca
+12300	Queso fundido, en fetas, de leche de vaca
+12302	Queso fundido, de leche de vaca, saborizado, en cubos, para el aperitivo
+12303	Queso fundido, de leche de vaca, triángulo, no fortificado
+12304	Queso fundido, de leche de vaca, triángulo, fortificado con vitaminas
+12305	Queso fundido, reducido en grasa, de leche de vaca
+12306	Queso fundido, de leche de vaca, cuadrado, no fortificado con vitaminas
+12307	Queso fundido, de leche de vaca, cuadrado o en palito, fortificado con vitaminas
+12311	Crema de camembert (queso procesado), de leche de vaca
+12325	Cancoillotte (queso procesado), de leche de vaca
+12342	Queso fresco untable, reducido en grasa, de leche de vaca, saborizado (p. ej. ajo y hierbas)
+12355	Queso fundido con queso crema fresco y nueces, de leche de vaca
+12356	Snack de queso fundido, de leche de vaca, con palitos de pan, para niños
+12500	Queso Roquefort, de leche de oveja
+12519	Queso Fourme de Montbrison, de leche de vaca
+12520	Queso azul, de leche de vaca
+12521	Queso azul de Auvernia, de leche de vaca
+12522	Queso Fourme d'Ambert, de leche de vaca
+12523	Queso azul des Causses, de leche de vaca
+12524	Queso Gorgonzola, de leche de vaca
+12526	Queso azul de Gex, o queso azul del Jura o queso azul de Septmoncel, de leche de vaca
+12528	Queso azul de Bresse, reducido en grasa, de leche de vaca
+12705	Queso firme, tipo Maasdam, reducido en grasa, de leche de vaca
+12716	Queso provolone, de leche de vaca
+12720	Queso firme con cobertura de cera, de leche de vaca
+12721	Queso firme con cobertura de cera, reducido en grasa, de leche de vaca
+12722	Queso Cantal, semimaduro, de leche de vaca
+12724	Queso Cantal, de leche de vaca
+12725	Queso Salers, de leche de vaca
+12726	Queso cheddar, de leche de vaca
+12729	Queso Edam, de leche de vaca
+12735	Queso Mimolette, joven, de leche de vaca (maduración de menos de 6 meses)
+12736	Queso Gouda, de leche de vaca
+12737	Queso Mimolette, semiañejo, de leche de vaca (maduración de 6 meses como mínimo)
+12738	Queso Mimolette, añejo, de leche de vaca (maduración de 12 meses como mínimo)
+12740	Queso Mimolette, de leche de vaca
+12741	Queso firme, tipo Maasdam, de leche de vaca
+12742	Queso Mimolette, extra añejo, de leche de vaca (maduración de 18 meses como mínimo)
+12743	Queso Morbier, de leche de vaca
+12747	Queso Pyrénées de pasta firme, de leche de oveja
+12748	Queso Saint-Nectaire, de leche de vaca, leche recolectada en varias granjas
+12749	Queso raclette, de leche de vaca
+12751	Queso Saint-Nectaire, de leche de vaca, leche recolectada en una sola granja
+12752	Queso Saint-Nectaire, de leche de vaca
+12755	Saint-Paulin, queso de pasta firme, de leche de vaca (queso semiduro)
+12758	Queso Tomme, de leche de vaca
+12760	Queso Tomme, reducido en grasa, alrededor de 13% de grasa
+12761	Queso Asiago, de leche de vaca
+12762	Queso de Córcega de pasta blanda y corteza florida, de leche de oveja
+12763	Queso Tomme (DOP) de los Alpes Bauges franceses, de leche de vaca
+12764	Queso Tête de Moine (DOP), de leche de vaca
+12765	Queso raclette, de leche de vaca, ahumado
+12766	Queso raclette, de leche de vaca, con pimienta
+12767	Queso Gouda, con semillas de comino, de leche de vaca
+12768	Queso tipo feta de leche de oveja, en aceite y especias, escurrido
+12771	Queso Tomme, de leche de vaca, de Saboya
+12773	Queso Tomme, de leche de vaca, de los Pirineos
+12775	Mezcla de quesos, rallada, de leche de vaca
+12776	Queso raclette, de leche de vaca, de Saboya
+12803	Queso, láctico, madurado, de leche de cabra
+12805	Queso, fresco, de leche de cabra
+12807	Queso, de leche de cabra, de leche cruda
+12810	Queso, semiseco, de leche de cabra
+12812	Queso, buche, de leche de cabra
+12813	Queso, buche, de leche de cabra, reducido en grasa
+12814	Queso de pasta blanda, de leche de cabra
+12815	Queso, seco, de leche de cabra
+12816	Queso duro, de leche de vaca
+12819	Queso, de leche de cabra, untable, natural
+12820	Queso de pasta blanda con corteza florida, de leche de cabra, tipo Camembert
+12824	Queso de pasta blanda con corteza florida, de leche de oveja
+12828	Queso, de suero de oveja
+12830	Queso Chabichou, de leche de cabra
+12831	Queso Pélardon, de leche de cabra
+12832	Queso Crottin, de leche de cabra, de leche cruda
+12833	Queso Crottin, de leche de cabra
+12834	Queso Crottin de Chavignol, de leche de cabra
+12836	Queso Picodon, de leche de cabra
+12839	Queso Pouligny Saint-Pierre, de leche de cabra
+12842	Queso Sainte-Maure, de leche de cabra
+12845	Queso Selles-sur-Cher, de leche de cabra
+12846	Queso Chevrot, de leche de cabra
+12847	Queso Rocamadour, de leche de cabra
+12848	Queso Valençay, de leche de cabra
+12850	Queso firme, de leche de cabra
+12999	Queso (promedio)
+13000	Damasco, sin carozo, crudo
+13001	Damasco, sin carozo, deshidratado
+13002	Ananá, pulpa sin piel, crudo
+13004	Palta, pulpa sin piel, sin carozo, cruda
+13005	Banana, pulpa sin piel, cruda
+13007	Grosella negra, cruda
+13008	Cereza, pulpa y piel, sin carozo, cruda
+13009	Limón, pulpa sin piel, sin semillas, crudo
+13010	Membrillo, crudo
+13011	Dátil, pulpa y piel, sin carozo, seco
+13012	Higo, crudo
+13013	Higo, seco
+13014	Frutilla, cruda
+13015	Frambuesa, cruda
+13016	Maracuyá, pulpa sin piel, con semillas, crudo
+13018	Granada, pulpa sin piel, con semillas, cruda
+13019	Grosella roja, cruda
+13020	Grosella espinosa, cruda
+13021	Kiwi, pulpa sin piel, con semillas, crudo
+13023	Lichi, pulpa sin piel, sin carozo, pulpa sin piel, crudo
+13024	Clementina o mandarina, pulpa sin piel, sin semillas, cruda
+13025	Mango, pulpa sin piel, sin carozo, crudo
+13026	Melón, cantalupo (ex melón Charentais), pulpa sin piel, sin semillas, crudo
+13027	Ciruela mirabel, sin carozo, cruda
+13028	Arándanos, crudos
+13029	Mora, cruda
+13032	Aceituna, negra, en salmuera
+13033	Aceituna, verde, en salmuera
+13034	Naranja, pulpa sin piel, sin semillas, cruda
+13035	Papaya, pulpa sin piel, cruda
+13036	Sandía, pulpa sin cáscara, sin semillas, cruda
+13037	Pera, pulpa y piel, cruda
+13038	Compota de manzana, envasada
+13039	Manzana, pulpa y piel, cruda
+13040	Pomelo, pulpa sin piel, sin semillas, crudo
+13041	Ciruela Reina Claudia, sin carozo, cruda
+13042	Ciruela pasa, sin carozo
+13043	Durazno, pulpa y piel, sin carozo, crudo
+13044	Uva, blanca, cruda
+13045	Uva, roja, cruda
+13046	Pasas de uva
+13047	Ruibarbo, tallo, crudo
+13051	Mezcla de frutas tropicales, azucarada, para snack, seca
+13054	Carambola, pulpa y piel, cruda
+13055	Acerola, pulpa y piel, sin carozo, cruda
+13056	Chirimoya, pulpa sin piel, cruda
+13061	Feijoa, pulpa sin piel, cruda
+13063	Tuna (fruto del nopal), pulpa y piel, con semillas, cruda
+13066	Caqui, pulpa y piel, crudo
+13067	Lima, pulpa sin piel, sin semillas, cruda
+13071	Mora negra, cruda
+13077	Rambután, pulpa sin piel, sin carozo, crudo
+13080	Tamarindo, fruto maduro, pulpa sin cáscara, con semillas, crudo
+13083	Guayaba, pulpa sin piel, cruda
+13085	Manzana Canada, pulpa sin piel, cruda
+13086	Manzana, var. Golden, pulpa sin piel, cruda
+13089	Banana, pulpa sin piel, deshidratada
+13100	Ciruela, pulpa y piel, sin carozo, cruda
+13101	Uva, Chasselas, cruda
+13110	Cereza ácida, cruda
+13111	Manzana, deshidratada
+13113	Arándano rojo, crudo
+13118	Durazno, pulpa y piel, sin carozo, deshidratado
+13119	Ciruela pasa, sin carozo, cocida
+13121	Manzana, var. Granny Smith, pulpa sin piel, cruda
+13122	Manzana, var. Granny Smith, pulpa y piel, cruda
+13125	Ralladura de limón, cruda
+13126	Saúco, bayas, crudas
+13128	Chayote, crudo
+13129	Compota de frutas, frutas variadas, reducida en azúcar, envasada, refrigerada
+13131	Aceituna, negra, en aceite (aceituna griega)
+13132	Arándanos, congelados, crudos
+13134	Ensalada de frutas, cruda
+13136	Frambuesa, congelada, cruda
+13147	Aceituna, verde, rellena (anchoa, morrones, etc…)
+13148	Nectarina, amarilla, pulpa y piel, sin carozo, cruda
+13149	Nectarina, blanca, pulpa y piel, sin carozo, cruda
+13150	Mora, congelada, cruda
+13151	Compota de manzana, reducida en azúcar, envasada, a temperatura ambiente
+13152	Postre de frutas, todos los tipos (contenido de azúcar menor que la compota de frutas pero mayor que la compota de frutas reducida en azúcar), envasado, a temperatura ambiente
+13153	Compota de frutas sin azúcares agregados (pulpa o mezcla de frutas), envasada, a temperatura ambiente
+13154	Compota de frutas azucarada (pulpa o mezcla de frutas, con azúcar, siempre con otro ingrediente), envasada, a temperatura ambiente
+13157	Frasco de comida para bebés, frutas con banana
+13158	Frasco de comida para bebés, frutas sin banana
+13159	Bebida a base de frutas para bebés, desde los 4/6 meses
+13160	Bebida vegetal para bebés
+13161	Bebida a base de lácteos y cereales para la cena de bebés, con verduras, desde los 4/6 meses
+13162	Bebida a base de lácteos y cereales para la merienda de bebés, con frutas, desde los 4/6 meses
+13163	Bebida a base de lácteos y cereales para el desayuno de bebés, desde los 4/6 meses
+13164	Postre lácteo para bebés, tipo natilla
+13165	Postre lácteo para bebés, con arroz o sémola
+13166	Postre lácteo para bebés, con azúcar(es), natural o con frutas
+13167	Cereal instantáneo para bebés (polvo para reconstituir), desde los 4/6 meses
+13168	Cereal instantáneo para bebés (polvo para reconstituir), desde los 6 meses
+13169	Bebida a base de lácteos y cereales para el desayuno de bebés, desde los 8/9 meses
+13170	Bebida a base de lácteos y cereales para el desayuno de bebés, desde los 12 meses
+13171	Bebida láctea para la merienda de bebés desde los 4/6 meses, con frutas (sin cereales)
+13172	Bebida a base de lácteos y cereales para la cena de bebés, con verduras, desde los 4/6 meses
+13173	Bebida a base de lácteos y cereales para el desayuno de bebés
+13174	Compota de frutas sin azúcares agregados (pulpa o mezcla de frutas, siempre con otro ingrediente), envasada, a temperatura ambiente
+13175	Manzana, pulpa sin piel, asada/al horno
+13176	Manzanas, crudas, sin piel, cocidas, hervidas/cocidas en agua
+13177	Chayote, hervido/cocido en agua
+13178	Arándano rojo, deshidratado, con azúcar(es)
+13179	Pomelo, amarillo, pulpa sin piel, sin semillas, crudo
+13180	Pomelo, rojo o rosado, pulpa sin piel, sin semillas, crudo
+13182	Bebida a base de lácteos y cereales para bebés (promedio)
+13183	Bayas de goji, deshidratadas
+13184	Aceituna (promedio)
+13185	Compota de frutas y similares, cualquier fruta, contenido de azúcar sin especificar (promedio)
+13186	Aceitunas negras (alimento promedio)
+13187	Frutas cocidas, manzana, sin azúcares agregados, (pulpa o frutas mixtas), a temperatura ambiente
+13188	Pera, var. Conférence, pulpa sin piel, cruda
+13189	Pera, var. Williams, pulpa sin piel, cruda
+13190	Manzana, var. Chanteclerc, pulpa sin piel, cruda
+13191	Manzana, var. Gala, pulpa sin piel, cruda
+13192	Manzana, var. Pink lady, pulpa sin piel, cruda
+13193	Durazno, variedad de pulpa blanca, pulpa y piel, sin carozo, crudo
+13194	Durazno, variedad de pulpa blanca, pulpa sin piel, sin carozo, crudo
+13195	Durazno, variedad de pulpa amarilla, pulpa sin piel, sin carozo, crudo
+13199	Compota de frutas, frutas variadas que no sean solo manzana, reducida en azúcar, envasada, a temperatura ambiente
+13200	Mango José, pulpa sin piel, sin carozo, crudo, muestreado en la isla de La Reunión (Mangifera indica L.)
+13201	Ananá Queen Victoria, pulpa, cruda, muestreada en la isla de La Reunión
+13202	Papaya Colombo (fruta), madura, pulpa sin piel, sin semillas, cruda, muestreada en la isla de La Reunión (Carica papaya L.)
+13203	Ruibarbo, tallo, cocido
+13204	Compota de durazno, envasada
+13205	Compota de damasco, envasada
+13206	Compota de ruibarbo, envasada
+13207	Postre de frutas, todos los tipos (contenido de azúcar menor que la compota de frutas pero mayor que la compota de frutas reducida en azúcar), envasado, refrigerado
+13208	Compota de frutas azucarada (pulpa o mezcla de frutas, con azúcar, siempre con otro ingrediente), envasada, refrigerada
+13209	Compota de frutas sin azúcares agregados (pulpa o mezcla de frutas, siempre con otro ingrediente), envasada, refrigerada
+13210	Compota de frutas sin azúcares agregados (pulpa o mezcla de frutas), envasada, refrigerada
+13211	Otra compota de fruta, envasada
+13212	Compota de manzana, contenido de azúcar y temperatura sin especificar, envasada (promedio)
+13213	Postre de frutas, todos los tipos (contenido de azúcar menor que la compota de frutas pero mayor que la compota de frutas reducida en azúcar), envasado (promedio)
+13214	Compota de frutas sin azúcares agregados (pulpa o mezcla de frutas), envasada (promedio)
+13215	Compota de frutas, contenido de azúcar sin especificar (pulpa o mezcla de frutas, con o sin azúcar, siempre con otro ingrediente), envasada (promedio)
+13395	Uva, cruda (promedio)
+13396	Manzana, pulpa sin piel, cruda (promedio)
+13397	Pera, pulpa sin piel, cruda (promedio)
+13398	Durazno, pulpa sin piel, sin carozo, crudo (promedio)
+13399	Nectarina, pulpa y piel, sin carozo, cruda (promedio)
+13400	Mamey, pulpa y piel, sin carozo, enlatado en almíbar, sólidos y líquidos, muestreado en la isla de La Martinica
+13401	Mamey, pulpa y piel, sin carozo, crudo, muestreado en la isla de La Martinica
+13402	Ananá, pulpa sin piel, crudo, muestreado en la isla de La Martinica
+13403	Caimito, pulpa sin piel, crudo, muestreado en la isla de La Martinica
+13404	Acerola, pulpa y piel, sin carozo, cruda, muestreada en la isla de La Martinica
+13405	Shaddock (pomelo chino), pulpa sin piel, sin semillas, crudo, muestreado en la isla de La Martinica
+13406	Mamey, chips, muestreado en la isla de La Martinica
+13407	Guayaba, pulpa sin piel, pisada, muestreada en la isla de La Martinica
+13408	Jugo de carambola, filtrado, muestreado en la isla de La Martinica
+13409	Jugo de carambola, sin filtrar, muestreado en la isla de La Martinica
+13410	Jugo de limón punch (calibre pequeño), jugo puro, muestreado en la isla de La Martinica
+13411	Jugo de limón verde (calibre grande), jugo puro, muestreado en la isla de La Martinica
+13412	Jugo de guanábana, muestreado en la isla de La Martinica
+13413	Jugo de maracuyá, jugo puro, muestreado en la isla de La Martinica
+13414	Granada, jugo, muestreado en la isla de La Martinica
+13415	Jugo de lima, jugo puro, muestreado en la isla de La Martinica
+13416	Jugo de mandarina común, jugo puro, filtrado, pasteurizado, muestreado en la isla de La Martinica
+13417	Jugo de mandarina común, jugo puro, filtrado, muestreado en la isla de La Martinica
+13418	Mandarina macaque, jugo puro, filtrado, muestreado en la isla de La Martinica
+13419	Moubin, jugo puro, muestreado en la isla de La Martinica
+13420	Pomelo (variedad local), jugo puro, muestreado en la isla de La Martinica
+13421	Prune de cythère o pomme cythère o manzana dorada (variedad local), gigante, madura, jugo puro, filtrado, muestreado en la isla de La Martinica
+13422	Prune de cythère o pomme cythère o manzana dorada (variedad local), gigante, verde o inmadura, jugo puro, filtrado, de La Martinica
+13423	Prune de cythère o pomme cythère o manzana dorada (variedad híbrida), enana, madura, jugo puro, filtrado, de La Martinica
+13424	Prune de cythère o pomme cythère o manzana dorada (variedad híbrida), enana, verde o inmadura, jugo puro, filtrado, de La Martinica
+13425	Mandarina común, pulpa sin piel, sin semillas, enlatada en almíbar, sólidos y líquido, muestreada en la isla de La Martinica
+13426	Mango bassignac, pulpa sin piel, crudo, muestreado en la isla de La Martinica
+13427	Mango moussache, pulpa sin piel, sin carozo, crudo, muestreado en la isla de La Martinica
+13428	Mango julie, pulpa sin piel, sin carozo, crudo, muestreado en la isla de La Martinica
+13429	Mango verde, pulpa sin piel, sin carozo, crudo, muestreado en la isla de La Martinica
+13430	Melón, pulpa sin piel, sin semillas, crudo, muestreado en la isla de La Martinica
+13431	Naranja (variedad local), pulpa sin piel, sin semillas, cruda, muestreada en la isla de La Martinica
+13432	Naranja amarga, pulpa sin piel, sin semillas, cruda, muestreada en la isla de La Martinica
+13433	Sandía, pulpa sin cáscara, sin semillas, cruda, de la isla de La Martinica
+13434	Manzana de cajú, pulpa y piel, cruda, muestreada en la isla de La Martinica
+13435	Anona (fruta del conde), pulpa sin cáscara, sin semillas, cruda, de la isla de La Martinica
+13436	Pomme d'eau o manzana malaca, pulpa sin piel, sin carozo, cruda, muestreada en la isla de La Martinica
+13437	Pomme liane, pulpa sin piel, con semillas, cruda, muestreada en la isla de La Martinica
+13438	Prune de cythère o pomme cythère o manzana dorada, madura, pulpa y piel, con semillas, cruda, muestreada en la isla de La Martinica
+13439	Prune de cythère o pomme cythère o manzana dorada, verde o inmadura, pulpa y piel, con semillas, cruda, muestreada en la isla de La Martinica
+13440	Yaca, pulpa, pulpa sin piel, cruda, muestreada en la isla de La Martinica
+13499	Yaca, pulpa sin piel, cruda
+13523	Dátil del desierto, pulpa y piel, sin carozo, crudo
+13529	Durián, pulpa sin piel, sin carozo, crudo
+13547	Caqui, de arbusto, fruto, crudo
+13549	Kumquat, pulpa y piel, sin semillas, crudo
+13552	Longan, pulpa sin piel, sin carozo, crudo
+13564	Níspero japonés, pulpa y piel, sin carozo, crudo
+13583	Ciruela negra, sin carozo, cruda
+13614	Pomelo chino (pummelo), pulpa sin piel, sin semillas, crudo
+13620	Manzana, var. Golden, pulpa y piel, cruda
+13621	Uva, roja, Moscatel, cruda
+13623	Damasco, sin carozo, deshidratado, rehidratado a 35-45% de agua
+13704	Damasco, en almíbar enlatado (contenido de azúcar sin especificar), escurrido (promedio)
+13705	Cóctel o ensalada de frutas, enlatado en almíbar (contenido de azúcar sin especificar), escurrido (promedio)
+13706	Cóctel o ensalada de frutas, enlatado en almíbar, escurrido
+13707	Cóctel o ensalada de frutas, enlatado en almíbar, sólidos y líquido
+13708	Cóctel o ensalada de frutas, enlatado en almíbar liviano, escurrido
+13709	Cóctel o ensalada de frutas, enlatado en almíbar liviano, sólidos y líquido
+13712	Damasco, en almíbar liviano, enlatado, escurrido
+13713	Damasco, en almíbar liviano, enlatado, sólidos y líquido
+13714	Damasco, en almíbar, enlatado, escurrido
+13715	Damasco, en almíbar, enlatado, sólidos y líquido
+13716	Ananá, en jugo de ananá, enlatado, escurrido
+13717	Ananá, en jugo de ananá, enlatado, sólidos y líquidos
+13718	Ananá, en almíbar light, enlatado, escurrido
+13719	Ananá, en almíbar light, enlatado, sólidos y líquidos
+13724	Lichi, pulpa sin piel, sin carozo, en almíbar light, enlatado, escurrido
+13730	Durazno, sin carozo, enlatado en almíbar light, escurrido
+13731	Durazno, sin carozo, enlatado en almíbar light, sólidos y líquidos
+13734	Pera, enlatada en almíbar light, escurrida
+13735	Pera, enlatada en almíbar light, sólidos y líquidos
+13742	Melón, honeydew, pulpa sin piel, sin semillas, crudo
+13996	Fruta, deshidratada (promedio)
+13997	Frutos rojos (frambuesas, frutillas, grosellas rojas, grosellas negras), crudos
+13998	Salsa de frutos rojos
+13999	Fruta, cruda (promedio)
+14000	Venado, corzo, asado/al horno
+14002	Jabalí, crudo
+14003	Jabalí, asado/al horno
+14004	Liebre, carne, cruda
+14005	Venado, corzo, crudo
+14006	Venado, ciervo, crudo
+14007	Venado, ciervo, asado/al horno
+14008	Caza, cocida (promedio)
+15000	Almendras, con piel, sin sal agregada
+15001	Maní, sin sal agregada
+15002	Maní, tostado, salado
+15004	Avellanas, sin sal agregada
+15005	Nuez, pulpa, seca
+15006	Coco, pulpa, fresco
+15007	Coco, pulpa, seco
+15008	Castaña de Pará, sin sal agregada
+15009	Pistacho, tostado, salado
+15010	Semillas de sésamo
+15011	Girasol, semillas
+15013	Crema de castañas, envasada
+15014	Coco, pulpa inmadura, fresco
+15015	Puré de castañas, enlatado
+15017	Mezcla de frutos secos salados y fruta deshidratada
+15018	Mezcla de frutos secos salados y pasas de uva
+15019	Castañas de cajú, tostadas, saladas
+15020	Castañas, hervidas/cocidas en agua
+15021	Castañas, asadas
+15024	Castañas, crudas
+15025	Piñón
+15026	Nuez pecán, sin sal agregada
+15027	Nuez de macadamia, sin sal agregada
+15029	Semillas de alfalfa, germinadas
+15030	Semillas de rabanito, germinadas, frescas, crudas
+15032	Alfalfa, semillas
+15033	Avellanas, tostadas, sin sal agregada
+15034	Semillas de lino
+15035	Semillas de sésamo, peladas
+15037	Maní, tostado en seco, salado
+15038	Semillas de sésamo, tostadas, peladas
+15039	Castañas, enlatadas
+15041	Almendras, peladas, sin sal agregada
+15042	Almendras, tostadas, saladas
+15043	Nuez de macadamia, tostada, salada
+15044	Pistacho, tostado, sin sal agregada
+15045	Semillas de girasol, tostadas, saladas
+15046	Nuez pecán, salada
+15047	Chía, semillas, secas
+15048	Mezcla de frutos secos y fruta deshidratada, sin sal agregada
+15049	Mezcla de frutos secos y pasas de uva, sin sal agregada
+15050	Avellanas, tostadas, saladas
+15052	Semillas de lino, marrón
+15053	Maní, tostado, sin sal agregada
+15054	Castañas de cajú, tostadas, sin sal agregada
+15055	Castañas de cajú, tostadas en seco, sin sal agregada
+15057	Maní, tostado, saborizado
+15058	Maní confitado
+15059	Mezcla de frutos secos, tostados, salados
+15062	Almendras, tostadas, saladas, ahumadas
+15063	Cáñamo, semillas, peladas
+15064	Semillas de zapallo, secas
+15065	Semillas y maníes, secos, salados (promedio)
+15066	Semillas y maníes, secos, sin sal (promedio)
+15201	Mazapán o pasta de almendras, envasado
+15202	Manteca de maní o pasta de maní
+15203	Tahini (pasta de sésamo)
+16030	Manteca de cacao
+16040	Grasa o aceite de coco
+16050	Grasa o aceite de coco, virgen
+16060	Grasa o aceite de coco, refinado
+16080	Grasa vegetal sólida (tipo margarina), para freír
+16110	Manteca de karité o aceite de karité
+16128	Aceite para freír
+16150	Aceite de palma, refinado
+16200	Grasa de palmiste
+16400	Manteca, 80% de grasa como mínimo, sin sal
+16401	Aceite de manteca o manteca concentrada
+16402	Manteca, 80% de grasa como mínimo, semisalada
+16403	Manteca, 80% de grasa como mínimo, salada
+16404	Manteca, 82% de grasa como mínimo, sin sal, fácil de untar
+16410	Manteca, 60-62% de grasa, light, sin sal
+16411	Manteca, 60-62% de grasa, light, semisalada
+16412	Pasta untable de manteca, reducida en grasa, sin sal (promedio)
+16413	Manteca, contenido de grasa desconocido, semisalada (promedio)
+16414	Manteca, contenido de grasa desconocido, sin sal (promedio)
+16415	Manteca, light, 39-41% de grasa, sin sal
+16416	Manteca, light, 39-41% de grasa, semisalada
+16520	Grasa de cerdo o lardo
+16530	Grasa de cerdo, cruda
+16540	Grasa de pollo
+16550	Grasa de pato
+16560	Grasa de ganso
+16570	Grasa de pavo
+16588	Materia grasa untable <= 41% de grasa, sin sal, con fitoesteroles
+16589	Materia grasa untable > 62% de grasa, sin sal, rica en omega 3
+16590	Materia grasa untable > 62% de grasa, sin sal, estándar
+16591	Materia grasa untable > 41% de grasa y <= 62% de grasa, sin sal, estándar
+16592	Materia grasa untable <= 41% de grasa, sin sal, estándar
+16593	Materia grasa untable > 62% de grasa, semisalada
+16594	Materia grasa untable > 41% de grasa y <= 62% de grasa, semisalada
+16595	Materia grasa untable > 41% de grasa y <= 62% de grasa, sin sal, con fitoesteroles
+16596	Materia grasa untable > 41% de grasa y <= 62% de grasa, sin sal, rica en omega 3
+16597	Materia grasa untable > 41% de grasa y <= 62% de grasa, semisalada, rica en omega 3
+16598	Materia grasa untable <= 41% de grasa, semisalada, con fitoesteroles
+16599	Materia grasa untable <= 41% de grasa, sin sal, rica en omega 3
+16600	Materia grasa untable <= 41% de grasa, semisalada, estándar
+16601	Materia grasa untable, % de grasa desconocido, sin sal (promedio)
+16602	Materia grasa untable, % de grasa desconocido, semisalada (promedio)
+16603	Materia grasa untable, % de grasa desconocido, sin sal, rica en omega 3 (promedio)
+16713	Materia grasa láctea untable 15-25% de grasa, light, untable, sin sal, fortificada con vitamina(s)
+17001	Aceite vegetal (promedio)
+17020	Aceite de carozo de damasco
+17030	Aceite de almendras
+17040	Aceite de maní
+17100	Aceite de palta
+17110	Aceite de germen de trigo
+17130	Aceite de colza
+17170	Aceite de semilla de algodón
+17180	Aceite de lino
+17190	Aceite de maíz
+17210	Aceite de avellanas
+17220	Aceite de nuez
+17270	Aceite de oliva, extra virgen
+17325	Aceite de semilla de amapola
+17350	Aceite de semilla de uva
+17390	Aceite de salvado de arroz
+17400	Aceite de sésamo
+17420	Aceite de soja
+17440	Aceite de girasol
+17630	Aceite de hígado de bacalao
+17640	Aceite de sardina
+17645	Aceite de salmón
+17650	Aceite de arenque
+17700	Aceite combinado (mezcla de aceites vegetales)
+17701	Aceite combinado (mezcla de aceite de oliva y aceites de semillas)
+17800	Aceite de camelina
+17850	Aceite de cáñamo
+17900	Aceite de argán
+18001	Bebida gaseosa o gaseosa, sin fruta, sin azúcares agregados y con edulcorante(s)
+18007	Cóctel sin alcohol (cóctel a base de jugos sin almíbar)
+18009	Agua mineral con gas, embotellada, de mineralización débil (promedio)
+18010	Limonada, con azúcar(es)
+18011	Agua de coco
+18012	Agua embotellada, saborizada, con azúcar(es)
+18013	Agua tónica, sin azúcares agregados, con edulcorantes
+18014	Agua tónica, con azúcar y edulcorantes
+18016	Limonada, con azúcar(es) y con edulcorante(s)
+18017	Sirope, para diluir, con azúcar
+18019	Bebida gaseosa o gaseosa de frutas, contenido de fruta >= 10% y < 50%, con azúcar(es)
+18021	Bebida sin gas, contenido de fruta <10%, sin azúcares agregados y con edulcorantes
+18022	Infusión, preparada, sin azúcares agregados
+18023	Bebida sin gas, contenido de fruta <10%, con azúcar
+18024	Bebida sin gas, contenido de fruta >= 10% y < 50%, con azúcar y con edulcorantes
+18026	Bebida gaseosa o gaseosa, sin fruta, con azúcar(es)
+18028	Agua embotellada, saborizada, sin azúcares agregados y sin edulcorante(s)
+18029	Bebida sin alcohol (promedio)
+18030	Agua embotellada, saborizada, sin azúcares agregados y con edulcorante(s)
+18033	Bebida gaseosa o gaseosa de frutas, contenido de fruta < 10%, con azúcar(es) y con edulcorante(s)
+18034	Bebida gaseosa o gaseosa de frutas, contenido de fruta >= 10% y < 50%, con azúcar(es) y con edulcorante(s)
+18035	Limonada, sin azúcares agregados, con edulcorante(s)
+18039	Limonada con almíbar con azúcar(es)
+18041	Leche de coco
+18044	Agua mineral (promedio)
+18045	Agua mineral sin gas, embotellada (promedio)
+18046	Agua mineral con gas, embotellada (promedio)
+18048	Bebida gaseosa o gaseosa de frutas (contenido de jugo de fruta sin especificar), con azúcar(es) (promedio)
+18049	Bebida gaseosa o gaseosa de frutas, contenido de fruta < 10%, con azúcar(es)
+18050	Bebida gaseosa o gaseosa de frutas, contenido de fruta < 10%, reducida en azúcar
+18051	Bebida gaseosa o gaseosa de frutas, contenido de fruta >= 10% y < 50%, sin azúcares agregados y con edulcorante(s)
+18057	Preparado para bebida diluido en agua (p. ej. menta, frutilla, etc.), sin azúcares agregados, con edulcorante(s), tipo almíbar 0%
+18058	Sirope (p. ej. menta, frutilla, etc.), con azúcar, diluido en agua
+18059	Concentrado para bebida (para diluir), sin azúcares agregados y con edulcorantes, tipo "sirope 0%"
+18066	Agua de red
+18067	Cola, con azúcar(es) y sin cafeína
+18068	Cola, sin azúcares agregados, con edulcorante(s) y sin cafeína
+18069	Café descafeinado, en polvo, instantáneo
+18070	Café descafeinado no instantáneo, sin azúcares agregados, listo para tomar
+18072	Café instantáneo descafeinado, sin azúcares agregados, listo para tomar
+18078	Bebida gaseosa o gaseosa, sin fruta, con azúcar(es) y con edulcorante(s)
+18107	Bebida de almendras, natural, sin azúcares agregados, sin fortificar, envasada
+18110	Bebida de almendras, con azúcar(es), fortificada con calcio, envasada
+18111	Bebida de almendras, envasada (promedio)
+18112	Bebida vegetal, envasada (promedio)
+18113	Bebida de soja, envasada (promedio)
+18152	Achicoria, en polvo, instantánea
+18161	Achicoria instantánea, sin azúcares agregados, lista para tomar (reconstituida con leche semidescremada estándar)
+18220	Especialidad de limón para diluir, para bebidas o uso culinario, sin azúcares agregados
+18294	Bebida sin gas, contenido de fruta <10%, con azúcar, refrigerada, fortificada con vitaminas
+18295	Bebida sin gas, contenido de fruta >= 10% y < 50%, con azúcar, fortificada con vitaminas
+18296	Bebida sin gas, con puré de fruta, tipo licuado, contenido de fruta >= 50%, fortificada con vitaminas
+18297	Bebida sin gas, contenido de fruta >= 50%, a temperatura ambiente, fortificada con vitaminas
+18298	Bebida sin gas, contenido de fruta >= 50%, a temperatura ambiente
+18299	Bebida sin gas, limonada, contenido de fruta >= 10% y < 50%, con azúcar
+18300	Bebida sin gas, con puré de fruta, tipo licuado, contenido de fruta >= 50%, sin azúcares agregados, refrigerada
+18304	Bebida sin gas, contenido de fruta >= 10% y < 50%, reducida en azúcar
+18305	Bebida sin gas, contenido de fruta >= 10% y < 50%, sin azúcares agregados
+18306	Bebida de aloe vera, con azúcar(es)
+18309	Bebida sin gas, contenido de fruta sin especificar, con azúcar
+18315	Bebida de frutas y verduras
+18316	Kéfir de agua o Tibicos, envasado
+18325	Bebida sin gas, contenido de fruta sin especificar, contenido de azúcar y edulcorantes sin especificar (promedio)
+18326	Agua embotellada, saborizada, contenido de azúcar y edulcorante sin especificar (promedio)
+18327	Limonada, contenido de azúcar y edulcorante desconocido (promedio)
+18328	Sirope (p. ej. menta, frutilla, etc.), contenido de azúcar sin especificar, diluido en agua (promedio)
+18329	Bebida gaseosa o gaseosa, sin fruta, contenido de azúcar y edulcorante sin especificar (promedio)
+18339	Bebida sin gas, contenido de fruta >= 10% y < 50%, con azúcar
+18340	Bebida gaseosa o gaseosa de frutas, contenido de fruta < 10%, sin azúcares agregados y con edulcorante(s)
+18341	Bebida gaseosa, contenido de manzana >= 50% y < 99%, sin azúcares agregados
+18343	Bebida sin gas con jugo de fruta y leche
+18344	Agua tónica, con azúcar
+18345	Bebida gaseosa o gaseosa de frutas, contenido de fruta < 10%, sin azúcares agregados y sin edulcorante(s)
+18347	Bebida de savia de abedul
+18348	Bebida deportiva, con azúcar(es)
+18349	Bebida deportiva con azúcares agregados, con azúcar(es)
+18356	Agua tónica, contenido de azúcar y edulcorantes sin especificar (promedio)
+18430	Agua de manantial, embotellada
+18899	Bebida de avena, natural, sin azúcar agregada, no fortificada, envasada
+18900	Bebida de soja, natural, no fortificada, envasada
+18901	Bebida de soja, natural, fortificada con calcio, envasada
+18902	Bebida de soja, saborizada, con azúcar(es), no fortificada, envasada
+18903	Bebida de soja, saborizada, con azúcar(es), fortificada con calcio, envasada
+18904	Bebida de arroz, natural, envasada
+18906	Bebida de castañas, natural, envasada
+18907	Bebida de coco, natural, envasada
+19000	Leche, a granel
+19010	Leche, entera, cruda
+19012	Leche para bebés, leche de crecimiento, lista para tomar
+19013	Leche para bebés, fórmula de inicio, lista para tomar
+19014	Leche para bebés, fórmula de continuación, lista para tomar
+19015	Leche para bebés, para bebé prematuro, lista para tomar
+19016	Leche, entera (promedio)
+19021	Leche en polvo, entera
+19023	Leche, entera, UHT
+19024	Leche, entera, pasteurizada
+19026	Leche condensada, sin azúcares agregados, entera
+19027	Leche condensada, con azúcar(es), entera
+19033	Leche, semidescremada (promedio)
+19037	Leche, semidescremada, UHT, fortificada con vitamina D
+19038	Leche, 1,2% de grasa, UHT, fortificada con vitaminas
+19039	Leche, contenido graso desconocido, UHT (promedio)
+19041	Leche, semidescremada, UHT
+19042	Leche, semidescremada, pasteurizada
+19044	Leche en polvo, semidescremada
+19050	Leche, descremada, UHT
+19051	Leche, descremada, pasteurizada
+19054	Leche en polvo, descremada
+19060	Leche, semidescremada, UHT, reducida en lactosa
+19114	Leche saborizada de vainilla, con azúcar, semidescremada, fortificada con vitamina D
+19120	Bebida láctea saborizada, con azúcar(es), semidescremada, fortificada con vitaminas y/o minerales (promedio)
+19127	Leche saborizada de frutilla, con azúcar, semidescremada, fortificada con vitamina D
+19200	Leche de cabra, entera, UHT
+19201	Leche de cabra, semidescremada, UHT
+19202	Leche de cabra, entera, cruda
+19225	Leche de yegua, entera
+19250	Leche de oveja, entera
+19270	Leche de búfala, entera
+19402	Crema de leche y similares, contenido de grasa sin especificar (promedio)
+19403	Crema de leche y similares, contenido de grasa sin especificar, fluida (promedio)
+19404	Crema de leche y similares, contenido de grasa sin especificar, espesa o semiespesa (promedio)
+19410	Crema de leche 30% de grasa, espesa, refrigerada
+19411	Crema de leche de Isigny, >= 35% de grasa
+19415	Crema de leche 30% de grasa, semiespesa, UHT
+19417	Crema de leche 30% de grasa, líquida, UHT
+19420	Crema chantilly en aerosol, UHT
+19430	Crema de leche, 12-25% de grasa, light, semiespesa, UHT
+19431	Crema de leche, 12-25% de grasa, light, espesa, refrigerada
+19432	Preparación a base de crema, light, 5% de grasa, fluida o espesa
+19433	Preparación a base de crema, light, alrededor de 4% de grasa, fluida o espesa
+19434	Preparación a base de crema con hierbas aromáticas 19% de grasa, para cocinar
+19435	Preparación a base de crema con hierbas aromáticas 12% de grasa, para cocinar
+19436	Crema de leche, 12-20% de grasa, light, fluida, refrigerada
+19437	Queso, empanado, para grillar, envasado, de leche de cabra
+19500	Bebida de leche fermentada, saborizada, con edulcorante(s), reducida en azúcar, 0% de grasa, con L Casei
+19501	Quark, natural o con frutas (promedio)
+19508	Bebida de leche fermentada, saborizada, con azúcar(es)
+19516	Bebida de leche fermentada, saborizada, con azúcar(es), con L Casei
+19534	Bebida de leche fermentada, saborizada, con azúcar(es), fortificada con vitamina D
+19535	Bebida de leche fermentada, con frutas, con azúcar(es)
+19536	Bebida de leche fermentada, con frutas, con azúcar(es), fortificada con vitamina D
+19538	Bebida de leche fermentada, natural, con azúcar(es), con L Casei
+19539	Leche fermentada, tipo yogur con bifidus, saborizada, con azúcar(es)
+19541	Leche fermentada, tipo yogur con bifidus, con frutas, 0% de grasa, con edulcorante(s)
+19542	Leche fermentada, tipo yogur con bifidus, con frutas, con azúcar(es)
+19543	Leche fermentada, tipo yogur con ésteres de esteroles, con frutas, 0% de grasa, con edulcorante(s)
+19544	Leche fermentada, tipo yogur con bifidus, natural, 0% de grasa
+19546	Leche fermentada, tipo yogur con bifidus, natural
+19550	Yogur estilo griego, de leche de oveja
+19551	Bebida de leche fermentada, saborizada, con azúcar(es), fortificada con vitamina D, con L Casei
+19552	Yogur estilo griego, sobre capa de fruta, con azúcar
+19553	Yogur de leche de oveja, saborizado, con azúcar
+19554	Yogur de leche de oveja, natural, alrededor de 3% de grasa
+19555	Yogur de leche de oveja, sobre capa de fruta, con azúcar
+19556	Yogur de leche de cabra, natural
+19557	Yogur o leche fermentada, sobre capa de fruta, con azúcar
+19559	Yogur o leche fermentada, saborizado, 0% grasa, con edulcorantes
+19572	Queso crema fresco, tipo petit-suisse, sabor chocolate, con azúcar(es)
+19574	Yogur o leche fermentada, saborizado, 0% grasa, con edulcorantes, fortificado con vitamina D
+19575	Yogur o leche fermentada, saborizado, con azúcar
+19577	Yogur o leche fermentada, saborizado, con crema, con azúcar
+19578	Yogur o leche fermentada, saborizado, con azúcar, fortificado con vitamina D
+19579	Yogur o leche fermentada, con cereales
+19580	Yogur o leche fermentada, con copos de chocolate, con crema, con azúcar
+19581	Yogur o leche fermentada, con frutas, 0% grasa, con edulcorantes
+19582	Yogur o leche fermentada, con frutas, 0% grasa, con edulcorantes, fortificado con vitamina D
+19584	Queso mascarpone, de leche de vaca
+19585	Ricota, de leche de vaca
+19587	Yogur o leche fermentada, con frutas, con azúcar
+19589	Yogur o leche fermentada, con frutas, con crema, con azúcar
+19590	Queso mozzarella, de leche de vaca
+19591	Queso mozzarella, de leche de búfala
+19592	Yogur o leche fermentada, con frutas, con azúcar, fortificado con vitamina D
+19593	Yogur o leche fermentada, natural
+19594	Yogur o leche fermentada, natural, 0% grasa
+19596	Yogur o leche fermentada, natural, 0% grasa, fortificado con vitamina D
+19598	Yogur o leche fermentada, natural, con crema
+19599	Yogur o leche fermentada, natural, con azúcar
+19600	Yogur o leche fermentada, natural (promedio)
+19624	Yogur o leche fermentada, natural o con frutas (promedio)
+19628	Yogur o leche fermentada, con frutas (promedio)
+19638	Queso fresco blando escurrido, con salsa de frutas
+19639	Queso fresco blando escurrido, 0% de grasa
+19641	Queso fresco blando escurrido, alrededor de 6% de grasa
+19643	Quark y crema batida, sobre una base de frutas, con azúcar(es)
+19644	Quark, natural, 0% de grasa
+19645	Quark, natural, 0% de grasa, fortificado con vitamina D
+19646	Quark, natural, 2-3% de grasa
+19648	Quark, natural, 2-3% de grasa, fortificado con vitamina D
+19650	Quark y crema batida, natural
+19654	Quark o especialidad láctea, con escamas de chocolate, 7-8% de grasa, con azúcar(es)
+19656	Quark o especialidad láctea, con frutas, 0% de grasa, con azúcar(es)
+19657	Quark o especialidad láctea, con frutas, 2-3% de grasa, con azúcar(es)
+19659	Quark o especialidad láctea, con frutas, 7-8% de grasa, con azúcar(es)
+19660	Quark o especialidad láctea, sobre una base de frutas, 7-8% de grasa, con azúcar(es)
+19663	Queso crema fresco, tipo petit-suisse, natural, 0% de grasa
+19664	Queso crema fresco, tipo petit-suisse, natural, alrededor de 4% de grasa
+19665	Mousse de queso crema fresco, sobre una capa de fruta, 0% de grasa, con edulcorante(s), fortificada con calcio y vitamina D
+19666	Queso crema fresco, tipo petit-suisse, natural, alrededor de 10% de grasa
+19669	Yogur rico en proteínas, sobre capa de fruta, con azúcar
+19671	Yogur o leche fermentada, con frutas o saborizado, 0% grasa (promedio)
+19672	Yogur o leche fermentada, con frutas o saborizado, sin reducción de grasa (promedio)
+19673	Postre de crema, reducido en grasa, refrigerado
+19674	Flan con huevos, refrigerado
+19675	Yogur o leche fermentada, con frutas o saborizado, con edulcorantes (promedio)
+19676	Yogur o leche fermentada, con frutas o saborizado, con azúcar (promedio)
+19677	Yogur o leche fermentada, con frutas o saborizado, sin reducción de grasa, con azúcar (promedio)
+19678	Postre de leche cuajada, saborizado, refrigerado
+19679	Postre de leche gelificado, saborizado, cubierto con salsa de caramelo, refrigerado
+19680	Postre de leche gelificado, saborizado, refrigerado
+19681	Crema (de chocolate, café, caramelo o vainilla) con crema batida por encima, refrigerada
+19682	Yogur o leche fermentada, con frutas o saborizado (promedio)
+19684	Flan de huevo, refrigerado
+19685	Panna cotta, con preparado de frutas o caramelo, refrigerada
+19686	Especialidad láctea o postre a base de leche, saborizado, reducido en grasa, con azúcar(es) y edulcorante(s), refrigerado
+19688	Baba al ron, refrigerado
+19691	Quark o especialidad láctea, con frutas, 0% de grasa, con edulcorante(s), con azúcar(es), fortificado con vitamina D
+19692	Postre de soja, con frutas, con azúcar(es), fortificado con calcio, fermentado, refrigerado
+19693	Postre de soja, natural, sin azúcares agregados, no fortificado, fermentado, refrigerado
+19694	Postre de soja, natural, sin azúcares agregados, fortificado con calcio, fermentado, refrigerado
+19695	Postre de soja, con frutas, con azúcar(es), no fortificado, fermentado, refrigerado
+19696	Postre de soja, con almendras, con azúcar(es), fortificado con vitaminas y minerales, refrigerado
+19697	Quark o especialidad láctea, saborizado, 0% de grasa, con edulcorante(s), con azúcar(es), fortificado con vitamina D
+19698	Tiramisú con café, refrigerado
+19699	Tiramisú con frutas, refrigerado
+19705	Quark o especialidad láctea, saborizado, 0% de grasa, con edulcorante(s), con azúcar(es)
+19707	Quark o especialidad láctea, sobre una base de frutas, 0% de grasa, con edulcorante(s), con azúcar(es), fortificado con vitamina D
+19708	Quark o especialidad láctea, sobre una base de frutas, 0% de grasa, con edulcorante(s), sin azúcares agregados, fortificado con vitamina D
+19709	Quark o especialidad láctea, saborizado, 0% de grasa, con edulcorante(s), sin azúcares agregados
+19711	Quark, natural, 7-8% de grasa
+19712	Quark de leche de oveja, natural, alrededor de 5% de grasa
+19713	Quark de leche de cabra, natural, alrededor de 7% de grasa
+19714	Quark o especialidad láctea, saborizado, 0% de grasa, con azúcar(es)
+19715	Quark o especialidad láctea, saborizado, 2-3% de grasa, con azúcar(es)
+19716	Quark, natural, 2-3% de grasa, con azúcar(es)
+19718	Quark o especialidad láctea, saborizado, 7-8% de grasa, con azúcar(es)
+19719	Queso crema fresco, tipo petit-suisse, con frutas, 2-3% de grasa, con azúcar(es)
+19720	Queso crema fresco, tipo petit-suisse, con frutas, 2-3% de grasa, con azúcar(es), fortificado con vitamina D
+19721	Queso crema fresco, tipo petit-suisse, saborizado, 2-3% de grasa, con azúcar(es)
+19722	Queso crema fresco, tipo petit-suisse, saborizado, 2-3% de grasa, con azúcar(es), fortificado con vitamina D
+19723	Yogur o leche fermentada, natural, fortificado con vitamina D
+19724	Yogur rico en proteínas, natural
+19725	Quark o especialidad láctea, sobre una base de frutas, 0% de grasa, con azúcar(es)
+19726	Yogur o leche fermentada, natural, con azúcar, fortificado con vitamina D
+19727	Yogur de leche de cabra, con frutas, con azúcar
+19728	Yogur de leche de cabra, sobre capa de fruta, con azúcar
+19733	Yogur o leche fermentada, sobre capa de fruta, con crema, con azúcar
+19801	Bebida de leche fermentada, natural, leche descremada
+19805	Bebida de leche fermentada, natural, leche entera
+19852	Mousse de castañas, refrigerada
+19860	Yogur estilo griego, natural
+19862	Yogur estilo griego, saborizado, con azúcar
+19863	Tzatziki, con yogur, envasado
+19864	Tzatziki, con quark, envasado
+19865	Kéfir de leche
+19882	Yogur de leche de oveja, natural, alrededor de 6% de grasa
+19999	Morrón, verde, amarillo o rojo, cocido (promedio)
+20000	Alcaucil, cocido
+20002	Berenjena, cocida
+20003	Remolacha, cocida
+20004	Acelga, tallo sin hojas, crudo
+20005	Acelga, tallo sin hojas, cocido
+20007	Zanahoria, enlatada, escurrida
+20009	Zanahoria, cruda
+20010	Hongos, todos los tipos, crudos
+20011	Hongos, todos los tipos, enlatados, escurridos
+20012	Escarola rizada, cruda
+20014	Repollo colorado, crudo
+20015	Repollo verde, cocido
+20016	Coliflor, cruda
+20017	Coliflor, hervida
+20018	Palmito, enlatado, escurrido
+20019	Pepino, pulpa y piel, crudo
+20020	Zapallito, pulpa y piel, crudo
+20021	Zapallito, pulpa y piel, cocido
+20022	Berro, crudo
+20023	Apio (tallo), crudo
+20025	Apio nabo, cocido
+20026	Achicoria, cruda
+20027	Espinaca, cocida
+20028	Hinojo, crudo
+20029	Poroto mung, brotes, enlatados, escurridos
+20030	Chauchas, cocidas
+20031	Lechuga, cruda
+20033	Nabo, cocido
+20034	Cebolla, cruda
+20035	Cebolla, cocida
+20036	Arvejas, enlatadas, escurridas
+20037	Arvejas, cocidas
+20038	Diente de león, crudo
+20039	Puerro, crudo
+20040	Puerro, cocido
+20041	Morrón verde, amarillo o rojo, crudo
+20044	Zapallo, crudo
+20045	Rabanito, crudo
+20046	Salsifí, cocido
+20048	Tomate pelado, en lata, escurrido
+20049	Choclo, en la mazorca, cocido
+20050	Topinambur, cocido
+20051	Verduras mixtas en cubos, enlatadas, escurridas
+20052	Alcaucil, crudo
+20053	Berenjena, cruda
+20054	Cardo, crudo
+20055	Apio nabo, crudo
+20056	Champiñón o champiñón cultivado, crudo
+20057	Brócoli, crudo
+20058	Repollitos de Bruselas, crudos
+20059	Espinaca, cruda
+20060	Espinaca, enlatada, escurrida
+20061	Chauchas, crudas
+20062	Chauchas, enlatadas, escurridas
+20063	Porotos manteca o porotos amarillos, enlatados, escurridos
+20064	Nabo, pelado, crudo
+20065	Colinabo, crudo
+20066	Choclo, enlatado, escurrido
+20067	Alcaucil, enlatado, escurrido
+20068	Pasta de tomate, concentrada, en lata
+20069	Repollo verde, crudo
+20070	Chauchas, congeladas, crudas
+20071	Chauchas, congeladas, cocidas
+20072	Arvejas, crudas
+20074	Alcaucil, al vapor
+20076	Espárragos, enlatados, escurridos
+20077	Repollitos de Bruselas, enlatados, escurridos
+20078	Apio (tallo), enlatado, escurrido
+20079	Champiñón o champiñón cultivado, enlatado, escurrido
+20081	Salsifí, enlatado, escurrido
+20082	Coliflor, congelada, cruda
+20083	Espinaca, congelada, cruda
+20084	Arvejas, congeladas, crudas
+20085	Morrón verde, crudo
+20086	Morrón verde, cocido
+20087	Morrón rojo, crudo
+20088	Morrón rojo, cocido
+20089	Rábano negro, crudo
+20090	Escarolas, crudas
+20091	Remolacha, cruda
+20092	Zanahoria, deshidratada
+20093	Arvejas y zanahorias, enlatadas, escurridas
+20094	Colinabo, hervido/cocido en agua
+20095	Repollo colorado, hervido/cocido en agua
+20096	Zapallo, cocido
+20097	Echalote, cruda
+20099	Canónigos, crudos
+20101	Verduras mixtas, congeladas, crudas
+20102	Champiñón o champiñón cultivado, hervido/cocido en agua
+20103	Rebozuelo o girolla, crudo
+20105	Morilla, cruda
+20106	Trufa negra, cruda
+20108	Choclo, en la mazorca, congelado, crudo
+20111	Acedera, cruda
+20114	Hongo ostra, crudo
+20116	Repollo blanco, crudo
+20118	Hinojo, hervido/cocido en agua
+20119	Tomate verde, crudo
+20123	Lechuga, var. batavia, cruda
+20124	Arvejas, congeladas, cocidas
+20125	Champiñón o champiñón cultivado, salteado en sartén, sin grasa agregada
+20127	Verdolaga, hoja, cruda
+20128	Zapallo (cucurbita moschata), pulpa sin piel, crudo
+20132	Zapallo kuri rojo, pulpa sin piel, crudo
+20134	Zapallo Hokkaido dulce, pulpa sin cáscara, crudo
+20135	Fondue de puerros o puerros cocidos a fuego lento, envasados
+20136	Zapallo melonnette jaspée de Vendée, pulpa sin piel, crudo
+20137	Tomate pelado, en lata, en jugo, sólidos y líquido
+20138	Zapallo butternut, pulpa sin piel, crudo
+20139	Zapallo, todos los tipos, crudo
+20141	Zapallo butternut, pulpa sin piel, hervido
+20143	Zapallo espagueti, pulpa sin piel, cocido
+20145	Zapallo espagueti, pulpa sin piel, crudo
+20151	Ají, crudo
+20155	Alcaucil, corazón, enlatado, escurrido
+20156	Alcaucil, base, enlatado, escurrido
+20158	Espinaca de Nueva Zelanda, cocida
+20159	Hongo de los Césares o amanita de los Césares, crudo
+20160	Hongo porcini o boleto, crudo
+20161	Champiñón silvestre, crudo
+20162	Endibia roja, cruda
+20163	Escarola verde, cruda
+20165	Rutabaga o nabo sueco, cocido
+20166	Zapallo, pulpa sin piel, crudo
+20167	Repollo chino (napa), crudo
+20168	Morrón amarillo, crudo
+20169	Pulpa de tomate sin piel, en lata
+20170	Puré de tomate, en lata
+20171	Lechuga romana, cruda
+20172	Tomate cherry, crudo
+20173	Arveja china, cruda
+20180	Cebolla, deshidratada
+20181	Chirivía, cruda
+20183	Poroto mung, brotes, crudos
+20188	Brotes de bambú, enlatados, escurridos
+20189	Tomate, seco
+20192	Tomate corazón de buey, crudo
+20194	Porotos alubia con salsa de tomate, enlatados
+20195	Porotos manteca o porotos amarillos, crudos
+20196	Topinambur, crudo
+20197	Salsifí negro, crudo
+20198	Brotes de bambú, crudos
+20199	Berro de jardín, crudo
+20200	Lechuga americana (iceberg), cruda
+20201	Rutabaga o nabo sueco, crudo
+20202	Hongo oreja de nube, seco
+20203	Porotos manteca o porotos amarillos, congelados, crudos
+20204	Brócoli, congelado, crudo
+20206	Repollitos de Bruselas, congelados, crudos
+20208	Zanahoria, congelada, cruda
+20210	Pepino, pulpa sin piel, crudo
+20211	Hongo shiitake, deshidratado
+20212	Hongo shiitake, cocido
+20214	Arvejas y zanahorias, congeladas, crudas
+20216	Arveja china, hervida/cocida en agua
+20217	Rúcula, cruda
+20218	Kale rizado, crudo
+20219	Kale rizado, cocido
+20221	Repollo chino (napa), salteado en sartén, sin grasa agregada
+20228	Champiñón o champiñón cultivado, congelado, crudo
+20230	Zapallito, pulpa y piel, congelado, crudo
+20231	Alcauciles chinos o japoneses, congelados, crudos
+20232	Alcaucil, base, congelado, crudo
+20233	Choclo, congelado, crudo
+20234	Nabo, congelado, crudo
+20235	Cebolla, congelada, cruda
+20236	Puerro, congelado, crudo
+20237	Salsifí, congelado, crudo
+20238	Cebolla morada, cruda
+20239	Cebolla amarilla, cruda
+20240	Piperade, estilo vasco (fondue de morrones y tomates con cebolla y ajo), envasada
+20241	Cardo, cocido
+20242	Tomate, pulpa y piel, hervido/cocido en agua
+20243	Arveja china, cocida
+20246	Frasco de comida para bebés con verduras, desde los 4-6 meses
+20247	Frasco de comida para bebés con verduras y almidón, desde los 4-6 meses
+20248	Comida para bebés, verduras y almidón, desde los 6-8 meses
+20249	Comida para bebés, verduras con leche/crema y almidón, desde los 6-8 meses
+20250	Comida para bebés, verduras con leche/crema y almidón, desde los 8-12 meses
+20251	Comida para bebés, verduras con leche/crema y almidón, desde los 12 meses
+20252	Sopa para bebés, con verduras y papas
+20253	Sopa para bebés, con verduras, cereales y leche
+20254	Comida para bebés, verduras con leche/crema y almidón, desde los 18 meses
+20255	Echalote, cocida
+20256	Tomate, seco, en aceite
+20257	Chauchas, puré
+20258	Verduras (3-4 tipos), en puré
+20259	Brócoli, puré
+20260	Pisado de tomate, en lata (puré de tomate semirreducido 11%)
+20261	Zanahorias, puré
+20262	Verduras salteadas en sartén sin hongos, condimentadas, congeladas, crudas
+20263	Verduras mixtas para sopas, congeladas, crudas
+20264	Zapallito, puré
+20265	Verduras cortadas finas o en cubos, congeladas, crudas
+20266	Verduras mixtas para ratatouille, congeladas
+20267	Verduras primavera, congeladas, crudas (arvejas, papas, chauchas, zanahorias, cebollas)
+20268	Pasta de tomate, doble concentrado, en lata
+20269	Chaucha plana, cruda
+20270	Espinaca, hojas tiernas para ensalada, cruda
+20271	Verduras mixtas en cubos, precocidas, para volver a cocinar, congeladas
+20272	Mesclun o ensaladas, mezcla de hojas tiernas
+20273	Verduras salteadas en sartén o wok, condimentadas, estilo asiático, congeladas, crudas
+20274	Verduras salteadas en sartén o wok, condimentadas, estilo mediterráneo, congeladas, crudas
+20275	Morrón rojo, en lata, escurrido
+20276	Tomate redondo, crudo
+20277	Espárragos, blancos, hervidos/cocidos en agua
+20278	Apio nabo, puré
+20279	Espárragos, verdes, crudos
+20280	Coliflor romanesco o brócoli romanesco, crudo
+20282	Espárragos, blancos o violetas, pelados, crudos
+20283	Salicornia (Salicornia sp.), fresca, cruda
+20284	Arvejas, puré
+20288	Lechuga sucrine, cruda
+20289	Tomate, pulpa y piel, asado/al horno
+20290	Coliflor romanesco o brócoli romanesco, cocido
+20291	Zapallo kuri rojo, pulpa sin piel, braseado
+20292	Zapallo (cucurbita moschata), pulpa sin piel, cocido
+20293	Porotos coco, hervidos/cocidos en agua
+20295	Lechuga, hoja de roble, cruda
+20296	Repollo chino o bok choy, tallos y hojas, al vapor, de la isla de La Reunión (Brassica rapa subsp. Chinensis)
+20297	Chayote, sin piel, sin carozo, al vapor, muestreado en la isla de La Reunión (Sechium edule)
+20298	Zanahorias, puré condimentado con crema, envasado
+20299	Espárragos, verdes, hervidos/cocidos en agua
+20300	Berenjena, pulpa y piel, asada/al horno
+20301	Acelga, hoja y tallo, hervida/cocida en agua
+20302	Brócoli, hervido/cocido en agua, crocante
+20303	Brócoli, hervido/cocido en agua, tierno
+20304	Brócoli, al vapor
+20305	Zanahoria, hervida/cocida en agua, crocante
+20306	Zanahoria, hervida/cocida en agua, tierna
+20307	Zanahoria, al vapor
+20308	Repollo blanco, hervido/cocido en agua
+20309	Repollitos de Bruselas, hervidos/cocidos en agua
+20310	Repollo colorado, braseado
+20311	Repollo verde, hervido/cocido en agua
+20312	Coliflor, al vapor
+20313	Zapallito, pulpa y piel, asado/al horno
+20314	Apio (tallo), braseado
+20315	Apio nabo, hervido/cocido en agua
+20316	Achicoria, asada/al horno
+20317	Hinojo, braseado
+20318	Porotos manteca o porotos amarillos, hervidos/cocidos en agua
+20320	Chauchas, hervidas/cocidas en agua
+20321	Nabo, hervido/cocido en agua
+20322	Cebolla blanca o amarilla, salteada en sartén, sin grasa agregada
+20323	Cebolla de verdeo, salteada en sartén, sin grasa agregada
+20324	Cebolla morada, salteada en sartén, sin grasa agregada
+20325	Chirivía, braseada
+20326	Arvejas, hervidas/cocidas en agua
+20327	Puerro, hervido/cocido en agua
+20328	Morrón amarillo, salteado en sartén, sin grasa agregada
+20329	Morrón rojo, salteado en sartén, sin grasa agregada
+20330	Morrón verde, salteado en sartén, sin grasa agregada
+20331	Zapallo kuri rojo, pulpa sin piel, hervido/cocido en agua
+20332	Zapallo, asado/al horno
+20333	Salsifí, hervido/cocido en agua
+20335	Echalote, salteada en sartén, sin grasa agregada
+20336	Espinaca, hervida/cocida en agua
+20337	Salchicha vegetal con tofu (vegana), envasada
+20338	Salchicha vegetal con tofu (no vegana), envasada
+20339	Repollo chino, pak choi, cocido
+20340	Repollo chino, pak choi, crudo
+20343	Tomate marmande, crudo
+20344	Tomate black krim, crudo
+20345	Tomate largo, crudo
+20346	Kale, crudo
+20347	Vainas de moringa, crudas
+20348	Hojas de moringa, crudas
+20349	Espárragos, hervidos/cocidos en agua (promedio)
+20350	Brócoli, hervido/cocido en agua (promedio)
+20351	Brócoli, cocido (promedio)
+20352	Zanahoria, hervida/cocida en agua (promedio)
+20353	Zanahoria, cocida (promedio)
+20354	Apio (tallo), cocido (promedio)
+20355	Repollo colorado, cocido (promedio)
+20356	Hinojo, cocido (promedio)
+20357	Zapallo kuri rojo, pulpa sin piel, cocido (promedio)
+20358	Tomate, pulpa y piel, cocido (promedio)
+20359	Lenteja, seca (promedio)
+20360	Lenteja, hervida/cocida en agua (promedio)
+20385	Tomate, crudo (promedio)
+20496	Verduras mixtas para cuscús, congeladas, crudas
+20497	Verduras mixtas para cuscús, cocidas
+20498	Verduras con hongos, salteadas en sartén o wok, condimentadas, estilo campestre, congeladas
+20499	Verdura, cocida (promedio)
+20500	Habas, hervidas/cocidas en agua
+20501	Porotos alubia, secos
+20502	Porotos alubia, hervidos/cocidos en agua
+20503	Poroto rojo, hervido/cocido en agua
+20506	Arvejas partidas, hervidas/cocidas en agua
+20507	Garbanzos, hervidos/cocidos en agua
+20508	Poroto flageolet, enlatado, escurrido
+20510	Lenteja, condimentada, enlatada, escurrida
+20511	Porotos alubia, enlatados, escurridos
+20513	Poroto flageolet, hervido/cocido en agua
+20515	Arvejas partidas, secas
+20516	Garbanzos, secos
+20517	Habas, para desgranar, frescas, crudas
+20518	Habas, secas
+20521	Semillas de lenteja, germinadas, frescas, crudas
+20524	Poroto rojo, enlatado, escurrido
+20525	Poroto rojo, seco
+20527	Poroto gandul, inmaduro, fresco, crudo
+20529	Poroto de Lima, crudo
+20530	Porotos mung, maduros, semillas, secos
+20531	Poroto mung, fresco, hervido/cocido en agua
+20532	Garbanzos, enlatados, escurridos
+20534	Lupín, semilla, seco
+20535	Lenteja, rosada o roja, seca
+20537	Poroto flageolet, fresco, congelado, crudo
+20539	Poroto flageolet, verde, seco
+20540	Poroto flageolet, verde, hervido/cocido en agua
+20541	Habas, peladas, frescas, congeladas, crudas
+20542	Habas, peladas, frescas, congeladas, hervidas/cocidas en agua
+20543	Habas, frescas, congeladas, hervidas/cocidas en agua
+20584	Tomate en rama, crudo
+20585	Lenteja, verde, seca
+20586	Lenteja, rubia, seca
+20587	Lenteja, verde, hervida/cocida en agua
+20588	Lenteja, rubia, hervida/cocida en agua
+20589	Lenteja, rosada o roja, hervida/cocida en agua
+20590	Alcauciles chinos o japoneses, cocidos
+20591	Proteína de soja, texturizada, rehidratada
+20700	Legumbres, cocidas (promedio)
+20800	Banana amarilla, pulpa sin cáscara, al vapor, de la isla de La Martinica
+20801	Zapallo (variedad local), chips, muestreado en la isla de La Martinica
+20802	Zapallo (variedad phoenix), chips, muestreado en la isla de La Martinica
+20803	Col caribeña, pulpa, al vapor, muestreada en la isla de La Martinica
+20804	Chayote, piel blanca, pulpa sin piel, sin carozo, al vapor, muestreado en la isla de La Martinica
+20805	Chayote, piel verde, pulpa sin piel, sin carozo, al vapor, muestreado en la isla de La Martinica
+20806	Chayote, piel blanca, pulpa sin piel, sin carozo, enlatado, sólidos y líquido, muestreado en la isla de La Martinica
+20807	Chayote, piel blanca, pulpa y piel, sin carozo, al vapor, congelado, muestreado en la isla de La Martinica
+20808	Pepino, pulpa sin piel, con semillas, crudo, muestreado en la isla de La Martinica
+20809	Pepino, pulpa y piel, crudo, muestreado en la isla de La Martinica
+20810	Berro, hoja, crudo, de la isla de La Martinica
+20811	Malanga (dachine), pulpa, al vapor, muestreada en la isla de La Martinica
+20812	Harina de batata, de la isla de La Martinica
+20813	Fruta del pan, pulpa sin piel, al vapor, muestreada en la isla de La Martinica
+20814	Zapallo (variedad local), pulpa sin piel, al vapor, muestreado en la isla de La Martinica
+20815	Zapallo (variedad local), pulpa sin piel, al vapor, congelado, muestreado en la isla de La Martinica
+20816	Zapallo (variedad local), pulpa sin piel, rallado, crudo, muestreado en la isla de La Martinica
+20817	Zapallo (variedad phoenix), pulpa sin piel, al vapor, muestreado en la isla de La Martinica
+20818	Zapallo (variedad phoenix), pulpa sin piel, rallado, crudo, muestreado en la isla de La Martinica
+20819	Zapallo (variedad phoenix), pulpa sin piel, congelado, al vapor, muestreado en la isla de La Martinica
+20820	Okra, entera, enlatada, sólidos y líquidos, muestreada en la isla de La Martinica
+20821	Okra, entera, enlatada, al vapor, muestreada en la isla de La Martinica
+20822	Okra, pulpa sin pedúnculo, blanqueada, congelada, muestreada en la isla de La Martinica
+20823	Ñame cousse-couche, pulpa, al vapor, de la isla de La Martinica
+20824	Ñame amarillo, pulpa, al vapor, de la isla de La Martinica
+20825	Ñame St Martin, pulpa, al vapor, de la isla de La Martinica
+20826	Topinambur, pulpa, al vapor, muestreado en la isla de La Martinica
+20827	Kamanioc, pulpa, al vapor, muestreado en la isla de La Martinica
+20828	Massissi, pulpa, cruda, muestreado en la isla de La Martinica
+20829	Papaya verde, pulpa sin piel, cruda, de la Martinica
+20830	Papaya verde, pulpa sin piel, al vapor, muestreada en la isla de La Martinica
+20831	Batata, pulpa, blanqueada, congelada, de la isla de La Martinica
+20832	Batatas, pulpa, al vapor, de la isla de La Martinica
+20833	Poroto gandul, entero, al vapor, muestreado en la isla de La Martinica
+20834	Ti nain (banana pequeña), pulpa sin cáscara, al vapor, de la isla de La Martinica
+20835	Tomate entero, crudo, de la isla de La Martinica
+20901	Soja, semilla, entera
+20903	Proteína de soja
+20904	Tofu, natural, envasado
+20906	Tofu sedoso, envasado
+20911	Postre de soja, saborizado, con azúcar(es), fortificado con calcio, refrigerado
+20912	Tofu ahumado, envasado
+20914	Hamburguesa o bife vegetal de soja
+20915	Harina de soja, integral
+20916	Miso
+20917	Tempeh
+20918	Almíbar para frutas en lata
+20919	Almíbar light para frutas enlatadas
+20921	Postre de soja, saborizado, con azúcar(es), no fortificado, refrigerado
+20922	Postre vegetal (almendra, avena, cáñamo, coco, arroz), saborizado, con azúcar(es), no fortificado, refrigerado
+20923	Postre vegetal (coco, arroz), con frutas, con azúcar(es), fortificado con calcio, fermentado, refrigerado
+20924	Almíbar light para peras enlatadas
+20925	Postre de soja, saborizado, con azúcar(es), fortificado con calcio y vitamina D, refrigerado
+20926	Postre de soja, con frutas, con azúcar(es), fortificado con calcio y vitamina D, fermentado, refrigerado
+20927	Postre vegetal (almendra, avena, cáñamo, coco, arroz), natural, sin azúcares agregados, no fortificado, refrigerado
+20928	Postre vegetal sin soja, refrigerado (promedio)
+20929	Postre de soja, refrigerado (promedio)
+20982	Alga espirulina (spirulina sp.), fresca, cruda
+20983	Alga hinojo marino, fresca, cruda
+20985	Lechuga de mar (Ulva sp.), seca o deshidratada
+20986	Alga Saccharina latissima, seca o deshidratada
+20987	Alga nori (Porphyra sp.), seca o deshidratada
+20988	Dulse (Palmaria palmata), seca o deshidratada
+20989	Lithothamnion (Lithothamnion), seco o deshidratado
+20990	Kombu o alga kelp japonesa (Saccharina japonica), seca o deshidratada
+20991	Alga kombu (Laminaria digitata), seca o deshidratada
+20992	Alga Himanthalia elongata, seca o deshidratada
+20993	Algas Gracilaria (Gracilaria sp.), secas o deshidratadas
+20994	Alga Fucus (Fucus serratus y vesiculosus), seca o deshidratada
+20995	Lechuga de mar (Ulva sp.), seca o deshidratada
+20996	Musgo de Irlanda (Chondrus crispus), seco o deshidratado
+20997	Chlorella, seca o deshidratada
+20998	Alga parda del Atlántico Norte (Ascophyllum nodosum), seca o deshidratada
+20999	Wakame atlántico (Alaria esculenta), seco o deshidratado
+21001	Cordero adulto, carne, cruda
+21003	Cordero adulto, paleta, cruda
+21004	Oveja, pata, cruda
+21005	Oveja, cabeza, cruda
+21006	Cordero adulto, pierna, cruda
+21007	Cordero adulto, pierna, asada/al horno
+21500	Cordero, chuleta, cruda
+21501	Chuleta de cordero, a la parrilla/salteada en sartén
+21502	Cordero, pierna, cruda
+21503	Cordero, pierna, asada/al horno
+21504	Cordero, paleta, cruda
+21505	Cordero, paleta, magra, cruda
+21506	Cordero, paleta, asada/al horno
+21507	Cordero, paleta, magra, asada/al horno
+21508	Cordero, cuello, braseado o hervido
+21509	Cordero, filete de chuleta, a la parrilla/salteado en sartén
+21512	Cordero, chuleta de costilla, a la parrilla/salteada en sartén
+21513	Cordero, silla, magra, asada/al horno
+21514	Cordero, cuello, crudo
+21515	Cordero, silla, cruda
+21516	Cordero, filete de chuleta, crudo
+21517	Cordero, chuleta de costilla, cruda
+21518	Cordero, pierna, a la parrilla/salteada en sartén
+21519	Cordero, pierna, braseada
+21520	Cordero, silla, magra, a la parrilla/salteada en sartén
+21521	Cordero, chuleta, cruda (promedio)
+21522	Cordero, chuleta, cocida (promedio)
+21523	Cordero, carne, cocida (promedio)
+21524	Cordero, chuleta, a la parrilla/salteada en sartén (promedio)
+21525	Cordero, costillar, crudo
+21800	Carne de cabrito, cruda
+21801	Carne de cabrito, cocida
+22000	Huevo, crudo
+22001	Clara de huevo, cruda
+22002	Yema de huevo, cruda
+22003	Yema de huevo, en polvo
+22004	Clara de huevo, en polvo
+22008	Clara de huevo, cocida
+22009	Yema de huevo, cocida
+22010	Huevo, duro
+22011	Huevo, poché
+22013	Huevo, en polvo
+22014	Huevo, pasado por agua
+22050	Huevo de codorniz, crudo
+22060	Huevo de pato, crudo
+22070	Huevo de ganso, crudo
+22080	Huevo de pava, crudo
+22500	Tortilla de huevos, simple, casera
+22502	Huevo, revuelto, con grasa agregada
+22505	Huevo, frito, sin grasa agregada
+22506	Tortilla de huevos con queso, casera
+22507	Tortilla de huevos con tiras de panceta, casera
+22508	Tortilla de huevos con hongos, casera
+22509	Tortilla de huevos con hierbas, casera
+22510	Tortilla española con cebollas (tortilla de papas y cebollas), envasada
+22511	Tortilla de huevos con verduras, queso o carne (promedio)
+23000	Torta (promedio)
+23001	Cheesecake, envasado
+23005	Profiterol con crema pastelera sabor praliné
+23006	Bizcochuelo con chocolate, con o sin cerezas, "torta Selva Negra"
+23007	Bizcochuelo con mousse de frutas
+23008	Postre, tipo torta Ópera
+23009	Bizcochuelo relleno y cubierto con frutillas o frambuesas
+23021	Baba al ron, de panadería
+23022	Torta canelé
+23023	Kouign amann, torta de masa de leche con manteca y caramelizada, envasada
+23024	Macaron relleno de mermelada o crema
+23027	Macaron, galletita, seco
+23030	Tronco de Navidad (torta)
+23031	Brownie (torta de chocolate), con nueces, envasado
+23032	Brownie (torta de chocolate), envasado
+23033	Torta de coco en forma de roca (rocher), envasada
+23050	Bizcochuelo estilo saboyano
+23080	Budín de manteca, tradicional
+23081	Budín de manteca, envasado
+23082	Budín, envasado
+23103	Torta blanda, con limón, envasada
+23120	Budín bretón relleno de ciruelas pasas, envasado
+23121	Budín bretón con ciruelas pasas
+23122	Kouign amann, torta de masa de leche con manteca y caramelizada, de panadería
+23200	Pan de jengibre, envasado
+23220	Pan de jengibre relleno, envasado
+23300	Baklava (masa oriental con almendras y almíbar)
+23301	Cuerno de gacela (masa oriental con almendras, en forma de media luna y cubierta de azúcar impalpable)
+23399	Masa quebrada, envasada, cocida (promedio)
+23402	Masa de pizza de masa fina, envasada, cruda
+23410	Masa quebrada, con grasa vegetal, envasada, cruda
+23412	Masa quebrada, con grasa vegetal, envasada, cocida
+23414	Masa quebrada, de manteca pura, envasada, cruda
+23415	Masa quebrada, de manteca pura, congelada, envasada, cruda
+23416	Masa quebrada, de manteca pura, envasada, cocida
+23420	Hojaldre, con grasa vegetal, envasado, crudo
+23424	Hojaldre, de manteca pura, envasado, crudo
+23425	Hojaldre, de manteca pura, congelado, envasado, crudo
+23426	Hojaldre, de manteca pura, envasado, cocido
+23430	Khatfa (láminas de masa filo), envasada, cocida en seco, sin grasa
+23440	Masa sablée, envasada, cruda
+23442	Masa sablée, envasada, cocida
+23444	Masa sablée, de manteca pura, envasada, cruda
+23445	Masa filo, cruda
+23446	Masa sablée, de manteca pura, congelada, envasada, cruda
+23448	Masa sablée, de manteca pura, envasada, cocida
+23455	Profiterol relleno de crema (chantillí o pastelera)
+23456	Profiterol relleno de crema chantillí
+23457	Profiterol relleno de crema pastelera
+23467	Profiterol, con azúcar por encima
+23472	Profiteroles (masa choux), con helado de vainilla y salsa de chocolate
+23474	Profiteroles (masa choux) con crema pastelera y salsa de chocolate, refrigerados
+23477	Eclair
+23479	Tarta de frutas con crema pastelera
+23480	Pastelito de manzana
+23481	Tarta de manzana con crema pastelera (harina, huevos, crema, azúcar, alcohol de manzana), de panadería
+23485	Tarta de limón
+23490	Tarta de manzana
+23491	Tarta de frutillas, de panadería
+23493	Apple crumble, envasado
+23494	Tarta de damascos
+23495	Tarta de frutos rojos
+23496	Tarta Tatin (tarta de manzana caramelizada invertida)
+23497	Tarta de chocolate, de panadería
+23498	Tarta de frutas (promedio)
+23525	Tarta flan con huevos
+23531	Charlotte de frutas
+23534	Budín de sémola con pasas de uva y salsa de caramelo, refrigerado
+23536	Arroz con leche con salsa de caramelo, refrigerado
+23540	Torta moka
+23585	Torta de chocolate, envasada
+23586	Torta blanda de chocolate, envasada
+23588	Torta de yogur, envasada
+23594	Torta blanda, simple, tipo bizcochuelo, envasada
+23680	Rosca de Reyes (hojaldre relleno de compota de manzana)
+23684	Rosca de Reyes (hojaldre relleno de pasta de almendras)
+23799	Panqueque, simple, envasado, refrigerado
+23800	Panqueque, simple, envasado, a temperatura ambiente
+23801	Panqueque de trigo sarraceno, simple, para rellenar, envasado
+23802	Pastel vasco (masa sablée), con crema pastelera
+23803	Pastel vasco (masa sablée), con cerezas
+23804	Panqueque relleno de chocolate y bolitas de cereal, envasado
+23805	Blinis
+23815	Panqueque relleno de azúcar, envasado
+23820	Panqueque relleno de mermelada, casero
+23821	Panqueque relleno de chocolate o crema de chocolate y avellanas, casero
+23827	Panqueque, con azúcar(es), envasado
+23828	Panqueque relleno de crema de chocolate y avellanas, envasado
+23829	Panqueque relleno de chocolate, envasado
+23830	Panqueque relleno de frutilla, envasado
+23849	Galletita oblea fina rellena de miel, caramelo o azúcar rubia blanda, envasada
+23850	Waffle, de panadería, natural
+23851	Waffle blando (estilo belga), simple o con azúcar(es), envasado
+23852	Waffle blando (estilo belga), con chocolate, envasado
+23853	Galletita oblea crujiente (fina o seca), natural o con azúcar, envasada
+23880	Dona, simple, espolvoreada con azúcar
+23881	Dona rellena de fruta (p. ej. mermelada), envasada-> ARCHIVE
+23885	Dona rellena o cubierta de chocolate o de crema de chocolate y avellanas, envasada
+23900	Pastelería (promedio)
+23909	Torta de frutas (frutas confitadas y/o pasas de uva), envasada
+23925	Torta marmolada, envasada
+23935	Torta blanda, simple, envasada
+23937	Torta blanda, con frutas, envasada
+23938	Torta blanda con nueces, envasada
+23939	Torta blanda rellena de chocolate, envasada
+23941	Torta blanda rellena de frutas, tipo mini brazo gitano, envasada
+23943	Torta blanda, con chips de chocolate, envasada
+23944	Torta blanda rellena de chocolate y con cobertura de chocolate, envasada
+23945	Torta blanda rellena de chocolate y leche, con cobertura de chocolate, envasada
+23951	Muffin, con frutas (p. ej. arándanos), envasado
+23952	Muffin, con chocolate, envasado
+24000	Galletita
+24001	Galletita, simple
+24002	Galletita, contenido de vitaminas garantizado
+24003	Galletita, contenido de vitaminas y minerales garantizado
+24004	Galletita con frutas, baja en sal
+24006	Galletita de soja, fortificada con vitaminas y minerales
+24008	Galletita rellena de frutas, reducida en grasa
+24009	Galletita speculoos
+24010	Galletita, con grasa vegetal
+24011	Galletita, surtido
+24012	Galletita, con chocolate, sin azúcares agregados y con edulcorante(s), fortificada con vitaminas
+24013	Galletita, sin azúcares agregados y con edulcorante(s)
+24014	Galletita, con cobertura de barra de chocolate, relleno de leche
+24015	Galletita de manteca
+24016	Galletita, con cobertura de barra de chocolate
+24017	Galletita de manteca, con chocolate (chips o cobertura de chocolate)
+24018	Galletita de manteca, sin gluten
+24019	Galletita, con chocolate, sin gluten
+24020	Galletita de cereales integrales
+24021	Galletita de manteca, integral
+24028	Galletita, con sésamo, sin fortificar
+24029	Galletita, con sésamo, fortificada con vitaminas y minerales
+24031	Galletita, sin chocolate, reducida en grasa
+24034	Galletita de desayuno, sin chocolate, sin fortificar
+24035	Galletita de desayuno, reducida en azúcar
+24036	Galletita, con chocolate, sin fortificar
+24037	Galletita rellena de pasta de frutas o puré de frutas
+24038	Galletita, con cobertura de chocolate
+24040	Galletita de desayuno, con chocolate, sin fortificar
+24041	Galletita de desayuno, fortificada con vitaminas y minerales
+24042	Galletita con cereales, fortificada con vitaminas y minerales
+24048	Galletita, shortbread, comercial, con grasa vegetal
+24049	Galletita shortbread, con manteca
+24050	Galletita shortbread, con manteca y chocolate
+24051	Galletita de bizcochuelo, con cobertura de chocolate, envasada
+24052	Galletita (tartaleta pequeña), con cobertura de chocolate, envasada
+24054	Galletita shortbread, con frutas
+24056	Galletita florentina (galletita de chocolate con almendras)
+24057	Galletita shortbread, con relleno de fruta, tipo "lunette"
+24061	Galletita de merengue, rellena (chocolate, avellana, coco...) con cobertura o base de chocolate
+24070	Galletita con coco
+24071	Galletita sablée, de panadería
+24224	Galletita de chocolate, con relleno de vainilla, redonda, blanca y negra
+24225	Galletita, snack con relleno lácteo o de vainilla
+24230	Galletita, snack con relleno de chocolate, integral
+24231	Galletita, snack con relleno de chocolate
+24240	Galletita, snack con relleno de frutas
+24300	Galletita oblea sin relleno
+24311	Galletita oblea rellena o bañada en chocolate
+24312	Galletita oblea con relleno de frutos secos (avellana, almendra, praliné, etc.), con chocolate o no, envasada
+24313	Galletita oblea con relleno de vainilla
+24320	Galletita oblea con relleno de fruta
+24370	Galletita oblea o crepe dentelle, natural
+24371	Galletita oblea, crepe dentelle, bañada en chocolate
+24430	Galletita, vainillas o bizcochos de soletilla
+24441	Galletita, tipo lengua de gato
+24520	Merengue
+24614	Galletita, dura, con almendras (p. ej. canistrelli)
+24615	Galletita, fina, con almendras
+24616	Galletita, fina, sabor limón o naranja
+24630	Magdalenas, de manteca pura, envasadas
+24631	Magdalenas, con chocolate, envasadas
+24632	Magdalenas, envasadas
+24654	Galletita, de avena, con cobertura de chocolate
+24655	Galletita, de avena, simple
+24656	Galletita, cookie, arándanos rojos y chocolate blanco, envasada
+24657	Galletita, palito, con cobertura de chocolate
+24658	Galletita de hojaldre, con cobertura de chocolate
+24659	Galletita de hojaldre, envasada
+24660	Galletita de hojaldre, palmera, de panadería
+24663	Tarta de peras con almendras
+24664	Bizcocho de almendras, financier, envasado
+24666	Milhojas
+24674	Torta blanda, sin chocolate, sin gluten, envasada
+24675	Torta blanda, con chocolate, sin gluten, envasada
+24676	Galletita, con chocolate y frutos secos, envasada
+24678	Galletita de bizcochuelo con cobertura de frutas, envasada
+24679	Galletita (tartaleta pequeña), con cobertura de fruta, envasada
+24680	Torta blanda, rellena de pasta de naranja y cobertura de glaseado de azúcar
+24684	Galletita, con chocolate, envasada
+24685	Cono, de oblea para helado
+24686	Galletita de bizcochuelo, rellena de frutas y con cobertura de chocolate
+24687	Galletita, con chips de chocolate y coco, envasada
+24689	Galletita para bebés
+24998	Pescado blanco con salsa, envasado (promedio)
+24999	Postre (promedio)
+25001	Blanquette de ternera (guiso de ternera en salsa blanca), envasada
+25002	Guiso de porotos blancos, en lata
+25003	Chucrut, con guarnición (fiambres cocidos), envasado
+25009	Pastel de papa (shepherd's pie) con carne, envasado
+25010	Panceta salada con lentejas, envasada
+25013	Carne hervida con verduras, envasada
+25018	Ratatouille, condimentada, envasada
+25019	Ravioles rellenos de carne, en salsa de tomate, enlatados
+25020	Soufflé de queso
+25026	Espinaca con salsa de crema, envasada
+25029	Cuscús con cordero
+25031	Paella, envasada
+25033	Estofado de carne vacuna a la borgoñona, envasado
+25035	Salteado de cordero al curry, envasado
+25037	Pescado o mariscos gratinados, para cocinar, envasados, crudos
+25038	Pescado y camarones gratinados, envasado, cocido
+25043	Cuscús con carne o pollo, reducido en grasa, envasado
+25052	Berenjena gratinada, envasada
+25056	Papas gratinadas a la crema estilo Delfinado, envasadas
+25057	Papas prefritas, salteadas en sartén, con trocitos de panceta o pollo, sin verduras verdes, envasadas
+25058	Pato con salsa (salsa de pimienta verde, salsa cazadora, etc.), envasado
+25063	Conejo con salsa de mostaza, envasado
+25065	Estofado de carne vacuna con zanahorias, envasado
+25071	Guiso de salchichas de cerdo con repollo, zanahorias y papas
+25073	Endivia con jamón en salsa, envasada
+25077	Salmón con acedera, envasado
+25081	Lasaña o canelones de carne (salsa bolognesa), envasados
+25085	Pasta a la boloñesa (espaguetis, tallarines...), envasada
+25086	Pescado blanco con salsa bordelesa, envasado
+25088	Arroz cantonés, envasado
+25089	Escalope de ternera cordon bleu (escalope cubierto con una feta de jamón y queso, empanado, envasado)
+25098	Guiso de porotos blancos con cerdo, en lata
+25099	Guiso de porotos blancos con pato o ganso, en lata
+25101	Coliflor gratinada, envasada
+25103	Tomates rellenos, envasados
+25106	Repollo relleno, envasado
+25107	Cuscús con pescado
+25108	Samosas o samosas o masa filo rellena, envasadas, cocidas
+25110	Dumplings al vapor, con camarones, cocidos
+25111	Chili con carne, envasado
+25121	Gallito en salsa de vino tinto
+25122	Pasta con jamón gratinada, envasada
+25123	Musaka, envasada
+25124	Guiso de cordero con papas y otras verduras
+25125	Paupiette de ternera
+25126	Paupiette de ave
+25127	Cuscús real (con diferentes carnes), envasado
+25128	Pescado blanco con salsa provenzal (salsa de tomate), envasado
+25131	Lasaña o canelones de verduras, envasados
+25135	Pasta a la carbonara (espaguetis, tallarines...), envasada
+25137	Tartiflette (fondue de queso con papas, queso reblochon, trocitos de panceta…), envasada
+25138	Cuscús con pollo
+25139	Lasaña o canelones de pescado, envasados
+25140	Pescado blanco con salsa a la florentina (salsa de espinaca), envasado
+25141	Pescado blanco con chalotas, mejillones y salsa de vino blanco, envasado
+25142	Pescado blanco con salsa de mostaza, envasado
+25143	Pescado blanco con salsa a la parisina (salsa de hongos), envasado
+25145	Pescado blanco con salsa de estragón, envasado
+25146	Pescado blanco con salsa de acedera, envasado
+25149	Pasta fresca rellena de queso (p. ej. ravioles), envasada, cocida
+25150	Cuscús con verduras, envasado
+25151	Pescado o mariscos en hojaldre, envasado, para cocinar
+25152	Cuscús con carne, envasado
+25154	Brandada de pescado o pastel de pescado, envasado
+25155	Pasta fresca rellena de queso y verduras (p. ej. ravioles), cocida, envasada
+25157	Pasta fresca rellena de carne (p. ej. ravioles a la boloñesa), envasada, cruda
+25158	Pasta fresca rellena de carne (p. ej. ravioles a la boloñesa), envasada, cocida
+25159	Tajín de cordero adulto, envasado
+25162	Verduras gratinadas, envasadas
+25163	Albóndigas, de carne vacuna, cocidas
+25164	Osobuco de ternera (con verduras y vino blanco), casero
+25169	Especialidad china o dumplings, envasados
+25172	Carne en salsa (promedio)
+25173	Milanesa de ternera o milanesa de ternera empanada
+25174	Pollo con salsa de curry y leche de coco, envasado
+25175	Molokhia, plato a base de carne vacuna con malva de yute (o yute nalta), casero
+25181	Pasta fresca rellena de queso (p. ej. ravioles), envasada, cruda
+25182	Pasta fresca rellena de queso y verduras (p. ej. ravioles), envasada, cruda
+25183	Fideos con camarones, envasados, salteados/en sartén, sin grasa agregada
+25186	Albóndigas, de cerdo y carne vacuna (estilo sueco), envasadas, crudas
+25187	Risotto de verduras, envasado
+25188	Risotto de mariscos, envasado
+25189	Risotto de quesos, envasado
+25190	Pollo a la vasca, envasado
+25192	Ravioles rellenos de verduras, en salsa de tomate, enlatados
+25193	Pasta fresca rellena de verduras (p. ej. ravioles), envasada, cocida
+25194	Albóndigas, de carne vacuna y cordero (tipo kefta), envasadas, crudas
+25195	Pastel de papa (shepherd's pie) con pato, envasado, para cocinar
+25196	Riste (berenjena, tomates, cebollas), envasado
+25198	Pasta con salsa de queso (espaguetis, tallarines…), envasada
+25199	Rösti de verduras, prefrito, congelado
+25200	Paleta de cerdo a la diabla en salsa de mostaza, envasada
+25201	Lengua de vaca con salsa de vino Madeira, envasada
+25203	Pasta fresca rellena de verduras (p. ej. ravioles), envasada, cruda
+25204	Tajine de pollo, envasado
+25205	Chop suey (cerdo o pollo, verduras), envasado
+25207	Cerdo con salsa de caramelo, envasado
+25208	Rösti de verduras, prefrito, congelado, cocido
+25210	Salmón relleno, envasado
+25211	Albóndigas, de carne vacuna, con salsa de tomate, envasadas
+25213	Paupiette de ternera, envasada, asada/al horno
+25216	Pasta (p. ej. ravioles), rellena, cocida (promedio)
+25217	Hojas de parra rellenas de arroz o dolmas, escurridas, envasadas
+25219	Lasaña o canelones de verduras y queso de cabra, envasados, cocidos
+25220	Chucrut, condimentado y cocido con trocitos de panceta, sin guarnición, escurrido, cocido
+25221	Albóndigas, de carne vacuna y cordero (tipo kefta), envasadas, cocidas
+25222	Albóndigas, de cerdo y carne vacuna (estilo sueco), envasadas, cocidas
+25223	Hamburguesa o bocadito de soja y trigo (vegano), envasado
+25224	Hamburguesa o bocadito de soja y trigo (no vegano), envasado
+25225	Nuggets a base de trigo, croqueta empanada (sin soja), envasados
+25226	Nuggets de soja y trigo, croqueta empanada (no vegano), envasados
+25227	Nuggets de soja y trigo, croqueta empanada (vegano), envasados
+25228	Milanesa de soja y trigo (no vegano), envasada
+25229	Milanesa o bastón de soja y trigo (vegano), envasado
+25230	Milanesa de soja, trigo y queso, estilo cordon bleu, envasada
+25231	Ravioles rellenos de tofu, en salsa de tomate, envasados
+25232	Salchicha vegetal con trigo o seitán, envasada
+25233	Hamburguesa de cereales con queso (sin soja), envasada
+25234	Hamburguesa de cereales con verduras (sin soja), envasada
+25238	Verduras gratinadas, caseras
+25242	Paella, casera
+25243	Fideos estilo asiático, instantáneos, saborizados, cocidos
+25396	Hojaldre de jamón y queso, envasado
+25398	Hojaldre de queso, envasado, para cocinar
+25399	Caracoles en masa de hojaldre, envasados
+25400	Tostado de jamón y queso con manteca, casero
+25401	Hojaldre de queso, envasado, cocido
+25402	Hojaldre de carne, envasado
+25403	Pancho (hot dog), envasado
+25404	Pizza de queso y tomate (Margherita), envasada
+25405	Quiche Lorraine (quiche de huevos y tiras de panceta), envasada
+25409	Panqueque o crepe de trigo sarraceno, relleno de jamón, envasado
+25410	Panqueque o crepe de trigo sarraceno, relleno de queso, jamón y salsa bechamel, envasado
+25411	Panqueque o crepe de trigo sarraceno, relleno de champiñones y salsa bechamel, envasado, congelado
+25412	Vol-au-vent de carne/ave/quenelle
+25413	Hamburguesa, de comida rápida
+25414	Cheeseburger, de comida rápida
+25415	Cheeseburger, doble, de comida rápida
+25416	Hamburguesa de pescado, de comida rápida
+25417	Tarta de verduras, envasada
+25418	Medialuna (croissant) rellena de jamón y queso, casera
+25419	Arrollado primavera
+25428	Sándwich, pan pita, kebab y verduras crudas
+25429	Sándwich, baguette, kebab y verduras crudas
+25431	Sándwich, baguette, atún, verduras crudas y mayonesa, casero
+25433	Buñuelos de pescado estilo caribeño, acras de pescado, envasados
+25434	Sándwich, pan panini, jamón crudo, queso mozzarella y tomate, tostado
+25435	Pizza de jamón y queso, envasada
+25437	Bocadito de masa choux con queso
+25438	Samosas o samosas o masa filo rellena, caseras, cocidas
+25444	Tarta de queso, envasada
+25454	Tarta provenzal, envasada
+25456	Sushi o maki, con productos de mar
+25457	Pizza a la boloñesa con carne, envasada
+25459	Burritos de carne vacuna
+25460	Fajitas, preparadas en casa a partir de kit
+25462	Pizza de chorizo o salame, envasada
+25463	Pizza de mariscos, envasada
+25464	Pizza de salmón, envasada
+25468	Pizza de queso de cabra y tiras de panceta, envasada
+25472	Pizza de verduras o (4 estaciones), envasada
+25475	Sándwich, baguette, jamón, huevo duro, verduras crudas y manteca
+25476	Sándwich, baguette, pollo, verduras crudas y mayonesa, casero
+25477	Pizza de queso y hongos, envasada
+25478	Pizza de quesos, envasada
+25485	Sándwich, baguette, jamón y queso emmental, envasado
+25488	Sándwich, baguette, salmón ahumado y manteca
+25490	Sándwich, baguette, atún, choclo y verduras crudas, envasado
+25501	Sándwich, pan panini, tres quesos, tostado
+25502	Hamburguesa de pollo, de comida rápida
+25503	Vol-au-vent de pescado y mariscos, casero
+25504	Brochette de ave, cruda
+25505	Brochette de carne vacuna, cruda
+25506	Brochette de carnes mixtas
+25508	Hojaldre de jamón y queso, casero
+25509	Preparado para fondue de queso estilo saboyano (queso, vino blanco …), envasado
+25510	Ñoquis, de papa, cocidos
+25511	Verduras rellenas (excepto tomate)
+25512	Nuggets de ave, croqueta empanada, envasados
+25513	Sándwich redondo grande con lechuga, atún, anchoa y aceitunas negras
+25516	Pizza (promedio)
+25517	Sándwich, baguette, jamón y manteca, casero
+25518	Sándwich, baguette, queso camembert y manteca, casero
+25519	Sándwich, baguette, paté y pepinillos
+25520	Sándwich, baguette, salame seco y manteca, casero
+25521	Sándwich, baguette, jamón, queso emmental y manteca
+25522	Sándwich (promedio)
+25523	Canapés (tostadas saladas con diversas coberturas), envasados
+25524	Tomate a la provenzal (tomates empanados rellenos de ajo y perejil), casero
+25525	Salsa de tomate para pizza
+25528	Pizza de cebolla, anchoa y aceitunas negras, envasada
+25529	Tarta de cebolla, envasada
+25530	Sándwich, baguette, verduras crudas y mayonesa
+25531	Sándwich, baguette, pavo, verduras crudas y mayonesa
+25532	Sándwich, baguette, huevo, verduras crudas y mayonesa
+25533	Sándwich, baguette, cerdo, verduras crudas y mayonesa
+25535	Sándwich, baguette, salchicha merguez, kétchup y mostaza
+25536	Sándwich, baguette, salame y manteca
+25537	Carpaccio de salmón, con marinada, casero
+25538	Carpaccio de carne vacuna, con marinada (aceite, hierbas, queso), casero
+25539	Brochette de pescado
+25540	Brochette de camarones
+25541	Brochette de cordero
+25542	Tostado de jamón y queso con huevo frito, casero
+25543	Sándwich de baguette (promedio)
+25546	Queso con jamón, empanado, envasado
+25547	Tostado de jamón y queso, envasado
+25548	Pizza de jamón, queso y hongos (Regina), envasada
+25549	Panqueque o crepe de trigo sarraceno, relleno de queso y salsa bechamel, envasado
+25550	Tarta flambée (tarta fina de cebolla con crema y panceta en tiras), envasada
+25551	Buñuelos de carne, aves o pescado, caseros, cocidos
+25552	Panqueque o crepe de trigo sarraceno, relleno de queso, jamón, champiñones y salsa bechamel, envasado
+25553	Tarta de puerro, envasada
+25555	Tarta de salmón, envasada
+25556	Buñuelos de verduras
+25557	Buñuelo relleno de huevos (masa filo), casero, cocido
+25558	Masa brick con carne vacuna, casera, cocida
+25559	Buñuelo relleno de papas (masa filo), casero, cocido
+25560	Tarta salada (cerdo, vino riesling, hongos), envasada
+25561	Tarta de tomate, envasada
+25562	Panqueque o crepe de trigo sarraceno, relleno de huevo, jamón y queso, envasado
+25564	Tarta de vieiras, envasada
+25565	Yakitori (carne a la parrilla en brochetas, estilo japonés, con salsa)
+25566	Brochette de cerdo, cruda
+25568	Pastilla rellena de pollo (tarta), envasada
+25570	Pizza de tiras de panceta, cebollas y queso, envasada
+25571	Falafel, para llevar
+25572	Panqueque o crepe de trigo sarraceno, relleno de vieiras, envasado
+25573	Tarta salada (promedio)
+25575	Sándwich, club, pan integral, atún y verduras crudas, envasado
+25576	Sándwich, club, pan integral, jamón y queso, envasado
+25577	Sándwich, club, pan integral, pollo y verduras crudas, envasado
+25578	Hojaldre, salado (promedio)
+25580	Vol-au-vent relleno (promedio)
+25581	Panqueque o crepe de trigo sarraceno, relleno de champiñones y salsa bechamel, envasado, cocido
+25582	Rollito de huevo o nem, con pollo, envasado, cocido
+25583	Rollito de huevo o nem, con cerdo, envasado, cocido
+25584	Rollito de huevo o nem, con camarones y/o cangrejo, envasado, cocido
+25585	Brochette de carne vacuna, cocida
+25586	Brochette de ave, cocida
+25587	Pastel de papa (shepherd's pie) con pato, envasado, cocido
+25588	Verduras gratinadas con salsa bechamel, envasadas, cocidas
+25589	Bolita vegetal de trigo y/o soja, envasada
+25590	Falafel, envasado
+25591	Hamburguesa o bife vegetal de lentejas, soja y verduras, envasado
+25592	Hamburguesa o bife vegetal de trigo (seitán) y verduras, envasado
+25593	Hamburguesa o bife vegetal de trigo y soja (vegano), envasado
+25594	Hamburguesa o bife vegetal de trigo y soja (no vegano), envasado
+25595	Hamburguesa o bife vegetal de soja y queso, envasado
+25596	Hamburguesa o bife vegetal de soja y verduras, envasado
+25597	Hamburguesa o bife vegetal de soja, queso y verduras, envasado
+25598	Seitán, envasado
+25599	Sándwich, club, pan integral, jamón, envasado
+25600	Ensalada de apio nabo, con salsa remoulade, envasada
+25601	Ensalada de atún con verduras, en lata
+25602	Ensalada mixta, con carne/pescado, enlatada
+25604	Ensalada verde, cruda, sin condimentar
+25605	Champiñones marinados a la griega, envasados
+25606	Ensalada de papas, casera
+25608	Ensalada tabulé o de cuscús, con verduras, envasada
+25609	Ensalada de papas, estilo piamontesa, envasada
+25610	Ensalada de hocico de vaca, con salsa, envasada
+25614	Ensalada de arroz, enlatada
+25615	Ensalada de pasta, vegetariana, con salsa
+25616	Verduras crudas, sin aderezo (promedio)
+25619	Ensalada de pasta, con verduras y carne/pescado, con salsa, envasada
+25620	Guacamole, envasado
+25621	Hummus, envasado
+25623	Tarta (flamiche), queso Maroilles, envasada
+25624	Caviar de berenjena, envasado
+25625	Panqueque o crepe de trigo sarraceno, relleno de pescado y/o mariscos, envasado
+25626	Ensalada de verduras mixtas en cubos, con salsa, envasada
+25628	Ensalada César (ensalada, pollo, crutones, salsa), envasada
+25629	Ensalada vegetariana, a base de bulgur y/o quinoa, con verduras, envasada
+25632	Sándwich, baguette, atún, verduras crudas y mayonesa, de comida rápida
+25633	Sándwich, baguette, jamón y manteca, para llevar
+25634	Sándwich, baguette, jamón y queso emmental, para llevar
+25635	Lasaña o canelones de queso de cabra y espinaca, envasados
+25638	Sándwich, baguette, pollo, verduras crudas y mayonesa, para llevar
+25639	Sándwich, baguette, salame seco y manteca, para llevar
+25640	Sándwich, baguette, queso camembert y manteca, para llevar
+25641	Sándwich, club, pan integral, salame seco, envasado
+25642	Ensalada de apio nabo y zanahoria rallados, con salsa remoulade, envasada
+25643	Hamburguesa de pollo, envasada
+25644	Cheeseburger, envasado
+25645	Sándwich, club, pan integral, panceta y verduras crudas, envasado
+25646	Sándwich, wrap, vegetariano
+25647	Sándwich, wrap, pollo y verduras crudas
+25648	Sándwich, wrap, jamón y verduras crudas
+25649	Panqueque o crepe de trigo sarraceno, relleno de panceta en tiras y queso de cabra, envasado
+25650	Sándwich, club, pan integral, atún, huevo y verduras crudas, envasado
+25651	Sándwich, club, pan integral, salmón ahumado, envasado
+25652	Sándwich, club, pan integral, jamón, huevo y verduras crudas, envasado
+25653	Sándwich, club, pan integral, jamón, queso y verduras crudas, envasado
+25654	Sándwich, club, pan integral, jamón y verduras crudas, envasado
+25655	Sándwich, pan vienés, jamón, huevo y verduras crudas, envasado
+25656	Sándwich, pan vienés, atún, huevo y verduras crudas, envasado
+25657	Sándwich, pan vienés, pollo, huevo y verduras crudas, envasado
+25658	Sándwich, pan vienés, pollo y verduras crudas, envasado
+25659	Sándwich, pan polar, pollo y verduras crudas, envasado
+25660	Sándwich, pan polar, salmón, envasado
+25661	Sándwich, pan polar, jamón y queso, envasado
+25662	Sándwich, club, pan integral, pollo, envasado
+25663	Sándwich, baguette, pollo, verduras crudas, envasado
+25664	Ensalada de papas, con atún, envasada
+25665	Ensalada de papas, con salchicha, envasada
+25666	Ensalada mixta con verduras crudas, fiambre y queso, con salsa, envasada
+25667	Ensalada mixta con verduras crudas y productos de pescado, con salsa, envasada
+25668	Ensalada mixta con verduras crudas, huevo y productos de pescado, con salsa, envasada
+25669	Ensalada mixta con verduras crudas, pollo y queso, con salsa, envasada
+25670	Ensalada mixta con verduras crudas y pollo, con salsa, envasada
+25671	Pizza de queso de cabra, envasada
+25674	Rollito de huevo o nem, envasado, cocido (promedio)
+25900	Sopa de lentejas, envasada, para recalentar
+25901	Sopa de pollo y verduras, envasada, para recalentar
+25903	Sopa de verduras mixtas, envasada, para recalentar
+25904	Sopa de pescado y/o crustáceos, envasada, para recalentar
+25905	Sopa de verduras mixtas, deshidratada y reconstituida
+25907	Sopa de puerro y papa, envasada, para recalentar
+25908	Sopa de pollo y fideos finos, envasada, para recalentar
+25909	Caldo, de carne y verduras, deshidratado y reconstituido
+25910	Sopa de cebolla, envasada, para recalentar
+25912	Sopa de hongos, envasada, para recalentar
+25913	Sopa de zanahorias, envasada, para recalentar
+25914	Sopa de tomate, envasada, para recalentar
+25915	Sopa chorba frik, con carne y frik
+25916	Sopa minestrone, envasada, para recalentar
+25917	Sopa pistou, deshidratada y reconstituida
+25919	Sopa de pescado y/o crustáceos, deshidratada y reconstituida
+25923	Sopa estilo asiático con fideos, deshidratada y reconstituida
+25924	Sopa marroquí, deshidratada y reconstituida
+25925	Sopa de puerro y papa, deshidratada y reconstituida
+25928	Sopa de pollo y verduras, deshidratada y reconstituida
+25930	Caldo, de carne vacuna, deshidratado y reconstituido
+25932	Sopa de espárragos, deshidratada y reconstituida
+25933	Sopa de tomate y fideos finos, envasada, para recalentar
+25934	Sopa de cereales y verduras, deshidratada y reconstituida
+25935	Sopa de tomate, deshidratada y reconstituida
+25936	Sopa de hongos, deshidratada y reconstituida
+25942	Sopa de cebolla, deshidratada y reconstituida
+25945	Sopa de zapallo, envasada, para recalentar
+25947	Caldo, de pollo, deshidratado y reconstituido
+25948	Caldo, de verduras, deshidratado y reconstituido
+25949	Sopa de tomate y fideos finos, deshidratada y reconstituida
+25950	Sopa de pollo y fideos finos, deshidratada y reconstituida
+25953	Sopa pistou, envasada, para recalentar
+25954	Sopa de zapallo, deshidratada y reconstituida
+25955	Sopa estilo asiático con fideos, envasada, para recalentar
+25956	Sopa minestrone, deshidratada y reconstituida
+25957	Sopa de berro, deshidratada y reconstituida
+25958	Sopa de berro, envasada, para recalentar
+25962	Sopa de verduras con queso, envasada, para recalentar
+25963	Sopa de verduras verdes, envasada, para recalentar
+25964	Sopa de verduras verdes, deshidratada y reconstituida
+25965	Sopa de arvejas partidas, envasada, para recalentar
+25967	Sopa tipo gazpacho, fría, envasada
+25968	Sopa de espárragos, envasada, para recalentar
+25969	Sopa (promedio)
+25970	Caldo, de carne y verduras, con grasa, deshidratado
+25971	Caldo, de carne y verduras, desgrasado, deshidratado
+25972	Sopa de miso, deshidratada, reconstituida
+25973	Sopa de verduras y fideos finos, deshidratada y reconstituida
+25974	Sopa de verduras y fideos finos, envasada, para recalentar
+25975	Sopa de carne vacuna y fideos finos, deshidratada y reconstituida
+25976	Sopa estilo asiático con pollo y fideos, envasada, para recalentar
+25990	Mahi-mahi, filete, cocido
+25991	Mahi-mahi, filete, crudo
+25992	Salmón, ahumado, con especias
+25993	Salmón, ahumado, marinado con eneldo y limón
+25994	Caballa, filete a la parrilla, enlatada en salsa, escurrida
+25996	Salmón, cocido (promedio)
+25997	Bacalao, cocido (promedio)
+25998	Arenque del Atlántico, ahumado
+25999	Anchoa, filetes, enrollados con alcaparras, salados, en aceite, semiconservados, escurridos
+26000	Anchoa, filetes, marinados en aceite, semiconservados, escurridos
+26001	Lubina americana, cruda
+26002	Solla europea, empanada, frita
+26003	Solla europea, al vapor
+26004	Huevas de lumpo, semiconservadas
+26005	Caviar, semiconservado
+26006	Abadejo de Alaska, crudo
+26008	Eglefino, al vapor
+26009	Fletán del Atlántico, crudo
+26010	Arenque del Atlántico, marinado, o rollmops, envasado
+26011	Arenque del Atlántico, crudo
+26012	Arenque del Atlántico, frito
+26013	Arenque del Atlántico, ahumado, enlatado en salmuera
+26014	Arenque del Atlántico, a la parrilla/salteado en sartén sin grasa agregada
+26015	Carbonero, cocido
+26016	Lenguado limón, empanado, frito
+26017	Lenguado limón, al vapor
+26018	Rape, crudo
+26019	Caballa, asada/al horno
+26020	Caballa, frita
+26021	Merlán, frito
+26022	Merlán, al vapor
+26023	Bacalao, asado/al horno
+26024	Bacalao, salado, hervido/cocido en agua
+26025	Bacalao, al vapor
+26026	Mújol, asado/al horno
+26027	Sardina, en salsa de tomate, enlatada, escurrida
+26028	Nuggets de pescado, croquetas empanadas, envasados
+26029	Pescado, empanado, congelado, crudo
+26030	Pescado, empanado, frito, envasado
+26031	Raya, asada/al horno
+26033	Pintarroja, cocida
+26034	Sardina europea, en aceite, enlatada, escurrida
+26035	Sardina europea, en salsa de tomate, enlatada, escurrida
+26036	Salmón, crudo, de criadero
+26037	Salmón, ahumado
+26038	Salmón, al vapor
+26039	Atún en salmuera, en lata, escurrido
+26040	Sardina europea, en aceite de oliva, enlatada, escurrida
+26041	Atún, asado/al horno
+26042	Rodaballo, salvaje, crudo
+26043	Bacalao, crudo
+26044	Merluza europea, cruda
+26046	Surimi, en palitos, en rodajas o rallado, sabor cangrejo
+26047	Carbonero, congelado, crudo
+26048	Merluza, filete, congelado, crudo
+26051	Caballa, cruda
+26052	Raya, cruda
+26053	Atún, crudo
+26055	Solla europea, cruda
+26056	Huevas de bacalao, ahumadas, semiconservadas
+26057	Limanda común, cruda
+26058	Lenguado común, crudo
+26059	Lenguado común, al vapor
+26060	Lenguado común, asado/al horno
+26061	Lenguado común, hervido/cocido en agua
+26062	Lenguado común, frito
+26063	Rascacio espinoso, crudo
+26064	Atún aleta amarilla, crudo
+26065	Sardina europea, cruda
+26068	Bonito listado, crudo
+26069	Atún rojo del Atlántico, crudo
+26072	Lubina europea, cruda
+26073	Raya, cocida en caldo aromático
+26074	Pintarroja, cruda
+26075	Lubina atlántica, cruda
+26076	Atún blanco, crudo
+26077	Atún blanco, cocido al vapor a presión
+26079	Anchoa, cruda
+26080	Dorada, salvaje, cruda
+26081	Rape, a la parrilla/salteado en sartén sin grasa agregada
+26082	Pez espada, crudo
+26083	Eperlano de estanque, crudo
+26084	Gallo, crudo
+26085	Salmonete, crudo
+26086	Caballa, filete, en salsa de tomate, enlatada, escurrida
+26087	Caballa, ahumada
+26088	Dorada, cruda, de criadero
+26090	Eglefino, ahumado
+26091	Mújol, crudo
+26092	Trucha de mar, cruda
+26093	Pez espada, asado/al horno
+26094	Rodaballo, asado/al horno
+26095	Merlán, crudo
+26096	Caballa, filete, en salsa de mostaza, enlatada, escurrida
+26097	Caballa, filete en vino blanco, enlatada, escurrida
+26098	Bacalao, salado, seco
+26099	Dorada negra, cruda
+26100	Boga, cruda
+26101	Bonito, crudo
+26102	Caballa del Atlántico, cruda
+26103	Dentón común, crudo
+26104	Pez de San Pedro, crudo
+26106	Rubio, crudo
+26107	Corvina parda, cruda
+26108	Capelán, crudo
+26109	Besugo de mancha negra, crudo
+26110	Salmonete, al vapor
+26111	Salpa, cruda
+26113	Jurel, crudo
+26119	Salmón, enlatado, escurrido
+26120	Merluza europea, braseada
+26122	Eglefino, crudo
+26123	Caballa, filete (a la parrilla o no), enlatada en salmuera, escurrida
+26124	Merlán, empanado
+26125	Bacalao del Pacífico, crudo
+26126	Eglefino, a la parrilla/salteado en sartén sin grasa agregada
+26127	Congrio, crudo
+26128	Granadero de nariz redonda, crudo
+26129	Abadejo, crudo
+26130	Maruca, cruda
+26133	Faneca, cruda
+26134	Carbonero, crudo
+26135	Lenguado limón, crudo
+26136	Sardina europea, a la parrilla/salteada en sartén sin grasa agregada
+26140	Pescado, cocido (promedio)
+26141	Hígado de bacalao, crudo
+26142	Hígado de bacalao, enlatado, escurrido
+26146	Pargo, crudo
+26147	Pargo, cocido
+26148	Rascacio espinoso, al vapor
+26151	Huevas de trucha, en lata
+26152	Abadejo de Alaska, ahumado
+26153	Pez sable, crudo
+26154	Fletán negro, crudo
+26157	Jurel de aleta amarilla, crudo
+26159	Jurel ojón, crudo
+26161	Salmón, salvaje, crudo
+26162	Tiburón, crudo
+26166	Aguja, cruda
+26168	Lumpo, crudo
+26170	Brema, cruda
+26171	Salvelino ártico, crudo
+26172	Pez lobo manchado, crudo
+26173	Espadín europeo, crudo
+26174	Rodaballo, crudo
+26175	Coregono europeo, crudo
+26177	Anchoa, filetes, salados, en aceite, semiconservados, escurridos
+26178	Mero, crudo
+26179	Atún blanco, en aceite de oliva, enlatado, escurrido
+26180	Atún, rodaja entera, en aceite de girasol, en lata, escurrido
+26181	Atún aleta amarilla, en salmuera, en lata, escurrido
+26186	Caballa, marinada
+26192	Abadejo de Alaska, cocido
+26194	Maruca azul, cruda
+26200	Lenguado, crudo
+26201	Rodaballo, de criadero, crudo
+26205	Lubina, cruda, salvaje
+26206	Lubina, cruda, de criadero
+26208	Rape (Lophius budegassa), crudo
+26210	Gallineta dorada, cruda
+26211	Salmón, cocido en microondas, de criadero
+26213	Granadero, de cualquier zona de pesca, crudo
+26214	Merluza azul, cruda
+26217	Salmón, hervido/cocido en agua, de criadero
+26219	Rubio (Chelidonichthys lucerna), crudo
+26222	Dorada negra, asada/al horno
+26223	Salmón coho, crudo
+26229	Salmón, a la parrilla/salteado en sartén sin grasa agregada
+26230	Salmón de criadero, asado/al horno
+26231	Sardina europea, filetes sin espinas, en aceite de oliva, enlatados, escurridos
+26232	Arenque del Atlántico, ahumado, en aceite
+26233	Merluza del Cabo de aguas poco profundas, congelada, cruda
+26234	Maruca, cocida
+26235	Jurel, magro (primavera, verano), crudo
+26236	Jurel, graso (otoño, invierno), crudo
+26237	Arenque del Atlántico, magro, crudo
+26238	Arenque del Atlántico, graso, crudo
+26239	Surimi, relleno de queso fresco
+26240	Pejerrey de escama grande (pez pequeño entero), para freír, crudo
+26241	Tiburón azul, filete, sin piel, crudo
+26242	Atún desmenuzado, en salsa de tomate, en lata, escurrido
+26243	Atún a la catalana o en salsa de tomate, en lata
+26244	Salmonete, filete con piel, congelado, crudo (de Tailandia o Senegal)
+26245	Atún desmenuzado, en aceite de girasol, en lata, escurrido
+26247	Fletán negro, al vapor
+26248	Lenguado común, a la parrilla/salteado en sartén sin grasa agregada
+26249	Pescado blanco, cocido (promedio)
+26256	Panqueque de jamón y champiñones en salsa de queso, envasado
+26257	Ensalada de zanahoria rallada, con salsa, envasada
+26258	Ensalada de remolacha, con salsa, envasada
+26259	Ensalada coleslaw, con salsa, envasada
+26260	Ensalada de pepino, con salsa de crema/queso fresco, envasada
+26261	Ensalada de lentejas con salchicha ahumada, envasada
+26262	Ensalada griega, con salsa, envasada
+26263	Ensalada de arroz, con atún y verduras, con salsa, envasada
+26264	Ñoquis, de papa, crudos
+26265	Ñoquis, de sémola, crudos
+26266	Medialuna (croissant) rellena de jamón y queso, envasada
+26267	Tarta de queso de cabra y espinaca, envasada
+26268	Tarta salada de calamar y salsa de tomate picante, envasada
+26269	Ensalada tabulé o de cuscús, con pollo, envasada
+26270	Pizza de atún, envasada
+26271	Pizza de kebab, envasada
+26272	Pizza de pollo, envasada
+26273	Pizza de queso raclette o tartiflette, envasada
+26274	Pizza de jamón crudo, envasada
+26275	Huevas de salmón, semiconservadas
+26276	Ensalada de pasta, con surimi, con salsa, envasada
+26277	Ensalada mixta estilo Alaska, con surimi, ananá, zanahoria, con salsa, envasada
+26278	Ensalada de pasta, con pollo, queso y verduras crudas, con salsa, envasada
+26279	Ensalada de pasta, con pollo, huevo, queso y verduras crudas, con salsa, envasada
+26280	Ensalada de pasta, con jamón, queso y verduras crudas, con salsa, envasada
+26281	Ensalada de repollo colorado, con salsa, envasada
+26282	Ensalada de pasta, con pollo y verduras crudas, con salsa, envasada
+26692	Anchoa, filetes, marinados al estilo oriental (aceite, ají...), semiconservados, escurridos
+26693	Anchoa, filetes, salados, en aceite de girasol, semiconservados, escurridos
+26694	Anchoa, filetes, salados, en aceite de oliva, semiconservados, escurridos
+26695	Salmón, salvaje, ahumado
+26696	Salmón, ahumado, de criadero
+26697	Sardina europea, en aceite de girasol, enlatada, escurrida
+26698	Sardina europea, en aceite de maní, enlatada, escurrida
+26700	Anchoa, marinada, semiconservada, escurrida (promedio)
+26998	Trucha asalmonada, salteada en sartén sin grasa agregada
+26999	Anguila, cocida (promedio)
+27000	Anguila, asada/al horno
+27001	Anguila, hervida/cocida en agua
+27002	Lucio del norte, asado/al horno
+27003	Carpa, cruda, de criadero
+27004	Carpa, asada/al horno
+27005	Perca europea, asada/al horno
+27006	Trucha, asada/al horno
+27007	Trucha, al vapor
+27008	Trucha, cruda, de criadero
+27009	Trucha arcoíris, cruda, de criadero
+27010	Perca europea, cruda
+27011	Lucio del norte, crudo
+27012	Esturión, crudo
+27014	Trucha arcoíris, de criadero, asada/al horno
+27015	Trucha arcoíris, de criadero, al vapor
+27016	Anguila, cruda
+27017	Bagre pardo, crudo
+27018	Pangasius, filetes, cocidos
+27019	Tilapia, cruda
+27021	Trucha asalmonada, cruda
+27023	Lota, cruda
+27024	Lucioperca, cruda
+27025	Perca del Nilo, cruda
+27029	Trucha, ahumada, de criadero
+27030	Lubina europea, asada/al horno
+27031	Dorada, asada/al horno
+28001	Cerdo, paleta, cruda
+28002	Cerdo, panceta, cruda
+28009	Paleta de cerdo, cruda
+28010	Cerdo, paleta, cocida
+28100	Cerdo, chuleta, cruda
+28101	Cerdo, chuleta, a la parrilla/salteada en sartén
+28102	Cerdo, bife de pierna, crudo
+28103	Cerdo, bife de pierna, cocido
+28104	Cerdo, carré, crudo
+28105	Cerdo, carré, cocido
+28202	Cerdo, asado de solomillo, cocido
+28203	Cerdo, filet mignon, cocido
+28204	Cerdo, filet mignon, crudo
+28205	Cerdo, carne, cocida (promedio)
+28300	Cerdo, asado, crudo
+28301	Cerdo, asado, cocido
+28302	Cerdo, lomo, crudo
+28400	Cerdo, costillas, crudas
+28401	Cerdo, costillas, braseadas
+28451	Cerdo, lomo, asado/al horno
+28460	Cerdo, escalope de jamón, crudo
+28461	Cerdo, escalope de jamón, cocido
+28470	Cerdo, grasa dorsal, sin cuero, cruda
+28471	Cerdo, papada, sin cuero, cruda
+28472	Cerdo, mitad inferior de la paleta, sin cuero, grasa ni hueso, cruda
+28473	Cerdo, pierna (way leg), sin cuero, grasa ni hueso, cruda
+28474	Cerdo, codillo de jamón, sin cuero, grasa ni hueso, crudo
+28475	Cerdo, recorte 90/10, crudo
+28476	Cerdo, recorte 80/20, crudo
+28477	Cerdo, mitad superior de la paleta, sin cuero, grasa ni hueso, cruda
+28479	Cerdo, panceta, sin falda, cruda
+28480	Cerdo, ojo del lomo, crudo
+28501	Tiras de panceta, simples, crudas
+28502	Panceta de cerdo, curada, ahumada, cruda
+28503	Bresaola
+28504	Tiras de panceta, simples, cocidas
+28505	Carne en conserva (corned beef), enlatada
+28507	Panceta de cerdo, curada, simple, cruda
+28530	Oreja de cerdo, en salmuera
+28540	Pata de cerdo, en salmuera
+28550	Panceta de cerdo, en salmuera
+28700	Jamón de cerdo, para cocinar / asar / hornear
+28720	Tiras de panceta, ahumadas, crudas
+28723	Tiras de panceta, simples, bajas en sal, crudas
+28725	Tiras de panceta, ahumadas, cocidas
+28727	Panceta, de lomo
+28800	Jamón crudo
+28801	Jamón crudo, ahumado
+28803	Jamón cocido, ahumado
+28804	Jamón crudo, ahumado, reducido en grasa
+28811	Jamón crudo de Bayona, ahumado
+28812	Jamón crudo curado
+28844	Jamón crudo curado de Parma
+28845	Jamón crudo curado Serrano
+28850	Coppa
+28858	Panceta italiana (pancetta)
+28860	Viande des Grisons o carne vacuna seca
+28900	Jamón cocido, calidad superior
+28901	Jamón cocido, calidad superior, con corteza
+28902	Jamón cocido, calidad superior, sin corteza
+28905	Jamón braseado con hueso
+28906	Jamón cocido, calidad superior, sin corteza desgrasado
+28907	Jamón cocido, calidad superior, sin corteza desgrasado, bajo en sal
+28910	Jamón cocido, choice
+28911	Paleta de cerdo cocida, choice, sin corteza desgrasada
+28912	Jamón cocido, choice, con corteza
+28913	Jamón cocido, choice, sin corteza desgrasado
+28917	Jamón cocido, corte redondo
+28922	Jamón, en cubos, rallado o picado
+28924	Paleta de cerdo cocida, estándar, sin corteza desgrasada
+28925	Jamón cocido, estilo parisino, sin corteza desgrasado
+28927	Aves, carne picada
+28929	Jamón, de ave, en cubos, rallado o picado
+28960	Codillo de jamón, cocido
+28963	Jamón cocido, de pollo, en fetas
+28964	Jamón cocido, de pavo, en fetas
+28965	Jamón cocido, de ave, bajo en sal, en fetas
+28976	Asado de ave, en salmuera, cocido
+29209	Bebida de soja con jugo de fruta concentrado, envasada
+30005	Salchicha chipolata, cocida
+30011	Salchicha de Toulouse, cocida
+30050	Carne para salchichas, cruda
+30051	Carne para salchichas, de cerdo puro, cruda
+30052	Carne para salchichas, de cerdo y carne vacuna, cruda
+30102	Salchicha ahumada, cruda
+30104	Salchicha de Morteau
+30105	Salchicha de Montbéliard para cocinar
+30108	Salchicha de Morteau, hervida/cocida en agua
+30110	Salchicha de Toulouse, cruda
+30115	Salchicha chipolata, cruda
+30125	Salchicha ahumada alsaciana o Landjäger
+30130	Salchicha de ave, estilo fiambrería
+30131	Salchicha de ave, estilo knack
+30134	Salchicha Frankfurt
+30150	Salchicha merguez, cruda
+30151	Salchicha merguez, cruda (promedio)
+30152	Salchicha merguez, de carne vacuna pura, cruda
+30153	Salchicha merguez, de cerdo y carne vacuna, cruda
+30154	Salchicha merguez, de carne vacuna, cordero adulto y cerdo, cruda
+30155	Salchicha merguez, de carne vacuna y cordero adulto, cocida
+30156	Salchicha merguez, de carne vacuna y cordero adulto, cruda
+30176	Embutido de hígado
+30177	Diot (salchicha de Saboya), cruda
+30181	Imitación de carne picada a base de soja, envasada
+30300	Salame seco
+30301	Salame seco, de cerdo puro
+30302	Salame seco, de cerdo puro, calidad superior
+30304	Salame seco Rosette
+30308	Salame seco de Lyon, de cerdo puro
+30309	Salame seco, calibre fino
+30311	Salame seco con nueces y/o avellanas
+30312	Salame seco, con pimienta
+30314	Salame seco, reducido en grasa
+30315	Salchicha picante de cerdo con pimiento rojo
+30316	Salchicha picante de cerdo con pimiento rojo, seca
+30317	Salchicha picante de cerdo con pimiento rojo, en rodajas
+30350	Salame
+30351	Salame, de cerdo puro
+30366	Salame, estilo danés
+30700	Salchicha de ajo
+30701	Salchicha, de cerdo puro, cocida
+30707	Salchicha en masa de brioche, cocida
+30730	Cervelat
+30731	Cervelat de Obernai, Alsacia
+30732	Cervelat con ajo, de cerdo puro
+30742	Salchicha de Estrasburgo, para cocinar
+30743	Salchicha de Estrasburgo, baja en sal, para cocinar
+30746	Salchichas cóctel
+30750	Salchicha vienesa, de cerdo y ternera, cruda
+30764	Salchicha de jamón, de cerdo puro
+30766	Salchicha de cerveza
+30778	Salchicha de lengua con pistachos
+30780	Salchicha (promedio)
+30789	Mortadela
+30790	Mortadela, de cerdo puro
+30791	Mortadela, de cerdo y carne vacuna
+30797	Mortadela con pistachos, de cerdo puro
+30801	Salchicha de caballo, tipo cervelas
+30886	Jalea, todas las frutas
+30887	Otra mermelada, reducida en azúcar
+30888	Mermelada o dulce, de otros cítricos o cítricos mixtos
+30889	Mermelada o dulce, de naranja, reducida en azúcar
+30900	Fiambres y embutidos (promedio)
+30990	Mermelada de mora
+30991	Jalea de mora
+30992	Mermelada de ruibarbo
+30993	Mermelada de durazno
+30994	Mermelada de higo
+30995	Mermelada de frutilla, reducida en azúcar
+30996	Mermelada de damasco, reducida en azúcar
+30997	Mermelada de frambuesa, reducida en azúcar
+30998	Jalea de frambuesa
+30999	Mermelada o dulce, frutas variadas, contenido de azúcar sin especificar (promedio)
+31000	Barra de chocolate con galletita
+31001	Barra de chocolate, bañada en chocolate, sin galletita
+31002	Barra de coco, bañada en chocolate
+31004	Chocolate con leche, barra
+31005	Chocolate amargo, 50% de cacao, barra
+31006	Mermelada o dulce, frutas variadas (no reducida en azúcar) (promedio)
+31007	Chicle, con azúcar(es)
+31008	Miel
+31009	Chocolate con leche, con cereales inflados, barra
+31010	Chocolate blanco, tableta
+31012	Confitería o barra de chocolate, con leche
+31013	Sorbete, en palito
+31014	Gelatina de frutas o pasta de frutas
+31016	Azúcar, blanca
+31017	Azúcar, rubia
+31018	Chocolate con leche, con frutos secos (nueces, almendras, pasas de uva, praliné), barra
+31020	Chocolate con leche, sin azúcares agregados, con edulcorantes, barra
+31021	Cáscara de naranja confitada
+31023	Castaña confitada
+31024	Mermelada de frutilla
+31026	Chocolate blanco con frutas secas (nueces, almendras, pasas de uva, praliné), tableta
+31027	Fruta confitada
+31028	Grageas
+31030	Chocolate amargo, sin azúcares agregados, con edulcorante(s), barra
+31032	Crema de chocolate con avellanas
+31034	Jarabe de arce
+31035	Barra de helado, de chocolate
+31036	Almendra confitada
+31037	Mermelada de damasco
+31038	Mermelada de cereza
+31039	Mermelada o dulce, de naranja
+31040	Dulce de leche
+31041	Confitería de chocolate, bañada
+31042	Maní bañado en chocolate
+31044	Azúcar, con sabor a vainilla
+31046	Caramelo líquido
+31047	Gelificante para mermelada
+31050	Malvavisco
+31052	Almendra confitada o praliné
+31053	Mermelada de ciruela
+31054	Chicle, sin azúcar
+31059	Caramelo duro y chupetín
+31060	Gomitas
+31062	Mermelada de frambuesa
+31063	Confitería de chocolate, rellena de frutos secos y/o praliné
+31064	Edulcorante sacarina
+31066	Confitería de chocolate y frutos secos, rellena de praliné
+31067	Melaza de caña
+31068	Mermelada de arándanos
+31069	Chocolate amargo, con frutas (naranja, frambuesas, pera), barra
+31070	Chocolate amargo, con frutas secas (nueces, almendras, pasas de uva, praliné), barra
+31071	Barra de chocolate con frutas secas
+31072	Chocolate amargo, relleno de confitería de menta
+31073	Torta blanda rellena de chocolate y leche, con cobertura de chocolate, envasada, refrigerada
+31074	Chocolate amargo, 70% de cacao, barra
+31076	Edulcorante con azúcar y aspartamo (terrones pequeños)
+31077	Fructosa
+31080	Chocolate amargo, relleno de praliné, barra
+31081	Caramelo masticable, de caramelo
+31082	Preparación de frutas, endulzada, con menos azúcar que la clásica, pero no tan reducida como en las mermeladas reducidas en azúcar
+31083	Otra mermelada
+31084	Chocolate con leche, relleno de praliné, barra
+31085	Chocolate amargo, más de 40% de cacao, para cocinar, barra
+31087	Edulcorante de stevia
+31089	Sirope de agave
+31091	Confitería de chocolate, rellena de oblea/galletita
+31092	Calisson de Aix-en-Provence (dulce de mazapán y melón confitado)
+31093	Malvavisco, bañado en chocolate
+31094	Caramelo duro, de caramelo
+31095	Jalea de grosella (roja)
+31097	Caramelo masticable
+31098	Barra de chocolate, chocolate con leche, con turrón
+31100	Barra de cereal, para el desayuno, con leche, con o sin chocolate, fortificada con vitaminas y minerales
+31101	Barra de cereal con fruta, fortificada con vitaminas y minerales
+31102	Barra de cereal con chocolate, fortificada con vitaminas y minerales
+31104	Barra de cereal, baja en calorías
+31106	Barra de cereal con chocolate
+31108	Jalea real
+31109	Polen, parcialmente deshidratado
+31111	Polen, fresco
+31112	Caramelo de regaliz, en rollo o palito
+31113	Barra de cereal con fruta
+31114	Barra de cereal con almendras o avellanas
+31115	Barra de cereal con chocolate y frutas
+31120	Chocolate, barra (promedio)
+31121	Chicle, contenido de azúcar sin especificar (promedio)
+31122	Caramelo masticable, de caramelo, bañado en chocolate
+31124	Caramelo duro (collar, silbato, chupetín, gota), con dextrosa
+31125	Caramelos de menta para el aliento, sin azúcar
+31126	Caramelos de menta para el aliento, con azúcar(es)
+31127	Turrón, blando
+31128	Caramelo duro y chupetín, sin azúcar
+31129	Preparación de frutas, endulzada, mín. 35% de frutas, con azúcares y otro(s) ingrediente(s)
+32000	Trigo inflado, con miel o caramelo, fortificado con vitaminas y minerales
+32001	Cereales de desayuno con chocolate, extruidos, sin relleno, fortificados con vitaminas y minerales
+32003	Cereales de desayuno (promedio)
+32004	Muesli (promedio)
+32005	Copos de maíz, simples, fortificados con vitaminas y minerales
+32006	Arroz inflado, natural, fortificado con vitaminas y minerales
+32008	Cereales de desayuno, ricos en fibra, con chocolate, fortificados con vitaminas y minerales
+32012	Arroz inflado, con chocolate, no fortificado
+32013	Cereales de desayuno con chocolate, sin relleno, sin fortificar
+32014	Copos de maíz, simples, sin fortificar
+32016	Cereales de desayuno, relleno de chocolate o de chocolate y avellanas, fortificados con vitaminas y minerales
+32017	Cereales de desayuno, relleno de chocolate o de chocolate y avellanas, sin fortificar
+32018	Cereales de desayuno, relleno de vainilla o leche, fortificados con vitaminas y minerales
+32022	Copos de cereal con chocolate, con o sin frutos secos, fortificados con vitaminas y minerales
+32023	Copos de cereal con frutas, fortificados con vitaminas y minerales
+32025	Copos de cereal con frutos secos, fortificados con vitaminas y minerales
+32028	Copos de cereal con chocolate, con o sin frutos secos, sin fortificar
+32029	Copos de cereal con frutas, sin fortificar
+32030	Copos de cereal, simples, con azúcar(es), fortificados con vitaminas y minerales
+32031	Cereales de desayuno, fortificados con vitaminas y minerales (promedio)
+32032	Cereales de desayuno, sin fortificar (promedio)
+32033	Cereales de desayuno, ricos en fibra, con frutas o frutos secos, fortificados con vitaminas y minerales
+32034	Cereales de desayuno, ricos en fibra, con frutas o frutos secos, sin fortificar
+32035	Cereales de desayuno, ricos en fibra, simples, fortificados con vitaminas y minerales
+32036	Cereales de desayuno, ricos en fibra, simples, sin fortificar
+32037	Cereales de desayuno con chocolate y caramelo, extruidos, fortificados con vitaminas y minerales
+32038	Cereales de desayuno con chocolate y caramelo, extruidos, sin fortificar
+32039	Cereales de desayuno, relleno de vainilla o leche, sin fortificar
+32040	Trigo inflado, con miel o caramelo, no fortificado
+32041	Cereales de desayuno, mezcla de copos, simples, sin fortificar
+32042	Copos de cereal, simples, con azúcar(es), sin fortificar
+32043	Copos de cereal simples, sin azúcares agregados, sin fortificar
+32107	Copos de maíz, azucarados, sin fortificar
+32108	Granola con frutas, con o sin frutos secos y semillas, sin fortificar
+32109	Granola con chocolate, sin fortificar
+32110	Muesli, con frutas, frutos secos y/o semillas, fortificado con vitaminas y minerales
+32111	Granola con frutas, con o sin frutos secos y semillas, fortificada con vitaminas y minerales
+32112	Granola con chocolate, fortificada con vitaminas y minerales
+32113	Muesli, con frutas, frutos secos y/o semillas, sin azúcares agregados, no fortificado
+32116	Cereales de desayuno, muy ricos en fibra, simples, fortificados con vitaminas y minerales
+32121	Copos de maíz, azucarados, fortificados con vitaminas y minerales
+32129	Cereales de desayuno, maíz inflado con miel, sin fortificar
+32130	Trigo khorasan, integral, inflado
+32131	Arroz inflado, con chocolate, fortificado con vitaminas y minerales
+32133	Cereales de desayuno, maíz inflado con miel, fortificados con vitaminas y minerales
+32138	Muesli, con frutas, frutos secos y/o semillas, no fortificado
+32139	Muesli, fortificado con vitaminas y minerales (promedio)
+32140	Copos de avena
+32141	Muesli, no fortificado (alimento promedio)
+32142	Cereales de desayuno, inflados o extruidos, con miel o caramelo, fortificados con vitaminas y minerales
+32143	Cereales de desayuno, inflados o extruidos, con miel o caramelo, sin fortificar
+32144	Granola solo con frutos secos y/o semillas, fortificada con vitaminas y minerales
+32145	Granola solo con frutos secos y/o semillas, sin fortificar
+34000	Conejo, carne, braseada
+34001	Conejo, carne, cruda
+34002	Conejo, carne, cocida
+34003	Conejo salvaje, carne, cruda
+34004	Conejo salvaje, carne, cocida
+34500	Rana, anca, cruda
+34501	Rana, anca, a la parrilla/salteada en sartén sin grasa agregada
+36000	Gallina, carne y piel, cruda
+36001	Gallina, carne, cruda
+36002	Pollo, pata-muslo, carne y piel, crudo
+36003	Pollo, carne, crudo
+36004	Pollo, pata-muslo, carne y piel, asado/al horno
+36005	Pollo, carne y piel, asado/al horno
+36006	Pollo, pata-muslo, carne, asado/al horno
+36007	Pollo, raza blanca, carne y piel, crudo
+36008	Pollo, de campo, carne y piel, crudo
+36014	Gallina, pata-muslo, cruda
+36016	Pollo, carne y piel, crudo
+36017	Pollo, pechuga, sin piel, crudo
+36018	Pollo, pechuga, sin piel, a la parrilla/salteado en sartén
+36019	Pollo, muslo y contramuslo, carne, crudo
+36020	Pollo, eviscerado sin menudencias, crudo
+36022	Pollo, pata (muslo), crudo
+36023	Pollo, ala, carne y piel, cruda
+36024	Pollo, pata-muslo, carne, crudo
+36027	Nuggets de pollo, croquetas empanadas, envasados
+36029	Pollo, pechuga, carne y piel, crudo
+36030	Pollo, pata-muslo, carne, hervido/cocido en agua
+36031	Pollo, pata-muslo, carne y piel, hervido/cocido en agua
+36032	Pollo, pechuga, carne y piel, asado/al horno
+36033	Pollo, ala, carne y piel, asada/al horno
+36035	Pollo, alitas marinadas, envasadas, asadas/al horno
+36036	Milanesa de pollo o milanesa de pollo empanada
+36037	Pollo, pata-muslo, carne y piel, crudo, orgánico
+36038	Pollo, pata-muslo, carne y piel, crudo, label rouge
+36039	Pollo, pechuga, sin piel, crudo, orgánico
+36040	Pollo, pechuga, sin piel, crudo, label rouge
+36041	Pollo, pechuga, sin piel, a la parrilla/salteado en sartén, orgánico
+36042	Aves, carne, cocida (promedio)
+36050	Capón, carne y piel, crudo
+36051	Capón, carne y piel, asado/al horno
+36100	Codorniz, carne y piel, cruda
+36101	Codorniz, carne, cruda
+36102	Codorniz, carne y piel, cocida
+36200	Pato, carne y piel, asado/al horno
+36201	Pato, carne, crudo
+36202	Pato, carne, asado/al horno
+36203	Pato, pata-muslo, carne y piel, crudo
+36204	Pato, carne y piel, crudo
+36205	Pato, magret, a la parrilla/salteado en sartén
+36206	Pato, filete de pechuga, crudo
+36300	Pavo, carne y piel, crudo
+36301	Pavo, carne, crudo
+36302	Pavo, carne, asado/al horno
+36304	Pavo, escalope, crudo
+36305	Pavo, pata, carne y piel, crudo
+36306	Pavo, escalope, a la plancha/salteado en sartén
+36307	Pavo, pata, carne, crudo
+36308	Pavo, escalope, asado/al horno
+36310	Pavo, ala, crudo
+36311	Pavo, pata, crudo
+36318	Milanesa de pavo o milanesa de pavo empanada
+36401	Faisán, carne, crudo
+36402	Faisán, carne, asado/al horno
+36403	Faisán, carne y piel, crudo
+36500	Ganso, carne, crudo
+36501	Ganso, carne y piel, crudo
+36502	Ganso, carne, asado/al horno
+36503	Ganso, carne y piel, asado/al horno
+36600	Pichón, carne, cruda
+36602	Pichón, carne, asada/al horno
+36603	Caza de pluma, carne, cocida (promedio)
+36700	Gallina de Guinea, carne, cruda
+36702	Gallina de Guinea, pechuga, cruda
+36703	Gallina de Guinea, pata-muslo, cruda
+36800	Avestruz, carne, cruda
+36801	Avestruz, carne, cocida
+36900	Aves, cocidas (promedio)
+37000	Base para pizza (masa + salsa de crema), cruda
+37001	Masa de pizza, envasada, cruda
+37002	Base para pizza (masa + salsa de tomate), cruda
+38104	Chips de camarón
+38105	Chips de maíz o chips de tortilla, saborizados
+38106	Snacks salados inflados, sabor papa
+38107	Snacks salados, crackers, mini pretzels o palitos
+38109	Snack salado, relleno, envasado
+38399	Snacks salados, crackers (promedio)
+38401	Snacks salados, crackers, de trigo, con queso
+38402	Snacks salados, crackers, de trigo, simples o saborizados
+38403	Snacks salados, crackers, de trigo, simples, reducidos en grasa
+38404	Snacks salados inflados, sabor maní
+38405	Snacks salados, crackers, de papa
+38406	Maníes recubiertos con masa de galletita salada (con sal o saborizados)
+38407	Snacks salados, crackers, de hojaldre, sin queso
+38408	Crepe crocante salado, relleno, envasado
+38410	Snacks salados, crackers, de hojaldre, con queso
+38411	Snacks salados, crackers, de trigo, varios tipos
+38413	Snacks salados, crackers, mini waffle, rellenos
+38414	Grissini o palitos de pan, con sésamo
+38415	Grissini o palitos de pan, con sésamo, reducidos en grasa
+38416	Snacks salados, crackers de arroz y maníes recubiertos, estilo japonés
+38417	Chips de maíz o chips de tortilla, simples
+38419	Snacks salados inflados, sabor panceta
+38420	Snacks salados inflados, simples
+38421	Snacks salados inflados, sabor queso
+38422	Snacks salados inflados (promedio)
+38500	Crutón con ajo, hierbas o cebolla, envasado
+38501	Crutón con queso, envasado
+39001	Licuado de leche (milkshake), de comida rápida
+39200	Postre de crema, de chocolate, refrigerado
+39206	Mousse de chocolate (a base de leche), refrigerada
+39209	Flan con caramelo, refrigerado
+39210	Mousse de chocolate, tradicional, refrigerada
+39211	Natilla con huevos (potecito de crema de chocolate o vainilla), refrigerada
+39212	Arroz con leche, vainilla, canela o natural, refrigerado
+39213	Crema quemada (crème brûlée), refrigerada
+39214	Postre de crema, de vainilla, enlatado
+39215	Isla flotante (merengue escalfado en leche y servido en crema inglesa ligera), refrigerada
+39216	Clafoutis de frutas, refrigerado
+39218	Budín de sémola, refrigerado
+39220	Postre de frutas tipo liégeois, refrigerado
+39229	Postre de crema, de vainilla, refrigerado
+39230	Postre de crema, refrigerado (promedio)
+39233	Fondant de chocolate amargo con crema inglesa ligera, refrigerado
+39234	Torta de chocolate, con corazón cremoso de chocolate, refrigerada
+39235	Mousse (de chocolate, café, caramelo o vainilla) cubierta con crema chantilly, refrigerada
+39236	Tostadas francesas
+39246	Postre de crema, de café, refrigerado
+39247	Postre de crema, de caramelo, refrigerado
+39248	Mousse de chocolate, de origen vegetal, refrigerada
+39249	Mousse de frutas, con queso cottage, 0% de grasa, con azúcar(es) y edulcorante(s), fortificada con calcio, refrigerada
+39250	Mousse de frutas, con queso cottage, con azúcar(es), refrigerada
+39251	Arroz con leche con caramelo, refrigerado
+39252	Arroz con leche con ron y pasas de uva, refrigerado
+39253	Mousse de chocolate o café, sobre crema de ganache, refrigerada
+39254	Postre de crema, de chocolate, con cereales bañados en chocolate, refrigerado
+39400	Ponche de huevo, sin alcohol
+39401	Durazno Melba (con helado de vainilla y salsa de frambuesa)
+39500	Helado o sorbete o paleta helada, cualquier sabor (promedio)
+39502	Postre helado, helado con merengue
+39503	Helado, en palito, bañado en chocolate
+39505	Postre de crema, enlatado (promedio)
+39506	Postre de crema, de chocolate, enlatado
+39509	Helado, en cono (tamaño normal)
+39511	Postre de crema, refrigerado o enlatado (promedio)
+39512	Postre helado, tipo helado Sundae
+39515	Helado, en pote
+39516	Postre helado, chocolate crocante y helado, para compartir
+39517	Yogur helado
+39518	Baked Alaska
+39519	Pera Belle Hélène (pera cocida cubierta con salsa de chocolate caliente sobre helado de vainilla)
+39520	Helado, gourmet, en pote
+39521	Helado, gourmet, en vasito
+39522	Helado, en cono, mini
+39523	Helado, en vasito individual
+39524	Sorbete, en pote
+39525	Sorbete, en vasito individual
+39526	Paleta helada
+39527	Helado, en pote o vasito (promedio)
+39528	Sorbete, en cucurucho
+39529	Turrón helado
+39530	Limón u naranja helado (sorbete)
+39531	Helado, en vasito para niños
+39532	Copa de helado, helado de café o chocolate con crema batida por encima
+39533	Tronco de helado
+39534	Copa de helado, tipo pera Belle Hélène o durazno Melba
+39535	Helado, en palito, con cobertura de fruta
+39700	Crema de postre light con vainilla, envasada
+39710	Crema pastelera, instantánea, reconstituida
+40002	Sesos, cordero, crudos
+40003	Sesos, cordero, cocidos
+40004	Sesos, cerdo, braseados
+40005	Sesos, cerdo, crudos
+40006	Sesos, ternera, crudos
+40007	Sesos, ternera, cocidos
+40052	Corazón, vacuno, crudo
+40053	Corazón, vacuno, cocido
+40054	Corazón, pollo, crudo
+40055	Corazón, pavo, crudo
+40056	Corazón, pollo, cocido
+40057	Corazón, pavo, cocido
+40058	Corazón, cordero, crudo
+40059	Corazón, cordero, cocido
+40060	Corazón, cerdo, crudo
+40062	Corazón, ternera, crudo
+40102	Hígado, cordero, crudo
+40103	Hígado, cordero, cocido
+40104	Hígado, vaquillona, crudo
+40105	Hígado, vaquillona, cocido
+40106	Hígado, ternera, crudo
+40107	Hígado, ternera, cocido
+40108	Hígado, aves, crudo
+40109	Hígado, aves, cocido
+40110	Hígado, conejo, crudo
+40111	Hígado, pollo, crudo
+40113	Hígado, cerdo, cocido
+40115	Hígado, pavo, crudo
+40116	Hígado, pollo, cocido
+40118	Hígado, pavo, cocido
+40119	Hígado, cerdo, crudo
+40120	Hígado, ganso, crudo
+40121	Hígado, pato, crudo
+40201	Lengua de ternera, cocida
+40202	Lengua vacuna, cruda
+40203	Lengua vacuna, cocida
+40204	Lengua de ternera, cruda
+40205	Lengua de cerdo, cruda
+40207	Lengua de cordero, cruda
+40302	Molleja de cordero, cruda
+40303	Molleja de cordero, cocida
+40304	Molleja de ternera, cruda
+40305	Molleja de ternera, braseada o a la plancha
+40401	Riñón, cocido (promedio)
+40402	Riñón, vacuno, crudo
+40403	Riñón, vacuno, cocido
+40404	Riñón, cerdo, crudo
+40405	Riñón, cerdo, cocido
+40406	Riñón, cordero, braseado
+40407	Riñón, cordero, crudo
+40408	Riñón, ternera, braseado o a la parrilla/salteado en sartén
+40409	Riñón, ternera, crudo
+40502	Mondongo vacuno, crudo
+40600	Sangre, vacuna, cruda
+40601	Menudencias, cocidas (promedio)
+40700	Molleja (buche), pollo, cruda
+40701	Mollejas, pato, en conserva, enlatadas
+42000	Sustituto de comida, bajo en calorías, tipo postre de crema
+42003	Sustituto de comida, bajo en calorías, listo para beber
+42004	Sustituto de comida, bajo en calorías, en polvo, reconstituido con leche descremada
+42005	Sustituto de comida, bajo en calorías, en polvo, reconstituido con leche descremada, tipo licuado
+42200	Lecitina de soja
+42501	Cacao en polvo para bebida infantil
+42603	Comida para bebés, verduras con carne/pescado y almidón, desde los 6-8 meses
+42604	Comida para bebés, verduras con carne/pescado y almidón, desde los 8-12 meses
+42605	Comida para bebés, verduras con carne/pescado y almidón, desde los 12 meses
+42606	Comida para bebés, verduras con carne/pescado y almidón, desde los 18 meses
+51500	Molokhia en polvo (hojas de yute secas)
+51502	Salsa de molokhia, casera
+51510	Frik (trigo duro inmaduro triturado), crudo
+51511	Frik (trigo duro inmaduro triturado), cocido, sin sal agregada
+51550	Khatfa (láminas de masa filo), envasada
+53100	Banana plátano, cruda
+53101	Banana plátano, cocida
+53200	Taro, tubérculo, crudo
+53201	Taro, tubérculo, cocido
+53502	Ñame, pelado, crudo
+53503	Ñame, pelado, hervido/cocido en agua
+53672	Ñame, crudo
+54031	Mandioca, raíz, cruda
+54034	Mandioca, raíz, cocida
+54035	Gari, harina de mandioca, seca, fermentada
+54500	Fruta del pan, cruda
+58100	Okra, cruda
+58103	Okra, cocida
+76000	Agua mineral sin gas (Abatilles), embotellada, de mineralización débil
+76001	Agua mineral sin gas (Aix-les-Bains), embotellada, de mineralización débil
+76002	Agua mineral con gas (Aziac), embotellada, de mineralización débil
+76004	Agua mineral sin gas (Amanda), embotellada, de mineralización fuerte
+76006	Agua mineral con gas (Arcens), embotellada, de mineralización media
+76007	Agua mineral con gas (Ardesy), embotellada, de mineralización fuerte
+76010	Agua mineral (Celtic), embotellada, de mineralización muy débil
+76011	Agua mineral sin gas (Chambon), embotellada, de mineralización débil
+76012	Agua mineral sin gas (Chantemerle), embotellada, de mineralización débil
+76013	Agua mineral con gas (Chateauneuf), embotellada, de mineralización fuerte
+76014	Agua mineral con gas (Chateldon), embotellada, de mineralización fuerte
+76015	Agua mineral sin gas (Clos de l'Abbaye), embotellada, de mineralización media
+76016	Agua mineral sin gas (Contrex), embotellada, de mineralización fuerte
+76017	Agua mineral sin gas (Dax), embotellada, de mineralización media
+76018	Agua mineral con gas (Didier), embotellada, de mineralización fuerte
+76019	Agua mineral sin gas (Didier), embotellada, de mineralización fuerte
+76020	Agua mineral sin gas (Evian), embotellada, de mineralización débil
+76022	Agua mineral sin gas (Hépar), embotellada, de mineralización fuerte
+76023	Agua mineral con gas (Hydroxydase), embotellada, de mineralización fuerte
+76024	Agua mineral con gas (Vernière), embotellada, de mineralización media
+76025	Agua mineral sin gas (Luchon), embotellada, de mineralización débil
+76027	Agua mineral (Mont-Roucous, embotellada, de mineralización muy débil
+76029	Agua mineral (Orée du bois), embotellada, de mineralización media
+76030	Agua mineral con gas (Orezza), embotellada, de mineralización media
+76031	Agua mineral con gas (Parot), embotellada, de mineralización media
+76032	Agua mineral (Plancoet), embotellada, de mineralización débil
+76033	Agua mineral sin gas (Propiac), embotellada, de mineralización fuerte
+76034	Agua mineral con gas (Puits St Georges), embotellada, de mineralización media
+76035	Agua mineral con gas (Quézac), embotellada, de mineralización media
+76036	Agua mineral con gas (Reine des basaltes), embotellada, de mineralización media
+76037	Agua mineral con gas (Rozana), embotellada, de mineralización fuerte
+76038	Agua mineral sin gas (Sail-les-Bains), embotellada, de mineralización débil
+76039	Agua mineral con gas (Salvetat), embotellada, de mineralización media
+76043	Agua mineral (St-Amand), embotellada, de mineralización media
+76044	Agua mineral sin gas (St-Antonin), embotellada, de mineralización fuerte
+76046	Agua mineral con gas (St-Diéry), embotellada, de mineralización fuerte
+76047	Agua mineral con gas (Ste-Marguerite), embotellada, de mineralización media
+76049	Agua mineral con gas (St-Yorre), embotellada, de mineralización fuerte
+76050	Agua mineral sin gas (Thonon), embotellada, de mineralización débil
+76052	Agua mineral con gas (Vals-Vivaraise), embotellada, de mineralización media
+76053	Agua mineral con gas (Ventadour), embotellada, de mineralización débil
+76054	Agua mineral con gas (Vernet), embotellada, de mineralización débil
+76055	Agua mineral con gas (Vichy Célestins), embotellada, de mineralización fuerte
+76056	Agua mineral sin gas (Vittel), embotellada, de mineralización media
+76057	Agua mineral sin gas (Volvic), embotellada, de mineralización débil
+76058	Agua mineral con gas (Volvic active), embotellada, de mineralización débil
+76059	Agua mineral (Wattwiller), embotellada, de mineralización débil
+76060	Agua mineral con gas (Perrier), embotellada, de mineralización débil
+76061	Agua mineral con gas (Badoit), embotellada, de mineralización media
+76062	Agua mineral sin gas (Avra), embotellada, de mineralización débil
+76063	Agua mineral sin gas (Beckerich), embotellada, de mineralización débil
+76065	Agua mineral sin gas (Chaudfontaine), embotellada, de mineralización débil
+76066	Agua mineral sin gas (Christinen Brunnen), embotellada, de mineralización media
+76067	Agua mineral sin gas (Courmayer), embotellada, de mineralización fuerte
+76069	Agua mineral sin gas (Levissima), embotellada, de mineralización débil
+76070	Agua mineral sin gas (Luso), embotellada, de mineralización muy débil
+76071	Agua mineral sin gas (Néro), embotellada, de mineralización débil
+76072	Agua mineral sin gas (Penacova), embotellada, de mineralización muy débil
+76074	Agua mineral (San Bernardo), embotellada, de mineralización muy débil
+76075	Agua mineral con gas (San Pellegrino), embotellada, de mineralización media
+76076	Agua mineral (Spa-Reine), embotellada, de mineralización media
+76078	Agua mineral sin gas (Valvert), embotellada, de mineralización débil
+76079	Agua mineral sin gas (Appollinaris), embotellada, de mineralización fuerte
+76081	Agua mineral sin gas (Biovive), embotellada, de mineralización débil
+76082	Agua mineral sin gas (La Cairolle), embotellada, de mineralización fuerte
+76083	Agua mineral con gas (Cilaos), embotellada, de mineralización fuerte
+76085	Agua mineral sin gas (La Française), embotellada, de mineralización fuerte
+76086	Agua mineral sin gas (Montcalm), embotellada, de mineralización muy débil
+76087	Agua mineral sin gas (Montclar), embotellada, de mineralización débil
+76088	Agua mineral con gas (Nessel), embotellada, de mineralización media
+76089	Agua mineral con gas (Ogeu), embotellada, de mineralización débil
+76090	Agua mineral sin gas (Ogeu), embotellada, de mineralización débil
+76091	Agua mineral sin gas (Prince Noir), embotellada, de mineralización fuerte
+76092	Agua mineral con gas (St-Alban), embotellada, de mineralización media
+76093	Agua mineral con gas (St-Géron), embotellada, de mineralización media
+76094	Agua mineral con gas (St-Michel-de-Mourcairol), embotellada, de mineralización media
+76095	Agua mineral sin gas (Treignac), embotellada, de mineralización muy débil
+76096	Agua mineral con gas (Vals), embotellada, de mineralización media
+76097	Agua mineral sin gas (Vauban), embotellada, de mineralización media
+76101	Agua mineral sin gas (Montblanc), embotellada, de mineralización débil
+76102	Agua mineral sin gas (Eden La Goa), embotellada, de mineralización débil
+76103	Agua mineral (Velleminfroy), embotellada, de mineralización fuerte
+96778	Masa de pizza, envasada, cocida
+96781	Almidón de arroz

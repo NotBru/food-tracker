@@ -5,6 +5,7 @@ import { NUTRIENTS } from '../nutrients'
 import { inOrder, newTarget as makeTarget, nutrientByKey, saveTarget, targetRows, targetText } from '../forms'
 import { formatDateTime, toLocalInput } from '../time'
 import { DateTimeInput, Field, NutrientAdder, Screen, enterSaves, enterTo, replace } from '../components'
+import { t } from '../i18n'
 
 // design.md: targets are listed latest first; each holds user-chosen nutrients (energy included) and is valid
 // from its timestamp until the next target's. Values are daily ranges {min?, max?}; either bound is optional.
@@ -33,22 +34,22 @@ export default function Targets({ add }) {
   if (!data) return null
   const { user, targets } = data
   const now = new Date().toISOString()
-  const activeId = targets.find((t) => t.validFrom <= now)?.id
+  const activeId = targets.find((tg) => tg.validFrom <= now)?.id
 
   return (
-    <Screen title="Targets" subtitle={user.name}>
+    <Screen title={t('Targets')} subtitle={user.name}>
       <ul className="list">
-        <li className="add" onClick={newTarget}>+ add target</li>
-        {targets.map((t, i) => (
-          <li key={t.id} onClick={() => setEditing(t)}>
+        <li className="add" onClick={newTarget}>{t('+ add target')}</li>
+        {targets.map((tg, i) => (
+          <li key={tg.id} onClick={() => setEditing(tg)}>
             <div className="list-main">
-              <span>From {when(t.validFrom)}</span>
-              {t.id === activeId ? <span className="tag ok">active</span> : t.validFrom > now ? <span className="tag">upcoming</span> : null}
+              <span>{t('From {when}', { when: when(tg.validFrom) })}</span>
+              {tg.id === activeId ? <span className="tag ok">{t('active')}</span> : tg.validFrom > now ? <span className="tag">{t('upcoming')}</span> : null}
             </div>
-            {i > 0 && <span className="muted">until {when(targets[i - 1].validFrom)}</span>}
+            {i > 0 && <span className="muted">{t('until {when}', { when: when(targets[i - 1].validFrom) })}</span>}
             <span className="macros">
-              {targetText(t)}
-              <span className="muted"> per day</span>
+              {targetText(tg)}
+              <span className="muted"> {t('per day')}</span>
             </span>
           </li>
         ))}
@@ -79,7 +80,7 @@ function TargetEditor({ target, onClose }) {
     onClose()
   }
   async function remove() {
-    if (confirm('Delete this target?')) {
+    if (confirm(t('Delete this target?'))) {
       await db.targets.delete(target.id)
       onClose()
     }
@@ -88,27 +89,27 @@ function TargetEditor({ target, onClose }) {
   return (
     <div className="modal" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()} onKeyDown={enterSaves(save)}>
-        <h2>{target.id ? 'Edit target' : 'New target'}</h2>
-        <Field label="Valid from">
+        <h2>{target.id ? t('Edit target') : t('New target')}</h2>
+        <Field label={t('Valid from')}>
           <DateTimeInput value={validFrom} onChange={setValidFrom} />
         </Field>
         <div className="nutrients">
-          <div className="n-row with-x n-head"><span>per day</span><span>min</span><span>max</span><span /></div>
+          <div className="n-row with-x n-head"><span>{t('per day')}</span><span>{t('min')}</span><span>{t('max')}</span><span /></div>
           {rows.map(([k, minT, maxT], i) => (
             <div className="n-row with-x" key={k}>
               <span>{byKey[k]?.label ?? k} <small className="muted">{byKey[k]?.unit}</small></span>
               <input ref={(el) => (refs.current[k] = el)} inputMode="decimal" value={minT} placeholder="–" enterKeyHint="next" onKeyDown={enterTo(adderRef)} onChange={(e) => setCell(i, 1, e.target.value)} />
               <input inputMode="decimal" value={maxT} placeholder="–" enterKeyHint="next" onKeyDown={enterTo(adderRef)} onChange={(e) => setCell(i, 2, e.target.value)} />
-              <button className="icon small" onClick={() => setRows(rows.filter((_, j) => j !== i))} aria-label={`Remove ${byKey[k]?.label ?? k}`}>×</button>
+              <button className="icon small" onClick={() => setRows(rows.filter((_, j) => j !== i))} aria-label={t('Remove {name}', { name: byKey[k]?.label ?? k })}>×</button>
             </div>
           ))}
           <NutrientAdder inputRef={adderRef} options={NUTRIENTS.filter((n) => !rows.some(([k]) => k === n.key))}
             onAdd={(key) => { setRows(inOrder([...rows, [key, '', '']])); setFocusKey(key) }} />
         </div>
         <div className="row actions">
-          {target.id && <button className="danger" onClick={remove}>Delete</button>}
-          <button className="secondary" onClick={onClose}>Cancel</button>
-          <button onClick={save}>Save</button>
+          {target.id && <button className="danger" onClick={remove}>{t('Delete')}</button>}
+          <button className="secondary" onClick={onClose}>{t('Cancel')}</button>
+          <button onClick={save}>{t('Save')}</button>
         </div>
       </div>
     </div>

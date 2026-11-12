@@ -1,8 +1,9 @@
 import { addScaled, bounds, zero } from './stats'
+import { translated } from './i18n'
 
 // Known nutrient keys. Values are stored per ingredient as { value, text } (plus the digits' delta, kept but unused).
 // `default: 0` = preset to 0 (design.md); anything else not filled in is stored as NaN.
-export const NUTRIENTS = [
+export const NUTRIENTS = translated([
   { key: 'energy', label: 'Energy', unit: 'kcal' },
   { key: 'proteins', label: 'Proteins', unit: 'g', default: 0 },
   { key: 'fat', label: 'Fat', unit: 'g', default: 0 },
@@ -49,7 +50,7 @@ export const NUTRIENTS = [
   { key: 'caffeine', label: 'Caffeine', unit: 'mg' },
   { key: 'creatine', label: 'Creatine', unit: 'g' },
   { key: 'water', label: 'Water', unit: 'g' },
-]
+])
 
 export const MACROS = ['proteins', 'fat', 'carbohydrates']
 

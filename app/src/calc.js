@@ -5,6 +5,7 @@ import { BUILTIN_UNITS, NUTRIENTS, calories, deltaFromInput } from './nutrients'
 import { DEFAULT_ENTRY_ERROR, sampling } from './errors'
 import { ciqualFoods, fdcFoods } from './external'
 import { addProduct, addScaled, bounds, zero } from './stats'
+import { t } from './i18n'
 
 const norm = (u) => String(u ?? '').trim().toLowerCase()
 /** Factor between two built-in units of the same dimension, or NaN. */
@@ -199,13 +200,13 @@ export function componentsTotal(ctx, components, unit) {
   for (const c of components) {
     const item = resolve(ctx, c.itemId)
     const name = item?.name || 'a component'
-    if (!(c.amount >= 0)) return { problem: `${name} has no amount` }
+    if (!(c.amount >= 0)) return { problem: t('{name} has no amount', { name }) }
     const f = unitFactorSpan(c.unit, unit, item?.units)
-    if (!Number.isFinite(f[0])) return { problem: `${name}: no conversion from ${c.unit || '(no unit)'} to ${unit}` }
+    if (!Number.isFinite(f[0])) return { problem: t('{name}: no conversion from {from} to {to}', { name, from: c.unit || t('(no unit)'), to: unit }) }
     total = total.map((t, k) => t + mul(span(c.amount, c.amountDelta), f)[k])
   }
   const [value, lo, hi] = total
-  if (!Number.isFinite(hi)) return { problem: 'a unit conversion has no upper bound' }
+  if (!Number.isFinite(hi)) return { problem: t('a unit conversion has no upper bound') }
   return { value, delta: Math.max(hi - value, value - lo) }
 }
 

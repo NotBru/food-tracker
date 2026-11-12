@@ -24,6 +24,7 @@ Humans read and may comment, but direction belongs in `docs/instructions/`.
 
 | Date | Entry | Status |
 |------|-------|--------|
+| 2026-11-12 | [The app in Spanish (EN \| ES), and CIQUAL's and USDA's foods with Spanish names](2026-11-12-spanish.md) | accepted |
 | 2026-11-11 | [Energy pie: the targets' dashed edges from the centre to the top, over everything; the error bars curved](2026-11-11-pie-dashes-up-curved-errors.md) | accepted |
 | 2026-11-11 | [CIQUAL: vitamin E as alpha-tocopherol; folate and vitamin D from their parts when there's no total](2026-11-11-ciqual-vitamin-e-folate-d.md) | accepted |
 | 2026-11-11 | [Food searches with kcal per 100 g; "+ register food"; notes saved behind; Android synced before it sleeps](2026-11-11-search-kcal-register-food-notes-sync.md) | accepted |

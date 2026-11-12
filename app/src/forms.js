@@ -6,6 +6,7 @@ import { consumptionNutrients, loadContext, sumNutrients } from './calc'
 import { addDays, dayBounds, logicalDay } from './time'
 import { NUTRIENTS, calories, deltaText, fmt, measure, rangeLabel, rangeText } from './nutrients'
 import { BUILTIN_FIELDS, KCAL_PER_KG, MAINT_DAYS, MIN_SPAN, MIN_WEIGH_INS, dailyValues, extraNames, fieldValue, lookalike, maintenance, measures, nameKey, weekMean } from './body'
+import { plural, t } from './i18n'
 
 // --- Targets -----------------------------------------------------------------
 // design.md: targets are listed latest first; each holds user-chosen nutrients (energy included) and is valid
@@ -37,10 +38,10 @@ export async function saveTarget(target, validFrom, rows) {
     const min = num(minT)
     const max = num(maxT)
     if (min === undefined && max === undefined) continue
-    if (min !== undefined && max !== undefined && min > max) return { alert: `${nutrientByKey[k]?.label ?? k}: min is above max.` }
+    if (min !== undefined && max !== undefined && min > max) return { alert: t('{name}: min is above max.', { name: nutrientByKey[k]?.label ?? k }) }
     values[k] = { ...(min !== undefined && { min }), ...(max !== undefined && { max }) }
   }
-  if (!Object.keys(values).length) return { alert: 'Set at least one min or max.' }
+  if (!Object.keys(values).length) return { alert: t('Set at least one min or max.') }
   const rec = { validFrom: new Date(validFrom).toISOString(), userId: target.userId, values }
   if (target.id) await db.targets.update(target.id, rec)
   else await db.targets.add(rec)
@@ -85,16 +86,22 @@ export async function loadBody(day) {
 export function maintenanceText(maint) {
   if (maint.need) {
     const { weighIns = 0, span = 0, logged } = maint.need
-    return {
-      need: `Maintenance: needs ${logged === 0 ? 'consumptions logged between the weigh-ins' : `weigh-ins on ${MIN_WEIGH_INS}+ days, at least ${MIN_SPAN} days apart, in the last ${MAINT_DAYS} (so far ${weighIns} over ${span} day${span === 1 ? '' : 's'})`}. Weigh in every morning; it gets sharper with weeks.`,
-    }
+    const what = logged === 0 ? t('consumptions logged between the weigh-ins')
+      : t('weigh-ins on {w}+ days, at least {s} days apart, in the last {d} (so far {so})', {
+        w: MIN_WEIGH_INS, s: MIN_SPAN, d: MAINT_DAYS, so: plural(span, '{w} over {n} day', '{w} over {n} days', { w: weighIns }),
+      })
+    return { need: t('Maintenance: needs {what}. Weigh in every morning; it gets sharper with weeks.', { what }) }
   }
   const { value, intake, trend, weighIns, from, to, loggedDays, days } = maint
   const perWeek = { ...trend, value: trend.value * 7, v: trend.v * 49 }
   return {
     value: fmt(value.value, 0),
     range: rangeText(value),
-    detail: `Logged ${fmt(intake.value, 0)} kcal/day (${loggedDays} of ${days} days logged) and the weight went ${perWeek.value >= 0 ? '+' : '−'}${fmt(Math.abs(perWeek.value), 2)} kg/week ±${fmt(Math.sqrt(perWeek.v), 2)} (${weighIns} weigh-ins, ${from} → ${to}): ${fmt(intake.value, 0)} ${trend.value >= 0 ? '−' : '+'} ${fmt(Math.abs(trend.value) * KCAL_PER_KG, 0)} kcal/day at ${KCAL_PER_KG} kcal per kg.`,
+    detail: t('Logged {intake} kcal/day ({logged} of {days} days logged) and the weight went {change} kg/week ±{pm} ({weighIns} weigh-ins, {from} → {to}): {intake} {sign} {trend} kcal/day at {per} kcal per kg.', {
+      intake: fmt(intake.value, 0), logged: loggedDays, days, change: `${perWeek.value >= 0 ? '+' : '−'}${fmt(Math.abs(perWeek.value), 2)}`,
+      pm: fmt(Math.sqrt(perWeek.v), 2), weighIns, from, to, sign: trend.value >= 0 ? '−' : '+',
+      trend: fmt(Math.abs(trend.value) * KCAL_PER_KG, 0), per: KCAL_PER_KG,
+    }),
   }
 }
 
@@ -114,37 +121,37 @@ export function entryForm(entry) {
  * text}}; `answers` ({label: true to use the known name, false to keep it}) are the replies so far.
  */
 export async function saveEntry(entry, { texts, extra, datetime }, known, answers = {}) {
-  const num = (t) => t.trim().replace(',', '.')
+  const num = (s) => s.trim().replace(',', '.')
   const values = {}
   for (const f of BUILTIN_FIELDS) {
-    const t = texts[f.key]
-    if (!t.value.trim()) continue
-    const m = measure(num(t.value), num(t.delta))
-    if (!Number.isFinite(m.value)) return { alert: `${f.label}: not a number.` }
+    const typed = texts[f.key]
+    if (!typed.value.trim()) continue
+    const m = measure(num(typed.value), num(typed.delta))
+    if (!Number.isFinite(m.value)) return { alert: t('{name}: not a number.', { name: f.label }) }
     values[f.key] = m
   }
   const out = []
   for (const x of extra) {
     if (!x.label.trim() && !x.value.trim()) continue
-    if (!x.label.trim()) return { alert: 'A measurement needs a name.' }
+    if (!x.label.trim()) return { alert: t('A measurement needs a name.') }
     const m = measure(num(x.value), num(x.delta))
-    if (!Number.isFinite(m.value)) return { alert: `${x.label}: not a number.` }
+    if (!Number.isFinite(m.value)) return { alert: t('{name}: not a number.', { name: x.label }) }
     // A known name keeps its spelling; one that looks like a typo of a known one asks.
     let match = known.find((n) => n.key === nameKey(x.label))
     if (!match) {
       const near = lookalike(x.label, known)
       const label = x.label.trim()
       if (near && !(label in answers)) {
-        return { ask: { label, near: near.label, text: `“${label}” looks like “${near.label}”. Use “${near.label}”?\n(Cancel keeps “${label}” as a new measurement.)` } }
+        return { ask: { label, near: near.label, text: t('“{label}” looks like “{near}”. Use “{near}”?\n(Cancel keeps “{label}” as a new measurement.)', { label, near: near.label }) } }
       }
       if (near && answers[label]) match = near
     }
     const label = match?.label ?? x.label.trim()
-    if (out.some((o) => nameKey(o.label) === nameKey(label))) return { alert: `${label} is in twice.` }
+    if (out.some((o) => nameKey(o.label) === nameKey(label))) return { alert: t('{name} is in twice.', { name: label }) }
     // A blank unit takes the known measurement's.
     out.push({ label, unit: x.unit.trim() || match?.unit || '', ...m })
   }
-  if (!Object.keys(values).length && !out.length) return { alert: 'Type at least one measurement.' }
+  if (!Object.keys(values).length && !out.length) return { alert: t('Type at least one measurement.') }
   const rec = { userId: entry.userId, datetime: new Date(datetime).toISOString(), values, ...(out.length && { extra: out }) }
   await db.weights.put(entry.id ? { ...rec, id: entry.id } : rec)
   return null
@@ -155,8 +162,8 @@ export async function saveEntry(entry, { texts, extra, datetime }, known, answer
 /** Saves a user's name (a new user becomes the current one: it's usually added to be used). */
 export async function saveUser(user, name, users) {
   const n = name.trim()
-  if (!n) return { alert: 'Name is required.' }
-  if (users.some((u) => u.id !== user.id && u.name.toLowerCase() === n.toLowerCase())) return { alert: `There is already a user “${n}”.` }
+  if (!n) return { alert: t('Name is required.') }
+  if (users.some((u) => u.id !== user.id && u.name.toLowerCase() === n.toLowerCase())) return { alert: t('There is already a user “{name}”.', { name: n }) }
   if (user.id) await db.users.update(user.id, { name: n })
   else await setCurrentUser(await db.users.add({ name: n }))
   return null
@@ -171,15 +178,16 @@ export async function removeUser(id) {
   }
 }
 
-export const deleteUserText = (user, count) =>
-  `Deleting ${user.name} also deletes their ${count} consumption${count === 1 ? '' : 's'} and their targets. Foods stay.`
+export const deleteUserText = (user, count) => plural(count,
+  'Deleting {name} also deletes their {n} consumption and their targets. Foods stay.',
+  'Deleting {name} also deletes their {n} consumptions and their targets. Foods stay.', { name: user.name })
 
 // --- Config -------------------------------------------------------------------------
 
 // Generic-food tables bundled with the app (external.js): [config key, name, what it is].
 export const REFERENCE_DBS = [
-  ['ciqual', 'CIQUAL', 'ANSES, France: ~3.5k generic foods, English and French names.'],
-  ['usda', 'USDA', 'FoodData Central (Foundation Foods, SR Legacy): ~8.1k generic foods, with household measures.'],
+  ['ciqual', 'CIQUAL', 'ANSES, France: ~3.5k generic foods, English, French and Spanish names.'],
+  ['usda', 'USDA', 'FoodData Central (Foundation Foods, SR Legacy): ~8.1k generic foods, English and Spanish names, with household measures.'],
 ]
 
 // Coverage is stored as a share (0.9) and typed as a percentage (90).
@@ -194,11 +202,11 @@ export const configForm = (c) => ({
 
 export async function saveConfigForm(form) {
   const p = Number(form.coverage.trim().replace(',', '.')) / 100
-  if (!(p > 0 && p < 1)) return { alert: 'The interval must hold more than 0% and less than 100%.' }
+  if (!(p > 0 && p < 1)) return { alert: t('The interval must hold more than 0% and less than 100%.') }
   // A blank cap is the default; 0 turns the correction off for that bound.
   const kcal = (text, def) => (text.trim() === '' ? def : Number(text.trim().replace(',', '.')))
   const adjCap = { min: kcal(form.capMin, DEFAULT_CONFIG.adjCap.min), max: kcal(form.capMax, DEFAULT_CONFIG.adjCap.max) }
-  if (!(adjCap.min >= 0 && adjCap.max >= 0)) return { alert: 'The 7-day correction caps must be 0 kcal or more.' }
+  if (!(adjCap.min >= 0 && adjCap.max >= 0)) return { alert: t('The 7-day correction caps must be 0 kcal or more.') }
   await saveConfig({
     dayStart: form.dayStart || DEFAULT_CONFIG.dayStart, dashboard: form.dashboard, coverage: p, ciqual: form.ciqual, usda: form.usda,
     adjCap, adjGhost: form.adjGhost, showVersion: form.showVersion, onlyTargets: !!form.onlyTargets,

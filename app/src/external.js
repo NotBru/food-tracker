@@ -1,9 +1,10 @@
 // External food databases (design.md V2: "automatically fetch products from cool databases").
-//   CIQUAL (ANSES, France): ~3.5k generic foods, bundled as public/ciqual.json (built by scripts/ciqual.py),
+//   CIQUAL (ANSES, France): ~3.5k generic foods, bundled as public/ciqual.json (built by scripts/ciqual.py, Spanish
+//     names from scripts/es/),
 //     loaded on first use. Licence Ouverte, credit "ANSES-CIQUAL". Its foods are part of the food database,
 //     read-only (ciqualFoods); editing one saves a copy.
 //   USDA FoodData Central: Foundation Foods and SR Legacy, ~8.1k generic foods, bundled as public/fdc.json (built by
-//     scripts/fdc.py), loaded on first use, in the food database like CIQUAL's (fdcFoods). Public domain (CC0).
+//     scripts/fdc.py, Spanish names from scripts/es/), loaded on first use, in the food database like CIQUAL's (fdcFoods). Public domain (CC0).
 //   Open Food Facts: packaged products, from our own copy on the server (off/server.mjs, behind /off/ on the app's
 //     origin; vite.config.js relays it to production's in development), rebuilt from OFF's exports and updated daily.
 //     Its products come in the shape of OFF's API. Where the copy can't answer (server down, or a barcode newer than
@@ -13,6 +14,7 @@
 // Drafts carry a `database` attribute (CIQUAL / USDA / OFF) plus `source` ({db, id}) for the link back.
 
 import { deltaFromInput } from './nutrients'
+import { getLang, t } from './i18n'
 
 const OFF = 'https://world.openfoodfacts.org'
 // Browsers may not set User-Agent, and a custom header would trigger a CORS preflight that the search endpoint
@@ -53,7 +55,7 @@ export function loadCiqual() {
     })
     .then((t) => ({
       ...t,
-      foods: t.foods.map(([code, en, fr, group, values]) => ({ code, en, fr, group, values })),
+      foods: t.foods.map(([code, en, fr, group, values, es]) => ({ code, en, fr, group, values, es })),
     }))
     .catch((e) => {
       ciqual = null // allow a retry
@@ -65,32 +67,42 @@ export function loadCiqual() {
 /**
  * A reference database's foods as read-only foods of the app (calc.js loadContext), made only when asked for: `get(id)`
  * one (a consumption of it), `all()` every one (searches). Making all ~11.6k of CIQUAL's and USDA's took most of the
- * app's start, for the few the homescreen needs (docs/execution/2026-11-02-fast-start.md).
+ * app's start, for the few the homescreen needs (docs/execution/2026-11-02-fast-start.md). Made in the app's language
+ * (i18n.js): its name and group; each language its own set, made when first asked for in it.
  */
 function lazyFoods(load, idOf, make) {
-  let foods = null
+  const byLang = new Map()
   return () => {
-    foods ??= load()
-      .then((t) => {
-        const rows = new Map(t.foods.map((f) => [idOf(f), f]))
-        const made = new Map()
-        const get = (id) => {
-          if (!made.has(id)) made.set(id, rows.has(id) ? { ...make(t, rows.get(id)), id, readOnly: true } : undefined)
-          return made.get(id)
-        }
-        let all = null
-        return { get, all: () => (all ??= [...rows.keys()].map(get)) }
-      })
-      .catch((e) => {
-        foods = null // allow a retry
-        throw e
-      })
-    return foods
+    const lang = getLang()
+    if (!byLang.has(lang)) {
+      byLang.set(lang, load()
+        .then((t) => {
+          const rows = new Map(t.foods.map((f) => [idOf(f), f]))
+          const made = new Map()
+          const get = (id) => {
+            if (!made.has(id)) made.set(id, rows.has(id) ? { ...make(t, rows.get(id), lang), id, readOnly: true } : undefined)
+            return made.get(id)
+          }
+          let all = null
+          return { get, all: () => (all ??= [...rows.keys()].map(get)) }
+        })
+        .catch((e) => {
+          byLang.delete(lang) // allow a retry
+          throw e
+        }))
+    }
+    return byLang.get(lang)
   }
 }
 
+/** A reference food's name in `lang` (English if it has none) and its other names, for searches (search.js). */
+function names(lang, en, others) {
+  const name = (lang === 'es' && others.es) || en
+  return { name, otherNames: [en, ...Object.values(others)].filter((n) => n && n !== name) }
+}
+
 // CIQUAL's: id "ciqual:<code>", the subgroup as their category.
-export const ciqualFoods = lazyFoods(loadCiqual, (f) => `ciqual:${f.code}`, (t, f) => ({ ...ciqualDraft(t, f), nameFr: f.fr }))
+export const ciqualFoods = lazyFoods(loadCiqual, (f) => `ciqual:${f.code}`, ciqualDraft)
 
 // CIQUAL is per 100 g, but liquids are measured in ml: they get "100 ml = X g", the density from their composition,
 // 1/ρ = Σ wᵢ/ρᵢ (g/ml: water 1, fat 0.925, protein 1.33, carbohydrates 1.6, fibre 1.31, alcohol 0.789, Choi & Okos;
@@ -119,7 +131,7 @@ function mlUnit(food, nutrients) {
     toAmount: g, toText: String(g), toDelta: delta, toDeltaAuto: false, toUnit: 'g' }
 }
 
-export function ciqualDraft(table, food) {
+export function ciqualDraft(table, food, lang = 'en') {
   const nutrients = {}
   table.keys.forEach((key, i) => {
     const v = food.values[i]
@@ -130,10 +142,11 @@ export function ciqualDraft(table, food) {
   const ml = isLiquid(food) && mlUnit(food, nutrients)
   const units = ml ? [ml] : []
   return {
-    name: food.en, brand: '', attributes: [['database', 'CIQUAL']], ...PER_100, unit: 'g', units, components: [], nutrients,
+    ...names(lang, food.en, { fr: food.fr, es: food.es }),
+    brand: '', attributes: [['database', 'CIQUAL']], ...PER_100, unit: 'g', units, components: [], nutrients,
     category: food.group,
     source: { db: 'ciqual', id: food.code, version: table.source },
-    subtitle: table.groups[food.group] ?? '',
+    subtitle: (lang === 'es' && table.groupsEs?.[food.group]) || table.groups[food.group] || '',
   }
 }
 
@@ -151,7 +164,7 @@ export function loadFdc() {
     })
     .then((t) => ({
       ...t,
-      foods: t.foods.map(([id, name, dataset, category, group, values, units]) => ({ id, name, dataset, category, group, values, units })),
+      foods: t.foods.map(([id, name, dataset, category, group, values, units, es]) => ({ id, name, dataset, category, group, values, units, es })),
     }))
     .catch((e) => {
       fdc = null // allow a retry
@@ -163,7 +176,7 @@ export function loadFdc() {
 // USDA's, like CIQUAL's: id "fdc:<fdcId>", category the CIQUAL subgroup scripts/fdc.py gave them.
 export const fdcFoods = lazyFoods(loadFdc, (f) => `fdc:${f.id}`, fdcDraft)
 
-export function fdcDraft(table, food) {
+export function fdcDraft(table, food, lang = 'en') {
   const nutrients = {}
   table.keys.forEach((key, i) => {
     if (food.values[i] !== '') nutrients[key] = nutrient(food.values[i])
@@ -174,10 +187,11 @@ export function fdcDraft(table, food) {
   }))
   const dataset = table.datasets[food.dataset]
   return {
-    name: food.name, brand: '', attributes: [['database', 'USDA']], ...PER_100, unit: 'g', units, components: [], nutrients,
+    ...names(lang, food.name, { es: food.es }),
+    brand: '', attributes: [['database', 'USDA']], ...PER_100, unit: 'g', units, components: [], nutrients,
     category: food.category,
     source: { db: 'fdc', id: food.id, version: dataset },
-    subtitle: [table.groups[food.group], dataset].filter(Boolean).join(' · '),
+    subtitle: [(lang === 'es' && table.groupsEs?.[food.group]) || table.groups[food.group], dataset].filter(Boolean).join(' · '),
   }
 }
 
@@ -227,7 +241,7 @@ export function offDraft(p) {
   // "A, B" (OFF's API); also accepts ["A", "B"].
   const brand = String(Array.isArray(p.brands) ? p.brands[0] ?? '' : p.brands ?? '').split(',')[0].trim()
   return {
-    name: (p.product_name || '').trim() || `Product ${p.code}`, brand, attributes: [['database', 'OFF']], ...PER_100, unit, units,
+    name: (p.product_name || '').trim() || t('Product {code}', { code: p.code }), brand, attributes: [['database', 'OFF']], ...PER_100, unit, units,
     components: [], nutrients: offNutrients(p.nutriments),
     source: { db: 'off', id: p.code },
     subtitle: [brand, p.quantity].filter(Boolean).join(' · '),
@@ -253,10 +267,10 @@ async function offGet(url) {
   try {
     r = await fetch(`${url}&${OFF_APP}`)
   } catch {
-    throw new Error("Open Food Facts didn't answer (offline, or busy / rate-limited). Try again in a minute.")
+    throw new Error(t("Open Food Facts didn't answer (offline, or busy / rate-limited). Try again in a minute."))
   }
-  if (r.status === 429) throw new Error('Open Food Facts rate limit reached. Try again in a minute.')
-  if (r.status === 503) throw new Error('Open Food Facts search is temporarily unavailable. Try again in a minute.')
+  if (r.status === 429) throw new Error(t('Open Food Facts rate limit reached. Try again in a minute.'))
+  if (r.status === 503) throw new Error(t('Open Food Facts search is temporarily unavailable. Try again in a minute.'))
   if (r.status === 404) return null
   if (!r.ok) throw new Error(`Open Food Facts: HTTP ${r.status}`)
   if (!r.headers.get('content-type')?.includes('json')) return null
@@ -309,7 +323,7 @@ export async function offProductDraft(draft) {
 
 export function sourceLabel(source) {
   if (!source) return null
-  if (source.db === 'ciqual') return { text: `${source.version ?? 'ANSES-CIQUAL'} · food #${source.id}`, href: `https://ciqual.anses.fr/#/aliments/${source.id}` }
+  if (source.db === 'ciqual') return { text: `${source.version ?? 'ANSES-CIQUAL'} · ${t('food #{id}', { id: source.id })}`, href: `https://ciqual.anses.fr/#/aliments/${source.id}` }
   if (source.db === 'fdc') return { text: `USDA ${source.version ?? 'FoodData Central'} · FDC #${source.id}`, href: `https://fdc.nal.usda.gov/food-details/${source.id}/nutrients` }
   if (source.db === 'off') return { text: `Open Food Facts · ${source.id}`, href: `${OFF}/product/${source.id}` }
   return null

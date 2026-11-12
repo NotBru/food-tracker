@@ -4,6 +4,7 @@ import { energySplit } from './energy'
 import { baseAmount, consumptionNutrients, nutrientsFor, unitFactorSpan } from './calc'
 import { itemLabel, madeText } from './db'
 import { formatDateTime } from './time'
+import { t } from './i18n'
 
 // A food's nutrition label as an image: one fixed layout (a package's table, in the app's dark colours), whatever
 // the food or the screen: its energy by macro (the Info tab's donut, EnergyChart.jsx), then every nutrient. Values
@@ -79,10 +80,10 @@ export function drawLabel({ title, made, per, perNote, nutrients, ok = true }) {
   measure.font = `600 20px ${FONT}`
   const titleLines = wrap(measure, title, W - 2 * PAD)
   const notes = [
-    `± holds ${fmt(getCoverage() * 100)}% of the probability.`,
-    estimated && '~ estimated from the macros (4/9/4 kcal/g, alcohol 7).',
-    missing && '* some components don\'t have this value.',
-    !ok && 'Some of it can\'t be computed (missing food or unit conversion).',
+    t('± holds {pct}% of the probability.', { pct: fmt(getCoverage() * 100) }),
+    estimated && t('~ estimated from the macros (4/9/4 kcal/g, alcohol 7).'),
+    missing && t("* some components don't have this value."),
+    !ok && t("Some of it can't be computed (missing food or unit conversion)."),
   ].filter(Boolean)
   measure.font = `13px ${FONT}`
   const noteLines = notes.flatMap((n) => wrap(measure, n, W - 2 * PAD))
@@ -123,7 +124,7 @@ export function drawLabel({ title, made, per, perNote, nutrients, ok = true }) {
   }
 
   let y = PAD + 32
-  text('Nutrition facts', PAD, y, '800 34px')
+  text(t('Nutrition facts'), PAD, y, '800 34px')
   y += 8
   for (const line of titleLines) text(line, PAD, (y += 26) - 4, '600 20px')
   if (made) text(made, PAD, (y += 22) - 4, '14px', 'left', SOFT)
@@ -132,13 +133,13 @@ export function drawLabel({ title, made, per, perNote, nutrients, ok = true }) {
   y += 8
 
   y += 34
-  text(`Per ${per}`, PAD, y - 10, '700 20px')
+  text(t('Per {amount}', { amount: per }), PAD, y - 10, '700 20px')
   if (perNote) text(perNote, W - PAD, y - 10, '15px', 'right', SOFT)
   rule(y, 4)
   y += 10
 
   if (chartH) {
-    text('Energy by macro', PAD, y + 22, '700 18px')
+    text(t('Energy by macro'), PAD, y + 22, '700 18px')
     y += 30
     const top = y
     const pct = (x) => `${fmt((x / split.total) * 100, 0)}%`
@@ -179,15 +180,15 @@ export function drawLabel({ title, made, per, perNote, nutrients, ok = true }) {
       ly += 20
     }
     y = top + Math.max(DONUT, legend.length * 20 + 6)
-    const alcohol = split.macros.some((m) => m.key === 'alcohol') ? ', 7 alcohol' : ''
-    text(`From the grams: 9 kcal/g fat, 4 proteins and carbohydrates${alcohol}.`, PAD, y + 20, '13px', 'left', SOFT)
+    const alcohol = split.macros.some((m) => m.key === 'alcohol')
+    text(alcohol ? t('From the grams: 9 kcal/g fat, 4 proteins and carbohydrates, 7 alcohol.') : t('From the grams: 9 kcal/g fat, 4 proteins and carbohydrates.'), PAD, y + 20, '13px', 'left', SOFT)
     y += 30
     rule(y, 4)
     y += 14
   }
 
   const energy = list.find((r) => r.key === 'energy')
-  text('Energy', PAD, y + 26, '800 24px')
+  text(t('Energy'), PAD, y + 26, '800 24px')
   text(`${valueText(energy.v)} kcal`, VAL_X, y + 26, '800 24px', 'right')
   text(deltaText(energy.v), W - PAD, y + 26, '15px', 'right', SOFT)
   if (Number.isFinite(energy.v?.value)) {
@@ -257,8 +258,8 @@ export function labelChoices(item, log, per) {
   const [baseAmt, baseUnit] = baseAmount(item)
   const eaten = log && log.itemId === item.id ? log : null
   const presets = [
-    eaten && { key: 'eaten', text: String(eaten.amount), unit: eaten.unit, label: `Eaten: ${amountLabel(eaten.amount, eaten.amountDelta, eaten.unit)}` },
-    { key: 'base', text: String(baseAmt), unit: baseUnit, label: `Food's amount: ${fmt(baseAmt, 2)} ${baseUnit}` },
+    eaten && { key: 'eaten', text: String(eaten.amount), unit: eaten.unit, label: t('Eaten: {amount}', { amount: amountLabel(eaten.amount, eaten.amountDelta, eaten.unit) }) },
+    { key: 'base', text: String(baseAmt), unit: baseUnit, label: t("Food's amount: {amount}", { amount: `${fmt(baseAmt, 2)} ${baseUnit}` }) },
   ].filter(Boolean)
   return { eaten, presets, start: eaten ? presets[0] : { key: 'per', text: per.text, unit: per.unit } }
 }
@@ -268,7 +269,7 @@ export function labelChoices(item, log, per) {
 export function labelFor(ctx, item, eaten, pick) {
   const head = { title: itemLabel(item), made: madeText(item) }
   if (pick.key === 'eaten' && eaten) {
-    const note = [`eaten ${formatDateTime(eaten.datetime)}`, measureNote(item, eaten.amount, eaten.unit)].filter(Boolean).join(' · ')
+    const note = [t('eaten {when}', { when: formatDateTime(eaten.datetime) }), measureNote(item, eaten.amount, eaten.unit)].filter(Boolean).join(' · ')
     return { ...head, per: amountLabel(eaten.amount, eaten.amountDelta, eaten.unit), perNote: note, ...consumptionNutrients(ctx, eaten) }
   }
   const amount = Number(normalizeNumber(pick.text))

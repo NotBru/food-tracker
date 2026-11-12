@@ -17,6 +17,9 @@ import sys
 import xml.etree.ElementTree as ET
 from collections import Counter
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'es'))
+from merge import merge  # noqa: E402
+
 # CIQUAL const_code -> app nutrient key (src/nutrients.js). Units already match.
 CONST = {
     328: 'energy',  # kcal, EU Regulation 1169/2011
@@ -185,6 +188,7 @@ def main(src, version):
     with open(dest, 'w', encoding='utf-8') as f:
         json.dump(out, f, ensure_ascii=False, separators=(',', ':'))
     print(f'{len(foods)} foods -> {os.path.normpath(dest)} ({os.path.getsize(dest) // 1024} KB)')
+    merge('ciqual')  # the Spanish names (scripts/es/merge.py)
 
 
 if __name__ == '__main__':

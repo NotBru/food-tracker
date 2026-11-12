@@ -1,6 +1,7 @@
 import { measure } from './nutrients'
 import { addScaled, zero } from './stats'
 import { addDays, daysBetween, logicalDay } from './time'
+import { t, translated } from './i18n'
 
 // Body measurements: {userId, datetime, values: {field: {value, text, delta, auto}}, extra: [{label, unit, value, text,
 // delta, auto}]}, per user like consumptions (table `weights`, its name from when it held only weight). `values` has
@@ -11,13 +12,13 @@ import { addDays, daysBetween, logicalDay } from './time'
 // fat) are larger than real change, so what's read is the 7-day average and the trend over weeks.
 
 // Built-in fields. `minRange`: the least a chart's scale spans.
-export const BUILTIN_FIELDS = [
+export const BUILTIN_FIELDS = translated([
   { key: 'kg', label: 'Weight', unit: 'kg', minRange: 2, short: 'kg' },
   { key: 'bodyFat', label: 'Body fat', unit: '%', minRange: 2, short: '% fat' },
   { key: 'musclePct', label: 'Muscle', unit: '%', minRange: 2, short: '% muscle' },
   { key: 'muscle', label: 'Muscle mass', unit: 'kg', minRange: 2, short: 'kg muscle' },
   { key: 'waist', label: 'Waist', unit: 'cm', minRange: 4, short: 'cm waist', hint: 'at the navel, relaxed, breathing out' },
-]
+], ['label', 'short', 'hint'])
 
 const uniformVar = (d) => (Math.abs(d) || 0) ** 2 / 3
 
@@ -107,7 +108,7 @@ function extraValue(entry, key) {
  * in `rows`. */
 export function measures(rows = []) {
   const { kg, bodyFat: fat, musclePct, muscle, waist } = Object.fromEntries(BUILTIN_FIELDS.map((f) => [f.key, { ...f, of: (e) => fieldValue(e, f.key) }]))
-  const lean = { key: 'lean', label: 'Lean mass', unit: 'kg', minRange: 2, derived: true, of: leanValue }
+  const lean = { key: 'lean', label: t('Lean mass'), unit: 'kg', minRange: 2, derived: true, of: leanValue }
   const extra = extraNames(rows).map((n) => ({ key: `x:${n.key}`, label: n.label, unit: n.unit, of: (e) => extraValue(e, n.key) }))
   return [kg, fat, lean, musclePct, muscle, waist, ...extra]
 }

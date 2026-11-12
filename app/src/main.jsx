@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useRoute } from './components'
 import { expireNotes, getConfig } from './db'
 import { setCoverage } from './stats'
+import { setLang } from './i18n'
 import Home from './screens/Home'
 import Consumptions from './screens/Consumptions'
 import ConsumptionInfo from './screens/ConsumptionInfo'
@@ -28,6 +29,7 @@ function App() {
   const config = useLiveQuery(getConfig)
   if (!config) return null
   setCoverage(config.coverage)
+  setLang(config.language)
   // In the Android app, a route with a native screen is drawn by the app, over this (native/bridge.js).
   if (nativeRoute()) return null
   const [a, b] = parts

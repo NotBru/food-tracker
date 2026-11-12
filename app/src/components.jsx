@@ -5,6 +5,7 @@ import { foodMatches } from './search'
 import { kcalPer100 } from './calc'
 import { today } from './time'
 import { autoAmountDelta, calories, fmt, pmText } from './nutrients'
+import { t } from './i18n'
 
 // --- Current day -----------------------------------------------------------
 // Today's logical day (see time.js), kept current: live queries only re-run on database changes, so screens that
@@ -103,7 +104,7 @@ export function Screen({ title, subtitle, back = true, right, className = '', ch
   return (
     <div className={`screen ${className}`.trim()}>
       <header className="topbar">
-        {back ? <button className="icon" onClick={() => history.back()} aria-label="Back"><Chevron /></button> : <span />}
+        {back ? <button className="icon" onClick={() => history.back()} aria-label={t('Back')}><Chevron /></button> : <span />}
         <h1>{title}{subtitle && <small className="subtitle">{subtitle}</small>}</h1>
         {right ?? <span />}
       </header>
@@ -139,7 +140,7 @@ export function DateTimeInput({ value, onChange }) {
       <input value={text} inputMode="numeric" placeholder="YYYY-MM-DD HH:MM" className={valid ? '' : 'invalid'}
         onChange={(e) => { setText(e.target.value); const v = parse(e.target.value); if (v) onChange(v) }}
         onBlur={() => setText(shown(value))} />
-      <button type="button" className="icon small" aria-label="Pick date and time"
+      <button type="button" className="icon small" aria-label={t('Pick date and time')}
         onClick={(e) => { e.preventDefault(); const el = pickerRef.current; el.showPicker ? el.showPicker() : el.focus() }}>📅</button>
       <input ref={pickerRef} type="datetime-local" className="hidden-date" tabIndex={-1} aria-hidden="true" value={value ?? ''}
         onChange={(e) => e.target.value && onChange(e.target.value)} />
@@ -175,7 +176,7 @@ export const enterSaves = (save) => (e) => {
 }
 
 /** Free-text unit, used where units are defined (database screens). */
-export function UnitInput({ value, onChange, placeholder = 'unit' }) {
+export function UnitInput({ value, onChange, placeholder = t('unit') }) {
   return <input value={value ?? ''} placeholder={placeholder} autoCapitalize="none" onChange={(e) => onChange(e.target.value)} />
 }
 
@@ -185,7 +186,7 @@ export function DeltaInput({ value, onChange, amount, unit }) {
   return (
     <div className="delta">
       <span aria-hidden="true">±</span>
-      <input inputMode="decimal" value={value ?? ''} placeholder={Number.isFinite(auto) ? String(auto) : 'auto'} aria-label="± Δ" onChange={(e) => onChange(e.target.value)} />
+      <input inputMode="decimal" value={value ?? ''} placeholder={Number.isFinite(auto) ? String(auto) : t('auto')} aria-label="± Δ" onChange={(e) => onChange(e.target.value)} />
     </div>
   )
 }
@@ -198,7 +199,7 @@ export function EntryErrorButton({ value, onChange }) {
   const [editing, setEditing] = useState(false)
   const pct = fmt(value * 100, 2)
   if (!editing) {
-    return <button type="button" className="secondary entry-error" title="Entry error (0 if it's the product on the label)"
+    return <button type="button" className="secondary entry-error" title={t("Entry error (0 if it's the product on the label)")}
       onClick={() => setEditing(true)}>ε {pct}%</button>
   }
   const done = (text) => {
@@ -207,7 +208,7 @@ export function EntryErrorButton({ value, onChange }) {
     setEditing(false)
   }
   return (
-    <input className="entry-error" inputMode="decimal" autoFocus onFocus={(e) => e.target.select()} defaultValue={pct} aria-label="Entry error, %"
+    <input className="entry-error" inputMode="decimal" autoFocus onFocus={(e) => e.target.select()} defaultValue={pct} aria-label={t('Entry error, %')}
       onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()} onBlur={(e) => done(e.target.value)} />
   )
 }
@@ -229,10 +230,10 @@ export function UnitCombo({ units, value, onChange, enterNext }) {
     setOpen(false)
     if (byEnter && enterNext) focusNextField(inputRef.current)
   }, () => setOpen(false))
-  if (!units) return <input disabled placeholder="pick a food first" />
+  if (!units) return <input disabled placeholder={t('pick a food first')} />
   return (
     <div className="picker">
-      <input ref={inputRef} value={value ?? ''} placeholder={units[0] ?? 'unit'} autoCapitalize="none" autoComplete="off"
+      <input ref={inputRef} value={value ?? ''} placeholder={units[0] ?? t('unit')} autoCapitalize="none" autoComplete="off"
         onFocus={(e) => { setOpen(true); nav.reset(); e.target.select() }}
         onBlur={() => setOpen(false)}
         onChange={(e) => { onChange(e.target.value); setOpen(true); nav.reset() }}
@@ -240,7 +241,7 @@ export function UnitCombo({ units, value, onChange, enterNext }) {
       {open && (
         <ul className="picker-list" ref={nav.listRef}>
           {matches.map((u, i) => <li key={u} {...nav.itemProps(i)}>{u}</li>)}
-          {!matches.length && <li className="muted">No conversion to “{value}” for this food</li>}
+          {!matches.length && <li className="muted">{t('No conversion to “{unit}” for this food', { unit: value })}</li>}
         </ul>
       )}
     </div>
@@ -307,7 +308,7 @@ export function Select({ value, options, onChange, enterNext, ...props }) {
               {o.label}{o.group && <small className="muted"> · {o.group}</small>}
             </li>
           ))}
-          {!matches.length && <li className="muted">No match</li>}
+          {!matches.length && <li className="muted">{t('No match')}</li>}
         </ul>
       )}
     </div>
@@ -321,12 +322,12 @@ export function AttributesEditor({ value = [], onChange }) {
       {value.map(([k, v], i) => (
         <div className="row" key={i}>
           {/* Not capitalized: keys and values are mostly lowercase ("size: small"). */}
-          <input placeholder="key" autoCapitalize="none" value={k} onChange={(e) => set(i, 0, e.target.value)} />
-          <input placeholder="value" autoCapitalize="none" value={v} onChange={(e) => set(i, 1, e.target.value)} />
-          <button className="icon" onClick={() => onChange(value.filter((_, k2) => k2 !== i))} aria-label="Remove">×</button>
+          <input placeholder={t('key')} autoCapitalize="none" value={k} onChange={(e) => set(i, 0, e.target.value)} />
+          <input placeholder={t('value')} autoCapitalize="none" value={v} onChange={(e) => set(i, 1, e.target.value)} />
+          <button className="icon" onClick={() => onChange(value.filter((_, k2) => k2 !== i))} aria-label={t('Remove')}>×</button>
         </div>
       ))}
-      <button type="button" className="link" {...pressable(() => onChange([...value, ['', '']]))}>+ attribute</button>
+      <button type="button" className="link" {...pressable(() => onChange([...value, ['', '']]))}>{t('+ attribute')}</button>
     </div>
   )
 }
@@ -422,19 +423,19 @@ export function ItemPicker({ ctx, value, onChange, exclude, onCreate, onRegister
         <input
           ref={inputRef}
           value={query ?? (selected ? itemLabel(selected) : '')}
-          placeholder="Search foods…"
+          placeholder={t('Search foods…')}
           onFocus={(e) => { setQuery(''); nav.reset(); e.target.select() }}
           onBlur={() => setQuery(null)}
           onChange={(e) => { setQuery(e.target.value); nav.reset() }}
           {...nav.inputProps}
         />
         {/* mousedown kept from blurring the box, so what's typed is still there on click. */}
-        {onCreate && <button type="button" className="icon plus" aria-label="New food" onMouseDown={(e) => e.preventDefault()} onClick={() => onCreate((query ?? '').trim())}>+</button>}
+        {onCreate && <button type="button" className="icon plus" aria-label={t('New food')} onMouseDown={(e) => e.preventDefault()} onClick={() => onCreate((query ?? '').trim())}>+</button>}
       </div>
       {/* mousedown kept from blurring the box, as the +: what's typed names the new food.
           Right under the box, above the matches: there when nothing matches. */}
       {onRegister && <button type="button" className="link register-food" onMouseDown={(e) => e.preventDefault()}
-        onClick={() => onRegister((query ?? '').trim())}>+ register food</button>}
+        onClick={() => onRegister((query ?? '').trim())}>{t('+ register food')}</button>}
       {/* The box holds text only, so a picked concoction's made-at time sits under it. */}
       {query === null && <MadeTag item={selected} />}
       {query !== null && (
@@ -442,12 +443,12 @@ export function ItemPicker({ ctx, value, onChange, exclude, onCreate, onRegister
           {matches.map(([it, label], i) => (
             <li key={it.id} {...nav.itemProps(i)}>
               {label}
-              {kindOf(it) === 'recipe' && <small className="muted"> · recipe</small>}
+              {kindOf(it) === 'recipe' && <small className="muted"> · {t('recipe')}</small>}
               {perHundred && <PerHundred ctx={ctx} id={it.id} />}
               <MadeTag item={it} />
             </li>
           ))}
-          {!matches.length && <li className="muted">No match</li>}
+          {!matches.length && <li className="muted">{t('No match')}</li>}
         </ul>
       )}
     </div>
@@ -487,7 +488,7 @@ export function NutrientAdder({ options, onAdd, inputRef }) {
   }, () => setOpen(false))
   return (
     <div className="picker">
-      <input ref={inputRef} className="add-nutrient" value={text} placeholder="+ add nutrient…"
+      <input ref={inputRef} className="add-nutrient" value={text} placeholder={t('+ add nutrient…')}
         onFocus={(e) => {
           setOpen(true)
           // Keep the suggestions above the on-screen keyboard.
@@ -504,7 +505,7 @@ export function NutrientAdder({ options, onAdd, inputRef }) {
               {n.label} <small className="muted">{n.unit}</small>
             </li>
           ))}
-          {!matches.length && <li className="muted">No match</li>}
+          {!matches.length && <li className="muted">{t('No match')}</li>}
         </ul>
       )}
     </div>
@@ -513,15 +514,15 @@ export function NutrientAdder({ options, onAdd, inputRef }) {
 
 /** "P 12 · F 5 · C 30 · 230 kcal" line; with `deltas`, each value also shows its interval ("P 12 ±1 · …"). */
 export function MacroLine({ nutrients, ok = true, deltas = false }) {
-  if (!ok) return <span className="macros warn">can't compute (unit conversion missing?)</span>
+  if (!ok) return <span className="macros warn">{t("can't compute (unit conversion missing?)")}</span>
   const v = (k) => nutrients[k]?.value ?? 0
   const kcal = calories(nutrients)
   const pm = (n, digits) => deltas && n && <small className="pm"> {pmText(n, digits)}</small>
   return (
     <span className="macros">
-      <b className="c-prot">P {fmt(v('proteins'))}{pm(nutrients.proteins)}</b> ·{' '}
-      <b className="c-fat">F {fmt(v('fat'))}{pm(nutrients.fat)}</b> ·{' '}
-      <b className="c-carb">C {fmt(v('carbohydrates'))}{pm(nutrients.carbohydrates)}</b> ·{' '}
+      <b className="c-prot">{t('P')} {fmt(v('proteins'))}{pm(nutrients.proteins)}</b> ·{' '}
+      <b className="c-fat">{t('F')} {fmt(v('fat'))}{pm(nutrients.fat)}</b> ·{' '}
+      <b className="c-carb">{t('C')} {fmt(v('carbohydrates'))}{pm(nutrients.carbohydrates)}</b> ·{' '}
       <b className="c-kcal">{kcal.estimated ? '~' : ''}{fmt(kcal.value, 0)}{pm(kcal, 0)} kcal</b>
     </span>
   )

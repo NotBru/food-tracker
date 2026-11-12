@@ -7,8 +7,8 @@
 //
 // No imports, so Node can use it too (the log-food skill's tool syncs like a device): the tables are those given.
 
-// Which user is selected is this device's own.
-const LOCAL = new Set(['config:currentUser'])
+// Which user is selected, and the app's language, are this device's own.
+const LOCAL = new Set(['config:currentUser', 'config:language'])
 
 /** Object keys sorted: the same row written in another order compares equal. */
 const canon = (row) => JSON.stringify(row, (_, v) =>

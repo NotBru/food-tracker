@@ -5,6 +5,7 @@ import { db, getCurrentUser, makeId, NOTE_DAYS } from '../db'
 import { deleteNote, leftText, saveNote, shrink } from '../notes'
 import { formatDateTime } from '../time'
 import { Screen, replace, useComputer } from '../components'
+import { t } from '../i18n'
 
 // Temp notes: text and pictures (camera or gallery), stamped with when they were made, gone a week later (db.js
 // expireNotes). Mostly for Claude's log-food skill, which reads them from the backup. `done: true` once taken care of
@@ -26,7 +27,7 @@ function useObjectUrl(blob) {
 function Picture({ id, blob, name, onClick }) {
   const stored = useLiveQuery(() => (blob ? null : db.files.get(id)), [id, blob])
   const url = useObjectUrl(blob ?? stored?.blob)
-  if (!url) return <span className="note-pic missing" title={`${name ? `${name}: n` : 'N'}ot on this device yet: it comes with the next sync`}>…</span>
+  if (!url) return <span className="note-pic missing" title={name ? t('{name}: not on this device yet: it comes with the next sync', { name }) : t('Not on this device yet: it comes with the next sync')}>…</span>
   return <img className="note-pic" src={url} alt={name ?? ''} title={name} onClick={onClick} />
 }
 
@@ -92,14 +93,14 @@ export default function Notes({ add }) {
 
   if (!data) return null
   return (
-    <Screen title="Temp notes" subtitle={data.user.name}>
-      <p className="muted small">Deleted {NOTE_DAYS} days after they're made.</p>
+    <Screen title={t('Temp notes')} subtitle={data.user.name}>
+      <p className="muted small">{t("Deleted {n} days after they're made.", { n: NOTE_DAYS })}</p>
       <ul className="list">
-        <li className="add" onClick={newNote}>+ add note</li>
+        <li className="add" onClick={newNote}>{t('+ add note')}</li>
         {data.notes.map((n) => (
           <li key={n.id} className={n.done ? 'note-done' : undefined} onClick={() => setEditing(n)}>
             <div className="list-main">
-              <span className="muted nowrap">{formatDateTime(n.datetime)}{n.done && <span className="done-mark"> · ✓ done</span>}</span>
+              <span className="muted nowrap">{formatDateTime(n.datetime)}{n.done && <span className="done-mark"> · ✓ {t('done')}</span>}</span>
               <span className="muted small nowrap">{leftText(n)}</span>
             </div>
             {n.text && <p className="note-text">{n.text}</p>}
@@ -152,13 +153,13 @@ function NoteEditor({ note, onView, onClose }) {
 
   // Closes at once: the note is saved (and synced) behind it.
   function save() {
-    if (!text.trim() && !pics.length) return alert('Write something or add a picture.')
+    if (!text.trim() && !pics.length) return alert(t('Write something or add a picture.'))
     onClose()
-    saveNote(note, text, done, pics).catch((e) => alert(`Couldn't save the note: ${e.message}`))
+    saveNote(note, text, done, pics).catch((e) => alert(t("Couldn't save the note: {error}", { error: e.message })))
   }
 
   async function remove() {
-    if (!confirm('Delete this note?')) return
+    if (!confirm(t('Delete this note?'))) return
     await deleteNote(note)
     onClose()
   }
@@ -166,36 +167,36 @@ function NoteEditor({ note, onView, onClose }) {
   return (
     <div className="modal" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
-        <h2>{note.id ? `Note of ${formatDateTime(note.datetime)}` : 'New note'}</h2>
-        <textarea className="note-input" autoFocus={!note.id && computer} rows={4} value={text} placeholder="What it's about…" onChange={(e) => setText(e.target.value)} />
+        <h2>{note.id ? t('Note of {when}', { when: formatDateTime(note.datetime) }) : t('New note')}</h2>
+        <textarea className="note-input" autoFocus={!note.id && computer} rows={4} value={text} placeholder={t("What it's about…")} onChange={(e) => setText(e.target.value)} />
         {pics.length > 0 && (
           <div className="note-pics">
             {pics.map((p, i) => (
               <span key={p.key} className="note-pic-wrap">
                 <Picture id={p.id} blob={p.blob} name={p.name} onClick={() => onView({ pics: pics.map((q) => (q.blob ? { blob: q.blob, name: q.name } : { id: q.id, name: q.name })), at: i })} />
-                <button className="icon small" onClick={() => setPics(pics.filter((x) => x !== p))} aria-label="Remove picture">×</button>
+                <button className="icon small" onClick={() => setPics(pics.filter((x) => x !== p))} aria-label={t('Remove picture')}>×</button>
               </span>
             ))}
           </div>
         )}
         <div className="row">
-          <button className="secondary" disabled={busy} onClick={() => camera.current.click()}>📷 Camera</button>
-          <button className="secondary" disabled={busy} onClick={() => gallery.current.click()}>🖼️ Gallery</button>
+          <button className="secondary" disabled={busy} onClick={() => camera.current.click()}>📷 {t('Camera')}</button>
+          <button className="secondary" disabled={busy} onClick={() => gallery.current.click()}>🖼️ {t('Gallery')}</button>
         </div>
         <input ref={camera} type="file" accept="image/*" capture="environment" hidden onChange={pick} />
         <input ref={gallery} type="file" accept="image/*" multiple hidden onChange={pick} />
         <ul className="switch-list">
           <li>
             <label>
-              <span><strong>Done</strong><small className="muted">Taken care of: logged, or nothing to log. The log-food skill skips it, and marks the notes it logs.</small></span>
+              <span><strong>{t('Done')}</strong><small className="muted">{t('Taken care of: logged, or nothing to log. The log-food skill skips it, and marks the notes it logs.')}</small></span>
               <input type="checkbox" role="switch" className="switch" checked={done} onChange={(e) => setDone(e.target.checked)} />
             </label>
           </li>
         </ul>
         <div className="row actions">
-          {note.id && <button className="danger" onClick={remove}>Delete</button>}
-          <button className="secondary" onClick={onClose}>Cancel</button>
-          <button disabled={busy} onClick={save}>{busy ? '…' : 'Save'}</button>
+          {note.id && <button className="danger" onClick={remove}>{t('Delete')}</button>}
+          <button className="secondary" onClick={onClose}>{t('Cancel')}</button>
+          <button disabled={busy} onClick={save}>{busy ? '…' : t('Save')}</button>
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@ import Dexie from 'dexie'
 import { deltaFromInput, isCountUnit } from './nutrients'
 import { formatDateTime } from './time'
 import { bodyValues, fieldsToExtra } from './body'
+import { t } from './i18n'
 
 export const db = new Dexie('food-tracker')
 
@@ -331,7 +332,13 @@ export async function getConfig() {
   const c = { ...DEFAULT_CONFIG, ...(row?.value ?? {}) }
   // The pie was a dashboard style ('pie', with bars for the rest) before it was a switch.
   if (c.dashboard === 'pie') Object.assign(c, { dashboard: 'bars', pie: row.value.pie ?? true })
+  // The app's language is this device's own (i18n.js): a row of its own, like the selected user.
+  c.language = (await db.config.get('language'))?.value ?? 'en'
   return c
+}
+
+export function setLanguage(language) {
+  return db.config.put({ key: 'language', value: language })
 }
 
 export function saveConfig(value) {
@@ -354,7 +361,7 @@ export function setCurrentUser(id) {
 /** Deletes a user with their consumptions, targets and weigh-ins. The last user can't be deleted. */
 export async function deleteUser(id) {
   await db.transaction('rw', db.users, db.logs, db.targets, db.weights, db.notes, db.config, async () => {
-    if ((await db.users.count()) <= 1) throw new Error('The last user can\'t be deleted.')
+    if ((await db.users.count()) <= 1) throw new Error(t("The last user can't be deleted."))
     await db.logs.where('userId').equals(id).delete()
     await db.targets.where('userId').equals(id).delete()
     await db.weights.where('[userId+datetime]').between([id, Dexie.minKey], [id, Dexie.maxKey]).delete()
@@ -452,15 +459,16 @@ export function mergeEqualFoodsInDb() {
 }
 
 export function itemLabel(item) {
-  if (!item) return '(missing item)'
-  const attrs = (item.attributes ?? []).filter(([k]) => k).map(([k, v]) => `${k}: ${v}`)
-  return [item.name || '(unnamed)', item.brand && `· ${item.brand}`, attrs.length && `(${attrs.join(', ')})`]
+  if (!item) return t('(missing item)')
+  // `database` is the app's own key (external.js), so it's shown translated; the user's keys are shown as typed.
+  const attrs = (item.attributes ?? []).filter(([k]) => k).map(([k, v]) => `${k === 'database' ? t('database') : k}: ${v}`)
+  return [item.name || t('(unnamed)'), item.brand && `· ${item.brand}`, attrs.length && `(${attrs.join(', ')})`]
     .filter(Boolean)
     .join(' ')
 }
 
 /** A concoction's made-at time, shown as a tag beside its label (`MadeTag`), never as part of it. */
-export const madeText = (item) => (item?.madeAt ? `made ${formatDateTime(item.madeAt)}` : '')
+export const madeText = (item) => (item?.madeAt ? t('made {when}', { when: formatDateTime(item.madeAt) }) : '')
 
 // A concoction keeps `expiresAfterDays` after it's made. Unset (every food from before it existed) is the default,
 // read here rather than stored, so old databases and old exports follow it without a migration.
@@ -486,12 +494,13 @@ export function parseExpiryDays(text) {
 export const fold = (s) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
 
 /** What food searches match (folded): the label, plus the made-at time so a batch can be found by its date, plus a
- * CIQUAL food's French name. Kept for read-only foods, which don't change: there are ~11k of them to go through. */
+ * reference food's names in its other languages (CIQUAL's French, the English or Spanish not shown). Kept for read-only
+ * foods, which don't change: there are ~11k of them to go through. */
 const searchCache = new WeakMap()
 export function searchText(item) {
   let s = item.readOnly && searchCache.get(item)
   if (s) return s
-  s = fold(`${itemLabel(item)} ${madeText(item)} ${item.nameFr ?? ''}`)
+  s = fold(`${itemLabel(item)} ${madeText(item)} ${(item.otherNames ?? []).join(' ')}`)
   if (item.readOnly) searchCache.set(item, s)
   return s
 }

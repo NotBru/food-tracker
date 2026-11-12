@@ -10,6 +10,7 @@ import { pieFull, pieModel, pieReadout, piePalette, pieScene, rgbOf } from '../p
 import { Chevron, go, replace, saveFile, useToday } from '../components'
 import { getState } from '../backup'
 import { SyncStatus } from './Backup'
+import { plural, t } from '../i18n'
 
 // What the dashboard loads and its bars' layout are in dashboard.js (shared with the Android app's native screen).
 
@@ -119,7 +120,7 @@ function Budget({ row, val, range }) {
   const left = range.max - bounds(val)[1]
   return (
     <span className={`budget ${left > 0 ? '' : 'over'}`}>
-      Δ Budget: <b>{left < 0 ? '−' : ''}{fmt(Math.abs(left), 0)}</b> {row.unit}
+      {t('Δ Budget:')} <b>{left < 0 ? '−' : ''}{fmt(Math.abs(left), 0)}</b> {row.unit}
     </span>
   )
 }
@@ -206,7 +207,7 @@ function BudgetLane({ budget, width }) {
   const w = ws?.[0] ?? 0
   const mid = ((budget.from + budget.to) / 200) * width
   return (
-    <div className={`note-lane budget-lane ${budget.over ? 'over' : ''}`} title={budget.over ? 'Over the max by' : "Budget: what's left to eat"}>
+    <div className={`note-lane budget-lane ${budget.over ? 'over' : ''}`} title={budget.over ? t('Over the max by') : t("Budget: what's left to eat")}>
       <div className="budget-seg" style={{ left: `${budget.from}%`, width: `${budget.to - budget.from}%` }} />
       {width > 0 && <span ref={ref(0)} className="note budget-note" style={ws ? { left: Math.min(Math.max(mid - w / 2, 0), Math.max(0, width - w)) } : { visibility: 'hidden' }}>{budget.text}</span>}
     </div>
@@ -487,7 +488,7 @@ function PieCanvas({ model, val, total, steps, square, onPoint }) {
   return (
     <div className={`pie-box${square ? ' square' : ''}`} ref={boxRef}>
       <canvas ref={ref} onPointerMove={point} onPointerDown={point} onPointerLeave={(e) => e.pointerType === 'mouse' && onPoint(null)}
-        role="img" aria-label={square ? 'Calories up the side, the macros\' shares of them across' : 'Calories as the radius, the macros\' shares of them by angle'} />
+        role="img" aria-label={square ? t("Calories up the side, the macros' shares of them across") : t("Calories as the radius, the macros' shares of them by angle")} />
     </div>
   )
 }
@@ -558,30 +559,27 @@ function useFitPie(ref, on) {
 function ImportSheet({ file, onClose }) {
   const [busy, setBusy] = useState(false)
   async function run(merge) {
-    const synced = getState() ? ' It also replaces the data on every device synced with this backup.' : ''
-    if (!merge && !confirm(`Replace ALL data on this device with the file?${synced} This cannot be undone.`)) return
+    const synced = getState() ? t(' It also replaces the data on every device synced with this backup.') : ''
+    if (!merge && !confirm(t('Replace ALL data on this device with the file?{synced} This cannot be undone.', { synced }))) return
     setBusy(true)
     try {
       await importAll(await file.text(), { merge })
       onClose()
     } catch (err) {
-      alert(`Import failed: ${err.message}`)
+      alert(t('Import failed: {error}', { error: err.message }))
       setBusy(false)
     }
   }
   return (
     <div className="modal" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
-        <h2>Import {file.name}</h2>
-        <p className="small"><strong>Merge</strong> <span className="muted">adds the file's foods, consumptions, targets
-          and body measurements to what's here. A user with the same name is the same user; entries already here are
-          skipped; config stays as it is.</span></p>
-        <p className="small"><strong>Replace</strong> <span className="muted">deletes everything here and puts the
-          file's data in its place.</span></p>
+        <h2>{t('Import {name}', { name: file.name })}</h2>
+        <p className="small"><strong>{t('Merge')}</strong> <span className="muted">{t("adds the file's foods, consumptions, targets and body measurements to what's here. A user with the same name is the same user; entries already here are skipped; config stays as it is.")}</span></p>
+        <p className="small"><strong>{t('Replace')}</strong> <span className="muted">{t("deletes everything here and puts the file's data in its place.")}</span></p>
         <div className="row actions">
-          <button className="secondary" onClick={onClose}>Cancel</button>
-          <button className="danger" disabled={busy} onClick={() => run(false)}>Replace</button>
-          <button disabled={busy} onClick={() => run(true)}>Merge</button>
+          <button className="secondary" onClick={onClose}>{t('Cancel')}</button>
+          <button className="danger" disabled={busy} onClick={() => run(false)}>{t('Replace')}</button>
+          <button disabled={busy} onClick={() => run(true)}>{t('Merge')}</button>
         </div>
       </div>
     </div>
@@ -639,11 +637,11 @@ export default function Home({ query = {} }) {
     <div className="screen home">
       <div className="home-top">
         <SyncStatus />
-        {data?.showVersion && <span className="app-version" title="App version (when it was built)">v{versionStamp(__BUILT_AT__)}</span>}
+        {data?.showVersion && <span className="app-version" title={t('App version (when it was built)')}>v{versionStamp(__BUILT_AT__)}</span>}
         <button className="user-btn config-btn" onClick={() => go('/config')}>
-          <span aria-hidden="true">⚙️</span> Config
+          <span aria-hidden="true">⚙️</span> {t('Config')}
         </button>
-        <button className="user-btn" onClick={() => go('/users')} aria-label="Users">
+        <button className="user-btn" onClick={() => go('/users')} aria-label={t('Users')}>
           <span aria-hidden="true">👤</span> {data?.user.name ?? '…'}
         </button>
       </div>
@@ -652,20 +650,20 @@ export default function Home({ query = {} }) {
         onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
         onTouchEnd={onTouchEnd}
       >
-        <button className="icon" onClick={() => shift(-1)} aria-label="Previous window"><Chevron /></button>
+        <button className="icon" onClick={() => shift(-1)} aria-label={t('Previous window')}><Chevron /></button>
         <div>
-          <div className="win-name">{WINDOW_NAMES[win]}</div>
+          <div className="win-name">{t(WINDOW_NAMES[win])}</div>
           <div className="win-range">{data ? windowTitle(win, data.first, data.last, back) : '…'}</div>
           <div className="dots">{WINDOWS.map((w) => <span key={w} className={w === win ? 'on' : ''} />)}</div>
         </div>
-        <button className="icon" onClick={() => shift(1)} aria-label="Next window"><Chevron dir="right" /></button>
+        <button className="icon" onClick={() => shift(1)} aria-label={t('Next window')}><Chevron dir="right" /></button>
       </header>
       {win === 'daily' && (
         // Previous / next day; the middle button jumps back to today. No days after tomorrow.
         <div className="day-step">
-          <button className="icon" onClick={() => stepDay(-1)} aria-label="Previous day"><Chevron /></button>
-          <button className="secondary" onClick={() => setView(win)} disabled={back === 0}>Today</button>
-          <button className="icon" onClick={() => stepDay(1)} disabled={back < 0} aria-label="Next day"><Chevron dir="right" /></button>
+          <button className="icon" onClick={() => stepDay(-1)} aria-label={t('Previous day')}><Chevron /></button>
+          <button className="secondary" onClick={() => setView(win)} disabled={back === 0}>{t('Today')}</button>
+          <button className="icon" onClick={() => stepDay(1)} disabled={back < 0} aria-label={t('Next day')}><Chevron dir="right" /></button>
         </div>
       )}
 
@@ -681,13 +679,13 @@ export default function Home({ query = {} }) {
               return <Item key={r.key} row={r} val={val} range={data.targets[r.key]} adj={data.adj} onOpen={() => openBreakdown(r.key)} />
             })}
             <p className="muted">
-              {data.count} consumption{data.count === 1 ? '' : 's'}
-              {win !== 'daily' && ` · per day, over ${data.days} day${data.days === 1 ? '' : 's'} with consumptions`}
-              {data.failed > 0 && <span className="warn"> · {data.failed} couldn't be computed</span>}
+              {plural(data.count, '{n} consumption', '{n} consumptions')}
+              {win !== 'daily' && ` · ${plural(data.days, 'per day, over {n} day with consumptions', 'per day, over {n} days with consumptions')}`}
+              {data.failed > 0 && <span className="warn"> · {t("{n} couldn't be computed", { n: data.failed })}</span>}
             </p>
           </section>
         )}
-        <button className="secondary time-graphs" onClick={() => go('/graphs')}>Time graphs</button>
+        <button className="secondary time-graphs" onClick={() => go('/graphs')}>{t('Time graphs')}</button>
 
         {/* Two buttons; each opens its group above them, so they stay under the thumb. One group open at a time. */}
         <nav className="menu">
@@ -695,39 +693,39 @@ export default function Home({ query = {} }) {
             <div className="menu-group" id="menu-logs">
               {/* Looking at another day (past, or tomorrow): open that day's consumptions (+: add one on that day). */}
               <div className="menu-item">
-                <button onClick={() => go(`/consumptions${otherDay ? `?day=${otherDay}` : ''}`)}>Consumptions</button>
-                <button className="plus" onClick={() => go(`/consumptions?${otherDay ? `day=${otherDay}&` : ''}new`)} aria-label="Add consumption">+</button>
+                <button onClick={() => go(`/consumptions${otherDay ? `?day=${otherDay}` : ''}`)}>{t('Consumptions')}</button>
+                <button className="plus" onClick={() => go(`/consumptions?${otherDay ? `day=${otherDay}&` : ''}new`)} aria-label={t('Add consumption')}>+</button>
               </div>
               <div className="menu-item">
-                <button onClick={() => go('/targets')}>Targets</button>
-                <button className="plus" onClick={() => go('/targets?new')} aria-label="Add target">+</button>
+                <button onClick={() => go('/targets')}>{t('Targets')}</button>
+                <button className="plus" onClick={() => go('/targets?new')} aria-label={t('Add target')}>+</button>
               </div>
               <div className="menu-item">
-                <button onClick={() => go('/body')}>Body measurements</button>
-                <button className="plus" onClick={() => go('/body?new')} aria-label="Add body measurements">+</button>
+                <button onClick={() => go('/body')}>{t('Body measurements')}</button>
+                <button className="plus" onClick={() => go('/body?new')} aria-label={t('Add body measurements')}>+</button>
               </div>
               <div className="menu-item">
-                <button onClick={() => go('/notes')}>Temp notes</button>
-                <button className="plus" onClick={() => go('/notes?new')} aria-label="Add temp note">+</button>
+                <button onClick={() => go('/notes')}>{t('Temp notes')}</button>
+                <button className="plus" onClick={() => go('/notes?new')} aria-label={t('Add temp note')}>+</button>
               </div>
             </div>
           )}
           {group === 'database' && (
             <div className="menu-group" id="menu-database">
               <div className="menu-item">
-                <button onClick={() => go('/foods')}>Foods</button>
-                <button className="plus" onClick={() => go('/foods/new')} aria-label="Add food">+</button>
+                <button onClick={() => go('/foods')}>{t('Foods')}</button>
+                <button className="plus" onClick={() => go('/foods/new')} aria-label={t('Add food')}>+</button>
               </div>
               <div className="row">
-                <button className="secondary" onClick={() => fileRef.current.click()}>Import databases</button>
-                <button className="secondary" onClick={doExport}>Export databases</button>
+                <button className="secondary" onClick={() => fileRef.current.click()}>{t('Import databases')}</button>
+                <button className="secondary" onClick={doExport}>{t('Export databases')}</button>
               </div>
             </div>
           )}
           <div className="menu-toggles">
             {[['logs', 'Logs'], ['database', 'Database']].map(([g, label]) => (
               <button key={g} className={group === g ? 'open' : ''} onClick={() => toggle(g)} aria-expanded={group === g} aria-controls={`menu-${g}`}>
-                {label} <Chevron dir="right" />
+                {t(label)} <Chevron dir="right" />
               </button>
             ))}
           </div>

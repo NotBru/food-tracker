@@ -5,11 +5,12 @@ import { baseAmount, componentsTotal, concoctionsLeft, keepUnit, lastEntryError,
 import { NUTRIENTS, amountText, deltaFromInput, deltaText, emptyNutrients, measure, normalizeNumber } from './nutrients'
 import { CATEGORY_GROUPS } from './errors'
 import { addDays, dayBounds, toLocalInput, today } from './time'
+import { t, translated } from './i18n'
 
-export const CATEGORY_OPTIONS = [
+export const CATEGORY_OPTIONS = translated([
   { value: '', label: 'Unknown' },
   ...CATEGORY_GROUPS.flatMap(([, group, subs]) => subs.map(([code, label]) => ({ value: code, label, group }))),
-]
+], ['label', 'group'])
 
 // --- Nutrient form helpers ---------------------------------------------------
 
@@ -171,18 +172,20 @@ export const componentUnits = (ctx, c) => (c.itemId != null ? unitsFor(ctx, c.it
 // Amounts that are divided by (per amount, both sides of a unit) must keep their low end above 0.
 function divisorProblem(label, m) {
   if (!(m.value > 0) || m.delta < m.value) return null
-  return `${label}: ±${m.delta}${m.auto ? ' (from the digits)' : ''} would reach 0. Type more digits (e.g. ${m.value}.0) or set a smaller ±.`
+  return t('{label}: ±{delta}{auto} would reach 0. Type more digits (e.g. {example}) or set a smaller ±.', {
+    label, delta: m.delta, auto: m.auto ? t(' (from the digits)') : '', example: `${m.value}.0`,
+  })
 }
 
 /** What stops saving (an alert's text), or null. */
 export function saveProblem(form) {
   const rec = toRecord(form)
-  if (!rec.name) return 'Name is required.'
+  if (!rec.name) return t('Name is required.')
   return [
-    divisorProblem('Per amount', measure(form.amount, form.amountDelta, form.unit)),
+    divisorProblem(t('Per amount'), measure(form.amount, form.amountDelta, form.unit)),
     ...rec.units.flatMap((u) => [
-      divisorProblem(`Units: ${u.fromText} ${u.fromUnit}`, { value: u.fromAmount, delta: u.fromDelta, auto: u.fromDeltaAuto }),
-      divisorProblem(`Units: ${u.toText} ${u.toUnit}`, { value: u.toAmount, delta: u.toDelta, auto: u.toDeltaAuto }),
+      divisorProblem(`${t('Units')}: ${u.fromText} ${u.fromUnit}`, { value: u.fromAmount, delta: u.fromDelta, auto: u.fromDeltaAuto }),
+      divisorProblem(`${t('Units')}: ${u.toText} ${u.toUnit}`, { value: u.toAmount, delta: u.toDelta, auto: u.toDeltaAuto }),
     ]),
   ].find(Boolean) ?? null
 }
@@ -199,7 +202,7 @@ export async function save(ctx, form, initial) {
   return findEqualFood(ctx.list, rec)?.id ?? await db.items.add(rec)
 }
 
-export const DELETE_QUESTION = 'Delete this food? Consumptions and recipes using it will show it as missing.'
+export const deleteQuestion = () => t('Delete this food? Consumptions and recipes using it will show it as missing.')
 
 /** Other foods with this one's ID (name, brand, attributes, made-at) but different values: their ids, or null. */
 export const sameIdAs = (ctx, item) => conflictingFoods(ctx.list).get(item.id) ?? null

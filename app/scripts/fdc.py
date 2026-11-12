@@ -19,6 +19,9 @@ import re
 import sys
 from collections import Counter
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'es'))
+from merge import merge  # noqa: E402
+
 # FDC nutrient id -> app nutrient key (src/nutrients.js), [factor to the app's unit]. Alternatives come later in a
 # key's list and are used only when the earlier ones aren't given.
 NUTRIENTS = {
@@ -303,6 +306,7 @@ def main(foundation_dir, sr_dir):
     by = Counter(f[2] for f in out)
     print(f'{len(out)} foods ({by["f"]} Foundation, {by["s"]} SR Legacy) -> {os.path.normpath(dest)} '
           f'({os.path.getsize(dest) // 1024} KB)')
+    merge('fdc')  # the Spanish names (scripts/es/merge.py)
 
 
 if __name__ == '__main__':
